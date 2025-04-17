@@ -3,7 +3,7 @@ import 'package:memecloud/data/models/auth/create_user_request.dart';
 import 'package:memecloud/data/models/auth/sign_in_request.dart';
 import 'package:memecloud/data/sources/auth/auth_supabase_service.dart';
 import 'package:memecloud/domain/repositories/auth/auth_repository.dart';
-import 'package:memecloud/service_locator.dart';
+import 'package:memecloud/core/service_locator.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   @override

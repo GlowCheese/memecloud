@@ -1,36 +1,27 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:memecloud/presentation/view/404.dart';
+import 'package:memecloud/presentation/ui/gradient_background.dart';
+import 'package:memecloud/presentation/view/misc/404.dart';
 import 'package:memecloud/presentation/view/auth/log_in_view.dart';
 import 'package:memecloud/presentation/view/auth/sign_up_view.dart';
 import 'package:memecloud/presentation/view/home/home_view.dart';
 // import 'package:memecloud/presentation/view/play_music_view.dart';
-import 'package:memecloud/presentation/view/search_view.dart';
+import 'package:memecloud/presentation/view/search/search_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:memecloud/presentation/view/song_player/song_player_view.dart';
-import 'package:memecloud/presentation/view/start_view.dart';
-import 'package:memecloud/builders.dart';
-import 'package:memecloud/service_locator.dart' show initDependencies;
-import 'package:memecloud/theme.dart';
+import 'package:memecloud/presentation/view/auth/start_view.dart';
+import 'package:memecloud/core/service_locator.dart' show initDependencies;
+import 'package:memecloud/core/theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Page _transitionPage(Widget child, GoRouterState state) {
-//   return CustomTransitionPage(
-//     key: state.pageKey,
-//     child: child,
-//     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-//       final fade = CurvedAnimation(parent: animation, curve: Curves.easeInOut);
-
-//       final scale = Tween<double>(begin: 0.96, end: 1.0).animate(fade);
-
-//       return FadeTransition(
-//         opacity: fade,
-//         child: ScaleTransition(scale: scale, child: child),
-//       );
-//     },
-//   );
-// }
+Widget pageWithGradientBackground(
+  BuildContext context,
+  GoRouterState state,
+  Widget body,
+) {
+  return Stack(children: [GradientBackground(state.fullPath), body]);
+}
 
 final GoRouter _router = GoRouter(
   initialLocation:

@@ -6,7 +6,7 @@ import 'package:memecloud/data/models/song/song_dto.dart';
 import 'package:memecloud/presentation/ui/ui_wrapper.dart';
 import 'package:memecloud/presentation/view/song_player/bloc/song_player_cubit.dart';
 import 'package:memecloud/presentation/view/song_player/bloc/song_player_state.dart';
-import 'package:memecloud/service_locator.dart';
+import 'package:memecloud/core/service_locator.dart';
 
 class SongPlayerView extends StatelessWidget {
   final SongDto song;

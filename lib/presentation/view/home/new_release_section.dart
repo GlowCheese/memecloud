@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memecloud/domain/usecases/song/get_song_list.dart';
 import 'package:memecloud/presentation/view/song_player/bloc/song_player_cubit.dart';
-import 'package:memecloud/service_locator.dart';
+import 'package:memecloud/core/service_locator.dart';
 import 'package:dartz/dartz.dart' as dartz;
 
 class NewReleasesSection extends StatefulWidget {

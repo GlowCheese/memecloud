@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:memecloud/data/models/song/song_dto.dart';
 import 'package:memecloud/presentation/view/song_player/bloc/song_player_cubit.dart';
 import 'package:memecloud/presentation/view/song_player/bloc/song_player_state.dart';
-import 'package:memecloud/service_locator.dart';
+import 'package:memecloud/core/service_locator.dart';
 
 Widget getMiniPlayer() {
   final playerCubit = serviceLocator<SongPlayerCubit>();

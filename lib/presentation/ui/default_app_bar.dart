@@ -1,7 +1,7 @@
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/service_locator.dart';
+import 'package:memecloud/core/service_locator.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:memecloud/domain/usecases/auth/sign_out.dart';
 

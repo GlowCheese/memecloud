@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/data/models/auth/sign_in_request.dart';
 import 'package:memecloud/domain/usecases/auth/sign_in.dart';
-import 'package:memecloud/service_locator.dart';
+import 'package:memecloud/core/service_locator.dart';
 
 class LogInView extends StatefulWidget {
   const LogInView({super.key});
