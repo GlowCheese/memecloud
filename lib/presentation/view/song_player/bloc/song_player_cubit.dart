@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:memecloud/data/models/song/song_dto.dart';
 import 'package:memecloud/presentation/view/song_player/bloc/song_player_state.dart';
 
 
@@ -10,7 +11,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   Duration songDuration = Duration.zero;
   Duration songPosition = Duration.zero;
 
-  String? currentUrl;
+  SongDto? currentSong;
 
   late StreamSubscription<Duration> _positionSub;
   late StreamSubscription<Duration?> _durationSub;
@@ -28,12 +29,12 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     });
   }
 
-  Future<void> loadSong(String url) async {
+  Future<void> loadSong(SongDto song) async {
     try {
-      if (currentUrl != url) {
+      if (currentSong != song) {
         await audioPlayer.stop();
-        currentUrl = url;
-        await audioPlayer.setUrl(url);
+        currentSong = song;
+        await audioPlayer.setUrl(song.url);
         emit(SongPlayerLoaded());
       }
     } catch (e) {

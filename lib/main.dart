@@ -1,5 +1,4 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:memecloud/data/models/song/song_dto.dart';
 import 'package:memecloud/presentation/view/404.dart';
 import 'package:memecloud/presentation/view/auth/log_in_view.dart';
 import 'package:memecloud/presentation/view/auth/sign_up_view.dart';
@@ -55,10 +54,7 @@ final GoRouter _router = GoRouter(
         ),
         GoRoute(path: '/home', builder: (context, state) => HomeView()),
         GoRoute(path: '/search', builder: (context, state) => const SearchView()),
-        GoRoute(path: '/play_music', builder: (context, state) {
-          final song = state.extra as SongDto;
-          return SongPlayerView(song: song);
-        })
+        GoRoute(path: '/play_music', builder: (context, state) => SongPlayerView())
       ],
     ),
     GoRoute(path: '/startview', builder: (context, state) => StartView()),

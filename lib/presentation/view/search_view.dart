@@ -39,7 +39,7 @@ class _SearchViewState extends State<SearchView> {
           ),
         ),
       ),
-      bottomSheet: const MiniPlayer(),
+      bottomSheet: getMiniPlayer(),
     );
   }
 

@@ -8,16 +8,12 @@ import 'package:memecloud/presentation/view/song_player/bloc/song_player_cubit.d
 import 'package:memecloud/presentation/view/song_player/bloc/song_player_state.dart';
 import 'package:memecloud/service_locator.dart';
 
-class SongPlayerView extends StatefulWidget {
+class SongPlayerView extends StatelessWidget {
   final SongDto song;
 
-  const SongPlayerView({super.key, required this.song});
+  SongPlayerView({super.key})
+    : song = serviceLocator<SongPlayerCubit>().currentSong!;
 
-  @override
-  State<SongPlayerView> createState() => _SongPlayerViewState();
-}
-
-class _SongPlayerViewState extends State<SongPlayerView> {
   @override
   Widget build(BuildContext context) {
     final themeData = AdaptiveTheme.of(context).theme;
@@ -49,20 +45,30 @@ class _SongPlayerViewState extends State<SongPlayerView> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.song.title,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              widget.song.artist,
-              style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
-            ),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                song.title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 5),
+              Text(
+                song.artist,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
         ),
+        SizedBox(width: 20),
         IconButton(
           onPressed: () {},
           icon: Icon(
@@ -122,20 +128,18 @@ class _SongPlayerViewState extends State<SongPlayerView> {
                   shape: BoxShape.circle,
                   color: themeData.colorScheme.secondaryContainer,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: IconButton(
-                    onPressed: () async {
-                      await playerCubit.loadSong(widget.song.url);
-                      playerCubit.playOrPause();
-                    },
-                    iconSize: 30,
-                    color: themeData.colorScheme.onSecondaryContainer,
-                    icon: Icon(
-                      playerCubit.audioPlayer.playing
-                          ? Icons.pause
-                          : Icons.play_arrow,
-                    ),
+                child: IconButton(
+                  padding: const EdgeInsets.all(18.0),
+                  onPressed: () async {
+                    await playerCubit.loadSong(song);
+                    playerCubit.playOrPause();
+                  },
+                  iconSize: 30,
+                  color: themeData.colorScheme.onSecondaryContainer,
+                  icon: Icon(
+                    playerCubit.audioPlayer.playing
+                        ? Icons.pause
+                        : Icons.play_arrow,
                   ),
                 ),
               ),
@@ -167,7 +171,7 @@ class _SongPlayerViewState extends State<SongPlayerView> {
         borderRadius: BorderRadius.circular(28),
         image: DecorationImage(
           fit: BoxFit.cover,
-          image: NetworkImage(widget.song.coverUrl),
+          image: NetworkImage(song.coverUrl),
         ),
       ),
     );

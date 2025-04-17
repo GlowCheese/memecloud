@@ -25,7 +25,7 @@ class HomeView extends StatelessWidget {
           ],
         ),
       ),
-      bottomSheet: const MiniPlayer(),
+      bottomSheet: getMiniPlayer(),
     );
   }
 }
