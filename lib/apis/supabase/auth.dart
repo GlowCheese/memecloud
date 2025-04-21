@@ -9,6 +9,10 @@ class SupabaseAuthApi {
     return _client.auth.currentUser;
   }
 
+  Session? currentSession() {
+    return _client.auth.currentSession;
+  }
+
   Future<Either> signIn({
     required String email,
     required String password,
