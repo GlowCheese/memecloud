@@ -13,15 +13,7 @@ class SongSupabaseService extends SongService {
     try {
       final response = await _supabaseClient
         .from('songs')
-        .select('''
-      id,
-      title,
-      cover_url,
-      url,
-      artists!inner (
-      name
-      )
-      ''')
+        .select('id, title, cover_url, url, artists!inner (name)')
         .limit(4);
       final songsList = (response as List<dynamic>).map((song) {
         final songMap = {

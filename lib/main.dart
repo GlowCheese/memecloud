@@ -1,4 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:memecloud/demo.dart';
 import 'package:memecloud/presentation/ui/gradient_background.dart';
 import 'package:memecloud/presentation/view/misc/404.dart';
 import 'package:memecloud/presentation/view/auth/log_in_view.dart';
@@ -66,7 +67,14 @@ void main() async {
 
   await initDependencies();
 
-  runApp(const MyApp());
+  // ignore: dead_code
+  if (false) {
+    await demo();
+  }
+  // ignore: dead_code
+  else {
+    runApp(const MyApp());
+  }
 }
 
 class MyApp extends StatelessWidget {
