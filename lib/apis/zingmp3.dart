@@ -23,9 +23,37 @@ class ZingMp3Api {
     try {
       var resp = await _sendRequest('/song', params: {'id': id});
       resp = await _sendRequest('', baseUrl: resp.data['url']);
-      return Right(resp.data['data']['128']);
+      final data = resp.data['data'];
+      assert(resp.data['err'] == 0, 'Unexpected error code: ${resp.data['err']}');
+      return Right(data['128']);
     } catch (e, stackTrace) {
       log('ZingMp3API: Failed to fetch song url', stackTrace: stackTrace, level: 1000);
+      return Left(e);
+    }
+  }
+
+  Future<Either> fetchSongInfo(String id) async {
+    try {
+      final resp = await _sendRequest('/infosong', params: {'id': id});
+      Map data = resp.data['data'];
+      assert(resp.data['err'] == 0, 'Unexpected error code: ${resp.data['err']}');
+
+      assert(id == data['encodeId'], 'Expect id == encodeId, got $id == ${data['encodeId']}');
+      return Right(data);
+    } catch(e, stackTrace) {
+      log('ZingMp3API: Failed to fetch song info', stackTrace: stackTrace, level: 1000);
+      return Left(e);
+    }
+  }
+
+  Future<Either> search(String keyword) async {
+    try {
+      final resp = await _sendRequest('/search', params: {'keyword': keyword});
+      Map data = resp.data['data'];
+      assert(resp.data['err'] == 0, 'Unexpected error code: ${resp.data['err']}');
+      return Right(data);
+    } catch(e, stackTrace) {
+      log('ZingMp3API: Failed to search', stackTrace: stackTrace, level: 1000);
       return Left(e);
     }
   }

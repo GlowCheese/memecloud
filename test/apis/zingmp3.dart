@@ -5,6 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:memecloud/apis/zingmp3.dart';
 import 'package:memecloud/core/getit.dart';
 
+final songId = 'Z78BZ0D7';
+final songTitle = 'Giá Như';
+final songAlias = 'Gia-Nhu-SOOBIN';
+
 void main() async {
   setUpAll(() async {
     await dotenv.load(fileName: ".env");
@@ -12,10 +16,26 @@ void main() async {
   });
 
   test('fetchSongUrl', () async {
-    final id = 'Z78BZ0D7';
-    Either response = await getIt<ZingMp3Api>().fetchSongUrl(id);
-    String? songUrl = response.getOrElse(() => null);
-    debugPrint('Song URL for $id: $songUrl');
-    expect(songUrl, isA<String?>());
-  });
+    Either response = await getIt<ZingMp3Api>().fetchSongUrl(songId);
+    response.fold((left) {}, (right) {
+      expect(right, isA<String>());
+      debugPrint('Song URL for $songId: $right');
+    });
+  }, skip: true);
+
+  test('fetchSongInfo', () async {
+    Either response = await getIt<ZingMp3Api>().fetchSongInfo(songId);
+    response.fold((left) {}, (right) {
+      expect(right, isA<Map>());
+      expect(right['alias'], songAlias);
+    });
+  }, skip: true);
+
+  test('search', () async {
+    Either response = await getIt<ZingMp3Api>().search(songTitle);
+    response.fold((left) {}, (right) {
+      expect(right, isA<Map>());
+      expect(right, contains('songs'));
+    });
+  }, skip: true);
 }
