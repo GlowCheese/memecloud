@@ -1,28 +1,19 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:memecloud/demo.dart';
-import 'package:memecloud/presentation/ui/gradient_background.dart';
-import 'package:memecloud/presentation/view/misc/404.dart';
-import 'package:memecloud/presentation/view/auth/log_in_view.dart';
-import 'package:memecloud/presentation/view/auth/sign_up_view.dart';
-import 'package:memecloud/presentation/view/home/home_view.dart';
-// import 'package:memecloud/presentation/view/play_music_view.dart';
-import 'package:memecloud/presentation/view/search/search_view.dart';
+import 'package:memecloud/components/gradient_background.dart';
+import 'package:memecloud/pages/404.dart';
+import 'package:memecloud/pages/auth/signin_page.dart';
+import 'package:memecloud/pages/auth/signup_page.dart';
+import 'package:memecloud/pages/home/home_page.dart';
+import 'package:memecloud/pages/search/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:memecloud/presentation/view/song_player/song_player_view.dart';
-import 'package:memecloud/presentation/view/auth/start_view.dart';
-import 'package:memecloud/core/service_locator.dart' show initDependencies;
+import 'package:memecloud/pages/song/song_page.dart';
+import 'package:memecloud/pages/auth/start_page.dart';
+import 'package:memecloud/core/getit.dart' show setupLocator;
 import 'package:memecloud/core/theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-Widget pageWithGradientBackground(
-  BuildContext context,
-  GoRouterState state,
-  Widget body,
-) {
-  return Stack(children: [GradientBackground(state.fullPath), body]);
-}
 
 final GoRouter _router = GoRouter(
   initialLocation:
@@ -44,28 +35,20 @@ final GoRouter _router = GoRouter(
           path: '/404',
           builder: (context, state) => PageNotFound(routePath: '/404'),
         ),
-        GoRoute(path: '/home', builder: (context, state) => HomeView()),
-        GoRoute(path: '/search', builder: (context, state) => const SearchView()),
-        GoRoute(path: '/play_music', builder: (context, state) => SongPlayerView())
+        GoRoute(path: '/home', builder: (context, state) => HomePage()),
+        GoRoute(path: '/search', builder: (context, state) => const SearchPage()),
+        GoRoute(path: '/play_music', builder: (context, state) => SongPage())
       ],
     ),
-    GoRoute(path: '/startview', builder: (context, state) => StartView()),
+    GoRoute(path: '/startview', builder: (context, state) => StartPage()),
     GoRoute(path: '/signup', builder: (context, state) => SignUpView()),
-    GoRoute(path: '/login', builder: (context, state) => LogInView()),
+    GoRoute(path: '/login', builder: (context, state) => SignInPage()),
   ],
 );
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
   await dotenv.load(fileName: ".env");
-  await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL'].toString(),
-    anonKey: dotenv.env['SUPABASE_ANON_KEY'].toString(),
-    authOptions: FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
-  );
-
-  await initDependencies();
+  await setupLocator();
 
   // ignore: dead_code
   if (false) {
