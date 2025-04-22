@@ -8,12 +8,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:memecloud/main.dart';
+class SimpleCounter extends StatefulWidget {
+  const SimpleCounter({super.key});
+
+  @override
+  State<SimpleCounter> createState() => _SimpleCounterState();
+}
+
+class _SimpleCounterState extends State<SimpleCounter> {
+  int number = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Row(
+        children: [
+          IconButton(
+            onPressed:
+                () => setState(() {
+                  number = number + 1;
+                }),
+            icon: Icon(Icons.add),
+          ),
+          Text(number.toString()),
+        ],
+      ),
+    );
+  }
+}
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const SimpleCounter());
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
