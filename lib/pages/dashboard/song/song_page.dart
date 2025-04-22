@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/models/song_model.dart';
-import 'package:memecloud/components/ui_wrapper.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/core/getit.dart';
+
+
 
 class SongPage extends StatelessWidget {
   final SongModel song;
@@ -18,7 +19,7 @@ class SongPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeData = AdaptiveTheme.of(context).theme;
 
-    return UiWrapper(
+    return Scaffold(
       appBar: _appBar(context),
       body: SingleChildScrollView(
         physics: BouncingScrollPhysics(),

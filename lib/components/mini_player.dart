@@ -34,7 +34,7 @@ class _MiniPlayer extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        context.push('/play_music');
+        context.push('/song_play');
       },
       child: Container(
         height: 70,

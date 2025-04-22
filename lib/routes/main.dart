@@ -6,9 +6,8 @@ import 'package:memecloud/pages/404.dart';
 import 'package:memecloud/pages/auth/signin_page.dart';
 import 'package:memecloud/pages/auth/signup_page.dart';
 import 'package:memecloud/pages/auth/start_page.dart';
-import 'package:memecloud/pages/home/home_page.dart';
-import 'package:memecloud/pages/search/search_page.dart';
-import 'package:memecloud/pages/song/song_page.dart';
+import 'package:memecloud/pages/dashboard/dashboard_page.dart';
+import 'package:memecloud/pages/dashboard/song/song_page.dart';
 
 GoRouter? router;
 
@@ -16,7 +15,7 @@ GoRouter getRouter() {
   router ??= GoRouter(
     initialLocation:
         getIt<SupabaseAuthApi>().currentSession() != null
-            ? '/home'
+            ? '/dashboard'
             : '/startview',
     errorBuilder: (context, state) {
       return pageWithGradientBackground(
@@ -28,17 +27,19 @@ GoRouter getRouter() {
     routes: [
       ShellRoute(
         builder: pageWithGradientBackground,
-        routes: [
+        routes: [ 
           GoRoute(
             path: '/404',
             builder: (context, state) => PageNotFound(routePath: '/404'),
           ),
-          GoRoute(path: '/home', builder: (context, state) => HomePage()),
           GoRoute(
-            path: '/search',
-            builder: (context, state) => const SearchPage(),
+            path: '/song_play',
+            builder: (context, state) => SongPage()
           ),
-          GoRoute(path: '/play_music', builder: (context, state) => SongPage()),
+          GoRoute(
+            path: '/dashboard',
+            builder: (context, state) => DashboardPage()
+          )
         ],
       ),
       GoRoute(path: '/startview', builder: (context, state) => StartPage()),

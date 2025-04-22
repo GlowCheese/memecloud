@@ -56,7 +56,7 @@ class TopArtistsSection extends StatelessWidget {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.blue.withOpacity(0.2),
+                            color: Colors.blue.withValues(alpha: 0.2),
                             spreadRadius: 1,
                             blurRadius: 6,
                             offset: const Offset(0, 2),

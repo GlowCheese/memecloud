@@ -13,10 +13,10 @@ final getIt = GetIt.instance;
 Future<void> setupLocator() async {
   // supabase
   await initializeSupabase();
-  final _supabaseApi = SupabaseApi();
-  getIt.registerSingleton<SupabaseApi>(_supabaseApi);
-  getIt.registerSingleton<SupabaseAuthApi>(_supabaseApi.auth);
-  getIt.registerSingleton<SupabaseSongsApi>(_supabaseApi.songs);
+  final supabaseApi = SupabaseApi();
+  getIt.registerSingleton<SupabaseApi>(supabaseApi);
+  getIt.registerSingleton<SupabaseAuthApi>(supabaseApi.auth);
+  getIt.registerSingleton<SupabaseSongsApi>(supabaseApi.songs);
 
   // oh, you're approaching me?
   final (dio, cookieJar) = await createDioWithPersistentCookies();
