@@ -24,15 +24,24 @@ jobs:
       - name: Create dummy .env file
         run: echo . > .env
 
+      - name: Set up Android SDK
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-11-jdk
+          mkdir -p "$ANDROID_HOME/cmdline-tools/latest/bin"
+          curl -fsSL https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -o cmdline-tools.zip
+          unzip cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools/latest
+          rm cmdline-tools.zip
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+          sdkmanager --update
+      
       - name: Accept Android SDK licenses
         run: yes | sdkmanager --licenses
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Run unit tests
-        run: flutter test
-
+      - run: flutter test
       - run: flutter build apk
       - run: flutter build appbundle
 
