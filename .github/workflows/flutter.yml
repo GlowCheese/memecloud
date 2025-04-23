@@ -28,11 +28,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y openjdk-11-jdk
-          mkdir -p "$ANDROID_HOME/cmdline-tools/latest/bin"
+          mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
           curl -fsSL https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -o cmdline-tools.zip
           unzip cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools/latest
           rm cmdline-tools.zip
           export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+          echo 'export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"' >> $GITHUB_ENV
           sdkmanager --update
       
       - name: Accept Android SDK licenses
