@@ -20,6 +20,7 @@ jobs:
 
       - run: flutter --version
 
+      - run: echo . > .env  # dummy file
       - run: flutter pub get
       - run: flutter test
       - run: flutter build apk
