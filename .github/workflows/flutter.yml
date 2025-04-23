@@ -18,15 +18,18 @@ jobs:
           channel: stable
           flutter-version-file: pubspec.yaml
 
-      - run: flutter --version
+      - name: Check Flutter version
+        run: flutter --version
 
-      - run: flutter pub get
+      - name: Create dummy .env file
+        run: echo . > .env
+
+      - name: Accept Android Licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+
+      - name: Install dependencies
+        run: flutter pub get
+
       - run: flutter test
       - run: flutter build apk
       - run: flutter build appbundle
-
-      # Your project will need to have tests in test/ and a dependency on
-      # package:test for this step to succeed. Note that Flutter projects will
-      # want to change this to 'flutter test'.
-      - name: Run tests
-        run: dart test
