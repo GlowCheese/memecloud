@@ -18,11 +18,21 @@ jobs:
           channel: stable
           flutter-version-file: pubspec.yaml
 
-      - run: flutter --version
+      - name: Check Flutter version
+        run: flutter --version
 
-      - run: echo . > .env  # dummy file
-      - run: flutter pub get
-      - run: flutter test
+      - name: Create dummy .env file
+        run: echo . > .env
+
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run unit tests
+        run: flutter test
+
       - run: flutter build apk
       - run: flutter build appbundle
 
