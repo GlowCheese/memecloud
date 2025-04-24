@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/default_app_bar.dart';
+import 'package:memecloud/components/default_appbar.dart';
 import 'package:memecloud/components/home/top_artist.dart';
 import 'package:memecloud/components/home/featured_section.dart';
 import 'package:memecloud/components/home/new_release_section.dart';

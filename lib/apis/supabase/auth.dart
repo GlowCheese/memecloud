@@ -56,8 +56,4 @@ class SupabaseAuthApi {
   Future<void> signOut() async {
     await _client.auth.signOut();
   }
-
-  Stream<AuthState> authStateChanges() {
-    return _client.auth.onAuthStateChange;
-  }
 }

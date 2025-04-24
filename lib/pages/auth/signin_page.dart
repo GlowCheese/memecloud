@@ -143,6 +143,11 @@ class _SignInPageState extends State<SignInPage> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () async {
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => const Center(child: CircularProgressIndicator()),
+                    );
                     var result = await getIt<SupabaseAuthApi>().signIn(email: emailController.text, password: passwordController.text);
                     result.fold(
                       (l) {
@@ -250,7 +255,6 @@ class _SignInPageState extends State<SignInPage> {
             iconColor == null
                 ? null
                 : ColorFilter.mode(iconColor, BlendMode.srcIn),
-        // color: iconColor,
         fit: BoxFit.scaleDown,
       ),
     );

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:memecloud/apis/supabase/songs.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
-import 'package:memecloud/components/default_app_bar.dart';
+import 'package:memecloud/components/default_appbar.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
 

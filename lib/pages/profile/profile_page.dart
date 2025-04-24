@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:memecloud/apis/supabase/auth.dart';
 import 'package:memecloud/core/getit.dart';
 
@@ -56,7 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           child: ClipOval(
             child: Image.network(
-              'https://example.com/avatar.jpg', // Replace with your image URL
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuAqi5s1FOI-T3qoE_2HD1avj69-gvq2cvIw&s', // Replace with your image URL
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Icon(
@@ -224,12 +225,12 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder:
           (context) => _LogoutConfirmationDialog(
-            onConfirm: () => _performLogout(context),
+            onConfirm: () async => await _performLogout(context),
           ),
     );
   }
 
-  void _performLogout(BuildContext context) {
+  Future<void> _performLogout(BuildContext context) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     showDialog(
@@ -239,13 +240,11 @@ class _ProfilePageState extends State<ProfilePage> {
     );
 
     try {
-      getIt<SupabaseAuthApi>().signOut();
-
-      Navigator.pop(context); // Đóng loading
+      context.go('/signin');
+      await getIt<SupabaseAuthApi>().signOut();
     } catch (e) {
-      Navigator.pop(context); // Đóng loading
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Đăng xuất thất bại: ${e.toString()}')),
+        SnackBar(content: Text('Đăng xuất thất bại: $e')),
       );
     }
   }

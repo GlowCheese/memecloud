@@ -31,7 +31,6 @@ class SupabaseSongsApi {
               'thumbnail_url': song['thumbnail_url'],
               'artist': song['song_artists'][0]['artist']['name'],
             };
-            print(songMap);
             return SongModel.fromJson(songMap);
           }).toList();
       return Right(songsList);

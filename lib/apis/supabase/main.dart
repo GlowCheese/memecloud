@@ -16,7 +16,7 @@ Future<void> initializeSupabase() async {
 }
 
 class SupabaseApi {
-  late final SupabaseClient _client;
+  late final SupabaseClient client;
   late final SupabaseAuthApi auth;
   late final SupabaseSongsApi songs;
   late final SupabaseProfileApi profile;
@@ -26,9 +26,9 @@ class SupabaseApi {
       _initialized,
       'initializeSupabase() must be called before this constructor!',
     );
-    _client = Supabase.instance.client;
-    auth = SupabaseAuthApi(_client);
-    songs = SupabaseSongsApi(_client);
-    profile = SupabaseProfileApi(_client);
+    client = Supabase.instance.client;
+    auth = SupabaseAuthApi(client);
+    songs = SupabaseSongsApi(client);
+    profile = SupabaseProfileApi(client);
   }
 }

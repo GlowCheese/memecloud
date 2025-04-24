@@ -320,7 +320,10 @@ class _SignUpPageState extends State<SignUpPage> {
       ),
       child: SvgPicture.asset(
         assetPath,
-        color: iconColor,
+        colorFilter:
+            iconColor == null
+                ? null
+                : ColorFilter.mode(iconColor, BlendMode.srcIn),
         fit: BoxFit.scaleDown,
       ),
     );

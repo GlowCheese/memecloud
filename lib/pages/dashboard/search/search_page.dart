@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:memecloud/components/default_app_bar.dart';
+import 'package:memecloud/components/default_appbar.dart';
 
 
 Map getSearchPage(BuildContext context) {
