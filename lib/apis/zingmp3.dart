@@ -20,7 +20,7 @@ class ZingMp3Api {
     return await dio.get('$baseUrl$endPoint', queryParameters: params);
   }
 
-  Future<Either> fetchSongUrl(String id) async {
+  Future<Either<String, String>> fetchSongUrl(String id) async {
     try {
       var resp = await _sendRequest('/song', params: {'id': id});
       resp = await _sendRequest('', baseUrl: resp.data['url']);
@@ -28,12 +28,12 @@ class ZingMp3Api {
       assert(resp.data['err'] == 0, 'Unexpected error code: ${resp.data['err']}');
       return Right(data['128']);
     } catch (e, stackTrace) {
-      log('ZingMp3API: Failed to fetch song url', stackTrace: stackTrace, level: 1000);
-      return Left(e);
+      log('ZingMp3API: Failed to fetch song url: $e', stackTrace: stackTrace, level: 1000);
+      return Left(e.toString());
     }
   }
 
-  Future<Either> fetchSongInfo(String id) async {
+  Future<Either<String, dynamic>> fetchSongInfo(String id) async {
     try {
       final resp = await _sendRequest('/infosong', params: {'id': id});
       Map data = resp.data['data'];
@@ -43,11 +43,11 @@ class ZingMp3Api {
       return Right(data);
     } catch(e, stackTrace) {
       log('ZingMp3API: Failed to fetch song info', stackTrace: stackTrace, level: 1000);
-      return Left(e);
+      return Left(e.toString());
     }
   }
 
-  Future<Either> search(String keyword) async {
+  Future<Either<String, dynamic>> search(String keyword) async {
     try {
       final resp = await _sendRequest('/search', params: {'keyword': keyword});
       Map data = resp.data['data'];
@@ -55,7 +55,33 @@ class ZingMp3Api {
       return Right(data);
     } catch(e, stackTrace) {
       log('ZingMp3API: Failed to search', stackTrace: stackTrace, level: 1000);
-      return Left(e);
+      return Left(e.toString());
+    }
+  }
+
+  Future<Either<String, Map<String, List<Map>>>> home({int page = 0}) async {
+    try {
+      final resp = await _sendRequest('/home', params: {'page': page});
+      List data = resp.data['data']['items'];
+      assert(resp.data['err'] == 0, 'Unexpected error code: ${resp.data['err']}');
+      
+      List<Map> resItems = [];
+
+      for (var item in data) {
+        if (item['sectionType'] == 'new-release') {
+          item['items'] = item['items']['all'];
+          resItems.add(item);
+        }
+        else if (item['sectionType'] == 'newReleaseChart') {
+          resItems.add(item);
+        }
+      }
+
+      return Right({'items': resItems});
+
+    } catch(e, stackTrace) {
+      log('ZingMp3API: Failed to search', stackTrace: stackTrace, level: 1000);
+      return Left(e.toString());
     }
   }
 }

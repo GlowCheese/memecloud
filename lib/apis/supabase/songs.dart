@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dartz/dartz.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -6,6 +8,9 @@ class SupabaseSongsApi {
   final SupabaseClient _client;
   SupabaseSongsApi(this._client);
 
+  @Deprecated(
+    "This fetch the whole songs info repository and should not be used.",
+  )
   Future<Either> fetchSongList() async {
     final userId = _client.auth.currentUser!.id;
 
@@ -15,7 +20,6 @@ class SupabaseSongsApi {
           .select('''
             id,
             title,
-            url,
             thumbnail_url,
             song_artists(
               artist:artists (
@@ -30,13 +34,13 @@ class SupabaseSongsApi {
             final isLiked = (song['liked_songs'] as List).any(
               (like) => like['user_id'] == userId,
             );
-            final artist = (song['song_artists'] as List).isNotEmpty
-              ? song['song_artists'][0]['artist']['name']
-              : 'Unknown';
+            final artist =
+                (song['song_artists'] as List).isNotEmpty
+                    ? song['song_artists'][0]['artist']['name']
+                    : 'Unknown';
             final songMap = {
               'id': song['id'],
               'title': song['title'],
-              'url': song['url'],
               'thumbnail_url': song['thumbnail_url'],
               'artist': artist,
               'is_liked': isLiked,
@@ -49,18 +53,58 @@ class SupabaseSongsApi {
     }
   }
 
-  Future<Either> setLike(String songId, bool isLiked) async {
+  Future<Either<String, String>> saveSongInfo(SongModel song) async {
+    try {
+      await _client
+          .from('songs')
+          .upsert(
+            {
+              {
+                'id': song.id,
+                'title': song.title,
+                'thumbnail_url': song.thumbnailUrl,
+                'release_date': song.releaseDate.toUtc().toIso8601String(),
+              },
+            },
+            onConflict: 'id',
+            ignoreDuplicates: true,
+          );
+      // await _client.from('song_artists').upsert({'song_id': song.id, 'artist_id': })
+      return Right("ok");
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  Future<Either<String, bool>> getIsLiked(String songId) async {
+    try {
+      final userId = _client.auth.currentUser!.id;
+      final response =
+          await _client
+              .from('liked_songs')
+              .select('song_id')
+              .eq('user_id', userId)
+              .eq('song_id', songId)
+              .maybeSingle();
+      return Right(response != null);
+    } catch (e, stackTrace) {
+      log('Failed to getIsLiked: $e', stackTrace: stackTrace, level: 1000);
+      return Left(e.toString());
+    }
+  }
+
+  Future<Either> setIsLiked(String songId, bool isLiked) async {
     try {
       final userId = _client.auth.currentUser!.id;
 
       if (isLiked) {
-          await _client
-              .from('liked_songs')
-              .upsert(
-                {'user_id': userId, 'song_id': songId},
-                onConflict: 'user_id,song_id',
-                ignoreDuplicates: true,
-              );
+        await _client
+            .from('liked_songs')
+            .upsert(
+              {'user_id': userId, 'song_id': songId},
+              onConflict: 'user_id,song_id',
+              ignoreDuplicates: true,
+            );
       } else {
         await _client.from('liked_songs').delete().match({
           'user_id': userId,
@@ -95,9 +139,10 @@ class SupabaseSongsApi {
       final songsList =
           (response as List).map((item) {
             final song = item['songs'];
-            final artist = (song['song_artists'] as List).isNotEmpty
-              ? song['song_artists'][0]['artist']['name']
-              : 'Unknown';
+            final artist =
+                (song['song_artists'] as List).isNotEmpty
+                    ? song['song_artists'][0]['artist']['name']
+                    : 'Unknown';
             final songMap = {
               'id': song['id'],
               'title': song['title'],

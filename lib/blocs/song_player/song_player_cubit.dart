@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:memecloud/apis/supabase/cache.dart';
+import 'package:memecloud/apis/supabase/songs.dart';
+import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
-
 
 class SongPlayerCubit extends Cubit<SongPlayerState> {
   AudioPlayer audioPlayer = AudioPlayer();
@@ -33,8 +35,13 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     try {
       if (currentSong != song) {
         await audioPlayer.stop();
+        getIt<SupabaseSongsApi>().saveSongInfo(song);
+        await song.loadIsLiked();
         currentSong = song;
-        await audioPlayer.setUrl(song.url);
+        final songPath = await getIt<SupabaseCacheApi>().getSongPath(song.id);
+        songPath.fold((l) => throw l, (r) async {
+          await audioPlayer.setFilePath(r);
+        });
         emit(SongPlayerLoaded());
       }
     } catch (e) {
