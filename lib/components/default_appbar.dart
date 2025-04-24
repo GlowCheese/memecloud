@@ -1,8 +1,6 @@
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/apis/supabase/auth.dart';
-import 'package:memecloud/core/getit.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 
 AppBar defaultAppBar(BuildContext context, {required String title}) {
@@ -42,10 +40,7 @@ AppBar defaultAppBar(BuildContext context, {required String title}) {
       ),
       SizedBox(width: 4),
       GestureDetector(
-        onTap: () async {
-          context.go('/startview');
-          await getIt<SupabaseAuthApi>().signOut();
-        },
+        onTap: () => context.push('/profile'),
         child: CircleAvatar(
           backgroundImage: NetworkImage(
             'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuAqi5s1FOI-T3qoE_2HD1avj69-gvq2cvIw&s',

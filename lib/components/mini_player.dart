@@ -1,4 +1,5 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -46,8 +47,8 @@ class _MiniPlayer extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(horizontal: 16),
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(6),
-            child: Image.network(
-              song.coverUrl,
+            child: CachedNetworkImage(
+              imageUrl: song.thumbnailUrl,
               width: 50,
               height: 50,
               fit: BoxFit.cover,

@@ -7,7 +7,7 @@ import 'package:memecloud/routes/main.dart';
 
 
 void main() async {
-  await dotenv.load(fileName: ".env");
+  await dotenv.load();
   await setupLocator();
 
   runApp(const MyApp());

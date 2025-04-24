@@ -18,7 +18,7 @@ class StartPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => context.push('/login'),
+              onPressed: () => context.push('/signin'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white
               ),

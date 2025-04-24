@@ -22,7 +22,7 @@ void main() async {
       expect(right, isA<String>());
       debugPrint('Song URL for $songId: $right');
     });
-  }, skip: true);
+  });
 
   test('fetchSongInfo', () async {
     Either response = await getIt<ZingMp3Api>().fetchSongInfo(songId);
@@ -30,7 +30,7 @@ void main() async {
       expect(right, isA<Map>());
       expect(right['alias'], songAlias);
     });
-  }, skip: true);
+  });
 
   test('search', () async {
     Either response = await getIt<ZingMp3Api>().search(songTitle);
@@ -38,5 +38,5 @@ void main() async {
       expect(right, isA<Map>());
       expect(right, contains('songs'));
     });
-  }, skip: true);
+  });
 }
