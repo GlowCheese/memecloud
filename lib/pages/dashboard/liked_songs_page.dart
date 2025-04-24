@@ -71,7 +71,7 @@ Widget _buildSongListItem(BuildContext context, SongModel song) {
       leading: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: CachedNetworkImage(
-          imageUrl: song.thumbnailUrl!,
+          imageUrl: song.thumbnailUrl,
           width: 56,
           height: 56,
           fit: BoxFit.cover,

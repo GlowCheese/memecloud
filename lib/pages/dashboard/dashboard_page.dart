@@ -52,7 +52,7 @@ class _DashboardPageState extends State<DashboardPage> {
         BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
         BottomNavigationBarItem(
           icon: Icon(Icons.favorite),
-          label: 'Liked Songs',
+          label: 'Liked',
         ),
       ],
       currentIndex: currentPageIndex,

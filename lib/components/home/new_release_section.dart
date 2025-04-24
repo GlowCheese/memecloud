@@ -4,6 +4,7 @@ import 'package:memecloud/apis/supabase/songs.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:dartz/dartz.dart' as dartz;
+import 'package:memecloud/models/song_model.dart';
 
 class NewReleasesSection extends StatefulWidget {
   const NewReleasesSection({super.key});
@@ -47,7 +48,7 @@ class _NewReleasesSectionState extends State<NewReleasesSection> {
     );
   }
 
-  ListView _songListDisplay(songs) {
+  ListView _songListDisplay(List<SongModel> songs) {
     return ListView.builder(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
@@ -60,7 +61,7 @@ class _NewReleasesSectionState extends State<NewReleasesSection> {
     );
   }
 
-  Padding _songCardDisplay(BuildContext context, song) {
+  Padding _songCardDisplay(BuildContext context, SongModel song) {
     return Padding(
       padding: const EdgeInsets.only(right: 16),
       child: GestureDetector(
@@ -85,7 +86,7 @@ class _NewReleasesSectionState extends State<NewReleasesSection> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: CachedNetworkImage(
-                  imageUrl: song.thumbnailUrl!,
+                  imageUrl: song.thumbnailUrl,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => CircularProgressIndicator(),
                   errorWidget: (context, url, err) => const Icon(Icons.error),
@@ -96,7 +97,7 @@ class _NewReleasesSectionState extends State<NewReleasesSection> {
             SizedBox(
               width: 140,
               child: Text(
-                song.title ?? 'Unknown',
+                song.title,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -107,7 +108,7 @@ class _NewReleasesSectionState extends State<NewReleasesSection> {
             SizedBox(
               width: 140,
               child: Text(
-                song.artist ?? 'Unknown',
+                song.artist,
                 style: const TextStyle(fontSize: 14),
                 overflow: TextOverflow.ellipsis,
               ),

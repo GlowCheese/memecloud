@@ -7,13 +7,23 @@ import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/core/getit.dart';
 
-
-
-class SongPage extends StatelessWidget {
+class SongPage extends StatefulWidget {
   final SongModel song;
 
-  SongPage({super.key})
-    : song = getIt<SongPlayerCubit>().currentSong!;
+  SongPage({super.key}) : song = getIt<SongPlayerCubit>().currentSong!;
+
+  @override
+  State<SongPage> createState() => _SongPageState();
+}
+
+class _SongPageState extends State<SongPage> {
+  late bool isSongLiked;
+
+  @override
+  void initState() {
+    super.initState();
+    isSongLiked = widget.song.isLiked;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +61,7 @@ class SongPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                song.title,
+                widget.song.title,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
@@ -60,7 +70,7 @@ class SongPage extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               Text(
-                song.artist,
+                widget.song.artist,
                 style: const TextStyle(
                   fontWeight: FontWeight.w400,
                   fontSize: 14,
@@ -71,11 +81,16 @@ class SongPage extends StatelessWidget {
         ),
         SizedBox(width: 20),
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            widget.song.isLiked = !isSongLiked;
+            setState(() {
+              isSongLiked = !isSongLiked;
+            });
+          },
           icon: Icon(
-            Icons.favorite_outline_outlined,
+            isSongLiked ? Icons.favorite: Icons.favorite_outline_outlined,
             size: 30,
-            color: Colors.white,
+            color: isSongLiked ? Colors.red.shade400 : Colors.white,
           ),
         ),
       ],
@@ -94,61 +109,77 @@ class SongPage extends StatelessWidget {
         if (state is SongPlayerLoaded) {
           return Column(
             children: [
-              SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  activeTrackColor: Colors.blueAccent,
-                  inactiveTrackColor: Colors.grey.shade700,
-                  trackHeight: 4.0,
-
-                  thumbColor: Colors.white,
-                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 7.0),
-                  overlayColor: Colors.blue.withAlpha(32),
-                  overlayShape: RoundSliderOverlayShape(overlayRadius: 16.0),
-
-                  trackShape: RoundedRectSliderTrackShape(),
-                ),
-                child: Slider(
-                  value: playerCubit.songPosition.inSeconds.toDouble(),
-                  min: 0,
-                  max: playerCubit.songDuration.inSeconds.toDouble(),
-                  onChanged: (value) {
-                    playerCubit.seekTo(Duration(seconds: value.toInt()));
-                  },
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(_formatDuration(playerCubit.songPosition)),
-                  Text(_formatDuration(playerCubit.songDuration)),
-                ],
-              ),
+              _progressSlider(context, playerCubit),
+              _progressPosition(playerCubit),
               SizedBox(height: 20),
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: themeData.colorScheme.secondaryContainer,
-                ),
-                child: IconButton(
-                  padding: const EdgeInsets.all(18.0),
-                  onPressed: () async {
-                    await playerCubit.loadSong(song);
-                    playerCubit.playOrPause();
-                  },
-                  iconSize: 30,
-                  color: themeData.colorScheme.onSecondaryContainer,
-                  icon: Icon(
-                    playerCubit.audioPlayer.playing
-                        ? Icons.pause
-                        : Icons.play_arrow,
-                  ),
-                ),
-              ),
+              _songControllerButtons(themeData, playerCubit),
             ],
           );
         }
         return Container();
       },
+    );
+  }
+
+  Container _songControllerButtons(
+    ThemeData themeData,
+    SongPlayerCubit playerCubit,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: themeData.colorScheme.secondaryContainer,
+      ),
+      child: IconButton(
+        padding: const EdgeInsets.all(18.0),
+        onPressed: () async {
+          await playerCubit.loadSong(widget.song);
+          playerCubit.playOrPause();
+        },
+        iconSize: 30,
+        color: themeData.colorScheme.onSecondaryContainer,
+        icon: Icon(
+          playerCubit.audioPlayer.playing ? Icons.pause : Icons.play_arrow,
+        ),
+      ),
+    );
+  }
+
+  Row _progressPosition(SongPlayerCubit playerCubit) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(_formatDuration(playerCubit.songPosition)),
+        Text(_formatDuration(playerCubit.songDuration)),
+      ],
+    );
+  }
+
+  SliderTheme _progressSlider(
+    BuildContext context,
+    SongPlayerCubit playerCubit,
+  ) {
+    return SliderTheme(
+      data: SliderTheme.of(context).copyWith(
+        activeTrackColor: Colors.blueAccent,
+        inactiveTrackColor: Colors.grey.shade700,
+        trackHeight: 4.0,
+
+        thumbColor: Colors.white,
+        thumbShape: RoundSliderThumbShape(enabledThumbRadius: 7.0),
+        overlayColor: Colors.blue.withAlpha(32),
+        overlayShape: RoundSliderOverlayShape(overlayRadius: 16.0),
+
+        trackShape: RoundedRectSliderTrackShape(),
+      ),
+      child: Slider(
+        value: playerCubit.songPosition.inSeconds.toDouble(),
+        min: 0,
+        max: playerCubit.songDuration.inSeconds.toDouble(),
+        onChanged: (value) {
+          playerCubit.seekTo(Duration(seconds: value.toInt()));
+        },
+      ),
     );
   }
 
@@ -172,7 +203,7 @@ class SongPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(28),
         image: DecorationImage(
           fit: BoxFit.cover,
-          image: NetworkImage(song.thumbnailUrl!),
+          image: NetworkImage(widget.song.thumbnailUrl),
         ),
       ),
     );

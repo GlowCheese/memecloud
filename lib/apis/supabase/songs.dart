@@ -7,6 +7,8 @@ class SupabaseSongsApi {
   SupabaseSongsApi(this._client);
 
   Future<Either> fetchSongList() async {
+    final userId = _client.auth.currentUser!.id;
+
     try {
       final response = await _client
           .from('songs')
@@ -19,17 +21,25 @@ class SupabaseSongsApi {
               artist:artists (
                 name
               )
-            )
+            ),
+            liked_songs(user_id)
           ''')
           .limit(4);
       final songsList =
           (response as List<dynamic>).map((song) {
+            final isLiked = (song['liked_songs'] as List).any(
+              (like) => like['user_id'] == userId,
+            );
+            final artist = (song['song_artists'] as List).isNotEmpty
+              ? song['song_artists'][0]['artist']['name']
+              : 'Unknown';
             final songMap = {
               'id': song['id'],
               'title': song['title'],
               'url': song['url'],
               'thumbnail_url': song['thumbnail_url'],
-              'artist': song['song_artists'][0]['artist']['name'],
+              'artist': artist,
+              'is_liked': isLiked,
             };
             return SongModel.fromJson(songMap);
           }).toList();
@@ -39,38 +49,25 @@ class SupabaseSongsApi {
     }
   }
 
-  Future<Either> toggleLike(String songId) async {
+  Future<Either> setLike(String songId, bool isLiked) async {
     try {
-      final userId = _client.auth.currentUser?.id;
-      if (userId == null) {
-        return Left('User not authenticated');
-      }
+      final userId = _client.auth.currentUser!.id;
 
-      final likedResponse =
+      if (isLiked) {
           await _client
               .from('liked_songs')
-              .select()
-              .eq('song_id', songId)
-              .eq('user_id', userId)
-              .maybeSingle();
-
-      if (likedResponse == null) {
-        final response =
-            await _client.from('liked_songs').insert({
-              'song_id': songId,
-              'user_id': userId,
-            }).select();
-        return Right(response);
+              .upsert(
+                {'user_id': userId, 'song_id': songId},
+                onConflict: 'user_id,song_id',
+                ignoreDuplicates: true,
+              );
       } else {
-        final response =
-            await _client
-                .from('liked_songs')
-                .delete()
-                .eq('song_id', songId)
-                .eq('user_id', userId)
-                .select();
-        return Right(response);
+        await _client.from('liked_songs').delete().match({
+          'user_id': userId,
+          'song_id': songId,
+        });
       }
+      return Right("ok");
     } catch (e) {
       return Left(e.toString());
     }
@@ -78,26 +75,36 @@ class SupabaseSongsApi {
 
   Future<Either> getLikedSongsList() async {
     try {
-      final userId = _client.auth.currentUser?.id;
-      if (userId == null) {
-        return Left('User not authenticated');
-      }
+      final userId = _client.auth.currentUser!.id;
 
       final response = await _client
           .from('liked_songs')
-          .select('songs(*)')
+          .select('''songs(
+            id,
+            title,
+            url,
+            thumbnail_url,
+            song_artists(
+              artist:artists (
+                name
+              )
+            )
+          )''')
           .eq('user_id', userId);
 
       final songsList =
           (response as List).map((item) {
             final song = item['songs'];
+            final artist = (song['song_artists'] as List).isNotEmpty
+              ? song['song_artists'][0]['artist']['name']
+              : 'Unknown';
             final songMap = {
               'id': song['id'],
               'title': song['title'],
-              'artist': song['artist'],
-              'cover_url': song['cover_url'],
-              'audio_url': song['audio_url'],
-              'is_liked': true, // Since these are liked songs
+              'url': song['url'],
+              'thumbnail_url': song['thumbnail_url'],
+              'artist': artist,
+              'is_liked': true,
             };
             return SongModel.fromJson(songMap);
           }).toList();
