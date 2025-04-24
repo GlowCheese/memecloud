@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class TopArtistsSection extends StatelessWidget {
@@ -65,8 +66,8 @@ class TopArtistsSection extends StatelessWidget {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(50),
-                        child: Image.network(
-                          artists[index]['image']!,
+                        child: CachedNetworkImage(
+                          imageUrl: artists[index]['image']!,
                           width: 80,
                           height: 80,
                           fit: BoxFit.cover,

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:memecloud/apis/supabase/songs.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
@@ -63,11 +64,7 @@ class _NewReleasesSectionState extends State<NewReleasesSection> {
     return Padding(
       padding: const EdgeInsets.only(right: 16),
       child: GestureDetector(
-        onTap: () {
-          final playerCubit = getIt<SongPlayerCubit>();
-          playerCubit.loadSong(song);
-          playerCubit.playOrPause();
-        },
+        onTap: () async => await getIt<SongPlayerCubit>().loadAndPlay(song),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -87,11 +84,11 @@ class _NewReleasesSectionState extends State<NewReleasesSection> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  song.coverUrl ?? '',
+                child: CachedNetworkImage(
+                  imageUrl: song.thumbnailUrl!,
                   fit: BoxFit.cover,
-                  errorBuilder:
-                      (context, error, stackTrace) => const Icon(Icons.error),
+                  placeholder: (context, url) => CircularProgressIndicator(),
+                  errorWidget: (context, url, err) => const Icon(Icons.error),
                 ),
               ),
             ),

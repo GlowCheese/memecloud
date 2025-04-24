@@ -172,7 +172,7 @@ class SongPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(28),
         image: DecorationImage(
           fit: BoxFit.cover,
-          image: NetworkImage(song.coverUrl),
+          image: NetworkImage(song.thumbnailUrl!),
         ),
       ),
     );
