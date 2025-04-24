@@ -5,27 +5,31 @@ class SongModel {
   final String id;
   final String title;
   final String artist;
-  final String url;
-  bool _isLiked;
   final String thumbnailUrl;
-
-  final int? releaseDate;
+  final DateTime releaseDate;
+  bool? _isLiked;
 
   SongModel({
     required this.id,
     required this.title,
     required this.artist,
-    required this.url,
-    required bool isLiked,
+    required this.releaseDate,
     required this.thumbnailUrl,
-    this.releaseDate,
+    bool? isLiked,
   }) : _isLiked = isLiked;
 
-  bool get isLiked => _isLiked;
+  bool get isLiked => _isLiked!;
   set isLiked(bool newValue) {
     assert(_isLiked != newValue);
+    if (_isLiked != null) {
+      getIt<SupabaseSongsApi>().setIsLiked(id, newValue);
+    }
     _isLiked = newValue;
-    getIt<SupabaseSongsApi>().setLike(id, newValue);
+  }
+  Future<bool> loadIsLiked() async {
+    final resp = await getIt<SupabaseSongsApi>().getIsLiked(id);
+    resp.fold((l) => throw l, (r) => _isLiked = r);
+    return _isLiked!;
   }
 
   factory SongModel.fromJson(Map<String, dynamic> json) {
@@ -33,9 +37,9 @@ class SongModel {
       id: json['id'] as String,
       title: json['title'] as String,
       artist: json['artist'] as String,
-      url: json['url'] as String,
-      isLiked: json['is_liked'],
-      thumbnailUrl: json['thumbnail_url'] as String,
+      thumbnailUrl: json['thumbnailUrl'] as String,
+      releaseDate: DateTime.fromMillisecondsSinceEpoch(1000 * (json['releaseDate'] as int)),
+      isLiked: json['is_liked'] as bool?,
     );
   }
 }

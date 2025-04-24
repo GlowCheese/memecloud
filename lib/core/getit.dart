@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:memecloud/apis/supabase/auth.dart';
+import 'package:memecloud/apis/supabase/cache.dart';
+import 'package:memecloud/apis/supabase/profile.dart';
 import 'package:memecloud/apis/supabase/songs.dart';
 import 'package:memecloud/apis/zingmp3.dart';
 import 'package:memecloud/core/dio_init.dart';
@@ -17,6 +19,8 @@ Future<void> setupLocator() async {
   getIt.registerSingleton<SupabaseApi>(supabaseApi);
   getIt.registerSingleton<SupabaseAuthApi>(supabaseApi.auth);
   getIt.registerSingleton<SupabaseSongsApi>(supabaseApi.songs);
+  getIt.registerSingleton<SupabaseProfileApi>(supabaseApi.profile);
+  getIt.registerSingleton<SupabaseCacheApi>(supabaseApi.cache);
 
   // oh, you're approaching me?
   final (dio, cookieJar) = await createDioWithPersistentCookies();

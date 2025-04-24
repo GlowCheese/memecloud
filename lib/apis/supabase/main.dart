@@ -1,5 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:memecloud/apis/supabase/auth.dart';
+import 'package:memecloud/apis/supabase/cache.dart';
 import 'package:memecloud/apis/supabase/profile.dart';
 import 'package:memecloud/apis/supabase/songs.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -20,6 +21,7 @@ class SupabaseApi {
   late final SupabaseAuthApi auth;
   late final SupabaseSongsApi songs;
   late final SupabaseProfileApi profile;
+  late final SupabaseCacheApi cache;
 
   SupabaseApi() {
     assert(
@@ -30,5 +32,6 @@ class SupabaseApi {
     auth = SupabaseAuthApi(client);
     songs = SupabaseSongsApi(client);
     profile = SupabaseProfileApi(client);
+    cache = SupabaseCacheApi(client);
   }
 }

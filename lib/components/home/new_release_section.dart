@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:memecloud/apis/supabase/songs.dart';
+import 'package:memecloud/apis/supabase/cache.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:dartz/dartz.dart' as dartz;
@@ -14,20 +14,10 @@ class NewReleasesSection extends StatefulWidget {
 }
 
 class _NewReleasesSectionState extends State<NewReleasesSection> {
-  final _getSongList = getIt<SupabaseSongsApi>().fetchSongList();
+  final _getSongList = getIt<SupabaseCacheApi>().getSongsForHome();
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _header(),
-        SizedBox(height: 200, child: _songListFutureDisplay()),
-      ],
-    );
-  }
-
-  FutureBuilder<dartz.Either<dynamic, dynamic>> _songListFutureDisplay() {
     return FutureBuilder<dartz.Either>(
       future: _getSongList,
       builder: (context, snapshot) {
@@ -42,22 +32,35 @@ class _NewReleasesSectionState extends State<NewReleasesSection> {
         final songsEither = snapshot.data!;
         return songsEither.fold(
           (error) => Center(child: Text('Error: $error')),
-          (songs) => _songListDisplay(songs),
+          (songLists) => _songListDisplay(songLists),
         );
       },
     );
   }
 
-  ListView _songListDisplay(List<SongModel> songs) {
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: songs.length,
-      itemBuilder: (context, index) {
-        final song = songs[index];
-        return _songCardDisplay(context, song);
-      },
+  // TODO: make a model for this songLists instead of using List<Map>!
+  Column _songListDisplay(List songLists) {
+    final Map selectedList = songLists[0];
+    final List songList = selectedList['items'];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _header(selectedList['title']),
+        SizedBox(
+          height: 200,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: songList.length,
+            itemBuilder: (context, index) {
+              final song = songList[index];
+              return _songCardDisplay(context, song);
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -119,14 +122,14 @@ class _NewReleasesSectionState extends State<NewReleasesSection> {
     );
   }
 
-  Padding _header() {
+  Padding _header(String title) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
-            'Bài hát mới',
+          Text(
+            title,
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           TextButton(onPressed: () {}, child: const Text('Xem tất cả')),
