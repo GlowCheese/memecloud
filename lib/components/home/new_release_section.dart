@@ -1,3 +1,4 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:memecloud/apis/supabase/cache.dart';
@@ -6,20 +7,29 @@ import 'package:memecloud/core/getit.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:memecloud/models/song_model.dart';
 
-class NewReleasesSection extends StatefulWidget {
-  const NewReleasesSection({super.key});
-
-  @override
-  State<NewReleasesSection> createState() => _NewReleasesSectionState();
+Padding _header(String title) {
+  return Padding(
+    padding: const EdgeInsets.only(left: 16, right: 16, bottom: 5),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        TextButton(onPressed: () {}, child: const Text('Xem tất cả')),
+      ],
+    ),
+  );
 }
 
-class _NewReleasesSectionState extends State<NewReleasesSection> {
-  final _getSongList = getIt<SupabaseCacheApi>().getSongsForHome();
+class NewReleasesSection extends StatelessWidget {
+  const NewReleasesSection({super.key});
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<dartz.Either>(
-      future: _getSongList,
+      future: getIt<SupabaseCacheApi>().getSongsForHome(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -32,23 +42,41 @@ class _NewReleasesSectionState extends State<NewReleasesSection> {
         final songsEither = snapshot.data!;
         return songsEither.fold(
           (error) => Center(child: Text('Error: $error')),
-          (songLists) => _songListDisplay(songLists),
+          (songLists) => _SongListDisplay(songLists)
         );
       },
     );
   }
+}
 
-  // TODO: make a model for this songLists instead of using List<Map>!
-  Column _songListDisplay(List songLists) {
-    final Map selectedList = songLists[0];
-    final List songList = selectedList['items'];
+class _SongListDisplay extends StatefulWidget {
+  final List songLists;
 
+  const _SongListDisplay(this.songLists);
+
+  @override
+  State<_SongListDisplay> createState() => _SongListDisplayState();
+}
+
+class _SongListDisplayState extends State<_SongListDisplay> {
+  late String title;
+  late List songList;
+
+  @override
+  void initState() {
+    super.initState();
+    title = widget.songLists[0]['title'];
+    songList = widget.songLists[0]['items'];
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _header(selectedList['title']),
-        SizedBox(
-          height: 200,
+        _header(title),
+        ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: 214),
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
@@ -65,26 +93,26 @@ class _NewReleasesSectionState extends State<NewReleasesSection> {
   }
 
   Padding _songCardDisplay(BuildContext context, SongModel song) {
+    final colorScheme = AdaptiveTheme.of(context).theme.colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(right: 16),
       child: GestureDetector(
-        onTap: () async => await getIt<SongPlayerCubit>().loadAndPlay(context, song),
+        onTap: () async {
+          if (!(await getIt<SongPlayerCubit>().loadAndPlay(context, song))) {
+            setState(() {
+              songList.remove(song);
+            });
+          }
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 140,
-              height: 140,
+              width: 160,
+              height: 160,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.blue.withValues(alpha: 0.2),
-                    spreadRadius: 1,
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
@@ -98,12 +126,12 @@ class _NewReleasesSectionState extends State<NewReleasesSection> {
             ),
             const SizedBox(height: 8),
             SizedBox(
-              width: 140,
+              width: 160,
               child: Text(
                 song.title,
                 style: const TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w700,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -112,28 +140,16 @@ class _NewReleasesSectionState extends State<NewReleasesSection> {
               width: 140,
               child: Text(
                 song.artistsNames,
-                style: const TextStyle(fontSize: 14),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurface.withAlpha(156),
+                  fontWeight: FontWeight.w400,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Padding _header(String title) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          TextButton(onPressed: () {}, child: const Text('Xem tất cả')),
-        ],
       ),
     );
   }

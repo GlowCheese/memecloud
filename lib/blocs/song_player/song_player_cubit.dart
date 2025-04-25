@@ -90,10 +90,12 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     emit(SongPlayerLoaded());
   }
 
-  Future<void> loadAndPlay(BuildContext context, SongModel song) async {
+  Future<bool> loadAndPlay(BuildContext context, SongModel song) async {
     if (await loadSong(context, song)) {
       playOrPause();
+      return true;
     }
+    return false;
   }
 
   void seekTo(Duration position) {
