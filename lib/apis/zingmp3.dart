@@ -1,6 +1,9 @@
 import 'dart:developer';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:memecloud/apis/supabase/songs.dart';
+import 'package:memecloud/core/getit.dart';
 
 
 // ignore: constant_identifier_names
@@ -20,15 +23,22 @@ class ZingMp3Api {
     return await dio.get('$baseUrl$endPoint', queryParameters: params);
   }
 
-  Future<Either<String, String>> fetchSongUrl(String id) async {
+  Future<Either<String, String?>> fetchSongUrl(String id) async {
     try {
       var resp = await _sendRequest('/song', params: {'id': id});
+      debugPrint('Response 1: ${resp.data}');
       resp = await _sendRequest('', baseUrl: resp.data['url']);
       final data = resp.data['data'];
+      debugPrint('Response 2: ${resp.data}');
+      if (resp.data['err'] == -1150) {
+        // Bài hát chỉ dành cho tài khoản VIP, PRI
+        getIt<SupabaseSongsApi>().addSongToVip(id);
+        return Right(null);
+      }
       assert(resp.data['err'] == 0, 'Unexpected error code: ${resp.data['err']}');
       return Right(data['128']);
     } catch (e, stackTrace) {
-      log('ZingMp3API: Failed to fetch song url: $e', stackTrace: stackTrace, level: 1000);
+      log('ZingMp3API: Failed to fetch song url: $e.', stackTrace: stackTrace, level: 1000);
       return Left(e.toString());
     }
   }

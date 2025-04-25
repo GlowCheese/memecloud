@@ -8,12 +8,10 @@ import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
 
 Map getLikedSongsPage(BuildContext context) {
-  final getSongList = getIt<SupabaseSongsApi>().getLikedSongsList();
-
   return {
     'appBar': defaultAppBar(context, title: 'Liked Songs'),
     'body': FutureBuilder<dartz.Either>(
-      future: getSongList,
+      future: getIt<SupabaseSongsApi>().getLikedSongsList(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -100,11 +98,11 @@ Widget _buildSongListItem(BuildContext context, SongModel song) {
           IconButton(
             icon: const Icon(Icons.play_arrow),
             onPressed:
-                () async => await getIt<SongPlayerCubit>().loadAndPlay(song),
+                () async => await getIt<SongPlayerCubit>().loadAndPlay(context, song),
           ),
         ],
       ),
-      onTap: () async => await getIt<SongPlayerCubit>().loadAndPlay(song),
+      onTap: () async => await getIt<SongPlayerCubit>().loadAndPlay(context, song),
     ),
   );
 }

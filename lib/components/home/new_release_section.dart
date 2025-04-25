@@ -68,7 +68,7 @@ class _NewReleasesSectionState extends State<NewReleasesSection> {
     return Padding(
       padding: const EdgeInsets.only(right: 16),
       child: GestureDetector(
-        onTap: () async => await getIt<SongPlayerCubit>().loadAndPlay(song),
+        onTap: () async => await getIt<SongPlayerCubit>().loadAndPlay(context, song),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

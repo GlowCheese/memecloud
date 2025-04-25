@@ -16,7 +16,7 @@ Widget getMiniPlayer() {
       if (playerCubit.currentSong == null) {
         return SizedBox();
       } else {
-        return _MiniPlayer(playerCubit);
+        return _MiniPlayer(playerCubit, state);
       }
     },
   );
@@ -24,9 +24,12 @@ Widget getMiniPlayer() {
 
 class _MiniPlayer extends StatelessWidget {
   final SongModel song;
+  final bool isSongLoaded;
   final SongPlayerCubit playerCubit;
 
-  _MiniPlayer(this.playerCubit) : song = playerCubit.currentSong!;
+  _MiniPlayer(this.playerCubit, SongPlayerState state)
+    : song = playerCubit.currentSong!,
+      isSongLoaded = state is SongPlayerLoaded;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +38,7 @@ class _MiniPlayer extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        context.push('/song_play');
+        if (isSongLoaded) context.push('/song_play');
       },
       child: Container(
         height: 70,
@@ -89,7 +92,9 @@ class _MiniPlayer extends StatelessWidget {
                   color: colorScheme.onTertiaryContainer,
                 ),
                 onPressed: () {
-                  playerCubit.playOrPause();
+                  if (isSongLoaded) {
+                    playerCubit.playOrPause();
+                  }
                 },
               ),
               IconButton(

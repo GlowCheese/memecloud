@@ -21,6 +21,7 @@ class SupabaseSongsApi {
             id,
             title,
             thumbnail_url,
+            release_date,
             song_artists(
               artist:artists (
                 name
@@ -37,12 +38,13 @@ class SupabaseSongsApi {
             final artist =
                 (song['song_artists'] as List).isNotEmpty
                     ? song['song_artists'][0]['artist']['name']
-                    : 'Unknown';
+                    : 'Unknown Artist';
             final songMap = {
               'id': song['id'],
               'title': song['title'],
               'thumbnail_url': song['thumbnail_url'],
               'artist': artist,
+              'release_date': song['release_date'],
               'is_liked': isLiked,
             };
             return SongModel.fromJson(songMap);
@@ -55,23 +57,23 @@ class SupabaseSongsApi {
 
   Future<Either<String, String>> saveSongInfo(SongModel song) async {
     try {
+      final releaseDate = song.releaseDate.toUtc().toIso8601String();
       await _client
           .from('songs')
           .upsert(
             {
-              {
-                'id': song.id,
-                'title': song.title,
-                'thumbnail_url': song.thumbnailUrl,
-                'release_date': song.releaseDate.toUtc().toIso8601String(),
-              },
+              'id': song.id,
+              'title': song.title,
+              'thumbnail_url': song.thumbnailUrl,
+              'release_date': releaseDate,
             },
             onConflict: 'id',
             ignoreDuplicates: true,
           );
       // await _client.from('song_artists').upsert({'song_id': song.id, 'artist_id': })
       return Right("ok");
-    } catch (e) {
+    } catch (e, stackTrace) {
+      log("Failed to save song info: $e", stackTrace: stackTrace, level: 1000);
       return Left(e.toString());
     }
   }
@@ -126,8 +128,8 @@ class SupabaseSongsApi {
           .select('''songs(
             id,
             title,
-            url,
             thumbnail_url,
+            release_date,
             song_artists(
               artist:artists (
                 name
@@ -142,20 +144,56 @@ class SupabaseSongsApi {
             final artist =
                 (song['song_artists'] as List).isNotEmpty
                     ? song['song_artists'][0]['artist']['name']
-                    : 'Unknown';
+                    : 'Unknown Artist';
             final songMap = {
               'id': song['id'],
               'title': song['title'],
-              'url': song['url'],
               'thumbnail_url': song['thumbnail_url'],
               'artist': artist,
+              'release_date': song['release_date'],
               'is_liked': true,
             };
             return SongModel.fromJson(songMap);
           }).toList();
 
       return Right(songsList);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      log("Failed to get liked songs: $e", stackTrace: stackTrace, level: 1000);
+      return Left(e.toString());
+    }
+  }
+
+  Future<Either<String, List>> filterNonVipSongs(List songsIds) async {
+    try {
+      final resp = await _client
+          .from('vip_songs')
+          .select('song_id')
+          .inFilter('song_id', songsIds);
+
+      final vipSongIds = resp.map((e) => e['song_id']).toSet();
+      final filtered =
+          songsIds.where((id) => !vipSongIds.contains(id)).toList();
+
+      return Right(filtered);
+    } catch (e, stackTrace) {
+      log('Failed to fetch vip songs: $e', stackTrace: stackTrace, level: 1000);
+      return Left(e.toString());
+    }
+  }
+
+  Future<Either<String, bool>> isNonVipSong(String songId) async {
+    final check = await filterNonVipSongs([songId]);
+    return check.fold((l) => Left(l), (r) => Right(r.isNotEmpty));
+  }
+
+  Future<Either<String, String>> addSongToVip(String songId) async {
+    try {
+      await _client.from('vip_songs').upsert({
+        'song_id': songId,
+      }, ignoreDuplicates: true);
+      return Right("ok");
+    } catch (e, stackTrace) {
+      log('Failed to add song to vip: $e', stackTrace: stackTrace, level: 1000);
       return Left(e.toString());
     }
   }
