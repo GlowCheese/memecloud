@@ -111,7 +111,7 @@ class _NewReleasesSectionState extends State<NewReleasesSection> {
             SizedBox(
               width: 140,
               child: Text(
-                song.artist,
+                song.artistsNames,
                 style: const TextStyle(fontSize: 14),
                 overflow: TextOverflow.ellipsis,
               ),

@@ -1,79 +1,98 @@
 import 'dart:developer';
 
 import 'package:dartz/dartz.dart';
+import 'package:memecloud/apis/supabase/main.dart';
+import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/utils/common.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseSongsApi {
   final SupabaseClient _client;
   SupabaseSongsApi(this._client);
 
-  @Deprecated(
-    "This fetch the whole songs info repository and should not be used.",
-  )
-  Future<Either> fetchSongList() async {
-    final userId = _client.auth.currentUser!.id;
-
+  Future<Either<String, String>> saveSongInfo(SongModel song) async {
+    final releaseDate = song.releaseDate.toUtc().toIso8601String();
     try {
-      final response = await _client
-          .from('songs')
-          .select('''
-            id,
-            title,
-            thumbnail_url,
-            release_date,
-            song_artists(
-              artist:artists (
-                name
-              )
-            ),
-            liked_songs(user_id)
-          ''')
-          .limit(4);
-      final songsList =
-          (response as List<dynamic>).map((song) {
-            final isLiked = (song['liked_songs'] as List).any(
-              (like) => like['user_id'] == userId,
-            );
-            final artist =
-                (song['song_artists'] as List).isNotEmpty
-                    ? song['song_artists'][0]['artist']['name']
-                    : 'Unknown Artist';
-            final songMap = {
-              'id': song['id'],
-              'title': song['title'],
-              'thumbnail_url': song['thumbnail_url'],
-              'artist': artist,
-              'release_date': song['release_date'],
-              'is_liked': isLiked,
-            };
-            return SongModel.fromJson(songMap);
-          }).toList();
-      return Right(songsList);
-    } catch (e) {
+      try {
+        await _client.from('songs').insert({
+          'id': song.id,
+          'title': song.title,
+          'artists_names': song.artistsNames,
+          'thumbnail_url': song.thumbnailUrl,
+          'release_date': releaseDate,
+        });
+        return (await saveSongArtists(
+          song.id,
+          song.artists,
+        )).fold((l) => throw l, (r) => Right("ok"));
+      } on PostgrestException {
+        return Right("ok");
+      }
+    } catch (e, stackTrace) {
+      log("Failed to save song info: $e", stackTrace: stackTrace, level: 1000);
       return Left(e.toString());
     }
   }
 
-  Future<Either<String, String>> saveSongInfo(SongModel song) async {
+  Future<Either<String, String>> saveSongArtists(
+    String songId,
+    List<ArtistModel> artists,
+  ) async {
     try {
-      final releaseDate = song.releaseDate.toUtc().toIso8601String();
+      (await saveArtistsInfo(artists)).fold((l) => throw l, (r) {});
+      try {
+        await _client
+            .from('song_artists')
+            .insert(
+              artists.map(
+                (artist) => {'song_id': songId, 'artist_id': artist.id},
+              ).toList(),
+            );
+        return Right("ok");
+      } on PostgrestException {
+        return Right("ok");
+      }
+    } catch (e, stackTrace) {
+      log(
+        "Failed to save artist info: $e",
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      return Left(e.toString());
+    }
+  }
+
+  Future<Either<String, String>> saveArtistsInfo(
+    List<ArtistModel> artists,
+  ) async {
+    try {
       await _client
-          .from('songs')
+          .from('artists')
           .upsert(
-            {
-              'id': song.id,
-              'title': song.title,
-              'thumbnail_url': song.thumbnailUrl,
-              'release_date': releaseDate,
-            },
-            onConflict: 'id',
-            ignoreDuplicates: true,
+            artists
+                .map(
+                  (artist) => ignoreNullValuesOfMap({
+                    'id': artist.id,
+                    'name': artist.name,
+                    'alias': artist.alias,
+                    'thumbnail_url': artist.thumbnailUrl,
+                    'playlist_id': artist.playlistId,
+
+                    'realname': artist.realname,
+                    'bio': artist.biography,
+                    'short_bio': artist.shortBiography,
+                  }),
+                )
+                .toList(),
           );
-      // await _client.from('song_artists').upsert({'song_id': song.id, 'artist_id': })
       return Right("ok");
     } catch (e, stackTrace) {
-      log("Failed to save song info: $e", stackTrace: stackTrace, level: 1000);
+      log(
+        "Failed to save artist info: $e",
+        stackTrace: stackTrace,
+        level: 1000,
+      );
       return Left(e.toString());
     }
   }
@@ -126,34 +145,19 @@ class SupabaseSongsApi {
       final response = await _client
           .from('liked_songs')
           .select('''songs(
-            id,
-            title,
-            thumbnail_url,
-            release_date,
+            *,
             song_artists(
-              artist:artists (
-                name
-              )
+              artist:artists (*)
             )
           )''')
           .eq('user_id', userId);
 
       final songsList =
           (response as List).map((item) {
-            final song = item['songs'];
-            final artist =
-                (song['song_artists'] as List).isNotEmpty
-                    ? song['song_artists'][0]['artist']['name']
-                    : 'Unknown Artist';
-            final songMap = {
-              'id': song['id'],
-              'title': song['title'],
-              'thumbnail_url': song['thumbnail_url'],
-              'artist': artist,
-              'release_date': song['release_date'],
-              'is_liked': true,
-            };
-            return SongModel.fromJson(songMap);
+            return SongModel.fromJson<SupabaseApi>(
+              item['songs'],
+              isLiked: true,
+            );
           }).toList();
 
       return Right(songsList);

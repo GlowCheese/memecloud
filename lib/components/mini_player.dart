@@ -37,8 +37,11 @@ class _MiniPlayer extends StatelessWidget {
     final colorScheme = themeData.colorScheme;
 
     return GestureDetector(
-      onTap: () {
-        if (isSongLoaded) context.push('/song_play');
+      onTap: () async {
+        if (isSongLoaded) {
+          await song.loadIsLiked();
+          context.push('/song_play');
+        }
       },
       child: Container(
         height: 70,
@@ -67,7 +70,7 @@ class _MiniPlayer extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
-            song.artist,
+            song.artistsNames,
             style: TextStyle(
               color: colorScheme.onTertiaryContainer,
               fontSize: 14,

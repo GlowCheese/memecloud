@@ -62,12 +62,12 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
         (r) async {
           if (!r) return !context.mounted || onSongFailedToLoad(context);
           getIt<SupabaseSongsApi>().saveSongInfo(song);
-          await song.loadIsLiked();
           final songPath = await getIt<SupabaseCacheApi>().getSongPath(song.id);
           return songPath.fold((l) => onSongFailedToLoad(context), (r) async {
             if (r == null) {
               return onSongFailedToLoad(context);
             } else {
+              debugPrint('Song path: $r');
               await audioPlayer.setFilePath(r);
               emit(SongPlayerLoaded());
               return true;

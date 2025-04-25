@@ -70,7 +70,7 @@ class _SongPageState extends State<SongPage> {
               ),
               const SizedBox(height: 5),
               Text(
-                widget.song.artist,
+                widget.song.artistsNames,
                 style: const TextStyle(
                   fontWeight: FontWeight.w400,
                   fontSize: 14,
