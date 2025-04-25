@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:memecloud/apis/supabase/songs.dart';
 import 'package:memecloud/apis/zingmp3.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
@@ -44,7 +45,7 @@ class SupabaseCacheApi {
     }
   }
 
-  Future<Either<String, String>> getSongPath(String songId) async {
+  Future<Either<String, String?>> getSongPath(String songId) async {
     final dir = await getTemporaryDirectory();
     final fileName = '$songId.mp3';
     final filePath = '${dir.path}/$fileName';
@@ -52,52 +53,75 @@ class SupabaseCacheApi {
 
     if (await file.exists()) return Right(filePath);
 
-    try {
-      var bytes = await _client.storage.from('songs').download(fileName);
-      await file.writeAsBytes(bytes);
-      return Right(filePath);
-    } on StorageException catch (_) {
-      var resp = await getIt<ZingMp3Api>().fetchSongUrl(songId);
-      return resp.fold((l) => Right(l), (r) async {
-        try {
-          await getIt<Dio>().download(r, filePath);
-        } catch (e, stackTrace) {
-          log('Download failed! url=$r', stackTrace: stackTrace, level: 1000);
-          return Left(e.toString());
-        }
+    return (await getIt<SupabaseSongsApi>().isNonVipSong(
+      songId,
+    )).fold((l) => Left(l), (r) async {
+      if (!r) return Right(null);
 
-        var bytes = await File(filePath).readAsBytes();
-        try {
-          await _client.storage.from('songs').uploadBinary(fileName, bytes);
-        } catch (e, stackTrace) {
-          log(
-            'Failed to upload song file to supabase: $e',
-            stackTrace: stackTrace,
-            level: 1000,
-          );
-        }
+      try {
+        var bytes = await _client.storage.from('songs').download(fileName);
+        await file.writeAsBytes(bytes);
         return Right(filePath);
-      });
-    } catch (e, stackTrace) {
-      log('Failed to download: $e', stackTrace: stackTrace, level: 1000);
-      return Left(e.toString());
-    }
+      } on StorageException catch (_) {
+        var resp = await getIt<ZingMp3Api>().fetchSongUrl(songId);
+        return resp.fold((l) => Right(l), (r) async {
+          if (r == null) return Right(null);
+          try {
+            await getIt<Dio>().download(r, filePath);
+          } catch (e, stackTrace) {
+            log('Download failed! url=$r', stackTrace: stackTrace, level: 1000);
+            return Left(e.toString());
+          }
+
+          var bytes = await File(filePath).readAsBytes();
+          try {
+            await _client.storage.from('songs').uploadBinary(fileName, bytes);
+          } catch (e, stackTrace) {
+            log(
+              'Failed to upload song file to supabase: $e',
+              stackTrace: stackTrace,
+              level: 1000,
+            );
+          }
+          return Right(filePath);
+        });
+      } catch (e, stackTrace) {
+        log('Failed to download: $e', stackTrace: stackTrace, level: 1000);
+        return Left(e.toString());
+      }
+    });
   }
 
-  List getSongsForHomeOutputFixer(List data) {
-    for (var songList in data) {
-      songList['items'] = songList['items'].map(
-        (song) => SongModel.fromJson({
-          'id': song['encodeId'],
-          'title': song['title'],
-          // TODO: should save all artists!
-          'artist': song['artists'][0]['name'],
-          'thumbnailUrl': song['thumbnailM'],
-          'releaseDate': song['releaseDate'],
-        }),
-      ).toList();
+  Future<Either<String, List>> getSongsForHomeOutputFixer(List data) async {
+    try {
+      for (var songList in data) {
+        final items = songList['items'] as List;
+        final songIds = items.map((song) => song['encodeId']).toList();
+
+        final resp = await getIt<SupabaseSongsApi>().filterNonVipSongs(songIds);
+        songList['items'] = resp.fold(
+          (l) => throw l,
+          (r) =>
+              items
+                  .where((song) => r.contains(song['encodeId']))
+                  .map(
+                    (song) => SongModel.fromJson({
+                      'id': song['encodeId'],
+                      'title': song['title'],
+                      // TODO: should save all artists!
+                      'artist': song['artists'][0]['name'],
+                      'thumbnail_url': song['thumbnailM'],
+                      'release_date': song['releaseDate'],
+                    }),
+                  )
+                  .toList(),
+        );
+      }
+
+      return Right(data);
+    } catch (e) {
+      return Left(e.toString());
     }
-    return data;
   }
 
   Future<Either<String, List>> getSongsForHome() async {
@@ -107,7 +131,7 @@ class SupabaseCacheApi {
     final cached = await _getCachedValueFor(api, lazyTime);
     return cached.fold((l) => Left(l), (r) async {
       if (r != null) {
-        return Right(getSongsForHomeOutputFixer(r['items']));
+        return await getSongsForHomeOutputFixer(r['items']);
       }
 
       var resp = await getIt<ZingMp3Api>().home();
@@ -117,7 +141,7 @@ class SupabaseCacheApi {
           'value': r,
           'created_at': DateTime.now().toIso8601String(),
         });
-        return Right(getSongsForHomeOutputFixer(r['items']!));
+        return await getSongsForHomeOutputFixer(r['items']!);
       });
     });
   }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/apis/supabase/cache.dart';
@@ -21,7 +22,9 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   SongPlayerCubit() : super(SongPlayerInitial()) {
     _positionSub = audioPlayer.positionStream.listen((position) {
       songPosition = position;
-      emit(SongPlayerLoaded());
+      if (currentSong != null) {
+        emit(SongPlayerLoaded());
+      }
     });
 
     _durationSub = audioPlayer.durationStream.listen((duration) {
@@ -31,21 +34,50 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     });
   }
 
-  Future<void> loadSong(SongModel song) async {
+  bool onSongFailedToLoad(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Rất tiếc, không thể phát bài hát này!'),
+        duration: Duration(seconds: 3),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    currentSong = null;
+    emit(SongPlayerInitial());
+    return false;
+  }
+
+  Future<bool> loadSong(BuildContext context, SongModel song) async {
     try {
-      if (currentSong != song) {
-        await audioPlayer.stop();
-        getIt<SupabaseSongsApi>().saveSongInfo(song);
-        await song.loadIsLiked();
-        currentSong = song;
-        final songPath = await getIt<SupabaseCacheApi>().getSongPath(song.id);
-        songPath.fold((l) => throw l, (r) async {
-          await audioPlayer.setFilePath(r);
-        });
-        emit(SongPlayerLoaded());
-      }
+      if (currentSong == song) return false;
+      currentSong = song;
+      debugPrint('Loading song ${song.title}');
+      emit(SongPlayerLoading());
+      await audioPlayer.stop();
+
+      final check = await getIt<SupabaseSongsApi>().isNonVipSong(song.id);
+      return check.fold(
+        (l) => !context.mounted || onSongFailedToLoad(context),
+        (r) async {
+          if (!r) return !context.mounted || onSongFailedToLoad(context);
+          getIt<SupabaseSongsApi>().saveSongInfo(song);
+          await song.loadIsLiked();
+          final songPath = await getIt<SupabaseCacheApi>().getSongPath(song.id);
+          return songPath.fold((l) => onSongFailedToLoad(context), (r) async {
+            if (r == null) {
+              return onSongFailedToLoad(context);
+            } else {
+              await audioPlayer.setFilePath(r);
+              emit(SongPlayerLoaded());
+              return true;
+            }
+          });
+        },
+      );
     } catch (e) {
       emit(SongPlayerFailure());
+      return !context.mounted || onSongFailedToLoad(context);
     }
   }
 
@@ -58,9 +90,10 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     emit(SongPlayerLoaded());
   }
 
-  Future<void> loadAndPlay(SongModel song) async {
-    await loadSong(song);
-    playOrPause();
+  Future<void> loadAndPlay(BuildContext context, SongModel song) async {
+    if (await loadSong(context, song)) {
+      playOrPause();
+    }
   }
 
   void seekTo(Duration position) {

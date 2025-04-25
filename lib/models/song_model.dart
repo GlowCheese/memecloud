@@ -27,18 +27,32 @@ class SongModel {
     _isLiked = newValue;
   }
   Future<bool> loadIsLiked() async {
-    final resp = await getIt<SupabaseSongsApi>().getIsLiked(id);
-    resp.fold((l) => throw l, (r) => _isLiked = r);
+    if (_isLiked == null) {
+      final resp = await getIt<SupabaseSongsApi>().getIsLiked(id);
+      resp.fold((l) => throw l, (r) => _isLiked = r);
+    }
     return _isLiked!;
   }
 
   factory SongModel.fromJson(Map<String, dynamic> json) {
+    final rawDate = json['release_date'];
+    final DateTime releaseDate = (
+      rawDate.runtimeType == int
+    ) ? (
+      DateTime.fromMillisecondsSinceEpoch(1000 * (rawDate as int))
+    ) : (
+      rawDate.runtimeType == String
+    ) ? (
+      DateTime.parse(rawDate)
+    ) : (
+      rawDate as DateTime
+    );
     return SongModel(
       id: json['id'] as String,
       title: json['title'] as String,
       artist: json['artist'] as String,
-      thumbnailUrl: json['thumbnailUrl'] as String,
-      releaseDate: DateTime.fromMillisecondsSinceEpoch(1000 * (json['releaseDate'] as int)),
+      thumbnailUrl: json['thumbnail_url'] as String,
+      releaseDate: releaseDate,
       isLiked: json['is_liked'] as bool?,
     );
   }

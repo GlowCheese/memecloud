@@ -132,10 +132,7 @@ class _SongPageState extends State<SongPage> {
       ),
       child: IconButton(
         padding: const EdgeInsets.all(18.0),
-        onPressed: () async {
-          await playerCubit.loadSong(widget.song);
-          playerCubit.playOrPause();
-        },
+        onPressed: () => playerCubit.playOrPause(),
         iconSize: 30,
         color: themeData.colorScheme.onSecondaryContainer,
         icon: Icon(
