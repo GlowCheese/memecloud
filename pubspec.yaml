@@ -39,17 +39,16 @@ dependencies:
   get_it: ^8.0.3
   provider: ^6.1.4
   gif_view: ^1.0.2
-  go_router: ^13.2.0
-  just_audio: ^0.9.46
+  go_router: ^15.1.1
   cookie_jar: ^4.0.8
-  flutter_svg: ^2.0.17
+  just_audio: ^0.10.0
+  flutter_svg: ^2.1.0
   hive_flutter: ^1.1.0
   flutter_bloc: ^9.1.0
   path_provider: ^2.1.5
   adaptive_theme: ^3.7.0
   flutter_dotenv: ^5.2.1
   supabase_flutter: ^2.8.4
-  just_audio_cache: ^0.1.2
   palette_generator: ^0.3.3+6
   dio_cookie_manager: ^3.2.0
   cached_network_image: ^3.4.1
