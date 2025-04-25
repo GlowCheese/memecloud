@@ -27,16 +27,23 @@ class ZingMp3Api {
     try {
       var resp = await _sendRequest('/song', params: {'id': id});
       debugPrint('Response 1: ${resp.data}');
-      resp = await _sendRequest('', baseUrl: resp.data['url']);
-      final data = resp.data['data'];
-      debugPrint('Response 2: ${resp.data}');
+
+      // Có lỗi xảy ra xin vui lòng thử lại!
+      final int retries = 3;
+      for (var i = 0; i < retries; i++) {
+        resp = await _sendRequest('', baseUrl: resp.data['url']);
+        debugPrint('Response 2: ${resp.data}');
+        if (resp.data['err'] != -201) break;
+      }
+
+      // Bài hát chỉ dành cho tài khoản VIP, PRI
       if (resp.data['err'] == -1150) {
-        // Bài hát chỉ dành cho tài khoản VIP, PRI
         getIt<SupabaseSongsApi>().addSongToVip(id);
         return Right(null);
       }
+
       assert(resp.data['err'] == 0, 'Unexpected error code: ${resp.data['err']}');
-      return Right(data['128']);
+      return Right(resp.data['data']['128']);
     } catch (e, stackTrace) {
       log('ZingMp3API: Failed to fetch song url: $e.', stackTrace: stackTrace, level: 1000);
       return Left(e.toString());

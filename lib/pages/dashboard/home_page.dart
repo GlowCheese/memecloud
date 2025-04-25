@@ -11,11 +11,12 @@ Map getHomePage(BuildContext context) {
       physics: const BouncingScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 20,
         children: const [
+          SizedBox(height: 5),
           FeaturedSection(),
           NewReleasesSection(),
           TopArtistsSection(),
-          SizedBox(height: 80),
         ],
       ),
     ),

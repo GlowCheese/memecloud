@@ -9,7 +9,7 @@ class FeaturedSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 5),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -30,7 +30,7 @@ class FeaturedSection extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 220,
+          height: 150,
           child: PageView.builder(
             itemCount: 5,
             controller: PageController(viewportFraction: 0.9),

@@ -4,6 +4,7 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/core/theme.dart';
 import 'package:memecloud/routes/main.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 void main() async {
@@ -19,16 +20,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AdaptiveTheme(
-      light: ThemeData(
-        useMaterial3: true,
-        fontFamily: 'Poppins',
-        colorScheme: MaterialTheme.lightScheme(),
-      ),
-      dark: ThemeData(
-        useMaterial3: true,
-        fontFamily: 'Poppins',
-        colorScheme: MaterialTheme.darkScheme(),
-      ),
+      light: MaterialTheme(GoogleFonts.bricolageGrotesqueTextTheme()).theme(MaterialTheme.lightScheme()),
+      dark: MaterialTheme(GoogleFonts.bricolageGrotesqueTextTheme()).theme(MaterialTheme.darkScheme()),
       initial: AdaptiveThemeMode.system,
       builder: (theme, darkTheme) {
         return MaterialApp.router(

@@ -23,7 +23,6 @@ Map getSearchPage(BuildContext context) {
             _searchSection(context),
             _genreGrid('Your Top Genres', topGenres, themeData),
             _genreGrid('Browse All', allGenres, themeData),
-            SizedBox(height: 80),
           ],
         ),
       ),

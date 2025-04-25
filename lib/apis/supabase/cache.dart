@@ -64,7 +64,7 @@ class SupabaseCacheApi {
         return Right(filePath);
       } on StorageException catch (_) {
         var resp = await getIt<ZingMp3Api>().fetchSongUrl(songId);
-        return resp.fold((l) => Right(l), (r) async {
+        return resp.fold((l) => Left(l), (r) async {
           if (r == null) return Right(null);
           try {
             await getIt<Dio>().download(r, filePath);
@@ -101,25 +101,18 @@ class SupabaseCacheApi {
         final resp = await getIt<SupabaseSongsApi>().filterNonVipSongs(songIds);
         songList['items'] = resp.fold(
           (l) => throw l,
-          (r) =>
-              items
+          (r) {
+            return items
                   .where((song) => r.contains(song['encodeId']))
-                  .map(
-                    (song) => SongModel.fromJson({
-                      'id': song['encodeId'],
-                      'title': song['title'],
-                      // TODO: should save all artists!
-                      'artist': song['artists'][0]['name'],
-                      'thumbnail_url': song['thumbnailM'],
-                      'release_date': song['releaseDate'],
-                    }),
-                  )
-                  .toList(),
+                  .map((song) => SongModel.fromJson<ZingMp3Api>(song))
+                  .toList();
+          }
         );
       }
 
       return Right(data);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      log("Failed to get songs for home: $e", stackTrace: stackTrace, level: 1000);
       return Left(e.toString());
     }
   }
