@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/apis/supabase/auth.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/getit.dart';
 
 
@@ -148,7 +148,7 @@ class _SignInPageState extends State<SignInPage> {
                       barrierDismissible: false,
                       builder: (context) => const Center(child: CircularProgressIndicator()),
                     );
-                    var result = await getIt<SupabaseAuthApi>().signIn(email: emailController.text, password: passwordController.text);
+                    var result = await getIt<ApiKit>().signIn(email: emailController.text, password: passwordController.text);
                     result.fold(
                       (l) {
                         ScaffoldMessenger.of(context).showSnackBar(

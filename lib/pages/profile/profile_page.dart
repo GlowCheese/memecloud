@@ -1,10 +1,7 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/apis/supabase/auth.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/apis/supabase/profile.dart';
-import 'package:flutter/material.dart';
 import 'dart:developer' as developer;
 
 class ProfilePage extends StatefulWidget {
@@ -34,9 +31,7 @@ class _ProfilePageState extends State<ProfilePage> {
         errorMessage = null;
       });
 
-      final SupabaseProfileApi supabaseProfileApi = getIt<SupabaseProfileApi>();
-
-      final result = await supabaseProfileApi.getCurrentUser();
+      final result = await getIt<ApiKit>().getProfile();
 
       result.fold(
         (error) {
@@ -49,8 +44,8 @@ class _ProfilePageState extends State<ProfilePage> {
         (userAccount) {
           setState(() {
             if (userAccount != null) {
-              fullName = userAccount.fullName ?? "Chưa cập nhật tên";
-              email = userAccount.email ?? "Chưa cập nhật email";
+              fullName = userAccount.displayName;
+              email = userAccount.email;
               avatarUrl = userAccount.avatarUrl;
               developer.log('User account: $userAccount');
             } else {
@@ -321,7 +316,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     try {
       context.go('/signin');
-      await getIt<SupabaseAuthApi>().signOut();
+      await getIt<ApiKit>().signOut();
     } catch (e) {
       scaffoldMessenger.showSnackBar(
         SnackBar(content: Text('Đăng xuất thất bại: $e')),

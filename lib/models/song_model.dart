@@ -1,5 +1,5 @@
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/apis/supabase/main.dart';
-import 'package:memecloud/apis/supabase/songs.dart';
 import 'package:memecloud/apis/zingmp3.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/artist_model.dart';
@@ -55,12 +55,13 @@ class SongModel {
   bool get isLiked => _isLiked!;
   set isLiked(bool newValue) {
     assert(_isLiked! != newValue);
-    getIt<SupabaseSongsApi>().setIsLiked(id, newValue);
+    // TODO: sync this even if we're offline!
+    getIt<ApiKit>().setIsLiked(id, newValue);
     _isLiked = newValue;
   }
 
   Future<bool> loadIsLiked() async {
-    final resp = await getIt<SupabaseSongsApi>().getIsLiked(id);
+    final resp = await getIt<ApiKit>().getIsLiked(id);
     resp.fold((l) => throw l, (r) => _isLiked = r);
     return _isLiked!;
   }
