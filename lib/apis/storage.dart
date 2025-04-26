@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:hive_flutter/adapters.dart';
 import 'package:path_provider/path_provider.dart';
 
-
 class HiveBoxes {
   static Future<HiveBoxes> initialize() async {
     await Future.wait([
@@ -19,6 +18,19 @@ class HiveBoxes {
   Box<Map> get apiCache => Hive.box('apiCache');
 }
 
+class CachedDataWithFallback<T> {
+  final T? data;
+  final T? fallback;
+  CachedDataWithFallback({this.data, this.fallback});
+
+  R fold<R>(R Function(T value) onData, R Function(T? fallback) onFallback) {
+    if (data != null) {
+      return onData(data as T);
+    } else  {
+      return onFallback(fallback);
+    }
+  }
+}
 
 class PersistentStorage {
   final Directory tempDir;
@@ -32,7 +44,7 @@ class PersistentStorage {
     required this.cacheDir,
     required this.userDir,
     required this.supportDir,
-    required this.hiveBoxes
+    required this.hiveBoxes,
   });
 
   static Future<PersistentStorage> initialize() async {
@@ -43,7 +55,7 @@ class PersistentStorage {
       cacheDir: await getApplicationCacheDirectory(),
       userDir: await getApplicationDocumentsDirectory(),
       supportDir: await getApplicationSupportDirectory(),
-      hiveBoxes: await HiveBoxes.initialize()
+      hiveBoxes: await HiveBoxes.initialize(),
     );
   }
 
@@ -68,24 +80,28 @@ class PersistentStorage {
     return x == null ? null : !x;
   }
 
-  Object? getCached(String api, {int? lazyTime}) {
+  List filterNonVipSongs(List songIds) {
+    return songIds.where((songId) => isNonVipSong(songId) == true).toList();
+  }
+
+  CachedDataWithFallback getCached(String api, {int? lazyTime}) {
     final resp = hiveBoxes.apiCache.get(api);
-    if (resp == null) return null;
+    if (resp == null) return CachedDataWithFallback();
 
     final createdAt = DateTime.fromMillisecondsSinceEpoch(resp['created_at']);
     final now = DateTime.now();
 
     if (lazyTime != null && now.difference(createdAt).inSeconds > lazyTime) {
-      return null;
+      return CachedDataWithFallback(fallback: jsonDecode(resp['data']));
     } else {
-      return jsonDecode(resp['data']);
+      return CachedDataWithFallback(data: jsonDecode(resp['data']));
     }
   }
 
   Future<void> updateCached(String api, Object data) async {
     await hiveBoxes.apiCache.put(api, {
       'data': jsonEncode(data),
-      'created_at': DateTime.now().millisecondsSinceEpoch
+      'created_at': DateTime.now().millisecondsSinceEpoch,
     });
   }
 }

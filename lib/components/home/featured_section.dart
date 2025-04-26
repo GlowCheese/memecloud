@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class FeaturedSection extends StatelessWidget {
@@ -34,8 +35,8 @@ class FeaturedSection extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.network(
-                        'https://picsum.photos/500/300?random=$index',
+                      CachedNetworkImage(
+                        imageUrl: 'https://picsum.photos/500/300?random=$index',
                         fit: BoxFit.cover,
                       ),
                       Container(

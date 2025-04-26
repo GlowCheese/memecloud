@@ -21,9 +21,7 @@ class ApiKit {
     required this.storage,
   });
 
-  static Future<ApiKit> initialize({
-    required PersistentStorage storage,
-  }) async {
+  static Future<ApiKit> initialize({required PersistentStorage storage}) async {
     await initializeSupabase();
     final supabase = SupabaseApi();
     return ApiKit._(
@@ -109,7 +107,10 @@ class ApiKit {
   }
 
   Future<Either<String, List>> filterNonVipSongs(List songsIds) async =>
-      await supabase.songs.filterNonVipSongs(songsIds);
+      (await supabase.songs.filterNonVipSongs(songsIds)).fold(
+        (l) => Right(storage.filterNonVipSongs(songsIds)),
+        (r) => Right(r)
+      );
 
   /* ---------------------
   |    SUPABASE CACHE    |
@@ -136,24 +137,24 @@ class ApiKit {
     });
   }
 
-  Future<Either<String, Map?>> getCached(
+  Future<CachedDataWithFallback> getCached(
     String api, {
     int? localLazyTime,
     int? remoteLazyTime,
   }) async {
-    Map? localResp = storage.getCached(api, lazyTime: localLazyTime) as Map?;
-    if (localResp != null) {
+    final localResp = storage.getCached(api, lazyTime: localLazyTime);
+    if (localResp.data != null) {
       debugPrint("Found local cache for $api!");
-      return Right(localResp);
+      return localResp;
     }
 
     return (await supabase.cache.getCached(api, lazyTime: remoteLazyTime)).fold(
-      (l) => Left(l),
+      (l) => localResp,
       (r) {
         if (r != null) {
           storage.updateCached(api, r);
         }
-        return Right(r);
+        return CachedDataWithFallback(data: r);
       },
     );
   }
@@ -162,22 +163,24 @@ class ApiKit {
     final String api = '/home';
     final int localLazyTime = 15 * 60; // 15 minutes
     final int remoteLazyTime = 1 * 60 * 60; // 1 hour
+
     return (await getCached(
       api,
       localLazyTime: localLazyTime,
       remoteLazyTime: remoteLazyTime,
-    )).fold((l) => Left(l), (r) async {
-      if (r != null) {
-        return await _getSongsForHomeOutputFixer(r['items']);
-      }
-      return (await supabase.cache.getSongsForHome()).fold(
-        (l) => Left(l),
+    )).fold(
+      (data) async => await _getSongsForHomeOutputFixer(data['items']),
+      (fallback) async => (await supabase.cache.getSongsForHome()).fold(
+        (l) async =>
+            fallback != null
+                ? (await _getSongsForHomeOutputFixer(fallback['items']))
+                : Left(l),
         (r) async {
           await storage.updateCached(api, r);
           return await _getSongsForHomeOutputFixer(r['items']);
         },
-      );
-    });
+      ),
+    );
   }
 }
 
