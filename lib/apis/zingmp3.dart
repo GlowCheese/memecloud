@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:memecloud/apis/supabase/songs.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/getit.dart';
 
 
@@ -38,9 +38,10 @@ class ZingMp3Api {
 
       // Bài hát chỉ dành cho tài khoản VIP, PRI
       if (resp.data['err'] == -1150) {
-        getIt<SupabaseSongsApi>().addSongToVip(id);
+        getIt<ApiKit>().markSongAsVip(id);
         return Right(null);
       }
+      getIt<ApiKit>().markSongAsNonVip(id);
 
       assert(resp.data['err'] == 0, 'Unexpected error code: ${resp.data['err']}');
       return Right(resp.data['data']['128']);
@@ -76,7 +77,7 @@ class ZingMp3Api {
     }
   }
 
-  Future<Either<String, Map<String, List<Map>>>> home({int page = 0}) async {
+  Future<Either<String, Map<String, List<Map>>>> fetchHome({int page = 0}) async {
     try {
       final resp = await _sendRequest('/home', params: {'page': page});
       List data = resp.data['data']['items'];

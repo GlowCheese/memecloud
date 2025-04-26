@@ -1,7 +1,7 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:memecloud/apis/supabase/cache.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:dartz/dartz.dart' as dartz;
@@ -29,7 +29,7 @@ class NewReleasesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<dartz.Either>(
-      future: getIt<SupabaseCacheApi>().getSongsForHome(),
+      future: getIt<ApiKit>().getSongsForHome(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());

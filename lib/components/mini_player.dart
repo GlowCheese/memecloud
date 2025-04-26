@@ -40,7 +40,9 @@ class _MiniPlayer extends StatelessWidget {
       onTap: () async {
         if (isSongLoaded) {
           await song.loadIsLiked();
-          context.push('/song_play');
+          if (context.mounted) {
+            context.push('/song_play');
+          }
         }
       },
       child: Container(

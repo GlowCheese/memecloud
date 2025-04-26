@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:memecloud/apis/supabase/cache.dart';
-import 'package:memecloud/apis/supabase/songs.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
@@ -56,13 +55,13 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       emit(SongPlayerLoading());
       await audioPlayer.stop();
 
-      final check = await getIt<SupabaseSongsApi>().isNonVipSong(song.id);
+      final check = await getIt<ApiKit>().isNonVipSong(song.id);
       return check.fold(
         (l) => !context.mounted || onSongFailedToLoad(context),
         (r) async {
           if (!r) return !context.mounted || onSongFailedToLoad(context);
-          getIt<SupabaseSongsApi>().saveSongInfo(song);
-          final songPath = await getIt<SupabaseCacheApi>().getSongPath(song.id);
+          getIt<ApiKit>().saveSongInfo(song);
+          final songPath = await getIt<ApiKit>().getSongPath(song.id);
           return songPath.fold((l) => onSongFailedToLoad(context), (r) async {
             if (r == null) {
               return onSongFailedToLoad(context);

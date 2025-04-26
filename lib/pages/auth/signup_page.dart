@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/apis/supabase/auth.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/getit.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -60,7 +60,7 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
 
-    final result = await getIt<SupabaseAuthApi>().signUp(
+    final result = await getIt<ApiKit>().signUp(
       email: email, password: password, fullName: fullName
     );
 

@@ -13,10 +13,10 @@ class SupabaseAuthApi {
     return _client.auth.currentSession;
   }
 
-  Future<Either> signIn({
-    required String email,
-    required String password,
-  }) async {
+  Future<Either> signIn(
+    String email,
+    String password,
+  ) async {
     try {
       final response = await _client.auth.signInWithPassword(
         email: email,
@@ -32,11 +32,11 @@ class SupabaseAuthApi {
     }
   }
 
-  Future<Either> signUp({
-    required String email,
-    required String password,
-    required String fullName,
-  }) async {
+  Future<Either> signUp(
+    String email,
+    String password,
+    String fullName,
+  ) async {
     try {
       final response = await _client.auth.signUp(
         email: email,

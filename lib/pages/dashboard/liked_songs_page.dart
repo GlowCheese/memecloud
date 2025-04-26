@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:dartz/dartz.dart' as dartz;
-import 'package:memecloud/apis/supabase/songs.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/default_appbar.dart';
 import 'package:memecloud/core/getit.dart';
@@ -25,7 +25,7 @@ class _LikedSongPageState extends State<LikedSongPage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<dartz.Either>(
-      future: getIt<SupabaseSongsApi>().getLikedSongsList(),
+      future: getIt<ApiKit>().getLikedSongsList(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
