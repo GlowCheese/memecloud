@@ -6,6 +6,7 @@ import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:memecloud/models/song_model.dart';
+import 'package:scroll_snap_list/scroll_snap_list.dart';
 
 Padding _header(String title) {
   return Padding(
@@ -42,7 +43,7 @@ class NewReleasesSection extends StatelessWidget {
         final songsEither = snapshot.data!;
         return songsEither.fold(
           (error) => Center(child: Text('Error: $error')),
-          (songLists) => _SongListDisplay(songLists)
+          (songLists) => _SongListDisplay(songLists),
         );
       },
     );
@@ -77,11 +78,13 @@ class _SongListDisplayState extends State<_SongListDisplay> {
         _header(title),
         ConstrainedBox(
           constraints: BoxConstraints(maxHeight: 214),
-          child: ListView.builder(
+          child: ScrollSnapList(
+            initialIndex: 1,
             scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemSize: 160,
             itemCount: songList.length,
+            dynamicItemSize: true,
+            onItemFocus: (index) {},
             itemBuilder: (context, index) {
               final song = songList[index];
               return _songCardDisplay(context, song);
@@ -92,12 +95,10 @@ class _SongListDisplayState extends State<_SongListDisplay> {
     );
   }
 
-  Padding _songCardDisplay(BuildContext context, SongModel song) {
+  GestureDetector _songCardDisplay(BuildContext context, SongModel song) {
     final colorScheme = AdaptiveTheme.of(context).theme.colorScheme;
 
-    return Padding(
-      padding: const EdgeInsets.only(right: 16),
-      child: GestureDetector(
+    return GestureDetector(
         onTap: () async {
           if (!(await getIt<SongPlayerCubit>().loadAndPlay(context, song))) {
             setState(() {
@@ -150,7 +151,6 @@ class _SongListDisplayState extends State<_SongListDisplay> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }
