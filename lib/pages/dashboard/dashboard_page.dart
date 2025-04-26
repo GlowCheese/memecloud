@@ -37,11 +37,20 @@ class _DashboardPageState extends State<DashboardPage> {
 
     return Scaffold(
       appBar: appBarAndBody['appBar'],
-      body: appBarAndBody['body'],
+      body: RefreshIndicator(
+        onRefresh: _handleRefresh,
+        child: appBarAndBody['body'],
+      ),
       bottomSheet: getMiniPlayer(),
       backgroundColor: Colors.transparent,
       bottomNavigationBar: _bottomNavigationBar(),
     );
+  }
+
+  Future<void> _handleRefresh() async {
+    // Chỗ này mày viết code load lại dữ liệu
+    setState(() {});
+    await Future.delayed(Duration(seconds: 1)); // Ví dụ chờ 2s
   }
 
   BottomNavigationBar _bottomNavigationBar() {

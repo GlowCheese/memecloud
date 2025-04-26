@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
@@ -14,54 +15,59 @@ class SupabaseCacheApi {
   final SupabaseClient _client;
   SupabaseCacheApi(this._client);
 
-  Future<Either<String, Map?>> getCached(String api, {int? lazyTime}) async {
+  Future<Either<String, CachedDataWithFallback>> getCached(String api, {int? lazyTime}) async {
     try {
+      getIt<ApiKit>().ensureConnectivity();
       final response =
           await _client
               .from('api_cache')
               .select('data, created_at')
               .eq('api', api)
               .maybeSingle();
-      if (response == null) return Right(null);
+      if (response == null) return Right(CachedDataWithFallback());
 
       final createdAt = DateTime.parse(response['created_at']);
       final now = DateTime.now();
 
-      if (lazyTime != null && now.difference(createdAt).inSeconds > lazyTime) {
-        return Right(null);
+      if (lazyTime == null || now.difference(createdAt).inSeconds < lazyTime) {
+        return Right(CachedDataWithFallback(data: response['data'] as Map));
       } else {
-        return Right(response['data'] as Map);
+        return Right(CachedDataWithFallback(fallback: response['data'] as Map));
       }
     } catch (e, stackTrace) {
-      log(
-        'Failed to get cached data for $api!',
-        stackTrace: stackTrace,
-        level: 1000,
-      );
+      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
+        log(
+          'Failed to get cached data for $api!',
+          stackTrace: stackTrace,
+          level: 1000,
+        );
+      }
       return Left(e.toString());
     }
   }
 
-  // TODO: should separate to: getSongFile, (downloadSong) and updateSongFile
-  Future<Either<String, Uint8List?>> getSongFile(String songId) async {
-    return (await getIt<ApiKit>().isNonVipSong(songId)).fold((l) => Left(l), (
-      r,
-    ) async {
-      if (!r) return Right(null);
+  Future<Either<String, Uint8List?>> getchSongFile(String songId) async {
+    final tmpDir = getIt<PersistentStorage>().tempDir;
+    final fileName = '$songId.mp3';
+    final filePath = '${tmpDir.path}/$fileName';
+    final file = File(filePath);
 
-      final tmpDir = getIt<PersistentStorage>().tempDir;
-      final fileName = '$songId.mp3';
-      final filePath = '${tmpDir.path}/$fileName';
-      final file = File(filePath);
-
-      try {
-        var bytes = await _client.storage.from('songs').download(fileName);
-        await file.writeAsBytes(bytes);
-        return Right(bytes);
-      } on StorageException catch (_) {
-        var resp = await getIt<ZingMp3Api>().fetchSongUrl(songId);
-        return resp.fold((l) => Left(l), (r) async {
+    try {
+      getIt<ApiKit>().ensureConnectivity();
+      var bytes = await _client.storage.from('songs').download(fileName);
+      await file.writeAsBytes(bytes);
+      return Right(bytes);
+    } on StorageException catch (_) {
+      return (await getIt<ZingMp3Api>().fetchSongUrl(songId)).fold(
+        (l) => Left(l),
+        (r) async {
           if (r == null) return Right(null);
+
+          final tmpDir = getIt<PersistentStorage>().tempDir;
+          final fileName = '$songId.mp3';
+          final filePath = '${tmpDir.path}/$fileName';
+          final file = File(filePath);
+
           try {
             await getIt<Dio>().download(r, filePath);
           } catch (e, stackTrace) {
@@ -69,23 +75,31 @@ class SupabaseCacheApi {
             return Left(e.toString());
           }
 
-          var bytes = await File(filePath).readAsBytes();
-          try {
-            await _client.storage.from('songs').uploadBinary(fileName, bytes);
-          } catch (e, stackTrace) {
-            log(
-              'Failed to upload song file to supabase: $e',
-              stackTrace: stackTrace,
-              level: 1000,
-            );
-          }
+          var bytes = await file.readAsBytes();
+          unawaited(
+            _client.storage
+                .from('songs')
+                .uploadBinary(fileName, bytes)
+                .catchError((e, stackTrace) {
+                  log(
+                    'Failed to upload song to Supabase storage: $e',
+                    stackTrace: stackTrace,
+                    level: 900,
+                  );
+                  return "";
+                }),
+          );
           return Right(bytes);
-        });
-      } catch (e, stackTrace) {
+        },
+      );
+    } catch (e, stackTrace) {
+      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
         log('Failed to download: $e', stackTrace: stackTrace, level: 1000);
-        return Left(e.toString());
       }
-    });
+      return Left(e.toString());
+    } finally {
+      unawaited(file.delete().catchError((_) => file));
+    }
   }
 
   Future<Either<String, Map>> getSongsForHome() async {

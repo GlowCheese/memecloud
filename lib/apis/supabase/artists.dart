@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:dartz/dartz.dart';
+import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -13,6 +15,7 @@ class SupabaseArtistsApi {
     List<ArtistModel> artists,
   ) async {
     try {
+      getIt<ApiKit>().ensureConnectivity();
       await _client
           .from('artists')
           .upsert(
@@ -34,11 +37,13 @@ class SupabaseArtistsApi {
           );
       return Right("ok");
     } catch (e, stackTrace) {
-      log(
-        "Failed to save artist info: $e",
-        stackTrace: stackTrace,
-        level: 1000,
-      );
+      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
+        log(
+          "Failed to save artist info: $e",
+          stackTrace: stackTrace,
+          level: 1000,
+        );
+      }
       return Left(e.toString());
     }
   }
@@ -48,6 +53,7 @@ class SupabaseArtistsApi {
     List<ArtistModel> artists,
   ) async {
     try {
+      getIt<ApiKit>().ensureConnectivity();
       (await saveArtistsInfo(artists)).fold((l) => throw l, (r) {});
       try {
         await _client
@@ -62,11 +68,13 @@ class SupabaseArtistsApi {
         return Right(null);
       }
     } catch (e, stackTrace) {
-      log(
-        "Failed to save artist info: $e",
-        stackTrace: stackTrace,
-        level: 1000,
-      );
+      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
+        log(
+          "Failed to save artist info: $e",
+          stackTrace: stackTrace,
+          level: 1000,
+        );
+      }
       return Left(e.toString());
     }
   }

@@ -1,4 +1,4 @@
-import 'package:flutter_svg/svg.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
@@ -15,12 +15,7 @@ AppBar defaultAppBar(BuildContext context, {required String title}) {
     leading: Container(
       alignment: Alignment.center,
       margin: EdgeInsets.only(left: 30),
-      child: SvgPicture.asset(
-        'assets/icons/rocket-light.svg',
-        width: 30,
-        height: 30,
-        colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
-      ),
+      child: Image.asset('assets/icons/listen.png', width: 30, height: 30),
     ),
     actions: [
       GestureDetector(
@@ -42,7 +37,7 @@ AppBar defaultAppBar(BuildContext context, {required String title}) {
       GestureDetector(
         onTap: () => context.push('/profile'),
         child: CircleAvatar(
-          backgroundImage: NetworkImage(
+          backgroundImage: CachedNetworkImageProvider(
             'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuAqi5s1FOI-T3qoE_2HD1avj69-gvq2cvIw&s',
           ),
         ),
