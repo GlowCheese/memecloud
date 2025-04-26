@@ -98,7 +98,7 @@ class ZingMp3Api {
       return Right({'items': resItems});
 
     } catch(e, stackTrace) {
-      log('ZingMp3API: Failed to search', stackTrace: stackTrace, level: 1000);
+      log('ZingMp3API: Failed to fetch home', stackTrace: stackTrace, level: 1000);
       return Left(e.toString());
     }
   }
