@@ -31,6 +31,38 @@ class ApiKit {
     );
   }
 
+  /* ------------------------------
+  |    CONNECTIVITY VALIDATION    |
+  ------------------------------ */
+
+  String ignoreStatusCode = 'IGNORE_1302';
+  DateTime _lastConnectivityCrash = DateTime.fromMillisecondsSinceEpoch(0);
+  /// Stop a method from calling API for `15` seconds
+  /// if connectivity is unstable.
+  void ensureConnectivity() {
+    if (DateTime.now().difference(_lastConnectivityCrash).inSeconds < 15) {
+      throw AuthException('SocketException: Lost connection', statusCode: ignoreStatusCode);
+    }
+  }
+  /// Use this when encountering an exception that potentially due
+  /// to connectivity issue. Return `true` if we suspect `e`
+  /// originates from a `SocketException`. Otherwise return `false`.
+  bool reportConnectivityCrash(Object e) {
+    if (e is! Exception) return false;
+    log('${e.runtimeType} detected: $e', level: 900);
+
+    if (e is AuthException && e.statusCode == ignoreStatusCode) {
+      return true;
+    }
+
+    if (e.toString().contains('SocketException')) {
+      _lastConnectivityCrash = DateTime.now();
+      return true;
+    }
+
+    return false;
+  }
+
   /* ---------------------
   |    AUTHENTICATION    |
   --------------------- */
@@ -109,7 +141,7 @@ class ApiKit {
   Future<Either<String, List>> filterNonVipSongs(List songsIds) async =>
       (await supabase.songs.filterNonVipSongs(songsIds)).fold(
         (l) => Right(storage.filterNonVipSongs(songsIds)),
-        (r) => Right(r)
+        (r) => Right(r),
       );
 
   /* ---------------------
@@ -128,57 +160,61 @@ class ApiKit {
       if (await file.exists()) return Right(filePath);
     }
 
-    return (await supabase.cache.getSongFile(songId)).fold((l) => Left(l), (
-      r,
-    ) async {
-      if (r == null) return Right(null);
-      await file.writeAsBytes(r);
-      return Right(filePath);
-    });
+    return (await isNonVipSong(songId)).fold(
+      (l) => Left(l),
+      (r) async =>
+          (!r)
+              ? Right(null)
+              : (await supabase.cache.getchSongFile(songId)).fold(
+                (l) => Left(l),
+                (r) async {
+                  if (r == null) return Right(null);
+                  await file.writeAsBytes(r);
+                  return Right(filePath);
+                },
+              ),
+    );
   }
 
-  Future<CachedDataWithFallback> getCached(
+  Future<Either<String, CachedDataWithFallback>> getCached(
     String api, {
-    int? localLazyTime,
-    int? remoteLazyTime,
+    int? lazyTime,
   }) async {
-    final localResp = storage.getCached(api, lazyTime: localLazyTime);
+    final localResp = storage.getCached(api, lazyTime: lazyTime);
     if (localResp.data != null) {
       debugPrint("Found local cache for $api!");
-      return localResp;
+      return Right(localResp);
     }
 
-    return (await supabase.cache.getCached(api, lazyTime: remoteLazyTime)).fold(
-      (l) => localResp,
+    return (await supabase.cache.getCached(api, lazyTime: lazyTime)).fold(
+      (l) => localResp.fallback != null ? Right(localResp) : Left(l),
       (r) {
-        if (r != null) {
-          storage.updateCached(api, r);
+        if (r.data != null) {
+          storage.updateCached(api, r.data);
         }
-        return CachedDataWithFallback(data: r);
+        return Right(r);
       },
     );
   }
 
   Future<Either<String, List>> getSongsForHome() async {
     final String api = '/home';
-    final int localLazyTime = 15 * 60; // 15 minutes
-    final int remoteLazyTime = 1 * 60 * 60; // 1 hour
+    final int lazyTime = 45 * 60; // 45 minutes
 
-    return (await getCached(
-      api,
-      localLazyTime: localLazyTime,
-      remoteLazyTime: remoteLazyTime,
-    )).fold(
-      (data) async => await _getSongsForHomeOutputFixer(data['items']),
-      (fallback) async => (await supabase.cache.getSongsForHome()).fold(
-        (l) async =>
-            fallback != null
-                ? (await _getSongsForHomeOutputFixer(fallback['items']))
-                : Left(l),
-        (r) async {
-          await storage.updateCached(api, r);
-          return await _getSongsForHomeOutputFixer(r['items']);
-        },
+    return (await getCached(api, lazyTime: lazyTime)).fold(
+      (l) => Left(l),
+      (r) => r.fold(
+        (data) async => await _getSongsForHomeOutputFixer(data['items']),
+        (fallback) async => (await supabase.cache.getSongsForHome()).fold(
+          (l) async =>
+              fallback != null
+                  ? await _getSongsForHomeOutputFixer(fallback['items'])
+                  : Left(l),
+          (r) async {
+            await storage.updateCached(api, r);
+            return await _getSongsForHomeOutputFixer(r['items']);
+          },
+        ),
       ),
     );
   }

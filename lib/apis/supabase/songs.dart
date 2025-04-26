@@ -1,7 +1,9 @@
 import 'dart:developer';
 
 import 'package:dartz/dartz.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/apis/supabase/main.dart';
+import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -12,6 +14,7 @@ class SupabaseSongsApi {
   Future<Either<String, Null>> saveSongInfo(SongModel song) async {
     final releaseDate = song.releaseDate.toUtc().toIso8601String();
     try {
+      getIt<ApiKit>().ensureConnectivity();
       try {
         await _client.from('songs').insert({
           'id': song.id,
@@ -25,13 +28,16 @@ class SupabaseSongsApi {
         return Right(null);
       }
     } catch (e, stackTrace) {
-      log("Failed to save song info: $e", stackTrace: stackTrace, level: 1000);
+      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
+        log("Failed to save song info: $e", stackTrace: stackTrace, level: 1000);
+      }
       return Left(e.toString());
     }
   }
 
   Future<Either<String, bool>> getIsLiked(String songId) async {
     try {
+      getIt<ApiKit>().ensureConnectivity();
       final userId = _client.auth.currentUser!.id;
       final response =
           await _client
@@ -42,13 +48,16 @@ class SupabaseSongsApi {
               .maybeSingle();
       return Right(response != null);
     } catch (e, stackTrace) {
-      log('Failed to getIsLiked: $e', stackTrace: stackTrace, level: 1000);
+      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
+        log('Failed to getIsLiked: $e', stackTrace: stackTrace, level: 1000);
+      }
       return Left(e.toString());
     }
   }
 
   Future<Either<String, Null>> setIsLiked(String songId, bool isLiked) async {
     try {
+      getIt<ApiKit>().ensureConnectivity();
       final userId = _client.auth.currentUser!.id;
 
       if (isLiked) {
@@ -66,13 +75,17 @@ class SupabaseSongsApi {
         });
       }
       return Right(null);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
+        log("Failed to like a song: $e", stackTrace: stackTrace, level: 1000);
+      }
       return Left(e.toString());
     }
   }
 
   Future<Either<String, List<SongModel>>> getLikedSongsList() async {
     try {
+      getIt<ApiKit>().ensureConnectivity();
       final userId = _client.auth.currentUser!.id;
 
       final response = await _client
@@ -95,13 +108,16 @@ class SupabaseSongsApi {
 
       return Right(songsList);
     } catch (e, stackTrace) {
-      log("Failed to get liked songs: $e", stackTrace: stackTrace, level: 1000);
+      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
+        log("Failed to get liked songs: $e", stackTrace: stackTrace, level: 1000);
+      }
       return Left(e.toString());
     }
   }
 
   Future<Either<String, List>> filterNonVipSongs(List songsIds) async {
     try {
+      getIt<ApiKit>().ensureConnectivity();
       final resp = await _client
           .from('vip_songs')
           .select('song_id')
@@ -113,7 +129,9 @@ class SupabaseSongsApi {
 
       return Right(filtered);
     } catch (e, stackTrace) {
-      log('Failed to fetch vip songs: $e', stackTrace: stackTrace, level: 1000);
+      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
+        log('Failed to fetch vip songs: $e', stackTrace: stackTrace, level: 1000);
+      }
       return Left(e.toString());
     }
   }
@@ -125,12 +143,15 @@ class SupabaseSongsApi {
 
   Future<Either<String, Null>> addSongToVip(String songId) async {
     try {
+      getIt<ApiKit>().ensureConnectivity();
       await _client.from('vip_songs').upsert({
         'song_id': songId,
       }, ignoreDuplicates: true);
       return Right(null);
     } catch (e, stackTrace) {
-      log('Failed to add song to vip: $e', stackTrace: stackTrace, level: 1000);
+      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
+        log('Failed to add song to vip: $e', stackTrace: stackTrace, level: 1000);
+      }
       return Left(e.toString());
     }
   }

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -131,16 +132,14 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           child: ClipOval(
-            child: Image.network(
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuAqi5s1FOI-T3qoE_2HD1avj69-gvq2cvIw&s', // Replace with your image URL
+            child: CachedNetworkImage(
+              imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuAqi5s1FOI-T3qoE_2HD1avj69-gvq2cvIw&s', // Replace with your image URL
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Icon(
-                  Icons.person,
-                  size: 60,
-                  color: Theme.of(context).colorScheme.primary,
-                );
-              },
+              errorWidget: (context, url, error) => Icon(
+                Icons.person,
+                size: 60,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
           ),
         ),

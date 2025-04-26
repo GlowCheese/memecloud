@@ -13,7 +13,7 @@ class SupabaseAuthApi {
     return _client.auth.currentSession;
   }
 
-  Future<Either> signIn(
+  Future<Either<String, User>> signIn(
     String email,
     String password,
   ) async {
@@ -23,37 +23,39 @@ class SupabaseAuthApi {
         password: password,
       );
       if (response.user != null) {
-        return Right(response.user);
+        return Right(response.user!);
       } else {
         return Left('Unknown error occurred');
       }
-    } on AuthException catch (e) {
-      return Left(e);
+    } catch (e) {
+      return Left(e.toString());
     }
   }
 
-  Future<Either> signUp(
+  Future<Either<String, User>> signUp(
     String email,
     String password,
     String fullName,
   ) async {
     try {
+      
       final response = await _client.auth.signUp(
         email: email,
         password: password,
         data: {'display_name': fullName},
       );
       if (response.user != null) {
-        return Right(response.user);
+        return Right(response.user!);
       } else {
         return Left('Unknown error occurred');
       }
-    } on AuthException catch (e) {
+    } catch (e) {
       return Left(e.toString());
     }
   }
 
-  Future<void> signOut() async {
+  Future<Either<String, Null>> signOut() async {
     await _client.auth.signOut();
+    return Right(null);
   }
 }
