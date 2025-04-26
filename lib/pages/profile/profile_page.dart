@@ -1,7 +1,11 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/apis/supabase/auth.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/apis/supabase/profile.dart';
+import 'package:flutter/material.dart';
+import 'dart:developer' as developer;
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -14,6 +18,61 @@ class _ProfilePageState extends State<ProfilePage> {
   String fullName = "Nguyễn Văn A";
   String email = "nguyenvana@example.com";
   bool isDarkMode = false;
+  bool isLoading = true;
+  String? avatarUrl;
+  String? errorMessage;
+  @override
+  void initState() {
+    super.initState();
+    syncUserAccount(); // Gọi hàm khi widget được tạo
+  }
+
+  Future<void> syncUserAccount() async {
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = null;
+      });
+
+      final SupabaseProfileApi supabaseProfileApi = getIt<SupabaseProfileApi>();
+
+      final result = await supabaseProfileApi.getCurrentUser();
+
+      result.fold(
+        (error) {
+          developer.log('Failed to get user account: $error');
+          setState(() {
+            errorMessage = error;
+            isLoading = false;
+          });
+        },
+        (userAccount) {
+          setState(() {
+            if (userAccount != null) {
+              fullName = userAccount.fullName ?? "Chưa cập nhật tên";
+              email = userAccount.email ?? "Chưa cập nhật email";
+              avatarUrl = userAccount.avatarUrl;
+              developer.log('User account: $userAccount');
+            } else {
+              developer.log('User not found');
+              errorMessage = "Không tìm thấy thông tin người dùng";
+            }
+            isLoading = false;
+          });
+        },
+      );
+    } catch (e, stackTrace) {
+      developer.log(
+        'Exception during syncUserAccount: $e',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      setState(() {
+        errorMessage = "Có lỗi xảy ra: $e";
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,18 +86,39 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _buildProfileHeader(),
-            const SizedBox(height: 24),
-            _buildProfileInfo(),
-            const SizedBox(height: 24),
-            _buildActionButtons(),
-          ],
-        ),
-      ),
+      body:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : errorMessage != null
+              ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Lỗi: $errorMessage',
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: syncUserAccount,
+                      child: const Text('Thử lại'),
+                    ),
+                  ],
+                ),
+              )
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    _buildProfileHeader(),
+                    const SizedBox(height: 24),
+                    _buildProfileInfo(),
+                    const SizedBox(height: 24),
+                    _buildActionButtons(),
+                  ],
+                ),
+              ),
     );
   }
 

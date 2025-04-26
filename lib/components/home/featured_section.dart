@@ -15,17 +15,9 @@ class FeaturedSection extends StatelessWidget {
             children: [
               const Text(
                 'Đề xuất cho bạn',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              TextButton(
-                onPressed: () {},
-                child: const Text(
-                  'Xem tất cả',
-                ),
-              ),
+              TextButton(onPressed: () {}, child: const Text('Xem tất cả')),
             ],
           ),
         ),
