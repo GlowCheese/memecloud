@@ -61,13 +61,13 @@ class _SongListDisplay extends StatefulWidget {
 
 class _SongListDisplayState extends State<_SongListDisplay> {
   late String title;
-  late List songList;
+  late List<SongModel> songList;
 
   @override
   void initState() {
     super.initState();
     title = widget.songLists[0]['title'];
-    songList = widget.songLists[0]['items'];
+    songList = List<SongModel>.from(widget.songLists[0]['items']);
   }
 
   @override
@@ -100,7 +100,7 @@ class _SongListDisplayState extends State<_SongListDisplay> {
 
     return GestureDetector(
         onTap: () async {
-          if (!(await getIt<SongPlayerCubit>().loadAndPlay(context, song))) {
+          if (!(await getIt<SongPlayerCubit>().loadAndPlay(context, song, songList: songList))) {
             setState(() {
               songList.remove(song);
             });

@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:dartz/dartz.dart' as dartz;
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
+import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/components/default_appbar.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
@@ -39,11 +41,7 @@ class _LikedSongPageState extends State<LikedSongPage> {
         return songsEither.fold(
           (error) => Center(child: Text('Error: $error')),
           (songs) {
-            // Filter only liked songs
-            final likedSongs =
-                (songs as List<dynamic>).where((song) => song.isLiked).toList();
-
-            return _SongListView(likedSongs: likedSongs);
+            return _SongListView(likedSongs: List<SongModel>.from(songs));
           },
         );
       },
@@ -54,14 +52,14 @@ class _LikedSongPageState extends State<LikedSongPage> {
 class _SongListView extends StatefulWidget {
   const _SongListView({required this.likedSongs});
 
-  final List likedSongs;
+  final List<SongModel> likedSongs;
 
   @override
   State<_SongListView> createState() => _SongListViewState();
 }
 
 class _SongListViewState extends State<_SongListView> {
-  late List currentLikedSongs;
+  late List<SongModel> currentLikedSongs;
 
   @override
   void initState() {
@@ -87,70 +85,94 @@ class _SongListViewState extends State<_SongListView> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: widget.likedSongs.length,
-      itemBuilder: (context, index) {
-        final SongModel song = widget.likedSongs[index];
-        return Card(
-          elevation: 2,
-          margin: const EdgeInsets.only(bottom: 12),
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(12),
-            leading: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(
-                imageUrl: song.thumbnailUrl,
-                width: 56,
-                height: 56,
-                fit: BoxFit.cover,
-                errorWidget:
-                    (context, url, err) =>
-                        const Icon(Icons.music_note, size: 32),
+    final playerCubit = getIt<SongPlayerCubit>();
+
+    return BlocBuilder(
+      bloc: playerCubit,
+      builder: (context, state) {
+        SongModel? currentPlayingSong;
+        if (state is SongPlayerLoaded) {
+          currentPlayingSong = state.currentSong;
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: currentLikedSongs.length,
+          itemBuilder: (context, index) {
+            final SongModel song = currentLikedSongs[index];
+            return Card(
+              elevation: 2,
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ListTile(
+                contentPadding: const EdgeInsets.all(12),
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: CachedNetworkImage(
+                    imageUrl: song.thumbnailUrl,
+                    width: 56,
+                    height: 56,
+                    fit: BoxFit.cover,
+                    errorWidget:
+                        (context, url, err) =>
+                            const Icon(Icons.music_note, size: 32),
+                  ),
+                ),
+                title: Text(
+                  song.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                subtitle: Text(
+                  song.artistsNames,
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.favorite, color: Colors.red),
+                      onPressed: () {
+                        song.setIsLiked(false);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Đã unlike 1 bài hát!'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        setState(() {
+                          assert(currentLikedSongs.remove(song));
+                        });
+                      },
+                    ),
+                    IconButton(
+                      icon:
+                          (song.id == currentPlayingSong?.id)
+                              ? (Icon(Icons.pause_rounded))
+                              : (Icon(Icons.play_arrow_rounded)),
+                      onPressed: () async {
+                        await playerCubit.loadAndPlay(
+                          context,
+                          song,
+                          songList: currentLikedSongs,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                onTap: () async {
+                  await playerCubit.loadAndPlay(
+                    context,
+                    song,
+                    songList: currentLikedSongs,
+                  );
+                },
               ),
-            ),
-            title: Text(
-              song.title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-            subtitle: Text(
-              song.artistsNames,
-              style: const TextStyle(color: Colors.grey, fontSize: 12),
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.favorite, color: Colors.red),
-                  onPressed: () {
-                    song.setIsLiked(false);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Đã unlike 1 bài hát!'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                    setState(() {
-                      assert(currentLikedSongs.remove(song));
-                    });
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.play_arrow),
-                  onPressed:
-                      () async => await getIt<SongPlayerCubit>().loadAndPlay(
-                        context,
-                        song,
-                      ),
-                ),
-              ],
-            ),
-            onTap:
-                () async =>
-                    await getIt<SongPlayerCubit>().loadAndPlay(context, song),
-          ),
+            );
+          },
         );
       },
     );

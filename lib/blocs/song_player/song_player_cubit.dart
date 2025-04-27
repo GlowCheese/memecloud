@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,27 +11,27 @@ import 'package:memecloud/blocs/song_player/song_player_state.dart';
 
 class SongPlayerCubit extends Cubit<SongPlayerState> {
   AudioPlayer audioPlayer = AudioPlayer();
-  Duration songDuration = Duration.zero;
-  Duration songPosition = Duration.zero;
-
-  SongModel? currentSong;
-
-  late StreamSubscription<Duration> _positionSub;
-  late StreamSubscription<Duration?> _durationSub;
+  List<SongModel>? currentSongList;
+  double currentSongSpeed = 1.0;
+  late StreamSubscription _indexSub;
 
   SongPlayerCubit() : super(SongPlayerInitial()) {
-    _positionSub = audioPlayer.positionStream.listen((position) {
-      songPosition = position;
-      if (currentSong != null) {
-        emit(SongPlayerLoaded());
+    _indexSub = audioPlayer.currentIndexStream.listen(
+      (index) {
+        if (index == null) {
+          emit(SongPlayerInitial());
+        } else {
+          emit(SongPlayerLoaded(currentSongList![index]));
+        }
       }
-    });
+    );
+  }
 
-    _durationSub = audioPlayer.durationStream.listen((duration) {
-      if (duration != null) {
-        songDuration = duration;
-      }
-    });
+  @override
+  Future<void> close() {
+    _indexSub.cancel();
+    audioPlayer.dispose();
+    return super.close();
   }
 
   bool onSongFailedToLoad(BuildContext context) {
@@ -42,41 +43,76 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
         behavior: SnackBarBehavior.floating,
       ),
     );
-    currentSong = null;
     emit(SongPlayerInitial());
     return false;
   }
 
-  Future<bool> loadSong(BuildContext context, SongModel song) async {
+  Future<String?> _getSongPath(SongModel song) async {
+    await song.loadIsLiked();
+    return (await getIt<ApiKit>().getSongPath(
+      song.id,
+    )).fold((l) => null, (r) => r);
+  }
+
+  Future<bool> _loadSong(
+    BuildContext context,
+    SongModel song, {
+    List<SongModel>? songList,
+  }) async {
     try {
-      if (currentSong == song) return false;
-      currentSong = song;
       debugPrint('Loading song ${song.title}');
-      emit(SongPlayerLoading());
+      emit(SongPlayerLoading(song));
       await audioPlayer.stop();
 
-      final check = await getIt<ApiKit>().isNonVipSong(song.id);
-      return check.fold(
-        (l) => !context.mounted || onSongFailedToLoad(context),
-        (r) async {
-          if (!r) return !context.mounted || onSongFailedToLoad(context);
-          getIt<ApiKit>().saveSongInfo(song);
-          final songPath = await getIt<ApiKit>().getSongPath(song.id);
-          return songPath.fold((l) => onSongFailedToLoad(context), (r) async {
-            if (r == null) {
-              return onSongFailedToLoad(context);
-            } else {
-              debugPrint('Song path: $r');
-              await audioPlayer.setFilePath(r);
-              emit(SongPlayerLoaded());
-              return true;
-            }
-          });
-        },
-      );
+      final songPath = await _getSongPath(song);
+      if (songPath == null) {
+        return !context.mounted || onSongFailedToLoad(context);
+      } else {
+        getIt<ApiKit>().saveSongInfo(song);
+        debugPrint('Found song path: $songPath');
+        if (songList == null) {
+          currentSongList = null;
+          await audioPlayer.setFilePath(songPath);
+          await audioPlayer.setLoopMode(LoopMode.off);
+        } else {
+          currentSongList = [song];
+          await audioPlayer.setAudioSources([AudioSource.file(songPath)]);
+          await audioPlayer.setLoopMode(LoopMode.all);
+
+          unawaited(
+            lazySongPopulate(song, songList).catchError((e, stackTrace) {
+              log(
+                'Failed to populate songs: $e',
+                stackTrace: stackTrace,
+                level: 1000,
+              );
+            }),
+          );
+        }
+        audioPlayer.setSpeed(currentSongSpeed = 1.0);
+        emit(SongPlayerLoaded(song));
+        return true;
+      }
     } catch (e) {
       emit(SongPlayerFailure());
       return !context.mounted || onSongFailedToLoad(context);
+    }
+  }
+
+  Future<void> lazySongPopulate(SongModel song, List<SongModel> songList) async {
+    int initialSongIdx = songList.indexOf(song);
+    
+    for (song in [
+      ...songList.sublist(initialSongIdx + 1),
+      ...songList.sublist(0, initialSongIdx + 1),
+    ]) {
+      if (state is! SongPlayerLoaded) return Future.value();
+      final songPath = await _getSongPath(song);
+      if (songPath != null) {
+        getIt<ApiKit>().saveSongInfo(song);
+        currentSongList!.add(song);
+        await audioPlayer.addAudioSource(AudioSource.file(songPath));
+      }
     }
   }
 
@@ -86,34 +122,44 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     } else {
       audioPlayer.play();
     }
-    emit(SongPlayerLoaded());
+    emit(state);
   }
 
   /// Load a song and play. \
   /// If the player is loading another song, return `true`. \
   /// Otherwise, return `true` if the song can be played \
   /// (i.e. `isNonVipSong(song) == true`).
-  Future<bool> loadAndPlay(BuildContext context, SongModel song) async {
+  Future<bool> loadAndPlay(
+    BuildContext context,
+    SongModel song, {
+    List<SongModel>? songList,
+  }) async {
     if (state is SongPlayerLoading) {
       return true;
     }
-    if (await loadSong(context, song)) {
+    if (await _loadSong(context, song, songList: songList)) {
       playOrPause();
       return true;
     }
     return false;
   }
 
-  void seekTo(Duration position) {
-    audioPlayer.seek(position);
-    emit(SongPlayerLoaded());
+  Future<void> seekTo(Duration position) async {
+    await audioPlayer.seek(position);
+    emit(state);
   }
 
-  @override
-  Future<void> close() {
-    _positionSub.cancel();
-    _durationSub.cancel();
-    audioPlayer.dispose();
-    return super.close();
+  Future<void> toggleSongSpeed() async {
+    final speeds = [1.0, 1.2, 1.5, 2.0, 0.5, 0.8];
+    final currentIndex = speeds.indexOf(currentSongSpeed);
+    currentSongSpeed = speeds[(currentIndex + 1) % speeds.length];
+    await audioPlayer.setSpeed(currentSongSpeed);
+    emit(state);
   }
+  
+  bool get shuffleMode => audioPlayer.shuffleModeEnabled;
+  Future<void> seekToNext() async => await audioPlayer.seekToNext();
+
+  Future<void> seekToPrevious() async => await audioPlayer.seekToPrevious();
+  Future<void> toggleShuffleMode() async => await audioPlayer.setShuffleModeEnabled(!shuffleMode);
 }
