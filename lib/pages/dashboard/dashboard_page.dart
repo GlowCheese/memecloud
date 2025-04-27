@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:memecloud/blocs/gradient_background/gradient_cubit.dart';
+import 'package:memecloud/components/default_appbar.dart';
 import 'package:memecloud/components/mini_player.dart';
-import 'package:memecloud/pages/404.dart';
+import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/pages/dashboard/home_page.dart';
 import 'package:memecloud/pages/dashboard/liked_songs_page.dart';
 import 'package:memecloud/pages/dashboard/search/search_page.dart';
@@ -17,40 +19,42 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final bgCubit = getIt<GradientBgCubit>();
     late final Map? appBarAndBody;
+
     switch (currentPageIndex) {
       case 0:
+        bgCubit.setColor(MyBgColorSet.purple);
         appBarAndBody = getHomePage(context);
         break;
       case 1:
+        bgCubit.setColor(MyBgColorSet.cyan);
         appBarAndBody = getSearchPage(context);
         break;
       case 2:
+        bgCubit.setColor(MyBgColorSet.redAccent);
         appBarAndBody = getLikedSongsPage(context);
       default:
-        appBarAndBody = null;
-    }
-
-    if (appBarAndBody == null) {
-      return PageNotFound(routePath: '/undefined');
+        bgCubit.setColor(MyBgColorSet.grey);
+        appBarAndBody = {
+          'appBar': defaultAppBar(context, title: 'null'),
+          'body': Placeholder()
+        };
     }
 
     return Scaffold(
       appBar: appBarAndBody['appBar'],
       body: RefreshIndicator(
-        onRefresh: _handleRefresh,
+        onRefresh: () async {
+          setState(() {});
+          await Future.delayed(Duration(seconds: 1));
+        },
         child: appBarAndBody['body'],
       ),
       bottomSheet: getMiniPlayer(),
       backgroundColor: Colors.transparent,
       bottomNavigationBar: _bottomNavigationBar(),
     );
-  }
-
-  Future<void> _handleRefresh() async {
-    // Chỗ này mày viết code load lại dữ liệu
-    setState(() {});
-    await Future.delayed(Duration(seconds: 1)); // Ví dụ chờ 2s
   }
 
   BottomNavigationBar _bottomNavigationBar() {
