@@ -89,7 +89,14 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     emit(SongPlayerLoaded());
   }
 
+  /// Load a song and play. \
+  /// If the player is loading another song, return `true`. \
+  /// Otherwise, return `true` if the song can be played \
+  /// (i.e. `isNonVipSong(song) == true`).
   Future<bool> loadAndPlay(BuildContext context, SongModel song) async {
+    if (state is SongPlayerLoading) {
+      return true;
+    }
     if (await loadSong(context, song)) {
       playOrPause();
       return true;

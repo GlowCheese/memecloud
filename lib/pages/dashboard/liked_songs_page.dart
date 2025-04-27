@@ -125,7 +125,7 @@ class _SongListViewState extends State<_SongListView> {
                 IconButton(
                   icon: const Icon(Icons.favorite, color: Colors.red),
                   onPressed: () {
-                    song.isLiked = false;
+                    song.setIsLiked(false);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Đã unlike 1 bài hát!'),

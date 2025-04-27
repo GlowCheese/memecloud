@@ -11,7 +11,7 @@ class ArtistModel {
   final String? realname;
   final String? biography;
   final String? shortBiography;
-  final bool? followed;
+  bool? followed;
 
   ArtistModel._({
     required this.id,
@@ -35,7 +35,7 @@ class ArtistModel {
         playlistId: json['playlistId'],
         realname: json['realname'],
         biography: json['biography'],
-        shortBiography: json['shortBiography'],
+        shortBiography: json['sortBiography'],
         followed: followed,
       );
     } else if (T == SupabaseApi) {

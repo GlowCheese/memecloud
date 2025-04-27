@@ -49,14 +49,12 @@ class ApiKit {
   /// originates from a `SocketException`. Otherwise return `false`.
   bool reportConnectivityCrash(Object e) {
     if (e is! Exception) return false;
-    log('${e.runtimeType} detected: $e', level: 900);
-
-    if (e is AuthException && e.statusCode == ignoreStatusCode) {
-      return true;
-    }
 
     if (e.toString().contains('SocketException')) {
-      _lastConnectivityCrash = DateTime.now();
+      if (e is! AuthException || e.statusCode == ignoreStatusCode) {
+        _lastConnectivityCrash = DateTime.now();
+      }
+      log('${e.runtimeType} detected: $e', level: 900);
       return true;
     }
 
