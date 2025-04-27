@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/components/gradient_background.dart';
+import 'package:memecloud/blocs/gradient_background/gradient_container.dart';
 
 
 Widget pageWithGradientBackground(

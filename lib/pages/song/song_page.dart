@@ -27,6 +27,7 @@ class _SongPageState extends State<SongPage> {
         }
         return Scaffold(
           appBar: _appBar(context),
+          backgroundColor: Colors.transparent,
           body: SingleChildScrollView(
             physics: BouncingScrollPhysics(),
             child: Padding(
