@@ -22,7 +22,7 @@ class _SongPageState extends State<SongPage> {
   @override
   void initState() {
     super.initState();
-    isSongLiked = widget.song.isLiked;
+    isSongLiked = widget.song.isLiked!;
   }
 
   @override
@@ -82,7 +82,7 @@ class _SongPageState extends State<SongPage> {
         SizedBox(width: 20),
         IconButton(
           onPressed: () {
-            widget.song.isLiked = !isSongLiked;
+            widget.song.setIsLiked(!isSongLiked);
             setState(() {
               isSongLiked = !isSongLiked;
             });

@@ -11,7 +11,7 @@ class SongModel {
   final String thumbnailUrl;
   final DateTime releaseDate;
   final List<ArtistModel> artists;
-  bool? _isLiked;
+  bool? isLiked;
 
   // Private constructor
   SongModel._({
@@ -21,8 +21,8 @@ class SongModel {
     required this.artists,
     required this.releaseDate,
     required this.thumbnailUrl,
-    bool? isLiked,
-  }) : _isLiked = isLiked;
+    this.isLiked,
+  });
 
   static SongModel fromJson<T>(Map<String, dynamic> json, {bool? isLiked}) {
     if (T == ZingMp3Api) {
@@ -52,17 +52,19 @@ class SongModel {
     }
   }
 
-  bool get isLiked => _isLiked!;
-  set isLiked(bool newValue) {
-    assert(_isLiked! != newValue);
-    // TODO: sync this even if we're offline!
+  static List<SongModel> fromListJson<T>(List list) {
+    return list.map((json) => SongModel.fromJson<T>(json)).toList();
+  }
+
+  bool setIsLiked(bool newValue) {
+    assert(isLiked! != newValue);
     getIt<ApiKit>().setIsLiked(id, newValue);
-    _isLiked = newValue;
+    return isLiked = newValue;
   }
 
   Future<bool> loadIsLiked() async {
     final resp = await getIt<ApiKit>().getIsLiked(id);
-    resp.fold((l) => throw l, (r) => _isLiked = r);
-    return _isLiked!;
+    resp.fold((l) => throw l, (r) => isLiked = r);
+    return isLiked!;
   }
 }

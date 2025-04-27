@@ -63,6 +63,10 @@ class _DashboardPageState extends State<DashboardPage> {
           icon: Icon(Icons.favorite),
           label: 'Liked',
         ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.warning_amber),
+          label: 'Experiment',
+        ),
       ],
       currentIndex: currentPageIndex,
       selectedItemColor: const Color(0xFF1976D2),
