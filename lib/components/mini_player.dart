@@ -13,23 +13,24 @@ Widget getMiniPlayer() {
   return BlocBuilder<SongPlayerCubit, SongPlayerState>(
     bloc: playerCubit,
     builder: (context, state) {
-      if (playerCubit.currentSong == null) {
-        return SizedBox();
+      if (state is SongPlayerLoaded) {
+        return _MiniPlayer(playerCubit, isSongLoaded: true, song: state.currentSong);
+      } else if (state is SongPlayerLoading) {
+        return _MiniPlayer(playerCubit, isSongLoaded: false, song: state.currentSong);
+
       } else {
-        return _MiniPlayer(playerCubit, state);
+        return SizedBox();
       }
     },
   );
 }
 
 class _MiniPlayer extends StatelessWidget {
-  final SongModel song;
-  final bool isSongLoaded;
   final SongPlayerCubit playerCubit;
+  final bool isSongLoaded;
+  final SongModel song;
 
-  _MiniPlayer(this.playerCubit, SongPlayerState state)
-    : song = playerCubit.currentSong!,
-      isSongLoaded = state is SongPlayerLoaded;
+  const _MiniPlayer(this.playerCubit, {required this.isSongLoaded, required this.song});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +40,6 @@ class _MiniPlayer extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         if (isSongLoaded) {
-          await song.loadIsLiked();
           if (context.mounted) {
             context.push('/song_play');
           }
