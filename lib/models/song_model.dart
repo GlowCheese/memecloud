@@ -32,11 +32,11 @@ class SongModel {
         id: json['encodeId'],
         title: json['title'],
         artistsNames: json['artistsNames'],
-        thumbnailUrl: json['thumbnailM'],
+        thumbnailUrl: json['thumbnailM'] ?? json['thumbnail'],
         releaseDate: DateTime.fromMillisecondsSinceEpoch(
           json['releaseDate'] * 1000,
         ),
-        artists: ArtistModel.fromListJson<T>(json['artists']),
+        artists: !json.containsKey('artists') ? [] : ArtistModel.fromListJson<T>(json['artists']),
         isLiked: isLiked,
       );
     } else if (T == SupabaseApi) {
@@ -51,6 +51,22 @@ class SongModel {
       );
     } else {
       throw UnsupportedError('Unsupported parse json for type $T');
+    }
+  }
+
+  Map toJson<T>() {
+    if (T == SupabaseApi) {
+      final releaseDateString = releaseDate.toUtc().toIso8601String();
+      return {
+        'id': id,
+        'title': title,
+        'artists_names': artistsNames,
+        'thumbnail_url': thumbnailUrl,
+        'release_date': releaseDateString,
+        'song_artists': artists.map((e) => e.toJson<T>()).toList()
+      };
+    } else {
+      throw UnsupportedError('Unsupported convert UserModel to json for type $T');
     }
   }
 

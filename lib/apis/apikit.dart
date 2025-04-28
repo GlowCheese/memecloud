@@ -8,6 +8,7 @@ import 'package:memecloud/apis/storage.dart';
 import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/apis/zingmp3.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/models/search_result_model.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -119,6 +120,23 @@ class ApiKit {
     });
   }
 
+  Future<Either<String, SongModel?>> getSongInfo(String songId) async {
+    String api = '/infosong?id=$songId';
+    final localResp = storage.getCached(api);
+    if (localResp.data != null) {
+      return Right(SongModel.fromJson<SupabaseApi>(localResp.data!));
+    } else {
+      return (await supabase.songs.getSongInfo(songId)).fold(
+        (l) => Left(l),
+        (r) {
+          if (r == null) return Right(null);
+          storage.updateCached(api, r.toJson<SupabaseApi>());
+          return Right(r);
+        }
+      );
+    }
+  }
+
   Future<Either<String, bool>> getIsLiked(String songId) async =>
       await supabase.songs.getIsLiked(songId);
   Future<Either<String, Null>> setIsLiked(String songId, bool isLiked) async =>
@@ -204,7 +222,7 @@ class ApiKit {
 
   Future<Either<String, List>> getSongsForHome() async {
     final String api = '/home';
-    final int lazyTime = 12 * 60 * 60;  // 12 hours
+    final int lazyTime = 12 * 60 * 60; // 12 hours
 
     return (await getCached(api, lazyTime: lazyTime)).fold(
       (l) => Left(l),
@@ -224,14 +242,39 @@ class ApiKit {
     );
   }
 
+  Future<Either<String, SearchResultModel>> search(String keyword) async {
+    keyword = normalizeSearchQueryString(keyword);
+    String api = '/search?keyword=$keyword';
+    final int lazyTime = 14 * 24 * 60 * 60; // 14 days
+
+    try {
+      return (await getCached(api, lazyTime: lazyTime)).fold(
+        (l) => Left(l),
+        (r) => r.fold((data) => Right(SearchResultModel.fromJson(data)), (
+          fallback,
+        ) async {
+          assert(fallback == null);
+          return (await supabase.cache.search(keyword)).fold((l) => Left(l), (
+            r,
+          ) async {
+            await storage.updateCached(api, r);
+            return Right(SearchResultModel.fromJson(r));
+          });
+        }),
+      );
+    } catch(e, stackTrace) {
+      log("ZingMp3 search API failed: $e", stackTrace: stackTrace, level: 1000);
+      return Left(e.toString());
+    }
+  }
+
   /* ---------------------
-  |    SUPABASE CACHE    |
-  |     AND STORAGE      |
+  |    MISCELLANEOUS     |
   --------------------- */
 
   Widget paletteColorsWidgetBuider(
     String imageUrl,
-    Widget Function(List<Color> paletteColors) func
+    Widget Function(List<Color> paletteColors) func,
   ) {
     final paletteColors = storage.getPaletteColors(imageUrl);
     if (paletteColors != null) return func(paletteColors.sublist(0));

@@ -112,4 +112,15 @@ class SupabaseCacheApi {
       return Right(r);
     });
   }
+
+  Future<Either<String, Map>> search(String keyword) async {
+    final String api = '/search?keyword=$keyword';
+
+    return (await getIt<ZingMp3Api>().search(keyword)).fold((l) => Left(l), (
+      r,
+    ) async {
+      await _client.from('api_cache').upsert({'api': api, 'data': r});
+      return Right(r);
+    });
+  }
 }

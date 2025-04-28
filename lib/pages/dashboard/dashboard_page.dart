@@ -6,6 +6,7 @@ import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/pages/dashboard/home_page.dart';
 import 'package:memecloud/pages/dashboard/liked_songs_page.dart';
 import 'package:memecloud/pages/dashboard/search/search_page.dart';
+import 'package:memecloud/pages/experiment/experiment_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -20,29 +21,32 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     final gradBg = getIt<BgCubit>();
-    late final Map? appBarAndBody;
+    late final Map? scaffElems;
 
     switch (currentPageIndex) {
       case 0:
         gradBg.setColor('/dashboard', MyBgColorSet.purple);
-        appBarAndBody = getHomePage(context);
+        scaffElems = getHomePage(context);
         break;
       case 1:
         gradBg.setColor('/dashboard', MyBgColorSet.cyan);
-        appBarAndBody = getSearchPage(context);
+        scaffElems = getSearchPage(context);
         break;
       case 2:
         gradBg.setColor('/dashboard', MyBgColorSet.redAccent);
-        appBarAndBody = getLikedSongsPage(context);
+        scaffElems = getLikedSongsPage(context);
+      case 3:
+        gradBg.setColor('/dashboard', MyBgColorSet.indigo);
+        scaffElems = getExperimentPage(context);
       default:
-        appBarAndBody = {
+        scaffElems = {
           'appBar': defaultAppBar(context, title: 'null'),
           'body': Placeholder()
         };
     }
 
     return Scaffold(
-      appBar: appBarAndBody['appBar'],
+      appBar: scaffElems['appBar'],
       body: RefreshIndicator(
         onRefresh: () async {
           setState(() {});
@@ -51,11 +55,12 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Stack(
           fit: StackFit.expand,
           children: <Widget>[
-            appBarAndBody['body'],
+            scaffElems['body'],
             getMiniPlayer()
           ]
         ),
       ),
+      floatingActionButton: scaffElems['floatingActionButton'],
       backgroundColor: Colors.transparent,
       bottomNavigationBar: _bottomNavigationBar(),
     );
@@ -72,7 +77,7 @@ class _DashboardPageState extends State<DashboardPage> {
           label: 'Liked',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.warning_amber),
+          icon: Icon(Icons.bubble_chart),
           label: 'Experiment',
         ),
       ],

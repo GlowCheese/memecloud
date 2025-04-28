@@ -3,7 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 
-AppBar defaultAppBar(BuildContext context, {required String title}) {
+AppBar defaultAppBar(
+  BuildContext context, {
+  required String title,
+  Object iconUri = 'assets/icons/listen.png'
+  // Widget iconUri = const Image.asset(, width: 30, height: 30),
+}) {
+  late final Widget icon;
+  if (iconUri is String) {
+    icon = Image.asset(iconUri, width: 30, height: 30);
+  } else if (iconUri is IconData) {
+    icon = Icon(iconUri, size: 30);
+  } else {
+    throw UnsupportedError("Unsupported iconUri=$iconUri of type ${iconUri.runtimeType}");
+  }
+
   var adaptiveTheme = AdaptiveTheme.of(context);
   return AppBar(
     backgroundColor: Colors.transparent,
@@ -15,7 +29,7 @@ AppBar defaultAppBar(BuildContext context, {required String title}) {
     leading: Container(
       alignment: Alignment.center,
       margin: EdgeInsets.only(left: 30),
-      child: Image.asset('assets/icons/listen.png', width: 30, height: 30),
+      child: icon,
     ),
     actions: [
       GestureDetector(

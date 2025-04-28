@@ -11,7 +11,7 @@ import 'package:memecloud/blocs/song_player/song_player_state.dart';
 
 class SongPlayerCubit extends Cubit<SongPlayerState> {
   AudioPlayer audioPlayer = AudioPlayer();
-  List<SongModel>? currentSongList;
+  List<SongModel> currentSongList = [];
   double currentSongSpeed = 1.0;
   late StreamSubscription _indexSub;
 
@@ -20,7 +20,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       if (index == null) {
         emit(SongPlayerInitial());
       } else {
-        emit(SongPlayerLoaded(currentSongList![index]));
+        emit(SongPlayerLoaded(currentSongList[index]));
       }
     });
   }
@@ -69,14 +69,13 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       } else {
         getIt<ApiKit>().saveSongInfo(song);
         debugPrint('Found song path: $songPath');
+        currentSongList = [song];
         if (songList == null) {
-          currentSongList = null;
           await audioPlayer.setAudioSource(
             AudioSource.file(songPath, tag: song.mediaItem),
           );
-          await audioPlayer.setLoopMode(LoopMode.off);
+          await audioPlayer.setLoopMode(LoopMode.one);
         } else {
-          currentSongList = [song];
           await audioPlayer.setAudioSources([
             AudioSource.file(songPath, tag: song.mediaItem),
           ]);
@@ -116,7 +115,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       final songPath = await _getSongPath(song);
       if (songPath != null) {
         getIt<ApiKit>().saveSongInfo(song);
-        currentSongList!.add(song);
+        currentSongList.add(song);
         await audioPlayer.addAudioSource(
           AudioSource.file(songPath, tag: song.mediaItem),
         );

@@ -12,11 +12,4 @@ import 'package:memecloud/models/search_result_model.dart';
 void main() async {
   await dotenv.load();
   await setupLocator();
-
-  final json = await getIt<ZingMp3Api>().search('badbye');
-  json.fold((l) => log('Failed to run search API: $l'), (r) {
-    final searchResult = SearchResultModel.fromJson(r);
-    debugPrint(searchResult.toString());
-    debugPrint('Done!');
-  });
 }

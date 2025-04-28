@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:dartz/dartz.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/apis/supabase/main.dart';
+import 'package:memecloud/apis/zingmp3.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -12,24 +13,21 @@ class SupabaseSongsApi {
   SupabaseSongsApi(this._client);
 
   Future<Either<String, Null>> saveSongInfo(SongModel song) async {
-    final releaseDate = song.releaseDate.toUtc().toIso8601String();
     try {
       getIt<ApiKit>().ensureConnectivity();
       try {
-        await _client.from('songs').insert({
-          'id': song.id,
-          'title': song.title,
-          'artists_names': song.artistsNames,
-          'thumbnail_url': song.thumbnailUrl,
-          'release_date': releaseDate,
-        });
+        await _client.from('songs').insert(song.toJson<SupabaseApi>());
         return Right(null);
       } on PostgrestException {
         return Right(null);
       }
     } catch (e, stackTrace) {
       if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
-        log("Failed to save song info: $e", stackTrace: stackTrace, level: 1000);
+        log(
+          "Failed to save song info: $e",
+          stackTrace: stackTrace,
+          level: 1000,
+        );
       }
       return Left(e.toString());
     }
@@ -50,6 +48,46 @@ class SupabaseSongsApi {
     } catch (e, stackTrace) {
       if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
         log('Failed to getIsLiked: $e', stackTrace: stackTrace, level: 1000);
+      }
+      return Left(e.toString());
+    }
+  }
+
+  Future<Either<String, SongModel?>> getSongInfo(String songId) async {
+    try {
+      getIt<ApiKit>().ensureConnectivity();
+      for (var retries = 0; retries < 2; retries += 1) {
+        final response =
+            await _client
+                .from('songs')
+                .select('''
+                  *,
+                  song_artists(
+                    artist:artists (*)
+                  )
+                ''')
+                .eq('id', songId)
+                .maybeSingle();
+        if (response == null) {
+          final zMp3Resp = await getIt<ZingMp3Api>().fetchSongInfo(songId);
+          if (zMp3Resp.isLeft()) {
+            return zMp3Resp.fold((l) => Left(l), (r) => throw '');
+          }
+          await getIt<ApiKit>().saveSongInfo(
+            SongModel.fromJson<ZingMp3Api>(
+              Map<String, dynamic>.from(
+                zMp3Resp.fold((l) => throw '', (r) => r),
+              ),
+            ),
+          );
+        } else {
+          return Right(SongModel.fromJson<SupabaseApi>(response));
+        }
+      }
+      return Left('Unexpted error!!!');
+    } catch (e, stackTrace) {
+      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
+        log('Failed to getSongInfo: $e', stackTrace: stackTrace, level: 1000);
       }
       return Left(e.toString());
     }
@@ -109,7 +147,11 @@ class SupabaseSongsApi {
       return Right(songsList);
     } catch (e, stackTrace) {
       if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
-        log("Failed to get liked songs: $e", stackTrace: stackTrace, level: 1000);
+        log(
+          "Failed to get liked songs: $e",
+          stackTrace: stackTrace,
+          level: 1000,
+        );
       }
       return Left(e.toString());
     }
@@ -130,7 +172,11 @@ class SupabaseSongsApi {
       return Right(filtered);
     } catch (e, stackTrace) {
       if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
-        log('Failed to fetch vip songs: $e', stackTrace: stackTrace, level: 1000);
+        log(
+          'Failed to fetch vip songs: $e',
+          stackTrace: stackTrace,
+          level: 1000,
+        );
       }
       return Left(e.toString());
     }
@@ -150,7 +196,11 @@ class SupabaseSongsApi {
       return Right(null);
     } catch (e, stackTrace) {
       if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
-        log('Failed to add song to vip: $e', stackTrace: stackTrace, level: 1000);
+        log(
+          'Failed to add song to vip: $e',
+          stackTrace: stackTrace,
+          level: 1000,
+        );
       }
       return Left(e.toString());
     }
