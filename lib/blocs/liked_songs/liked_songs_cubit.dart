@@ -5,16 +5,11 @@ import 'package:memecloud/models/song_model.dart';
 class LikedSongsCubit extends Cubit<LikedSongsState> {
   LikedSongsCubit() : super(LikedSongInitialState());
 
-  void toggleSongIsLiked(SongModel song, {bool? expectedTo}) {
-    if (expectedTo != null) {
-      assert(song.isLiked! == !expectedTo);
-    }
-    if (song.isLiked!) {
-      song.setIsLiked(false);
-      emit(UserUnlikeSong(song: song));
-    } else {
-      song.setIsLiked(true);
+  void setIsLiked(SongModel song, bool isLiked) {
+    if (isLiked) {
       emit(UserLikeSong(song: song));
+    } else {
+      emit(UserUnlikeSong(song: song));
     }
   }
 }

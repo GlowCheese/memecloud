@@ -204,7 +204,7 @@ class ApiKit {
 
   Future<Either<String, List>> getSongsForHome() async {
     final String api = '/home';
-    final int lazyTime = 45 * 60; // 45 minutes
+    final int lazyTime = 12 * 60 * 60;  // 12 hours
 
     return (await getCached(api, lazyTime: lazyTime)).fold(
       (l) => Left(l),

@@ -92,7 +92,7 @@ class _SongPageState extends State<SongPage> {
         IconButton(
           onPressed: () {
             setState(() {
-              getIt<LikedSongsCubit>().toggleSongIsLiked(song);
+              song.setIsLiked(!song.isLiked!);
             });
           },
           icon: Icon(
