@@ -45,7 +45,7 @@ class E00State extends State<E00> {
         }
       }
       color = timeline.removeLast();
-      getIt<BgCubit>().setColor('/dashboard', color);
+      getIt<BgCubit>().setColor('/experiment', color);
     });
   }
 

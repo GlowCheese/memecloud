@@ -3,7 +3,6 @@ import 'package:memecloud/blocs/gradient_bg/bg_cubit.dart';
 import 'package:memecloud/components/default_appbar.dart';
 import 'package:memecloud/components/mini_player.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/pages/experiment/experiment_page.dart';
 import 'package:memecloud/pages/dashboard/home_page.dart';
 import 'package:memecloud/pages/dashboard/liked_songs_page.dart';
 import 'package:memecloud/pages/dashboard/search/search_page.dart';
@@ -35,8 +34,6 @@ class _DashboardPageState extends State<DashboardPage> {
       case 2:
         gradBg.setColor('/dashboard', MyBgColorSet.redAccent);
         appBarAndBody = getLikedSongsPage(context);
-      case 3:
-        appBarAndBody = getExperimentPage(context);
       default:
         appBarAndBody = {
           'appBar': defaultAppBar(context, title: 'null'),

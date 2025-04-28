@@ -1,14 +1,13 @@
 import 'dart:ui';
 
-import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/blocs/liked_songs/liked_songs_cubit.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
@@ -162,11 +161,9 @@ class _MiniPlayerState extends State<_MiniPlayer> {
                               )),
                       onPressed: () {
                         if (widget.isSongLoaded) {
-                          setState(
-                            () => getIt<LikedSongsCubit>().toggleSongIsLiked(
-                              widget.song,
-                            ),
-                          );
+                          setState(() {
+                            widget.song.setIsLiked(!widget.song.isLiked!);
+                          });
                         }
                       },
                     ),

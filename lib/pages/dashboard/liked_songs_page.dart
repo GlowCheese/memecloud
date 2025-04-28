@@ -158,10 +158,7 @@ class _SongListViewState extends State<_SongListView> {
                             icon: const Icon(Icons.favorite, color: Colors.red),
                             onPressed: () {
                               if (!unlikedSongs.contains(song)) {
-                                getIt<LikedSongsCubit>().toggleSongIsLiked(
-                                  song,
-                                  expectedTo: false,
-                                );
+                                song.setIsLiked(false);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
