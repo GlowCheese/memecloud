@@ -77,11 +77,11 @@ class _SongListDisplayState extends State<_SongListDisplay> {
       children: [
         _header(title),
         ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 214),
+          constraints: BoxConstraints(maxHeight: 220),
           child: ScrollSnapList(
             initialIndex: 1,
             scrollDirection: Axis.horizontal,
-            itemSize: 160,
+            itemSize: 150,
             itemCount: songList.length,
             dynamicItemSize: true,
             onItemFocus: (index) {},
@@ -110,8 +110,8 @@ class _SongListDisplayState extends State<_SongListDisplay> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 160,
-              height: 160,
+              width: 150,
+              height: 150,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -127,7 +127,7 @@ class _SongListDisplayState extends State<_SongListDisplay> {
             ),
             const SizedBox(height: 8),
             SizedBox(
-              width: 160,
+              width: 150,
               child: Text(
                 song.title,
                 style: const TextStyle(
@@ -138,7 +138,7 @@ class _SongListDisplayState extends State<_SongListDisplay> {
               ),
             ),
             SizedBox(
-              width: 140,
+              width: 130,
               child: Text(
                 song.artistsNames,
                 style: TextStyle(

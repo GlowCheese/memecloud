@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -57,7 +59,7 @@ class _MiniPlayerState extends State<_MiniPlayer> {
     return getIt<ApiKit>().paletteColorsWidgetBuider(widget.song.thumbnailUrl, (
       List<Color> paletteColors,
     ) {
-      late final domBg, subDomBg;
+      late final Color domBg, subDomBg;
       if (adaptiveTheme.mode.isDark) {
         domBg = adjustLightness(paletteColors.first, 0.2);
         subDomBg = adjustLightness(paletteColors.last, 0.3);
