@@ -1,13 +1,15 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:memecloud/apis/storage.dart';
 import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/apis/zingmp3.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/utils/common.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ApiKit {
@@ -37,13 +39,18 @@ class ApiKit {
 
   String ignoreStatusCode = 'IGNORE_1302';
   DateTime _lastConnectivityCrash = DateTime.fromMillisecondsSinceEpoch(0);
+
   /// Stop a method from calling API for `15` seconds
   /// if connectivity is unstable.
   void ensureConnectivity() {
     if (DateTime.now().difference(_lastConnectivityCrash).inSeconds < 15) {
-      throw AuthException('SocketException: Lost connection', statusCode: ignoreStatusCode);
+      throw AuthException(
+        'SocketException: Lost connection',
+        statusCode: ignoreStatusCode,
+      );
     }
   }
+
   /// Use this when encountering an exception that potentially due
   /// to connectivity issue. Return `true` if we suspect `e`
   /// originates from a `SocketException`. Otherwise return `false`.
@@ -214,6 +221,36 @@ class ApiKit {
           },
         ),
       ),
+    );
+  }
+
+  /* ---------------------
+  |    SUPABASE CACHE    |
+  |     AND STORAGE      |
+  --------------------- */
+
+  Widget dominantColorWidgetBuider(
+    String imageUrl,
+    Widget Function(Color dominantColor) func,
+  ) {
+    Color? dominantColor = storage.getDominantColor(imageUrl);
+    if (dominantColor != null) return func(dominantColor);
+
+    return FutureBuilder(
+      future: getDominantColor(imageUrl),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        }
+        if (snapshot.hasError) {
+          return Text('Something went wrong!');
+        }
+
+        Color dominantColor = snapshot.data!;
+        unawaited(storage.setDominantColor(imageUrl, dominantColor));
+
+        return func(dominantColor);
+      },
     );
   }
 }

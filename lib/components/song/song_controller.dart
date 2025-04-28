@@ -6,9 +6,7 @@ import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/core/getit.dart';
 
 class SongControllerView extends StatefulWidget {
-  final SongPlayerCubit playerCubit = getIt<SongPlayerCubit>();
-  
-  SongControllerView({super.key});
+  const SongControllerView({super.key});
 
   @override
   State<SongControllerView> createState() => _SongControllerViewState();
@@ -19,12 +17,13 @@ class _SongControllerViewState extends State<SongControllerView> {
   Duration songPosition = Duration.zero;
   late StreamSubscription<Duration> _positionSub;
   late StreamSubscription<Duration?> _durationSub;
+  final SongPlayerCubit playerCubit = getIt<SongPlayerCubit>();
   
   @override
   void initState() {
     super.initState();
 
-    final audioPlayer = widget.playerCubit.audioPlayer;
+    final audioPlayer = playerCubit.audioPlayer;
 
     _positionSub = audioPlayer.positionStream.listen((position) {
       setState(() => songPosition = position);
@@ -72,7 +71,7 @@ class _SongControllerViewState extends State<SongControllerView> {
         min: 0,
         max: songDuration.inSeconds.toDouble(),
         onChanged: (value) async {
-          await widget.playerCubit.seekTo(Duration(seconds: value.toInt()));
+          await playerCubit.seekTo(Duration(seconds: value.toInt()));
         },
       ),
     );
@@ -105,18 +104,18 @@ class _SongControllerViewState extends State<SongControllerView> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         IconButton(
-          onPressed: () async => await widget.playerCubit.toggleShuffleMode(),
+          onPressed: () async => await playerCubit.toggleShuffleMode(),
           iconSize: 35,
           icon: Icon(
             Icons.shuffle_rounded,
             color:
-                widget.playerCubit.shuffleMode
+                playerCubit.shuffleMode
                     ? colorScheme.primary
                     : colorScheme.onSurface,
           ),
         ),
         IconButton(
-          onPressed: () async => await widget.playerCubit.seekToPrevious(),
+          onPressed: () async => await playerCubit.seekToPrevious(),
           iconSize: 35,
           icon: Icon(Icons.skip_previous),
         ),
@@ -127,18 +126,18 @@ class _SongControllerViewState extends State<SongControllerView> {
           ),
           child: IconButton(
             padding: const EdgeInsets.all(18.0),
-            onPressed: () => widget.playerCubit.playOrPause(),
+            onPressed: () => playerCubit.playOrPause(),
             iconSize: 30,
             color: colorScheme.onSecondaryContainer,
             icon: Icon(
-              widget.playerCubit.audioPlayer.playing
+              playerCubit.audioPlayer.playing
                   ? Icons.pause
                   : Icons.play_arrow,
             ),
           ),
         ),
         IconButton(
-          onPressed: () async => await widget.playerCubit.seekToNext(),
+          onPressed: () async => await playerCubit.seekToNext(),
           icon: Icon(Icons.skip_next),
           iconSize: 35,
         ),
@@ -146,9 +145,9 @@ class _SongControllerViewState extends State<SongControllerView> {
           width: 50,
           child: Center(
             child: GestureDetector(
-              onTap: () async => await widget.playerCubit.toggleSongSpeed(),
+              onTap: () async => await playerCubit.toggleSongSpeed(),
               child: Text(
-                '${widget.playerCubit.currentSongSpeed}x',
+                '${playerCubit.currentSongSpeed}x',
                 style: TextStyle(fontSize: 18),
               ),
             ),

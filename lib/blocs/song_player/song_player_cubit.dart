@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:memecloud/core/getit.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/core/getit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 
@@ -16,15 +16,13 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   late StreamSubscription _indexSub;
 
   SongPlayerCubit() : super(SongPlayerInitial()) {
-    _indexSub = audioPlayer.currentIndexStream.listen(
-      (index) {
-        if (index == null) {
-          emit(SongPlayerInitial());
-        } else {
-          emit(SongPlayerLoaded(currentSongList![index]));
-        }
+    _indexSub = audioPlayer.currentIndexStream.listen((index) {
+      if (index == null) {
+        emit(SongPlayerInitial());
+      } else {
+        emit(SongPlayerLoaded(currentSongList![index]));
       }
-    );
+    });
   }
 
   @override
@@ -72,11 +70,15 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
         debugPrint('Found song path: $songPath');
         if (songList == null) {
           currentSongList = null;
-          await audioPlayer.setFilePath(songPath);
+          await audioPlayer.setAudioSource(
+            AudioSource.file(songPath, tag: song.mediaItem),
+          );
           await audioPlayer.setLoopMode(LoopMode.off);
         } else {
           currentSongList = [song];
-          await audioPlayer.setAudioSources([AudioSource.file(songPath)]);
+          await audioPlayer.setAudioSources([
+            AudioSource.file(songPath, tag: song.mediaItem),
+          ]);
           await audioPlayer.setLoopMode(LoopMode.all);
 
           unawaited(
@@ -99,9 +101,12 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     }
   }
 
-  Future<void> lazySongPopulate(SongModel song, List<SongModel> songList) async {
+  Future<void> lazySongPopulate(
+    SongModel song,
+    List<SongModel> songList,
+  ) async {
     int initialSongIdx = songList.indexOf(song);
-    
+
     for (song in [
       ...songList.sublist(initialSongIdx + 1),
       ...songList.sublist(0, initialSongIdx + 1),
@@ -111,13 +116,15 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       if (songPath != null) {
         getIt<ApiKit>().saveSongInfo(song);
         currentSongList!.add(song);
-        await audioPlayer.addAudioSource(AudioSource.file(songPath));
+        await audioPlayer.addAudioSource(
+          AudioSource.file(songPath, tag: song.mediaItem),
+        );
       }
     }
   }
 
   void playOrPause() {
-    if (audioPlayer.playing) {
+    if (isPlaying) {
       audioPlayer.pause();
     } else {
       audioPlayer.play();
@@ -144,6 +151,8 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     return false;
   }
 
+  bool get isPlaying => audioPlayer.playing;
+
   Future<void> seekTo(Duration position) async {
     await audioPlayer.seek(position);
     emit(state);
@@ -156,10 +165,11 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     await audioPlayer.setSpeed(currentSongSpeed);
     emit(state);
   }
-  
+
   bool get shuffleMode => audioPlayer.shuffleModeEnabled;
   Future<void> seekToNext() async => await audioPlayer.seekToNext();
 
   Future<void> seekToPrevious() async => await audioPlayer.seekToPrevious();
-  Future<void> toggleShuffleMode() async => await audioPlayer.setShuffleModeEnabled(!shuffleMode);
+  Future<void> toggleShuffleMode() async =>
+      await audioPlayer.setShuffleModeEnabled(!shuffleMode);
 }

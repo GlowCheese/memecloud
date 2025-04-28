@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element_parameter
+
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/song_model.dart';
 

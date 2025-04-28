@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/blocs/gradient_background/gradient_container.dart';
+import 'package:memecloud/blocs/gradient_bg/bg_container.dart';
 
 
 Widget pageWithGradientBackground(
@@ -8,5 +8,5 @@ Widget pageWithGradientBackground(
   GoRouterState state,
   Widget body,
 ) {
-  return Stack(children: [GradientBackground(state.fullPath), body]);
+  return Stack(children: <Widget>[GradientBackground(state.fullPath), body]);
 }

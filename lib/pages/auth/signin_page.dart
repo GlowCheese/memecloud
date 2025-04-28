@@ -149,6 +149,9 @@ class _SignInPageState extends State<SignInPage> {
                       builder: (context) => const Center(child: CircularProgressIndicator()),
                     );
                     var result = await getIt<ApiKit>().signIn(email: emailController.text, password: passwordController.text);
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
                     result.fold(
                       (l) {
                         ScaffoldMessenger.of(context).showSnackBar(
