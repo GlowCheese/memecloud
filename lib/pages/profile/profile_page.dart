@@ -133,13 +133,15 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           child: ClipOval(
             child: CachedNetworkImage(
-              imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuAqi5s1FOI-T3qoE_2HD1avj69-gvq2cvIw&s', // Replace with your image URL
+              imageUrl:
+                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuAqi5s1FOI-T3qoE_2HD1avj69-gvq2cvIw&s', // Replace with your image URL
               fit: BoxFit.cover,
-              errorWidget: (context, url, error) => Icon(
-                Icons.person,
-                size: 60,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              errorWidget:
+                  (context, url, error) => Icon(
+                    Icons.person,
+                    size: 60,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
             ),
           ),
         ),
@@ -219,30 +221,111 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _editFullName() {
+    // Lưu context của màn hình chính (không phải context của dialog)
+    final BuildContext mainContext = context;
+    final TextEditingController nameController = TextEditingController(
+      text: fullName,
+    );
+
     showDialog(
-      context: context,
-      builder: (context) {
-        String newName = fullName;
+      context: mainContext,
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Sửa họ tên'),
           content: TextField(
             autofocus: true,
-            decoration: const InputDecoration(labelText: 'Họ và tên mới'),
-            controller: TextEditingController(text: fullName),
-            onChanged: (value) => newName = value,
+            decoration: const InputDecoration(
+              labelText: 'Họ và tên mới',
+              border: OutlineInputBorder(),
+            ),
+            controller: nameController,
+            textInputAction: TextInputAction.done,
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Hủy'),
             ),
             TextButton(
-              onPressed: () {
-                setState(() {
-                  fullName = newName;
-                });
-                Navigator.pop(context);
-                // Call your update function here
+              onPressed: () async {
+                final String newName = nameController.text.trim();
+
+                // Validation
+                if (newName.isEmpty) {
+                  ScaffoldMessenger.of(dialogContext).showSnackBar(
+                    const SnackBar(content: Text('Tên không được để trống')),
+                  );
+                  return;
+                }
+
+                // Nếu tên không thay đổi, đóng dialog và không làm gì
+                if (newName == fullName) {
+                  Navigator.pop(dialogContext);
+                  return;
+                }
+
+                Navigator.pop(dialogContext); // Đóng dialog
+
+                // Hiển thị loading
+                if (mounted) {
+                  setState(() {
+                    isLoading = true;
+                  });
+                }
+
+                try {
+                  // Gọi API để cập nhật tên
+                  final result = await getIt<ApiKit>().changeName(newName);
+
+                  // Xử lý kết quả
+                  if (mounted) {
+                    result.fold(
+                      (error) {
+                        ScaffoldMessenger.of(mainContext).showSnackBar(
+                          SnackBar(
+                            content: Text('Cập nhật thất bại: $error'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                        developer.log('Failed to update user name: $error');
+                      },
+                      (_) {
+                        // Cập nhật state và hiển thị thông báo thành công
+                        setState(() {
+                          fullName = newName;
+                        });
+                        ScaffoldMessenger.of(mainContext).showSnackBar(
+                          const SnackBar(
+                            content: Text('Cập nhật tên thành công'),
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      },
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(mainContext).showSnackBar(
+                      SnackBar(
+                        content: Text('Có lỗi xảy ra: $e'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                  developer.log(
+                    'Exception during update name: $e',
+                    error: e,
+                    stackTrace: StackTrace.current,
+                  );
+                } finally {
+                  // Tắt trạng thái loading
+                  if (mounted) {
+                    setState(() {
+                      isLoading = false;
+                    });
+                  }
+                }
               },
               child: const Text('Lưu'),
             ),
