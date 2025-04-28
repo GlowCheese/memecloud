@@ -1,18 +1,89 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/pages/experiment/e00.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:memecloud/blocs/gradient_bg/bg_cubit.dart';
+import 'package:memecloud/components/default_appbar.dart';
+import 'package:memecloud/pages/experiment/e01.dart';
 import 'package:memecloud/pages/experiment/e02.dart';
+import 'package:memecloud/pages/experiment/e03.dart';
+import 'package:memecloud/pages/experiment/e04.dart';
 
+final allPages = {
+  'E01': () => E01(),
+  'E02': () => E02(),
+  'E03': () => E03(),
+  'E04': () => E04(),
+};
 
-class ExperimentPage extends StatefulWidget {
-  const ExperimentPage();
+Map getExperimentPage(BuildContext context) {
+  final pageController = ExperimentPageController();
 
-  @override
-  State<ExperimentPage> createState() => _ExperimentPageState();
+  return {
+    'appBar': defaultAppBar(
+      context,
+      title: 'Experiment',
+      iconUri: 'assets/icons/experiment-icon.png',
+    ),
+    'body': _ExperimentPage(pageController),
+    'floatingActionButton': _FloatingActionButton(pageController),
+  };
 }
 
-class _ExperimentPageState extends State<ExperimentPage> {
+class ExperimentPageController {
+  void Function(String body)? setBody;
+}
+
+class _FloatingActionButton extends StatelessWidget {
+  final ExperimentPageController controller;
+
+  const _FloatingActionButton(this.controller);
+
   @override
   Widget build(BuildContext context) {
-    return E00(body: E02());
+    return SpeedDial(
+      animatedIcon: AnimatedIcons.menu_close,
+      backgroundColor: MyBgColorSet.orange,
+      children:
+          allPages.keys
+              .map(
+                (page) => SpeedDialChild(
+                  child: Text(page),
+                  // label: page,
+                  onTap: () => controller.setBody!(page),
+                ),
+              )
+              .toList(),
+    );
+  }
+}
+
+class _ExperimentPage extends StatefulWidget {
+  final ExperimentPageController controller;
+
+  const _ExperimentPage(this.controller);
+
+  @override
+  State<_ExperimentPage> createState() => _ExperimentPageState();
+}
+
+class _ExperimentPageState extends State<_ExperimentPage> {
+  String bodyCode = 'E01';
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.setBody =
+        (body) => setState(() {
+          bodyCode = body;
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    late Widget bodyWidget = allPages[bodyCode]!();
+
+    return SingleChildScrollView(
+      physics: BouncingScrollPhysics(),
+      child: bodyWidget,
+    );
   }
 }

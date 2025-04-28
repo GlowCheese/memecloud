@@ -11,8 +11,8 @@ class PlaylistModel {
   /// `id="AnOnYmOuS"` if it isn't an actual playlist
   final String id;
   final String title;
+  final String thumbnailUrl;
   final String? artistsNames;
-  final String? thumbnailUrl;
   final String? description;
   final List<SongModel>? songs;
   final List<ArtistModel>? artists;
@@ -21,8 +21,8 @@ class PlaylistModel {
   PlaylistModel._({
     this.id = anonymousId,
     required this.title,
+    required this.thumbnailUrl,
     this.artistsNames,
-    this.thumbnailUrl,
     this.description,
     this.songs,
     this.artists,
@@ -35,6 +35,7 @@ class PlaylistModel {
         title: json['title'],
         artistsNames: json['artists_names'],
         description: json['description'],
+        thumbnailUrl: 'https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg?cs=srgb&dl=pexels-pixabay-104827.jpg&fm=jpg',
         songs: json.containsKey('songs') ? SongModel.fromListJson<T>(json['songs']) : null
       );
     } else if (T == ZingMp3Api) {
@@ -42,7 +43,7 @@ class PlaylistModel {
         id: json['encodeId'],
         title: json['title'],
         artistsNames: json['artistsNames'],
-        thumbnailUrl: json['thumbnailM'],
+        thumbnailUrl: json['thumbnailM'] ?? json['thumbnail'],
         description: json['sortDescription'] ?? json['description'],
         songs: json.containsKey('song') ? SongModel.fromListJson<T>(json['song']['items']) : null,
         artists: json.containsKey('artists') ? ArtistModel.fromListJson<T>(json['artists']) : null

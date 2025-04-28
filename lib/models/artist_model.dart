@@ -31,7 +31,7 @@ class ArtistModel {
         id: json['id'],
         name: json['name'],
         alias: json['alias'],
-        thumbnailUrl: json['thumbnailM'],
+        thumbnailUrl: json['thumbnailM'] ?? json['thumbnail'],
         playlistId: json['playlistId'],
         realname: json['realname'],
         biography: json['biography'],
@@ -53,6 +53,27 @@ class ArtistModel {
       );
     } else {
       throw UnsupportedError('Unsupported parse json for type $T');
+    }
+  }
+
+  Map toJson<T>() {
+    if (T == SupabaseApi) {
+      return {
+        'artist': {
+          'id': id,
+          'name': name,
+          'alias': alias,
+          'thumbnail_url': thumbnailUrl,
+          'playlist_id': playlistId,
+          'realname': realname,
+          'bio': biography,
+          'short_bio': shortBiography,
+        },
+      };
+    } else {
+      throw UnsupportedError(
+        'Unsupported convert ArtistModel to json for type $T',
+      );
     }
   }
 

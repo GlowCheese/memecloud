@@ -51,7 +51,7 @@ class ZingMp3Api {
     }
   }
 
-  Future<Either<String, dynamic>> fetchSongInfo(String id) async {
+  Future<Either<String, Map>> fetchSongInfo(String id) async {
     try {
       final resp = await _sendRequest('/infosong', params: {'id': id});
       Map data = resp.data['data'];
@@ -65,7 +65,7 @@ class ZingMp3Api {
     }
   }
 
-  Future<Either<String, dynamic>> search(String keyword) async {
+  Future<Either<String, Map>> search(String keyword) async {
     try {
       final resp = await _sendRequest('/search', params: {'keyword': keyword});
       Map data = resp.data['data'];

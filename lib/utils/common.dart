@@ -49,6 +49,10 @@ Color getTextColor(Color bgColor) {
     : Colors.black;
 }
 
+String normalizeSearchQueryString(String searchQuery) {
+  return searchQuery.toLowerCase().trim().replaceAll(RegExp(r'\s+'), ' ');
+}
+
 String getCurrentRoute(BuildContext context) {
   return GoRouter.of(context).routeInformationProvider.value.uri.toString();
 }
