@@ -24,19 +24,27 @@ class SupabaseProfileApi {
       final userModel = UserModel.fromJson(userJson);
       return Right(userModel);
     } catch (e, stackTrace) {
-      log('Error getting current user: $e', stackTrace: stackTrace, level: 1000);
+      log(
+        'Error getting current user: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
       return Left('Error: $e');
     }
   }
 
-  Future<Either> updateUserInfo(String fullName, String email) async {
+  Future<Either> changeName(String fullName) async {
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) return Left('User has not logged in');
 
+      // Thay 'full_name' bằng tên cột chính xác trong database của bạn
+      // Ví dụ: nếu tên cột là 'name'
       await _client
           .from('users')
-          .update({'full_name': fullName, 'email': email})
+          .update({
+            'display_name': fullName,
+          }) // Thay 'full_name' thành tên cột đúng
           .eq('id', userId);
 
       return Right(null);
@@ -99,11 +107,6 @@ class SupabaseProfileApi {
         .from('profiles')
         .update({'avatar_url': null})
         .eq('id', userId);
-  }
-
-  Future<Either> changeName(String newName) async {
-    // TODO: implement changeName
-    throw UnimplementedError();
   }
 }
 
