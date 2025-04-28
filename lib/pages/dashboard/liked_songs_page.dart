@@ -59,6 +59,7 @@ class _SongListView extends StatefulWidget {
 }
 
 class _SongListViewState extends State<_SongListView> {
+  Set<SongModel> unlikedSongs = {};
   late List<SongModel> currentLikedSongs;
 
   @override
@@ -133,32 +134,51 @@ class _SongListViewState extends State<_SongListView> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.favorite, color: Colors.red),
-                      onPressed: () {
-                        song.setIsLiked(false);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Đã unlike 1 bài hát!'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
+                    AnimatedOpacity(
+                      opacity: unlikedSongs.contains(song) ? 0.0 : 1.0,
+                      duration: Duration(milliseconds: 600),
+                      onEnd: () {
                         setState(() {
-                          assert(currentLikedSongs.remove(song));
+                          unlikedSongs.remove(song);
+                          currentLikedSongs.remove(song);
                         });
                       },
+                      child: IconButton(
+                        icon: const Icon(Icons.favorite, color: Colors.red),
+                        onPressed: () {
+                          if (!unlikedSongs.contains(song)) {
+                            song.setIsLiked(false);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Đã unlike thành công 1 bài hát!'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                            setState(() {
+                              unlikedSongs.add(song);
+                            });
+                          }
+                        },
+                      ),
                     ),
                     IconButton(
                       icon:
-                          (song.id == currentPlayingSong?.id)
+                          (
+                            song.id == currentPlayingSong?.id
+                            && playerCubit.isPlaying
+                          )
                               ? (Icon(Icons.pause_rounded))
                               : (Icon(Icons.play_arrow_rounded)),
                       onPressed: () async {
-                        await playerCubit.loadAndPlay(
-                          context,
-                          song,
-                          songList: currentLikedSongs,
-                        );
+                        if (song.id == currentPlayingSong?.id) {
+                          playerCubit.playOrPause();
+                        } else {
+                          await playerCubit.loadAndPlay(
+                            context,
+                            song,
+                            songList: currentLikedSongs,
+                          );
+                        }
                       },
                     ),
                   ],

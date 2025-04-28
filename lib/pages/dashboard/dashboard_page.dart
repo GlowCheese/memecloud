@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/blocs/gradient_background/gradient_cubit.dart';
+import 'package:memecloud/blocs/gradient_bg/bg_cubit.dart';
 import 'package:memecloud/components/default_appbar.dart';
 import 'package:memecloud/components/mini_player.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/pages/experiment/experiment_page.dart';
 import 'package:memecloud/pages/dashboard/home_page.dart';
 import 'package:memecloud/pages/dashboard/liked_songs_page.dart';
 import 'package:memecloud/pages/dashboard/search/search_page.dart';
@@ -19,23 +20,24 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    final bgCubit = getIt<GradientBgCubit>();
+    final gradBg = getIt<BgCubit>();
     late final Map? appBarAndBody;
 
     switch (currentPageIndex) {
       case 0:
-        bgCubit.setColor(MyBgColorSet.purple);
+        gradBg.setColor('/dashboard', MyBgColorSet.purple);
         appBarAndBody = getHomePage(context);
         break;
       case 1:
-        bgCubit.setColor(MyBgColorSet.cyan);
+        gradBg.setColor('/dashboard', MyBgColorSet.cyan);
         appBarAndBody = getSearchPage(context);
         break;
       case 2:
-        bgCubit.setColor(MyBgColorSet.redAccent);
+        gradBg.setColor('/dashboard', MyBgColorSet.redAccent);
         appBarAndBody = getLikedSongsPage(context);
+      case 3:
+        appBarAndBody = getExperimentPage(context);
       default:
-        bgCubit.setColor(MyBgColorSet.grey);
         appBarAndBody = {
           'appBar': defaultAppBar(context, title: 'null'),
           'body': Placeholder()
@@ -49,9 +51,14 @@ class _DashboardPageState extends State<DashboardPage> {
           setState(() {});
           await Future.delayed(Duration(seconds: 1));
         },
-        child: appBarAndBody['body'],
+        child: Stack(
+          fit: StackFit.expand,
+          children: <Widget>[
+            appBarAndBody['body'],
+            getMiniPlayer()
+          ]
+        ),
       ),
-      bottomSheet: getMiniPlayer(),
       backgroundColor: Colors.transparent,
       bottomNavigationBar: _bottomNavigationBar(),
     );

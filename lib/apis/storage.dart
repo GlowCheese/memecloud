@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 import 'package:hive_flutter/adapters.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -9,6 +10,7 @@ class HiveBoxes {
       Hive.openBox<bool>('savedSongsInfo'),
       Hive.openBox<bool>('vipSongs'),
       Hive.openBox<Map>('apiCache'),
+      Hive.openBox<int>('dominantColor'),
     ]);
     return HiveBoxes();
   }
@@ -16,6 +18,7 @@ class HiveBoxes {
   Box<bool> get savedSongsInfo => Hive.box('savedSongsInfo');
   Box<bool> get vipSongs => Hive.box('vipSongs');
   Box<Map> get apiCache => Hive.box('apiCache');
+  Box<int> get dominantColor => Hive.box('dominantColor');
 }
 
 class CachedDataWithFallback<T> {
@@ -103,5 +106,14 @@ class PersistentStorage {
       'data': jsonEncode(data),
       'created_at': DateTime.now().millisecondsSinceEpoch,
     });
+  }
+
+  Color? getDominantColor(String url) {
+    int? value = hiveBoxes.dominantColor.get(url);
+    return value == null ? null : Color(value);
+  }
+
+  Future<void> setDominantColor(String url, Color color) async {
+    await hiveBoxes.dominantColor.put(url, color.toARGB32());
   }
 }

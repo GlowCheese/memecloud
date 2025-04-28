@@ -2,14 +2,16 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/core/justaudio_init.dart';
 import 'package:memecloud/core/theme.dart';
 import 'package:memecloud/routes/main.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
-void main() async {
+Future<void> main() async {
   await dotenv.load();
   await setupLocator();
+  await justAudioBackgroundInit();
 
   runApp(const MyApp());
 }

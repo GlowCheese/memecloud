@@ -1,3 +1,4 @@
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/apis/zingmp3.dart';
@@ -67,4 +68,12 @@ class SongModel {
     resp.fold((l) => throw l, (r) => isLiked = r);
     return isLiked!;
   }
+
+  MediaItem get mediaItem => MediaItem(
+    id: id,
+    title: title,
+    album: 'My album',
+    artUri: Uri.parse(thumbnailUrl),
+    artist: artistsNames
+  );
 }
