@@ -229,15 +229,15 @@ class ApiKit {
   |     AND STORAGE      |
   --------------------- */
 
-  Widget dominantColorWidgetBuider(
+  Widget paletteColorsWidgetBuider(
     String imageUrl,
-    Widget Function(Color dominantColor) func,
+    Widget Function(List<Color> paletteColors) func
   ) {
-    Color? dominantColor = storage.getDominantColor(imageUrl);
-    if (dominantColor != null) return func(dominantColor);
+    final paletteColors = storage.getPaletteColors(imageUrl);
+    if (paletteColors != null) return func(paletteColors.sublist(0));
 
     return FutureBuilder(
-      future: getDominantColor(imageUrl),
+      future: getPaletteColors(imageUrl),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator();
@@ -246,10 +246,9 @@ class ApiKit {
           return Text('Something went wrong!');
         }
 
-        Color dominantColor = snapshot.data!;
-        unawaited(storage.setDominantColor(imageUrl, dominantColor));
-
-        return func(dominantColor);
+        final paletteColors = snapshot.data!;
+        unawaited(storage.setPaletteColors(imageUrl, paletteColors));
+        return func(paletteColors);
       },
     );
   }

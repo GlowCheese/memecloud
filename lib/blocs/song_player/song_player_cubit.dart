@@ -59,6 +59,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   }) async {
     try {
       debugPrint('Loading song ${song.title}');
+      await song.loadIsLiked();
       emit(SongPlayerLoading(song));
       await audioPlayer.stop();
 
