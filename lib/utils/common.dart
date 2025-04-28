@@ -5,23 +5,24 @@ import 'package:go_router/go_router.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-Future<Color> getDominantColor(String imageUrl) async {
+Future<List<Color>> getPaletteColors(String imageUrl) async {
   final PaletteGenerator paletteGenerator = await PaletteGenerator.fromImageProvider(
     CachedNetworkImageProvider(imageUrl),
     size: Size(200, 200),
     maximumColorCount: 20,
   );
 
-  var color = paletteGenerator.dominantColor?.color;
-  if (color != null) {
-    return color;
-  } else {
-    log('paletteGenerator failed to find dominantColor for: $imageUrl', level: 900);
-    return Colors.grey.shade700;
+  var colors = paletteGenerator.paletteColors;
+  if (colors.isEmpty) {
+    log('paletteGenerator failed to find paletteColors for: $imageUrl', level: 900);
+    return [Colors.grey.shade700];
   }
+
+  return colors.map((e) => e.color).toList();
 }
 
 Color adjustLightness(Color color, double targetLightness) {
+  // ignore: deprecated_member_use
   final rgbColor = color_pkg.RgbColor(color.red, color.green, color.blue);
 
   final hslColor = rgbColor.toHslColor();

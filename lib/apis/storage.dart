@@ -10,7 +10,7 @@ class HiveBoxes {
       Hive.openBox<bool>('savedSongsInfo'),
       Hive.openBox<bool>('vipSongs'),
       Hive.openBox<Map>('apiCache'),
-      Hive.openBox<int>('dominantColor'),
+      Hive.openBox<List<int>>('paletteColors'),
     ]);
     return HiveBoxes();
   }
@@ -18,7 +18,7 @@ class HiveBoxes {
   Box<bool> get savedSongsInfo => Hive.box('savedSongsInfo');
   Box<bool> get vipSongs => Hive.box('vipSongs');
   Box<Map> get apiCache => Hive.box('apiCache');
-  Box<int> get dominantColor => Hive.box('dominantColor');
+  Box<List<int>> get paletteColors => Hive.box('paletteColors');
 }
 
 class CachedDataWithFallback<T> {
@@ -108,12 +108,13 @@ class PersistentStorage {
     });
   }
 
-  Color? getDominantColor(String url) {
-    int? value = hiveBoxes.dominantColor.get(url);
-    return value == null ? null : Color(value);
+  List<Color>? getPaletteColors(String url) {
+    final value = hiveBoxes.paletteColors.get(url);
+    if (value == null) return null;
+    return value.map((e) => Color(e)).toList();
   }
 
-  Future<void> setDominantColor(String url, Color color) async {
-    await hiveBoxes.dominantColor.put(url, color.toARGB32());
+  Future<void> setPaletteColors(String url, List<Color> colors) async {
+    await hiveBoxes.paletteColors.put(url, colors.map((e) => e.toARGB32()).toList());
   }
 }

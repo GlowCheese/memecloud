@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/blocs/gradient_bg/bg_cubit.dart';
+import 'package:memecloud/blocs/liked_songs/liked_songs_cubit.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/components/song/song_controller.dart';
 import 'package:memecloud/models/song_model.dart';
@@ -28,10 +29,10 @@ class _SongPageState extends State<SongPage> {
           return SizedBox();
         }
 
-        return getIt<ApiKit>().dominantColorWidgetBuider(
+        return getIt<ApiKit>().paletteColorsWidgetBuider(
           state.currentSong.thumbnailUrl,
-          (bgColor) {
-            getIt<BgCubit>().setColor('/song_play', bgColor);
+          (paletteColors) {
+            getIt<BgCubit>().setColor('/song_play', paletteColors[0]);
             return Scaffold(
               appBar: _appBar(context),
               backgroundColor: Colors.transparent,
@@ -91,7 +92,7 @@ class _SongPageState extends State<SongPage> {
         IconButton(
           onPressed: () {
             setState(() {
-              song.setIsLiked(!song.isLiked!);
+              getIt<LikedSongsCubit>().toggleSongIsLiked(song);
             });
           },
           icon: Icon(
