@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:memecloud/core/getit.dart';
 
 class ZingMp3Requester {
@@ -9,8 +10,8 @@ class ZingMp3Requester {
 
   final _version = "1.13.13";
   final _baseUrl = "https://zingmp3.vn";
-  final _apiKey = "X5BM3w8N7MKozC0B85o4KMlzLZKhV00y";
-  final _secretKey = "acOrvUS15XRW2o9JksiK1KgQ6Vbds8ZW";
+  final _apiKey = dotenv.env['ZINGMP3_API_KEY'].toString();
+  final _secretKey = dotenv.env['ZINGMP3_SECRET_KEY'].toString();
   get _cTime => (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
 
   String _getHash256(String str) {
