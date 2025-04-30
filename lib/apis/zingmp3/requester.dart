@@ -112,7 +112,7 @@ class ZingMp3Requester {
 
   Future<Map> getDetailPlaylist(String playlistId) {
     final path = "/api/v2/page/get/playlist";
-    return _sendRequest(path, id: playlistId);
+    return _sendRequest(path, id: playlistId, allowedErrorCodes: [-1031]);
   }
 
   Future<Map> getHome({int page = 1}) {
@@ -166,7 +166,7 @@ class ZingMp3Requester {
 
   Future<Map> getArtist(String artistAlias) {
     final path = "/api/v2/page/get/artist";
-    return _sendRequest(path, extra: {'alias': artistAlias});
+    return _sendRequest(path, extra: {'alias': artistAlias}, allowedErrorCodes: [-108]);
   }
 
   Future<Map> getLyric(String songId) {

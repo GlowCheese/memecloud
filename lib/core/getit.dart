@@ -4,6 +4,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/apis/storage.dart';
+import 'package:memecloud/apis/zingmp3/requester.dart';
 import 'package:memecloud/core/dio_init.dart';
 import 'package:memecloud/apis/connectivity.dart';
 import 'package:memecloud/apis/supabase/main.dart';
@@ -22,6 +23,7 @@ Future<void> setupLocator() async {
   getIt.registerSingleton<ConnectivityStatus>(ConnectivityStatus());
 
   // ZingMp3 API
+  getIt.registerSingleton<ZingMp3Requester>(ZingMp3Requester());
   getIt.registerSingleton<ZingMp3Api>(ZingMp3Api());
 
   // Supabase API

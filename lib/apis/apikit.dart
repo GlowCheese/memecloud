@@ -5,6 +5,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/storage.dart';
+import 'package:memecloud/models/artist_model.dart';
+import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:memecloud/apis/connectivity.dart';
 import 'package:memecloud/apis/supabase/main.dart';
@@ -167,6 +169,25 @@ class ApiKit {
     } on ConnectionLoss {
       return songsIds.where((e) => storage.isNonVipSong(e) == true).toList();
     }
+  }
+
+  /* --------------------
+  |    PLAYLISTS AND    |
+  |     ARTISTS APIs    |
+  -------------------- */
+
+  Future<PlaylistModel?> getPlaylistInfo(String playlistId) async {
+    // TODO: cache this data!
+    final zingResp = await zingMp3.fetchPlaylistInfo(playlistId);
+    if (zingResp == null) return null;
+    return PlaylistModel.fromJson<ZingMp3Api>(zingResp);
+  }
+
+  Future<ArtistModel?> getArtistInfo(String artistId) async {
+    // TODO: cache this data!
+    final zingResp = await zingMp3.fetchArtistInfo(artistId);
+    if (zingResp == null) return null;
+    return ArtistModel.fromJson<ZingMp3Api>(zingResp);
   }
 
   /* ---------------------

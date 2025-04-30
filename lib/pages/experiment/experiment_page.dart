@@ -8,6 +8,8 @@ import 'package:memecloud/pages/experiment/e03.dart';
 import 'package:memecloud/pages/experiment/e04.dart';
 import 'package:memecloud/pages/experiment/e05.dart';
 
+// register cái mới vào đây
+
 final allPages = {
   'E01': () => E01(),
   'E02': () => E02(),
