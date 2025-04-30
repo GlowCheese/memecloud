@@ -1,4 +1,4 @@
-import 'package:memecloud/apis/zingmp3.dart';
+import 'package:memecloud/apis/zingmp3/endpoints.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';

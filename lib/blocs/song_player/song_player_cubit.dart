@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:memecloud/apis/connectivity.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -46,10 +47,17 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   }
 
   Future<String?> _getSongPath(SongModel song) async {
-    await song.loadIsLiked();
-    return (await getIt<ApiKit>().getSongPath(
-      song.id,
-    )).fold((l) => null, (r) => r);
+    try {
+      await song.loadIsLiked();
+      await getIt<ApiKit>().saveSongInfo(song);
+    } on ConnectionLoss {
+      song.setIsLiked(false, sync: false);
+    }
+    try {
+      return await getIt<ApiKit>().getSongPath(song.id);
+    } on ConnectionLoss {
+      return null;
+    }
   }
 
   Future<bool> _loadSong(
@@ -59,7 +67,6 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   }) async {
     try {
       debugPrint('Loading song ${song.title}');
-      await song.loadIsLiked();
       emit(SongPlayerLoading(song));
       await audioPlayer.stop();
 
@@ -67,7 +74,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       if (songPath == null) {
         return !context.mounted || onSongFailedToLoad(context);
       } else {
-        getIt<ApiKit>().saveSongInfo(song);
+        // TODO: put this line somewhere else!
         debugPrint('Found song path: $songPath');
         currentSongList = [song];
         if (songList == null) {
@@ -95,7 +102,8 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
         emit(SongPlayerLoaded(song));
         return true;
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      log('Failed to load song: $e', stackTrace: stackTrace, level: 1000);
       emit(SongPlayerFailure());
       return !context.mounted || onSongFailedToLoad(context);
     }
@@ -109,7 +117,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
 
     for (song in [
       ...songList.sublist(initialSongIdx + 1),
-      ...songList.sublist(0, initialSongIdx + 1),
+      ...songList.sublist(0, initialSongIdx),
     ]) {
       if (state is! SongPlayerLoaded) return Future.value();
       final songPath = await _getSongPath(song);

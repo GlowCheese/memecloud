@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/blocs/gradient_bg/bg_cubit.dart';
-import 'package:memecloud/blocs/liked_songs/liked_songs_cubit.dart';
-import 'package:memecloud/blocs/song_player/song_player_state.dart';
-import 'package:memecloud/components/song/song_controller.dart';
-import 'package:memecloud/models/song_model.dart';
-import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/apis/apikit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/blocs/gradient_bg/bg_cubit.dart';
+import 'package:memecloud/components/song/song_controller.dart';
+import 'package:memecloud/blocs/song_player/song_player_state.dart';
+import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 
 class SongPage extends StatefulWidget {
   const SongPage({super.key});

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/components/default_future_builder.dart';
 import 'package:memecloud/core/getit.dart';
 
 class E04 extends StatelessWidget {
@@ -7,20 +8,9 @@ class E04 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: getIt<ApiKit>().getSongInfo('Z78BZ0D7'),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        }
-
-        if (snapshot.hasError) {
-          return Text('Failed to get song info!');
-        }
-
-        final res = snapshot.data!;
-        return res.fold((l) => Text(l), (r) => Text(r.toString()));
-      },
+    return defaultFutureBuilder(
+      future: getIt<ApiKit>().getPlaylistInfo('Son-Tung-M-TP'),
+      onData: (context, data) => Text(data.toString())
     );
   }
 }

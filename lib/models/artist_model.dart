@@ -1,5 +1,6 @@
 import 'package:memecloud/apis/supabase/main.dart';
-import 'package:memecloud/apis/zingmp3.dart';
+import 'package:memecloud/apis/zingmp3/endpoints.dart';
+import 'package:memecloud/utils/common.dart';
 
 class ArtistModel {
   final String id;
@@ -59,7 +60,7 @@ class ArtistModel {
   Map toJson<T>() {
     if (T == SupabaseApi) {
       return {
-        'artist': {
+        'artist': ignoreNullValuesOfMap({
           'id': id,
           'name': name,
           'alias': alias,
@@ -68,7 +69,7 @@ class ArtistModel {
           'realname': realname,
           'bio': biography,
           'short_bio': shortBiography,
-        },
+        })
       };
     } else {
       throw UnsupportedError(

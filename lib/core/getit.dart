@@ -4,29 +4,36 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/apis/storage.dart';
-import 'package:memecloud/apis/zingmp3.dart';
+import 'package:memecloud/apis/zingmp3/requester.dart';
+import 'package:memecloud/core/dio_init.dart';
+import 'package:memecloud/apis/connectivity.dart';
+import 'package:memecloud/apis/supabase/main.dart';
+import 'package:memecloud/apis/zingmp3/endpoints.dart';
 import 'package:memecloud/blocs/gradient_bg/bg_cubit.dart';
 import 'package:memecloud/blocs/liked_songs/liked_songs_cubit.dart';
-import 'package:memecloud/core/dio_init.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 
 final getIt = GetIt.instance;
 
 Future<void> setupLocator() async {
-  // gradient background
-  getIt.registerSingleton<BgCubit>(BgCubit());
-
   // oh, you're approaching me?
   final (dio, cookieJar) = await createDioWithPersistentCookies();
   getIt.registerSingleton<Dio>(dio);
   getIt.registerSingleton<CookieJar>(cookieJar);
-  getIt.registerSingleton<ZingMp3Api>(ZingMp3Api(dio: dio));
+  getIt.registerSingleton<ConnectivityStatus>(ConnectivityStatus());
+
+  // ZingMp3 API
+  getIt.registerSingleton<ZingMp3Requester>(ZingMp3Requester());
+  getIt.registerSingleton<ZingMp3Api>(ZingMp3Api());
+
+  // Supabase API
+  final supabase = await SupabaseApi.initialize();
+  getIt.registerSingleton<SupabaseApi>(supabase);
 
   // local storage & api kit
   final storage = await PersistentStorage.initialize();
   getIt.registerSingleton<PersistentStorage>(storage);
-  final apiKit = await ApiKit.initialize(storage: storage);
-  getIt.registerSingleton<ApiKit>(apiKit);
+  getIt.registerSingleton<ApiKit>(ApiKit());
 
   // song player
   final playerCubit = SongPlayerCubit();
@@ -34,5 +41,6 @@ Future<void> setupLocator() async {
   getIt.registerSingleton<AudioPlayer>(playerCubit.audioPlayer);
 
   // miscs
+  getIt.registerSingleton<BgCubit>(BgCubit());
   getIt.registerSingleton<LikedSongsCubit>(LikedSongsCubit());
 }

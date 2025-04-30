@@ -60,19 +60,17 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
 
-    final result = await getIt<ApiKit>().signUp(
-      email: email, password: password, fullName: fullName
-    );
-
-    result.fold(
-      (l) {
-        _showSnackBar('Đăng ký không thành công! Lỗi $l');
-      },
-      (r) {
-        _showSnackBar('Đăng ký thành công!');
-        context.go('/signin');
-      },
-    );
+    try {
+      await getIt<ApiKit>().signUp(
+        email: email,
+        password: password,
+        fullName: fullName,
+      );
+      _showSnackBar('Đăng ký thành công!');
+      if (mounted) context.go('/signin');
+    } catch(e) {
+      _showSnackBar('Đăng ký không thành công! Lí do: $e');
+    }
   }
 
   @override

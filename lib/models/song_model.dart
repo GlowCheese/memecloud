@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/apis/supabase/main.dart';
-import 'package:memecloud/apis/zingmp3.dart';
+import 'package:memecloud/apis/zingmp3/endpoints.dart';
 import 'package:memecloud/blocs/liked_songs/liked_songs_cubit.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/artist_model.dart';
@@ -54,17 +56,20 @@ class SongModel {
     }
   }
 
-  Map toJson<T>() {
+  Map toJson<T>({bool only = false}) {
     if (T == SupabaseApi) {
       final releaseDateString = releaseDate.toUtc().toIso8601String();
-      return {
+      Map<String, Object> res = {
         'id': id,
         'title': title,
         'artists_names': artistsNames,
         'thumbnail_url': thumbnailUrl,
-        'release_date': releaseDateString,
-        'song_artists': artists.map((e) => e.toJson<T>()).toList()
+        'release_date': releaseDateString
       };
+      if (!only) {
+        res['song_artists'] = artists.map((e) => e.toJson<T>()).toList();
+      }
+      return res;
     } else {
       throw UnsupportedError('Unsupported convert UserModel to json for type $T');
     }
@@ -74,16 +79,16 @@ class SongModel {
     return list.map((json) => SongModel.fromJson<T>(json)).toList();
   }
 
-  bool setIsLiked(bool newValue) {
-    assert(isLiked! != newValue);
-    getIt<ApiKit>().setIsLiked(id, newValue);
+  bool setIsLiked(bool newValue, {bool sync = true}) {
+    if (sync) {
+      unawaited(getIt<ApiKit>().setIsLiked(id, newValue));
+    }
     getIt<LikedSongsCubit>().setIsLiked(this, newValue);
     return isLiked = newValue;
   }
 
   Future<bool> loadIsLiked() async {
-    final resp = await getIt<ApiKit>().getIsLiked(id);
-    resp.fold((l) => throw l, (r) => isLiked = r);
+    isLiked = await getIt<ApiKit>().getIsLiked(id);
     return isLiked!;
   }
 

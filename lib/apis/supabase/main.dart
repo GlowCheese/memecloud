@@ -6,16 +6,6 @@ import 'package:memecloud/apis/supabase/profile.dart';
 import 'package:memecloud/apis/supabase/songs.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-bool _initialized = false;
-
-Future<void> initializeSupabase() async {
-  await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL'].toString(),
-    anonKey: dotenv.env['SUPABASE_ANON_KEY'].toString(),
-    authOptions: FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
-  );
-  _initialized = true;
-}
 
 class SupabaseApi {
   late final SupabaseClient client;
@@ -25,16 +15,21 @@ class SupabaseApi {
   late final SupabaseProfileApi profile;
   late final SupabaseCacheApi cache;
 
-  SupabaseApi() {
-    assert(
-      _initialized,
-      'initializeSupabase() must be called before this constructor!',
-    );
+  SupabaseApi._() {
     client = Supabase.instance.client;
     auth = SupabaseAuthApi(client);
     songs = SupabaseSongsApi(client);
     profile = SupabaseProfileApi(client);
     cache = SupabaseCacheApi(client);
     artists = SupabaseArtistsApi(client);
+  }
+
+  static Future<SupabaseApi> initialize() async {
+    await Supabase.initialize(
+      url: dotenv.env['SUPABASE_URL'].toString(),
+      anonKey: dotenv.env['SUPABASE_ANON_KEY'].toString(),
+      authOptions: FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
+    );
+    return SupabaseApi._();
   }
 }

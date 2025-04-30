@@ -26,7 +26,7 @@ class CachedDataWithFallback<T> {
   final T? fallback;
   CachedDataWithFallback({this.data, this.fallback});
 
-  R fold<R>(R Function(T value) onData, R Function(T? fallback) onFallback) {
+  R fold<R>(R Function(T data) onData, R Function(T? fallback) onFallback) {
     if (data != null) {
       return onData(data as T);
     } else  {
@@ -87,17 +87,17 @@ class PersistentStorage {
     return songIds.where((songId) => isNonVipSong(songId) == true).toList();
   }
 
-  CachedDataWithFallback getCached(String api, {int? lazyTime}) {
+  CachedDataWithFallback<T> getCached<T>(String api, {int? lazyTime}) {
     final resp = hiveBoxes.apiCache.get(api);
-    if (resp == null) return CachedDataWithFallback();
+    if (resp == null) return CachedDataWithFallback<T>();
 
     final createdAt = DateTime.fromMillisecondsSinceEpoch(resp['created_at']);
     final now = DateTime.now();
 
     if (lazyTime != null && now.difference(createdAt).inSeconds > lazyTime) {
-      return CachedDataWithFallback(fallback: jsonDecode(resp['data']));
+      return CachedDataWithFallback<T>(fallback: jsonDecode(resp['data']));
     } else {
-      return CachedDataWithFallback(data: jsonDecode(resp['data']));
+      return CachedDataWithFallback<T>(data: jsonDecode(resp['data']));
     }
   }
 
