@@ -1,9 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/getit.dart';
-import 'dart:developer' as developer;
+import 'package:memecloud/apis/apikit.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -32,37 +31,20 @@ class _ProfilePageState extends State<ProfilePage> {
         errorMessage = null;
       });
 
-      final result = await getIt<ApiKit>().getProfile();
-
-      result.fold(
-        (error) {
-          developer.log('Failed to get user account: $error');
-          setState(() {
-            errorMessage = error;
-            isLoading = false;
-          });
-        },
-        (userAccount) {
-          setState(() {
-            if (userAccount != null) {
-              fullName = userAccount.displayName;
-              email = userAccount.email;
-              avatarUrl = userAccount.avatarUrl;
-              developer.log('User account: $userAccount');
-            } else {
-              developer.log('User not found');
-              errorMessage = "Không tìm thấy thông tin người dùng";
-            }
-            isLoading = false;
-          });
-        },
-      );
-    } catch (e, stackTrace) {
-      developer.log(
-        'Exception during syncUserAccount: $e',
-        error: e,
-        stackTrace: stackTrace,
-      );
+      final userAccount = await getIt<ApiKit>().getProfile();
+      setState(() {
+        if (userAccount != null) {
+          fullName = userAccount.displayName;
+          email = userAccount.email;
+          avatarUrl = userAccount.avatarUrl;
+          debugPrint('User account: $userAccount');
+        } else {
+          debugPrint('User not found');
+          errorMessage = "Không tìm thấy thông tin người dùng";
+        }
+        isLoading = false;
+      });
+    } catch (e) {
       setState(() {
         errorMessage = "Có lỗi xảy ra: $e";
         isLoading = false;
@@ -221,14 +203,12 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _editFullName() {
-    // Lưu context của màn hình chính (không phải context của dialog)
-    final BuildContext mainContext = context;
     final TextEditingController nameController = TextEditingController(
       text: fullName,
     );
 
     showDialog(
-      context: mainContext,
+      context: context,
       builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Sửa họ tên'),
@@ -250,7 +230,6 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () async {
                 final String newName = nameController.text.trim();
 
-                // Validation
                 if (newName.isEmpty) {
                   ScaffoldMessenger.of(dialogContext).showSnackBar(
                     const SnackBar(content: Text('Tên không được để trống')),
@@ -258,13 +237,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   return;
                 }
 
-                // Nếu tên không thay đổi, đóng dialog và không làm gì
                 if (newName == fullName) {
                   Navigator.pop(dialogContext);
                   return;
                 }
 
-                Navigator.pop(dialogContext); // Đóng dialog
+                Navigator.pop(dialogContext);
 
                 // Hiển thị loading
                 if (mounted) {
@@ -274,50 +252,29 @@ class _ProfilePageState extends State<ProfilePage> {
                 }
 
                 try {
-                  // Gọi API để cập nhật tên
-                  final result = await getIt<ApiKit>().changeName(newName);
+                  await getIt<ApiKit>().changeName(newName);
 
-                  // Xử lý kết quả
+                  setState(() {
+                    fullName = newName;
+                  });
                   if (mounted) {
-                    result.fold(
-                      (error) {
-                        ScaffoldMessenger.of(mainContext).showSnackBar(
-                          SnackBar(
-                            content: Text('Cập nhật thất bại: $error'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                        developer.log('Failed to update user name: $error');
-                      },
-                      (_) {
-                        // Cập nhật state và hiển thị thông báo thành công
-                        setState(() {
-                          fullName = newName;
-                        });
-                        ScaffoldMessenger.of(mainContext).showSnackBar(
-                          const SnackBar(
-                            content: Text('Cập nhật tên thành công'),
-                            behavior: SnackBarBehavior.floating,
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      },
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Cập nhật tên thành công!'),
+                        behavior: SnackBarBehavior.floating,
+                        backgroundColor: Colors.green,
+                      ),
                     );
                   }
                 } catch (e) {
                   if (mounted) {
-                    ScaffoldMessenger.of(mainContext).showSnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Có lỗi xảy ra: $e'),
                         behavior: SnackBarBehavior.floating,
                       ),
                     );
                   }
-                  developer.log(
-                    'Exception during update name: $e',
-                    error: e,
-                    stackTrace: StackTrace.current,
-                  );
                 } finally {
                   // Tắt trạng thái loading
                   if (mounted) {

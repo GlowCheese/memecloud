@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
+import 'package:memecloud/components/default_future_builder.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/artist_model.dart';
@@ -57,21 +58,9 @@ class _E02State extends State<E02> {
       );
     }
 
-    return FutureBuilder(
-      future: getIt<ApiKit>().search(widget.queryString!),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        }
-        if (snapshot.hasError) {
-          return Text('Failed to use ZingMp3 search API!');
-        }
-
-        return (snapshot.data!).fold(
-          (l) => Text('Failed to use ZingMp3 search API! $l'),
-          (r) => func(r),
-        );
-      },
+    return defaultFutureBuilder(
+      future: getIt<ApiKit>().searchMulti(widget.queryString!),
+      onData:(context, data) => func(data),
     );
   }
 }
@@ -128,7 +117,7 @@ class _SearchNavigationState extends State<_SearchNavigation> {
     });
 
     List<SongModel>? songList;
-    if (filterData.length > 0 && filterData[0] is SongModel) {
+    if (filterData.isNotEmpty && filterData[0] is SongModel) {
       songList = List<SongModel>.from(filterData);
     }
 
@@ -138,7 +127,7 @@ class _SearchNavigationState extends State<_SearchNavigation> {
         Padding(
           padding: const EdgeInsets.only(left: 15, bottom: 5, top: 10),
           child: SizedBox(
-            height: 40, // ← quy định chiều cao cái list nằm ngang này
+            height: 40,
             child: ListView(
               scrollDirection: Axis.horizontal,
               physics: BouncingScrollPhysics(),

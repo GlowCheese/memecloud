@@ -1,9 +1,12 @@
-import 'package:dartz/dartz.dart';
+import 'dart:developer';
+import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/apis/connectivity.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseAuthApi {
   final SupabaseClient _client;
   SupabaseAuthApi(this._client);
+  final _connectivity = getIt<ConnectivityStatus>();
 
   User? currentUser() {
     return _client.auth.currentUser;
@@ -13,49 +16,49 @@ class SupabaseAuthApi {
     return _client.auth.currentSession;
   }
 
-  Future<Either<String, User>> signIn(
-    String email,
-    String password,
-  ) async {
+  Future<User> signIn(String email, String password) async {
     try {
+      _connectivity.ensure();
       final response = await _client.auth.signInWithPassword(
         email: email,
         password: password,
       );
-      if (response.user != null) {
-        return Right(response.user!);
-      } else {
-        return Left('Unknown error occurred');
-      }
-    } catch (e) {
-      return Left(e.toString());
+      return response.user!;
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log('Failed to login: $e', stackTrace: stackTrace, level: 1000);
+      rethrow;
     }
   }
 
-  Future<Either<String, User>> signUp(
+  Future<User> signUp(
     String email,
     String password,
     String fullName,
   ) async {
     try {
-      
+      _connectivity.ensure();
       final response = await _client.auth.signUp(
         email: email,
         password: password,
         data: {'display_name': fullName},
       );
-      if (response.user != null) {
-        return Right(response.user!);
-      } else {
-        return Left('Unknown error occurred');
-      }
-    } catch (e) {
-      return Left(e.toString());
+      return response.user!;
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log('Failed to sign up: $e', stackTrace: stackTrace, level: 1000);
+      rethrow;
     }
   }
 
-  Future<Either<String, Null>> signOut() async {
-    await _client.auth.signOut();
-    return Right(null);
+  Future<void> signOut() async {
+    try {
+      _connectivity.ensure();
+      return await _client.auth.signOut();
+    } catch(e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log('Failed to log out: $e', stackTrace: stackTrace, level: 1000);
+      rethrow;
+    }
   }
 }

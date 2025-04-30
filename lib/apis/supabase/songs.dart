@@ -1,41 +1,29 @@
 import 'dart:developer';
-
-import 'package:dartz/dartz.dart';
-import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/apis/supabase/main.dart';
-import 'package:memecloud/apis/zingmp3.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/apis/connectivity.dart';
+import 'package:memecloud/apis/supabase/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseSongsApi {
   final SupabaseClient _client;
+  final _connectivity = getIt<ConnectivityStatus>();
   SupabaseSongsApi(this._client);
 
-  Future<Either<String, Null>> saveSongInfo(SongModel song) async {
+  Future<void> saveSongInfo(SongModel song) async {
     try {
-      getIt<ApiKit>().ensureConnectivity();
-      try {
-        await _client.from('songs').insert(song.toJson<SupabaseApi>());
-        return Right(null);
-      } on PostgrestException {
-        return Right(null);
-      }
+      _connectivity.ensure();
+      await _client.from('songs').upsert(song.toJson<SupabaseApi>(only: true));
     } catch (e, stackTrace) {
-      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
-        log(
-          "Failed to save song info: $e",
-          stackTrace: stackTrace,
-          level: 1000,
-        );
-      }
-      return Left(e.toString());
+      _connectivity.reportCrash(e, StackTrace.current);
+      log('Failed to save song info: $e', stackTrace: stackTrace, level: 1000);
+      rethrow;
     }
   }
 
-  Future<Either<String, bool>> getIsLiked(String songId) async {
+  Future<bool> getIsLiked(String songId) async {
     try {
-      getIt<ApiKit>().ensureConnectivity();
+      _connectivity.ensure();
       final userId = _client.auth.currentUser!.id;
       final response =
           await _client
@@ -44,58 +32,40 @@ class SupabaseSongsApi {
               .eq('user_id', userId)
               .eq('song_id', songId)
               .maybeSingle();
-      return Right(response != null);
+      return response != null;
     } catch (e, stackTrace) {
-      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
-        log('Failed to getIsLiked: $e', stackTrace: stackTrace, level: 1000);
-      }
-      return Left(e.toString());
+      _connectivity.reportCrash(e, StackTrace.current);
+      log('Failed to getIsLiked: $e', stackTrace: stackTrace, level: 1000);
+      rethrow;
     }
   }
 
-  Future<Either<String, SongModel?>> getSongInfo(String songId) async {
+  Future<SongModel?> getSongInfo(String songId) async {
     try {
-      getIt<ApiKit>().ensureConnectivity();
-      for (var retries = 0; retries < 2; retries += 1) {
-        final response =
-            await _client
-                .from('songs')
-                .select('''
-                  *,
-                  song_artists(
-                    artist:artists (*)
-                  )
-                ''')
-                .eq('id', songId)
-                .maybeSingle();
-        if (response == null) {
-          final zMp3Resp = await getIt<ZingMp3Api>().fetchSongInfo(songId);
-          if (zMp3Resp.isLeft()) {
-            return zMp3Resp.fold((l) => Left(l), (r) => throw '');
-          }
-          await getIt<ApiKit>().saveSongInfo(
-            SongModel.fromJson<ZingMp3Api>(
-              Map<String, dynamic>.from(
-                zMp3Resp.fold((l) => throw '', (r) => r),
-              ),
-            ),
-          );
-        } else {
-          return Right(SongModel.fromJson<SupabaseApi>(response));
-        }
-      }
-      return Left('Unexpted error!!!');
+      _connectivity.ensure();
+      final response =
+          await _client
+              .from('songs')
+              .select('''
+                *,
+                song_artists(
+                  artist:artists (*)
+                )
+              ''')
+              .eq('id', songId)
+              .maybeSingle();
+      if (response == null) return null;
+      return SongModel.fromJson<SupabaseApi>(response);
     } catch (e, stackTrace) {
-      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
-        log('Failed to getSongInfo: $e', stackTrace: stackTrace, level: 1000);
-      }
-      return Left(e.toString());
+      _connectivity.reportCrash(e, StackTrace.current);
+      log('Failed to getSongInfo: $e', stackTrace: stackTrace, level: 1000);
+      rethrow;
     }
   }
 
-  Future<Either<String, Null>> setIsLiked(String songId, bool isLiked) async {
+  Future<void> setIsLiked(String songId, bool isLiked) async {
     try {
-      getIt<ApiKit>().ensureConnectivity();
+      _connectivity.ensure();
       final userId = _client.auth.currentUser!.id;
 
       if (isLiked) {
@@ -112,18 +82,16 @@ class SupabaseSongsApi {
           'song_id': songId,
         });
       }
-      return Right(null);
     } catch (e, stackTrace) {
-      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
-        log("Failed to like a song: $e", stackTrace: stackTrace, level: 1000);
-      }
-      return Left(e.toString());
+      _connectivity.reportCrash(e, StackTrace.current);
+      log("Failed to like a song: $e", stackTrace: stackTrace, level: 1000);
+      rethrow;
     }
   }
 
-  Future<Either<String, List<SongModel>>> getLikedSongsList() async {
+  Future<List<SongModel>> getLikedSongsList() async {
     try {
-      getIt<ApiKit>().ensureConnectivity();
+      _connectivity.ensure();
       final userId = _client.auth.currentUser!.id;
 
       final response = await _client
@@ -144,65 +112,51 @@ class SupabaseSongsApi {
             );
           }).toList();
 
-      return Right(songsList);
+      return songsList;
     } catch (e, stackTrace) {
-      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
-        log(
-          "Failed to get liked songs: $e",
-          stackTrace: stackTrace,
-          level: 1000,
-        );
-      }
-      return Left(e.toString());
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        "Failed to get liked songs: $e",
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
     }
   }
 
-  Future<Either<String, List>> filterNonVipSongs(List songsIds) async {
+  Future<List<String>> filterNonVipSongs(List<String> songsIds) async {
     try {
-      getIt<ApiKit>().ensureConnectivity();
+      _connectivity.ensure();
       final resp = await _client
           .from('vip_songs')
           .select('song_id')
           .inFilter('song_id', songsIds);
 
       final vipSongIds = resp.map((e) => e['song_id']).toSet();
-      final filtered =
+      final filteredList =
           songsIds.where((id) => !vipSongIds.contains(id)).toList();
-
-      return Right(filtered);
+      return filteredList;
     } catch (e, stackTrace) {
-      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
-        log(
-          'Failed to fetch vip songs: $e',
-          stackTrace: stackTrace,
-          level: 1000,
-        );
-      }
-      return Left(e.toString());
+      _connectivity.reportCrash(e, StackTrace.current);
+      log('Failed to fetch vip songs: $e', stackTrace: stackTrace, level: 1000);
+      rethrow;
     }
   }
 
-  Future<Either<String, bool>> isNonVipSong(String songId) async {
-    final check = await filterNonVipSongs([songId]);
-    return check.fold((l) => Left(l), (r) => Right(r.isNotEmpty));
-  }
-
-  Future<Either<String, Null>> addSongToVip(String songId) async {
+  Future<void> markSongAsVip(String songId) async {
     try {
-      getIt<ApiKit>().ensureConnectivity();
-      await _client.from('vip_songs').upsert({
+      _connectivity.ensure();
+      return await _client.from('vip_songs').upsert({
         'song_id': songId,
       }, ignoreDuplicates: true);
-      return Right(null);
     } catch (e, stackTrace) {
-      if (!getIt<ApiKit>().reportConnectivityCrash(e)) {
-        log(
-          'Failed to add song to vip: $e',
-          stackTrace: stackTrace,
-          level: 1000,
-        );
-      }
-      return Left(e.toString());
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        'Failed to mark song as vip: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
     }
   }
 }

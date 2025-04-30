@@ -1,3 +1,6 @@
+// ignore_for_file: deprecated_member_use
+
+import 'dart:convert';
 import 'dart:developer';
 import 'package:color/color.dart' as color_pkg;
 import 'package:flutter/material.dart';
@@ -22,7 +25,6 @@ Future<List<Color>> getPaletteColors(String imageUrl) async {
 }
 
 Color adjustLightness(Color color, double targetLightness) {
-  // ignore: deprecated_member_use
   final rgbColor = color_pkg.RgbColor(color.red, color.green, color.blue);
 
   final hslColor = rgbColor.toHslColor();
@@ -61,4 +63,9 @@ Map ignoreNullValuesOfMap(Map map) {
   return Map.fromEntries(
     map.entries.where((e) => e.value != null),
   ).cast<String, dynamic>();
+}
+
+String prettyJson(Map json) {
+  var encoder = JsonEncoder.withIndent('  ');
+  return encoder.convert(json);
 }

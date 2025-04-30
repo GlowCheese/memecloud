@@ -148,20 +148,23 @@ class _SignInPageState extends State<SignInPage> {
                       barrierDismissible: false,
                       builder: (context) => const Center(child: CircularProgressIndicator()),
                     );
-                    var result = await getIt<ApiKit>().signIn(email: emailController.text, password: passwordController.text);
-                    if (context.mounted) {
-                      Navigator.of(context).pop();
-                    }
-                    result.fold(
-                      (l) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Đăng nhập thất bại: $l')),
-                        );
-                      },
-                      (r) {
+
+                    try {
+                      await getIt<ApiKit>().signIn(email: emailController.text, password: passwordController.text);
+                      if (context.mounted) {
                         context.go('/dashboard');
-                      },
-                    );
+                      }
+                    } catch(e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Đăng nhập thất bại: $e')),
+                        );
+                      }
+                    } finally {
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                      }
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF8465FF),

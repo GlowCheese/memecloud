@@ -6,12 +6,14 @@ import 'package:memecloud/pages/experiment/e01.dart';
 import 'package:memecloud/pages/experiment/e02.dart';
 import 'package:memecloud/pages/experiment/e03.dart';
 import 'package:memecloud/pages/experiment/e04.dart';
+import 'package:memecloud/pages/experiment/e05.dart';
 
 final allPages = {
   'E01': () => E01(),
   'E02': () => E02(),
   'E03': () => E03(),
   'E04': () => E04(),
+  'E05': () => E05(),
 };
 
 Map getExperimentPage(BuildContext context) {
@@ -79,11 +81,6 @@ class _ExperimentPageState extends State<_ExperimentPage> {
 
   @override
   Widget build(BuildContext context) {
-    late Widget bodyWidget = allPages[bodyCode]!();
-
-    return SingleChildScrollView(
-      physics: BouncingScrollPhysics(),
-      child: bodyWidget,
-    );
+    return allPages[bodyCode]!();
   }
 }

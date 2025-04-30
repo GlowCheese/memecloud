@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/core/getit.dart';
@@ -20,13 +18,6 @@ Widget getMiniPlayer() {
       if (state is SongPlayerLoaded) {
         return _MiniPlayer(
           playerCubit,
-          isSongLoaded: true,
-          song: state.currentSong,
-        );
-      } else if (state is SongPlayerLoading) {
-        return _MiniPlayer(
-          playerCubit,
-          isSongLoaded: false,
           song: state.currentSong,
         );
       } else {
@@ -38,12 +29,10 @@ Widget getMiniPlayer() {
 
 class _MiniPlayer extends StatefulWidget {
   final SongPlayerCubit playerCubit;
-  final bool isSongLoaded;
   final SongModel song;
 
   const _MiniPlayer(
     this.playerCubit, {
-    required this.isSongLoaded,
     required this.song,
   });
 
@@ -76,11 +65,7 @@ class _MiniPlayerState extends State<_MiniPlayer> {
         right: 0,
         child: GestureDetector(
           onTap: () async {
-            if (widget.isSongLoaded) {
-              if (context.mounted) {
-                context.push('/song_play');
-              }
-            }
+            context.push('/song_play');
           },
           child: miniPlayerSongDetails(
             domBg,
@@ -160,20 +145,16 @@ class _MiniPlayerState extends State<_MiniPlayer> {
                                 color: onBgColor,
                               )),
                       onPressed: () {
-                        if (widget.isSongLoaded) {
-                          setState(() {
-                            widget.song.setIsLiked(!widget.song.isLiked!);
-                          });
-                        }
+                        setState(() {
+                          widget.song.setIsLiked(!widget.song.isLiked!);
+                        });
                       },
                     ),
                     IconButton(
                       color: onBgColor,
                       icon: Icon(Icons.skip_next),
                       onPressed: () {
-                        if (widget.isSongLoaded) {
-                          widget.playerCubit.seekToNext();
-                        }
+                        widget.playerCubit.seekToNext();
                       },
                     ),
                   ],
@@ -202,9 +183,7 @@ class _MiniPlayerState extends State<_MiniPlayer> {
         ),
         GestureDetector(
           onTap: () {
-            if (widget.isSongLoaded) {
-              widget.playerCubit.playOrPause();
-            }
+            widget.playerCubit.playOrPause();
           },
           child: Icon(
             widget.playerCubit.isPlaying ? Icons.pause : Icons.play_arrow,

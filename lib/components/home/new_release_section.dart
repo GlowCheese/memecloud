@@ -1,12 +1,12 @@
-import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:dartz/dartz.dart' as dartz;
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:scroll_snap_list/scroll_snap_list.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:memecloud/components/default_future_builder.dart';
+import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 
 Padding _header(String title) {
   return Padding(
@@ -29,29 +29,15 @@ class NewReleasesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<dartz.Either>(
+    return defaultFutureBuilder(
       future: getIt<ApiKit>().getSongsForHome(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasError || !snapshot.hasData) {
-          return Center(child: Text('Error loading songs ${snapshot.error}'));
-        }
-
-        final songsEither = snapshot.data!;
-        return songsEither.fold(
-          (error) => Center(child: Text('Error: $error')),
-          (songLists) => _SongListDisplay(songLists),
-        );
-      },
+      onData: (context, data) => _SongListDisplay(data),
     );
   }
 }
 
 class _SongListDisplay extends StatefulWidget {
-  final List songLists;
+  final List<Map> songLists;
 
   const _SongListDisplay(this.songLists);
 
@@ -99,58 +85,57 @@ class _SongListDisplayState extends State<_SongListDisplay> {
     final colorScheme = AdaptiveTheme.of(context).theme.colorScheme;
 
     return GestureDetector(
-        onTap: () async {
-          if (!(await getIt<SongPlayerCubit>().loadAndPlay(context, song, songList: songList))) {
-            setState(() {
-              songList.remove(song);
-            });
-          }
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: CachedNetworkImage(
-                  imageUrl: song.thumbnailUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => CircularProgressIndicator(),
-                  errorWidget: (context, url, err) => const Icon(Icons.error),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: 150,
-              child: Text(
-                song.title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
-                overflow: TextOverflow.ellipsis,
+      onTap: () async {
+        if (!(await getIt<SongPlayerCubit>().loadAndPlay(
+          context,
+          song,
+          songList: songList,
+        ))) {
+          setState(() {
+            songList.remove(song);
+          });
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 150,
+            height: 150,
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: CachedNetworkImage(
+                imageUrl: song.thumbnailUrl,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => CircularProgressIndicator(),
+                errorWidget: (context, url, err) => const Icon(Icons.error),
               ),
             ),
-            SizedBox(
-              width: 130,
-              child: Text(
-                song.artistsNames,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: colorScheme.onSurface.withAlpha(156),
-                  fontWeight: FontWeight.w400,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: 150,
+            child: Text(
+              song.title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              overflow: TextOverflow.ellipsis,
             ),
-          ],
-        ),
-      );
+          ),
+          SizedBox(
+            width: 130,
+            child: Text(
+              song.artistsNames,
+              style: TextStyle(
+                fontSize: 12,
+                color: colorScheme.onSurface.withAlpha(156),
+                fontWeight: FontWeight.w400,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -30,8 +30,11 @@ class _E03State extends State<E03> {
       return searchBar();
     }
 
-    return Column(
+    return SingleChildScrollView(
+      physics: BouncingScrollPhysics(),
+      child: Column (
       children: [searchBar(), E02(queryString: currentSearchQuery)],
+      )
     );
   }
 

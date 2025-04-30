@@ -1,15 +1,15 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:dartz/dartz.dart' as dartz;
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/components/default_appbar.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:memecloud/components/default_future_builder.dart';
 import 'package:memecloud/blocs/liked_songs/liked_songs_cubit.dart';
 import 'package:memecloud/blocs/liked_songs/liked_songs_state.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
-import 'package:memecloud/components/default_appbar.dart';
-import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/models/song_model.dart';
 
 Map getLikedSongsPage(BuildContext context) {
   return {
@@ -28,24 +28,10 @@ class LikedSongPage extends StatefulWidget {
 class _LikedSongPageState extends State<LikedSongPage> {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<dartz.Either>(
+    return defaultFutureBuilder(
       future: getIt<ApiKit>().getLikedSongsList(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasError || !snapshot.hasData) {
-          return Center(child: Text('Error loading songs: ${snapshot.error}'));
-        }
-
-        final songsEither = snapshot.data!;
-        return songsEither.fold(
-          (error) => Center(child: Text('Error: $error')),
-          (songs) {
-            return _SongListView(likedSongs: List<SongModel>.from(songs));
-          },
-        );
+      onData: (context, songs) {
+        return _SongListView(likedSongs: List<SongModel>.from(songs));
       },
     );
   }
