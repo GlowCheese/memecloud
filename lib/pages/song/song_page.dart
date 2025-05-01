@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:memecloud/components/grad_background.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memecloud/models/song_model.dart';
-import 'package:memecloud/blocs/gradient_bg/bg_cubit.dart';
 import 'package:memecloud/components/song/song_controller.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
@@ -31,24 +31,26 @@ class _SongPageState extends State<SongPage> {
         return getIt<ApiKit>().paletteColorsWidgetBuider(
           state.currentSong.thumbnailUrl,
           (paletteColors) {
-            getIt<BgCubit>().setColor('/song_play', paletteColors[0]);
-            return Scaffold(
-              appBar: _appBar(context),
-              backgroundColor: Colors.transparent,
-              body: SingleChildScrollView(
-                physics: BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        SizedBox(height: 46),
-                        _songCover(context, state.currentSong),
-                        SizedBox(height: 30),
-                        _songDetails(state.currentSong),
-                        SizedBox(height: 20),
-                        SongControllerView(),
-                      ],
+            return GradBackground(
+              color: paletteColors[1],
+              child: Scaffold(
+                appBar: _appBar(context),
+                backgroundColor: Colors.transparent,
+                body: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          SizedBox(height: 46),
+                          _songCover(context, state.currentSong),
+                          SizedBox(height: 30),
+                          _songDetails(state.currentSong),
+                          SizedBox(height: 20),
+                          SongControllerView(),
+                        ],
+                      ),
                     ),
                   ),
                 ),

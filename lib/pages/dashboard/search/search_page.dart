@@ -1,9 +1,10 @@
-import 'package:memecloud/components/search/album_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:memecloud/components/default_appbar.dart';
+import 'package:memecloud/components/grad_background.dart';
+import 'package:memecloud/components/search/album_card.dart';
 
 
 Map getSearchPage(BuildContext context) {
@@ -13,6 +14,7 @@ Map getSearchPage(BuildContext context) {
 
   return {
     'appBar': defaultAppBar(context, title: 'Search'),
+    'bgColor': MyColorSet.cyan,
     'body': SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Padding(

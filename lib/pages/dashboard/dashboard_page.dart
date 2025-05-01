@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/blocs/gradient_bg/bg_cubit.dart';
-import 'package:memecloud/components/default_appbar.dart';
 import 'package:memecloud/components/mini_player.dart';
-import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/components/default_appbar.dart';
 import 'package:memecloud/pages/dashboard/home_page.dart';
+import 'package:memecloud/components/grad_background.dart';
 import 'package:memecloud/pages/dashboard/liked_songs_page.dart';
-import 'package:memecloud/pages/dashboard/search/search_page.dart';
 import 'package:memecloud/pages/experiment/experiment_page.dart';
+import 'package:memecloud/pages/dashboard/search/search_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -20,49 +19,50 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    final gradBg = getIt<BgCubit>();
     late final Map? scaffElems;
 
     switch (currentPageIndex) {
       case 0:
-        gradBg.setColor('/dashboard', MyBgColorSet.purple);
         scaffElems = getHomePage(context);
         break;
       case 1:
-        gradBg.setColor('/dashboard', MyBgColorSet.cyan);
         scaffElems = getSearchPage(context);
         break;
       case 2:
-        gradBg.setColor('/dashboard', MyBgColorSet.redAccent);
         scaffElems = getLikedSongsPage(context);
+        break;
       case 3:
-        gradBg.setColor('/dashboard', MyBgColorSet.indigo);
         scaffElems = getExperimentPage(context);
+        break;
       default:
         scaffElems = {
           'appBar': defaultAppBar(context, title: 'null'),
+          'bgColor': MyColorSet.grey,
           'body': Placeholder()
         };
     }
 
-    return Scaffold(
-      appBar: scaffElems['appBar'],
-      body: RefreshIndicator(
-        onRefresh: () async {
-          setState(() {});
-          await Future.delayed(Duration(seconds: 1));
-        },
-        child: Stack(
-          fit: StackFit.expand,
-          children: <Widget>[
-            scaffElems['body'],
-            getMiniPlayer()
-          ]
+    return GradBackground(
+      color: scaffElems['bgColor'],
+      child: Scaffold(
+        appBar: scaffElems['appBar'],
+        body: RefreshIndicator(
+          onRefresh: () async {
+            setState(() {});
+            await Future.delayed(Duration(seconds: 1));
+          },
+          child: Stack(
+            fit: StackFit.expand,
+            children: <Widget>[
+              scaffElems['body'],
+              getMiniPlayer()
+            ]
+          ),
         ),
+        floatingActionButton: scaffElems['floatingActionButton'],
+        backgroundColor: Colors.transparent,
+        bottomNavigationBar: _bottomNavigationBar(),
       ),
-      floatingActionButton: scaffElems['floatingActionButton'],
-      backgroundColor: Colors.transparent,
-      bottomNavigationBar: _bottomNavigationBar(),
     );
   }
 

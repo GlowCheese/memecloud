@@ -152,7 +152,7 @@ class ApiKit {
     bool? cached = storage.isNonVipSong(songId);
     if (cached != null) return cached;
     bool res = (await filterNonVipSongs([songId])).contains(songId);
-    unawaited(storage.markSongAsNonVip(songId));
+    if (!res) unawaited(storage.markSongAsVip(songId));
     return res;
   }
 

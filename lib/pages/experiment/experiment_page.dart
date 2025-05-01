@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:memecloud/blocs/gradient_bg/bg_cubit.dart';
 import 'package:memecloud/components/default_appbar.dart';
+import 'package:memecloud/components/grad_background.dart';
 import 'package:memecloud/pages/experiment/e01.dart';
 import 'package:memecloud/pages/experiment/e02.dart';
 import 'package:memecloud/pages/experiment/e03.dart';
@@ -27,6 +27,7 @@ Map getExperimentPage(BuildContext context) {
       title: 'Experiment',
       iconUri: 'assets/icons/experiment-icon.png',
     ),
+    'bgColor': MyColorSet.indigo,
     'body': _ExperimentPage(pageController),
     'floatingActionButton': _FloatingActionButton(pageController),
   };
@@ -45,7 +46,7 @@ class _FloatingActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SpeedDial(
       animatedIcon: AnimatedIcons.menu_close,
-      backgroundColor: MyBgColorSet.orange,
+      backgroundColor: MyColorSet.orange,
       children:
           allPages.keys
               .map(
