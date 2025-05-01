@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/apis/connectivity.dart';
 import 'package:memecloud/apis/zingmp3/requester.dart';
 
@@ -14,10 +13,7 @@ class ZingMp3Api {
       final resp = await _requester.getSong(songId);
 
       // Bài hát chỉ dành cho tài khoản VIP, PRI
-      if (resp['err'] == -1150) {
-        getIt<ApiKit>().markSongAsVip(songId);
-        return null;
-      }
+      if (resp['err'] == -1150) return null;
       return resp['data']['128']!;
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);

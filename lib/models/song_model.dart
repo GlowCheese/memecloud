@@ -11,6 +11,7 @@ import 'package:memecloud/models/artist_model.dart';
 class SongModel {
   final String id;
   final String title;
+  final int duration;
   final String artistsNames;
   final String thumbnailUrl;
   final DateTime releaseDate;
@@ -21,6 +22,7 @@ class SongModel {
   SongModel._({
     required this.id,
     required this.title,
+    required this.duration,
     required this.artistsNames,
     required this.artists,
     required this.releaseDate,
@@ -33,6 +35,7 @@ class SongModel {
       return SongModel._(
         id: json['encodeId'],
         title: json['title'],
+        duration: json['duration'],
         artistsNames: json['artistsNames'],
         thumbnailUrl: json['thumbnailM'] ?? json['thumbnail'],
         releaseDate: DateTime.fromMillisecondsSinceEpoch(
@@ -45,6 +48,7 @@ class SongModel {
       return SongModel._(
         id: json['id'],
         title: json['title'],
+        duration: json['duration'],
         artistsNames: json['artists_names'],
         artists: ArtistModel.fromListJson<T>(json['song_artists']),
         thumbnailUrl: json['thumbnail_url'],
@@ -62,6 +66,7 @@ class SongModel {
       Map<String, Object> res = {
         'id': id,
         'title': title,
+        'duration': duration,
         'artists_names': artistsNames,
         'thumbnail_url': thumbnailUrl,
         'release_date': releaseDateString
@@ -96,6 +101,7 @@ class SongModel {
     id: id,
     title: title,
     album: 'My album',
+    duration: Duration(seconds: duration),
     artUri: Uri.parse(thumbnailUrl),
     artist: artistsNames
   );

@@ -33,7 +33,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     return super.close();
   }
 
-  bool onSongFailedToLoad(BuildContext context) {
+  bool onSongFailedToLoad(BuildContext context, String errMsg) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Rất tiếc, không thể phát bài hát này!'),
@@ -42,6 +42,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
         behavior: SnackBarBehavior.floating,
       ),
     );
+    log(errMsg, level: 900);
     emit(SongPlayerInitial());
     return false;
   }
@@ -72,7 +73,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
 
       final songPath = await _getSongPath(song);
       if (songPath == null) {
-        return !context.mounted || onSongFailedToLoad(context);
+        return !context.mounted || onSongFailedToLoad(context, 'songPath is null');
       } else {
         // TODO: put this line somewhere else!
         debugPrint('Found song path: $songPath');
@@ -99,13 +100,14 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
           );
         }
         audioPlayer.setSpeed(currentSongSpeed = 1.0);
+        await toggleShuffleMode();
         emit(SongPlayerLoaded(song));
         return true;
       }
     } catch (e, stackTrace) {
       log('Failed to load song: $e', stackTrace: stackTrace, level: 1000);
       emit(SongPlayerFailure());
-      return !context.mounted || onSongFailedToLoad(context);
+      return !context.mounted || onSongFailedToLoad(context, e.toString());
     }
   }
 
@@ -175,9 +177,8 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   }
 
   bool get shuffleMode => audioPlayer.shuffleModeEnabled;
-  Future<void> seekToNext() async => await audioPlayer.seekToNext();
+  Future<void> seekToNext() => audioPlayer.seekToNext();
 
-  Future<void> seekToPrevious() async => await audioPlayer.seekToPrevious();
-  Future<void> toggleShuffleMode() async =>
-      await audioPlayer.setShuffleModeEnabled(!shuffleMode);
+  Future<void> seekToPrevious() => audioPlayer.seekToPrevious();
+  Future<void> toggleShuffleMode() => audioPlayer.setShuffleModeEnabled(!shuffleMode);
 }
