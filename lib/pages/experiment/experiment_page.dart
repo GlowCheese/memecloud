@@ -7,6 +7,7 @@ import 'package:memecloud/pages/experiment/e02.dart';
 import 'package:memecloud/pages/experiment/e03.dart';
 import 'package:memecloud/pages/experiment/e04.dart';
 import 'package:memecloud/pages/experiment/e05.dart';
+import 'package:memecloud/pages/experiment/e17.dart';
 
 // register cái mới vào đây
 
@@ -16,11 +17,12 @@ final allPages = {
   'E03': () => E03(),
   'E04': () => E04(),
   'E05': () => E05(),
+  'E17': () => E17()
 };
 
-Map getExperimentPage(BuildContext context) {
-  final pageController = ExperimentPageController();
+final pageController = ExperimentPageController();
 
+Map getExperimentPage(BuildContext context) {
   return {
     'appBar': defaultAppBar(
       context,

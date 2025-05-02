@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/connectivity.dart';
 import 'package:memecloud/apis/zingmp3/requester.dart';
+import 'package:memecloud/utils/common.dart';
 
 class ZingMp3Api {
   final ZingMp3Requester _requester = getIt<ZingMp3Requester>();
@@ -18,7 +19,7 @@ class ZingMp3Api {
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
-        'ZingMp3API failed to fetch song url: $e',
+        'ZingMp3Api failed to fetch song url: $e',
         stackTrace: stackTrace,
         level: 1000,
       );
@@ -36,7 +37,7 @@ class ZingMp3Api {
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
-        'ZingMp3API failed to fetch song info: $e',
+        'ZingMp3Api failed to fetch song info: $e',
         stackTrace: stackTrace,
         level: 1000,
       );
@@ -54,7 +55,7 @@ class ZingMp3Api {
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, stackTrace);
       log(
-        'ZingMp3API failed to fetch playlist info: $e',
+        'ZingMp3Api failed to fetch playlist info: $e',
         stackTrace: stackTrace,
         level: 1000,
       );
@@ -72,7 +73,7 @@ class ZingMp3Api {
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, stackTrace);
       log(
-        'ZingMp3API failed to fetch artist info: $e',
+        'ZingMp3Api failed to fetch artist info: $e',
         stackTrace: stackTrace,
         level: 1000,
       );
@@ -88,7 +89,7 @@ class ZingMp3Api {
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
-        'ZingMp3API failed to search: $e',
+        'ZingMp3Api failed to search: $e',
         stackTrace: stackTrace,
         level: 1000,
       );
@@ -116,7 +117,26 @@ class ZingMp3Api {
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
-        'ZingMp3API failed to fetch home: $e',
+        'ZingMp3Api failed to fetch home: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
+  Future<Map> fetchLyric(String songId) async {
+    try {
+      _connectivity.ensure();
+      final resp = await _requester.getLyric(songId);
+      return ignoreNullValuesOfMap({
+        'lyric': resp['data']['lyric'],
+        'file': resp['data']['file']
+      });
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, stackTrace);
+      log(
+        'ZingMp3Api failed to fetch lyric for $songId: $e',
         stackTrace: stackTrace,
         level: 1000,
       );

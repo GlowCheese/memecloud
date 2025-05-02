@@ -59,10 +59,10 @@ String getCurrentRoute(BuildContext context) {
   return GoRouter.of(context).routeInformationProvider.value.uri.toString();
 }
 
-Map ignoreNullValuesOfMap(Map map) {
+Map<K, V> ignoreNullValuesOfMap<K, V>(Map<K, V> map) {
   return Map.fromEntries(
     map.entries.where((e) => e.value != null),
-  ).cast<String, dynamic>();
+  );
 }
 
 String prettyJson(Map json) {

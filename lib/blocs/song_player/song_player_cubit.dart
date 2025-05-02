@@ -101,7 +101,6 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
         }
         audioPlayer.setSpeed(currentSongSpeed = 1.0);
         await toggleShuffleMode();
-        emit(SongPlayerLoaded(song));
         return true;
       }
     } catch (e, stackTrace) {
