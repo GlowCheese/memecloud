@@ -7,6 +7,7 @@ import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/storage.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
+import 'package:memecloud/models/song_lyrics_model.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:memecloud/apis/connectivity.dart';
 import 'package:memecloud/apis/supabase/main.dart';
@@ -148,6 +149,10 @@ class ApiKit {
   Future<List<SongModel>> getLikedSongsList() =>
       supabase.songs.getLikedSongsList();
 
+  /* ----------------------
+  |    VIP SONGS FILTER   |
+  ---------------------- */
+
   Future<bool> isNonVipSong(String songId) async {
     bool? cached = storage.isNonVipSong(songId);
     if (cached != null) return cached;
@@ -195,10 +200,10 @@ class ApiKit {
   |     AND STORAGE      |
   --------------------- */
 
-  Future<void> _downloadSong(String songUrl, String savePath) async {
+  Future<void> _downloadFile(String url, String savePath) async {
     try {
       _connectivity.ensure();
-      await dio.download(songUrl, savePath);
+      await dio.download(url, savePath);
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log('Failed to download song: $e', stackTrace: stackTrace, level: 1000);
@@ -214,6 +219,7 @@ class ApiKit {
     late Directory dir;
     late String filePath;
     late File file;
+    final bucket = 'songs';
 
     for (dir in [storage.userDir, storage.cacheDir]) {
       file = File(filePath = '${dir.path}/$fileName');
@@ -221,21 +227,55 @@ class ApiKit {
     }
 
     if (!await isNonVipSong(songId)) return null;
-    var bytes = await supabase.cache.getSongFile(songId);
+    var bytes = await supabase.cache.getFile(bucket, songId);
     if (bytes == null) {
       final songUrl = await zingMp3.fetchSongUrl(songId);
       if (songUrl == null) {
         unawaited(markSongAsVip(songId));
         return null;
       }
-      await _downloadSong(songUrl, filePath);
+      await _downloadFile(songUrl, filePath);
 
       bytes = await file.readAsBytes();
-      unawaited(supabase.cache.uploadSongFile(fileName, bytes));
+      unawaited(supabase.cache.uploadFile(bucket, fileName, bytes));
+    }
+    else {
+      await file.writeAsBytes(bytes);
     }
 
-    await file.writeAsBytes(bytes);
     return filePath;
+  }
+
+  Future<SongLyricsModel?> getLyricPath(String songId) async {
+    final fileName = '$songId.lrc';
+    final dir = storage.cacheDir;
+    final filePath = '${dir.path}/$fileName';
+    final file = File(filePath);
+    final bucket = 'lyrics';
+
+    if (await file.exists()) {
+      return SongLyricsModel.parse(file);
+    }
+
+    var bytes = await supabase.cache.getFile(bucket, fileName);
+    if (bytes == null) {
+      final lyricMap = await zingMp3.fetchLyric(songId);
+      if (!lyricMap.containsKey('file')) {
+        if (!lyricMap.containsKey('lyric')) {
+          return null;
+        } else {
+          return SongLyricsModel.noTimeLine(lyricMap['lyric']);
+        }
+      }
+      await _downloadFile(lyricMap['file'], filePath);
+
+      bytes = await file.readAsBytes();
+      unawaited(supabase.cache.uploadFile(bucket, fileName, bytes));
+    } else {
+      await file.writeAsBytes(bytes);
+    }
+
+    return SongLyricsModel.parse(file);
   }
 
   Future<void> updateCached(String api, Map data) {
