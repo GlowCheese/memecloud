@@ -1,9 +1,7 @@
 import 'dart:async';
-
-import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 
 class SongControllerView extends StatefulWidget {
   const SongControllerView({super.key});
@@ -99,7 +97,13 @@ class _SongControllerViewState extends State<SongControllerView> {
   }
 
   Widget _songControllerButtons() {
-    final colorScheme = AdaptiveTheme.of(context).theme.colorScheme;
+    late final Color shuffleIconColor;
+    if (playerCubit.shuffleMode) {
+      shuffleIconColor = Colors.greenAccent.shade400;
+    } else {
+      shuffleIconColor = Colors.white;
+    }
+    
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
@@ -108,27 +112,24 @@ class _SongControllerViewState extends State<SongControllerView> {
           iconSize: 35,
           icon: Icon(
             Icons.shuffle_rounded,
-            color:
-                playerCubit.shuffleMode
-                    ? colorScheme.primary
-                    : colorScheme.onSurface,
+            color: shuffleIconColor
           ),
         ),
         IconButton(
           onPressed: () async => await playerCubit.seekToPrevious(),
           iconSize: 35,
-          icon: Icon(Icons.skip_previous),
+          icon: Icon(Icons.skip_previous, color: Colors.white),
         ),
         Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: colorScheme.secondaryContainer,
+            color: Colors.greenAccent.shade700,
           ),
           child: IconButton(
             padding: const EdgeInsets.all(18.0),
             onPressed: () => playerCubit.playOrPause(),
             iconSize: 30,
-            color: colorScheme.onSecondaryContainer,
+            color: Colors.white,
             icon: Icon(
               playerCubit.audioPlayer.playing
                   ? Icons.pause
@@ -138,7 +139,7 @@ class _SongControllerViewState extends State<SongControllerView> {
         ),
         IconButton(
           onPressed: () async => await playerCubit.seekToNext(),
-          icon: Icon(Icons.skip_next),
+          icon: Icon(Icons.skip_next, color: Colors.white,),
           iconSize: 35,
         ),
         SizedBox(

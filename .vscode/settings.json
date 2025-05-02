@@ -8,5 +8,8 @@
         ".flutter-plugins": true,
         ".flutter-plugins-dependencies": true,
         "pubspec.lock": true
-    }
+    },
+    "dart.previewFlutterUiGuides": true,
+    "dart.previewFlutterUiGuidesCustomTracking": true,
+    "editor.lineHeight": 25
 }

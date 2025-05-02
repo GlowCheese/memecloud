@@ -1,3 +1,4 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/components/grad_background.dart';
@@ -8,6 +9,7 @@ import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/components/song/song_controller.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
+import 'package:memecloud/utils/common.dart';
 
 class SongPage extends StatefulWidget {
   const SongPage({super.key});
@@ -31,25 +33,44 @@ class _SongPageState extends State<SongPage> {
         return getIt<ApiKit>().paletteColorsWidgetBuider(
           state.currentSong.thumbnailUrl,
           (paletteColors) {
+            late final Color bgColor, subBgColor;
+            if (AdaptiveTheme.of(context).mode.isDark) {
+              bgColor = adjustColor(paletteColors.first, l: 0.3, s: 0.3);
+              subBgColor = adjustColor(paletteColors.last, l: 0.08, s: 0.4);
+            } else {
+              bgColor = adjustColor(paletteColors[0], l: 0.5, s: 0.3);
+              subBgColor = adjustColor(paletteColors.last, l: 0.15, s: 0.4);
+            }
+
             return GradBackground(
-              color: paletteColors[1],
-              child: Scaffold(
-                appBar: _appBar(context),
-                backgroundColor: Colors.transparent,
-                body: SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Center(
-                      child: Column(
-                        children: [
-                          SizedBox(height: 46),
-                          _songCover(context, state.currentSong),
-                          SizedBox(height: 30),
-                          _songDetails(state.currentSong),
-                          SizedBox(height: 20),
-                          SongControllerView(),
-                        ],
+              color: bgColor,
+              subColor: subBgColor,
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  appBarTheme: const AppBarTheme(foregroundColor: Colors.white),
+                  textTheme: Theme.of(context).textTheme.apply(
+                    bodyColor: Colors.white,
+                    displayColor: Colors.white,
+                  ),
+                ),
+                child: Scaffold(
+                  appBar: _appBar(context),
+                  backgroundColor: Colors.transparent,
+                  body: SingleChildScrollView(
+                    physics: BouncingScrollPhysics(),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            SizedBox(height: 46),
+                            _songCover(context, state.currentSong),
+                            SizedBox(height: 30),
+                            _songDetails(state.currentSong),
+                            SizedBox(height: 20),
+                            SongControllerView(),
+                          ],
+                        ),
                       ),
                     ),
                   ),

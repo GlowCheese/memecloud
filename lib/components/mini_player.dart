@@ -43,17 +43,16 @@ class _MiniPlayer extends StatefulWidget {
 class _MiniPlayerState extends State<_MiniPlayer> {
   @override
   Widget build(BuildContext context) {
-    final adaptiveTheme = AdaptiveTheme.of(context);
     return getIt<ApiKit>().paletteColorsWidgetBuider(widget.song.thumbnailUrl, (
       List<Color> paletteColors,
     ) {
       late final Color domBg, subDomBg;
-      if (adaptiveTheme.mode.isDark) {
-        domBg = adjustLightness(paletteColors.first, 0.2);
-        subDomBg = adjustLightness(paletteColors.last, 0.3);
+      if (AdaptiveTheme.of(context).mode.isDark) {
+        domBg = adjustColor(paletteColors.first, l: 0.3, s: 0.3);
+        subDomBg = adjustColor(paletteColors.last, l: 0.4, s: 0.4);
       } else {
-        domBg = adjustLightness(paletteColors.first, 0.5);
-        subDomBg = adjustLightness(paletteColors.last, 0.6);
+        domBg = adjustColor(paletteColors.first, l: 0.5, s: 0.3);
+        subDomBg = adjustColor(paletteColors.last, l: 0.6, s: 0.4);
       }
 
       Color onBgColor = getTextColor(domBg);
