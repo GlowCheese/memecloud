@@ -215,6 +215,10 @@ class ApiKit {
     );
   }
 
+  Future<List<ArtistModel>> getTopArtists() {
+    return getIt<SupabaseApi>().artists.getTopArtists();
+  }
+
   /* ----------------------
   |    RECENT SEARCHES    |
   ---------------------- */

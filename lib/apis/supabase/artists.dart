@@ -52,4 +52,27 @@ class SupabaseArtistsApi {
       rethrow;
     }
   }
+
+  Future<List<ArtistModel>> getTopArtists() async {
+    try {
+      _connectivity.ensure();
+      final response = await _client
+          .from('artists')
+          .select()
+          .order('view_in_week', ascending: false)
+          .limit(5);
+      
+      return response
+          .map((artist) => ArtistModel.fromJson<SupabaseApi>({'artist': artist}))
+          .toList();
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        "Failed to get top artists: $e",
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
 }
