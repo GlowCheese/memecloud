@@ -11,7 +11,7 @@ import 'package:memecloud/models/artist_model.dart';
 class SongModel {
   final String id;
   final String title;
-  final int duration;
+  final Duration duration;
   final String artistsNames;
   final String thumbnailUrl;
   final DateTime releaseDate;
@@ -35,7 +35,7 @@ class SongModel {
       return SongModel._(
         id: json['encodeId'],
         title: json['title'],
-        duration: json['duration'],
+        duration: Duration(seconds: json['duration'] as int),
         artistsNames: json['artistsNames'],
         thumbnailUrl: json['thumbnailM'] ?? json['thumbnail'],
         releaseDate: DateTime.fromMillisecondsSinceEpoch(
@@ -48,7 +48,7 @@ class SongModel {
       return SongModel._(
         id: json['id'],
         title: json['title'],
-        duration: json['duration'],
+        duration: Duration(seconds: json['duration'] as int),
         artistsNames: json['artists_names'],
         artists: ArtistModel.fromListJson<T>(json['song_artists']),
         thumbnailUrl: json['thumbnail_url'],
@@ -66,12 +66,12 @@ class SongModel {
       Map<String, Object> res = {
         'id': id,
         'title': title,
-        'duration': duration,
+        'duration': duration.inSeconds,
         'artists_names': artistsNames,
         'thumbnail_url': thumbnailUrl,
         'release_date': releaseDateString
       };
-      if (!only) {
+      if (only == false) {
         res['song_artists'] = artists.map((e) => e.toJson<T>()).toList();
       }
       return res;
@@ -101,7 +101,7 @@ class SongModel {
     id: id,
     title: title,
     album: 'My album',
-    duration: Duration(seconds: duration),
+    duration: duration,
     artUri: Uri.parse(thumbnailUrl),
     artist: artistsNames
   );

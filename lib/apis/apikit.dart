@@ -246,7 +246,7 @@ class ApiKit {
     return filePath;
   }
 
-  Future<SongLyricsModel?> getLyricPath(String songId) async {
+  Future<SongLyricsModel?> getSongLyric(String songId) async {
     final fileName = '$songId.lrc';
     final dir = storage.cacheDir;
     final filePath = '${dir.path}/$fileName';

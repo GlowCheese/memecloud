@@ -64,7 +64,7 @@ class _MiniPlayerState extends State<_MiniPlayer> {
         right: 0,
         child: GestureDetector(
           onTap: () async {
-            context.push('/song_play');
+            context.push('/song_page');
           },
           child: miniPlayerSongDetails(
             domBg,
