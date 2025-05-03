@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 
 class LyricLine {
   final String text;
@@ -13,7 +12,8 @@ class SongLyricsModel {
 
   static SongLyricsModel noTimeLine(String lyric) {
     return SongLyricsModel._(lyricLines: [
-      LyricLine(text: lyric, time: Duration.zero)
+      LyricLine(text: lyric, time: Duration.zero),
+      LyricLine(text: '', time: Duration.zero)
     ]);
   }
 
