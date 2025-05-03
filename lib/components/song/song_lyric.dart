@@ -42,7 +42,7 @@ class SongLyricPage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 22),
                       child: Hero(
                         tag: "lyric",
-                        child: SongLyric(lyric: data!, autoScroll: true),
+                        child: SongLyricWidget(lyric: data!, autoScroll: true),
                       ),
                     );
                   },
@@ -84,12 +84,12 @@ class SongLyricPage extends StatelessWidget {
   }
 }
 
-class SongLyric extends StatefulWidget {
+class SongLyricWidget extends StatefulWidget {
   final bool autoScroll;
   final bool largeText;
   final SongLyricsModel lyric;
 
-  const SongLyric({
+  const SongLyricWidget({
     super.key,
     required this.lyric,
     this.autoScroll = false,
@@ -97,11 +97,12 @@ class SongLyric extends StatefulWidget {
   });
 
   @override
-  State<SongLyric> createState() => _SongLyricState();
+  State<SongLyricWidget> createState() => _SongLyricWidgetState();
 }
 
-class _SongLyricState extends State<SongLyric> {
-  final ScrollController _scrollController = ScrollController();
+class _SongLyricWidgetState extends State<SongLyricWidget> {
+  late final ScrollController? _scrollController =
+      widget.autoScroll ? ScrollController() : null;
 
   int _lastIndex = -1;
   final Map<int, GlobalKey> _lyricItemKeys = {};
@@ -126,7 +127,7 @@ class _SongLyricState extends State<SongLyric> {
         }
 
         if (widget.autoScroll) {
-          if (_lastIndex != currentIndex && _scrollController.hasClients) {
+          if (_lastIndex != currentIndex && _scrollController!.hasClients) {
             _lastIndex = currentIndex;
 
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -164,7 +165,8 @@ class _SongLyricState extends State<SongLyric> {
                           (widget.largeText)
                               ? (isActive ? 23 : 19)
                               : (isActive ? 20 : 16),
-                      fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                      fontWeight:
+                          isActive ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                 ),
