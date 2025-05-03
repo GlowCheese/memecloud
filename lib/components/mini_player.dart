@@ -16,10 +16,7 @@ Widget getMiniPlayer() {
     bloc: playerCubit,
     builder: (context, state) {
       if (state is SongPlayerLoaded) {
-        return _MiniPlayer(
-          playerCubit,
-          song: state.currentSong,
-        );
+        return _MiniPlayer(playerCubit, song: state.currentSong);
       } else {
         return SizedBox();
       }
@@ -31,10 +28,7 @@ class _MiniPlayer extends StatefulWidget {
   final SongPlayerCubit playerCubit;
   final SongModel song;
 
-  const _MiniPlayer(
-    this.playerCubit, {
-    required this.song,
-  });
+  const _MiniPlayer(this.playerCubit, {required this.song});
 
   @override
   State<_MiniPlayer> createState() => _MiniPlayerState();
@@ -43,21 +37,18 @@ class _MiniPlayer extends StatefulWidget {
 class _MiniPlayerState extends State<_MiniPlayer> {
   @override
   Widget build(BuildContext context) {
-    final adaptiveTheme = AdaptiveTheme.of(context);
     return getIt<ApiKit>().paletteColorsWidgetBuider(widget.song.thumbnailUrl, (
       List<Color> paletteColors,
     ) {
       late final Color domBg, subDomBg;
-      if (adaptiveTheme.mode.isDark) {
-        domBg = adjustLightness(paletteColors.first, 0.2);
-        subDomBg = adjustLightness(paletteColors.last, 0.3);
+      if (AdaptiveTheme.of(context).mode.isDark) {
+        domBg = adjustColor(paletteColors.first, l: 0.3, s: 0.3);
+        subDomBg = adjustColor(paletteColors.last, l: 0.4, s: 0.4);
       } else {
-        domBg = adjustLightness(paletteColors.first, 0.5);
-        subDomBg = adjustLightness(paletteColors.last, 0.6);
+        domBg = adjustColor(paletteColors.first, l: 0.5, s: 0.3);
+        subDomBg = adjustColor(paletteColors.last, l: 0.6, s: 0.4);
       }
-
       Color onBgColor = getTextColor(domBg);
-      Color playButtonColor = getTextColor(paletteColors.first);
 
       return Positioned(
         bottom: 10,
@@ -65,13 +56,12 @@ class _MiniPlayerState extends State<_MiniPlayer> {
         right: 0,
         child: GestureDetector(
           onTap: () async {
-            context.push('/song_play');
+            context.push('/song_page');
           },
           child: miniPlayerSongDetails(
             domBg,
             subDomBg,
             onBgColor,
-            playButtonColor,
           ),
         ),
       );
@@ -82,7 +72,6 @@ class _MiniPlayerState extends State<_MiniPlayer> {
     Color domBg,
     Color subDomBg,
     Color onBgColor,
-    Color playButtonColor,
   ) {
     return Container(
       height: 60,
@@ -99,13 +88,12 @@ class _MiniPlayerState extends State<_MiniPlayer> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          miniThumbnail(playButtonColor),
+          miniThumbnail(),
           SizedBox(width: 10),
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Bọc Column trong Flexible
                 Flexible(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -136,27 +124,12 @@ class _MiniPlayerState extends State<_MiniPlayer> {
                 SizedBox(width: 20),
                 Row(
                   children: [
-                    IconButton(
-                      icon:
-                          widget.song.isLiked!
-                              ? Icon(Icons.favorite_rounded, color: Colors.red)
-                              : (Icon(
-                                Icons.favorite_outline_rounded,
-                                color: onBgColor,
-                              )),
-                      onPressed: () {
-                        setState(() {
-                          widget.song.setIsLiked(!widget.song.isLiked!);
-                        });
-                      },
+                    _playOrPauseButton(onBgColor),
+                    _LikeButton(
+                      song: widget.song,
+                      dftColor: onBgColor
                     ),
-                    IconButton(
-                      color: onBgColor,
-                      icon: Icon(Icons.skip_next),
-                      onPressed: () {
-                        widget.playerCubit.seekToNext();
-                      },
-                    ),
+                    _seekNextButton(onBgColor),
                   ],
                 ),
               ],
@@ -168,29 +141,67 @@ class _MiniPlayerState extends State<_MiniPlayer> {
     );
   }
 
-  Stack miniThumbnail(Color playButtonColor) {
-    return Stack(
-      alignment: Alignment.center,
-      children: <Widget>[
-        ClipRRect(
-          borderRadius: BorderRadius.horizontal(left: Radius.circular(20)),
-          child: CachedNetworkImage(
-            imageUrl: widget.song.thumbnailUrl,
-            width: 60,
-            height: 60,
-            fit: BoxFit.cover,
-          ),
-        ),
-        GestureDetector(
-          onTap: () {
-            widget.playerCubit.playOrPause();
-          },
-          child: Icon(
-            widget.playerCubit.isPlaying ? Icons.pause : Icons.play_arrow,
+  IconButton _seekNextButton(Color onBgColor) {
+    return IconButton(
+      color: onBgColor,
+      icon: Icon(Icons.skip_next),
+      onPressed: () {
+        widget.playerCubit.seekToNext();
+      },
+    );
+  }
+
+  StreamBuilder _playOrPauseButton(Color playButtonColor) {
+    return StreamBuilder(
+      stream: widget.playerCubit.audioPlayer.playingStream,
+      builder: (context, snapshot) {
+        return IconButton(
+          onPressed: widget.playerCubit.playOrPause,
+          icon: Icon(
+            snapshot.data == true ? Icons.pause : Icons.play_arrow,
             color: playButtonColor,
           ),
-        ),
-      ],
+        );
+      },
+    );
+  }
+
+  ClipRRect miniThumbnail() {
+    return ClipRRect(
+      borderRadius: BorderRadius.horizontal(left: Radius.circular(20)),
+      child: CachedNetworkImage(
+        imageUrl: widget.song.thumbnailUrl,
+        width: 60,
+        height: 60,
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+}
+
+class _LikeButton extends StatefulWidget {
+  final SongModel song;
+  final Color dftColor;
+
+  const _LikeButton({required this.song, required this.dftColor});
+
+  @override
+  State<_LikeButton> createState() => _LikeButtonState();
+}
+
+class _LikeButtonState extends State<_LikeButton> {
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon:
+          widget.song.isLiked!
+              ? Icon(Icons.favorite_rounded, color: Colors.red)
+              : Icon(Icons.favorite_outline_rounded, color: widget.dftColor),
+      onPressed: () {
+        setState(() {
+          widget.song.setIsLiked(!widget.song.isLiked!);
+        });
+      },
     );
   }
 }

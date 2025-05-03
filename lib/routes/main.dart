@@ -5,6 +5,7 @@ import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/pages/song/song_page.dart';
 import 'package:memecloud/pages/auth/signin_page.dart';
 import 'package:memecloud/pages/auth/signup_page.dart';
+import 'package:memecloud/components/song/song_lyric.dart';
 import 'package:memecloud/pages/profile/profile_page.dart';
 import 'package:memecloud/components/grad_background.dart';
 import 'package:memecloud/pages/dashboard/dashboard_page.dart';
@@ -25,11 +26,12 @@ GoRouter getRouter() {
         path: '/404',
         builder: (context, state) => PageNotFound(routePath: '/404'),
       ),
-      GoRoute(path: '/song_play', builder: (context, state) => SongPage()),
       GoRoute(path: '/dashboard', builder: (context, state) => DashboardPage()),
       GoRoute(path: '/signup', builder: (context, state) => SignUpPage()),
       GoRoute(path: '/signin', builder: (context, state) => SignInPage()),
       GoRoute(path: '/profile', builder: (context, state) => ProfilePage()),
+      GoRoute(path: '/song_page', builder: (context, state) => SongPage()),
+      GoRoute(path: '/song_lyric', builder: (context, state) => SongLyricPage())
     ],
   );
   return router!;

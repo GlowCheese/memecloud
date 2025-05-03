@@ -44,19 +44,16 @@ class SupabaseCacheApi {
     }
   }
 
-  /// return `null` if cannot found song file on remote,
-  /// otherwise return the bytes for the song from remote.
-  Future<Uint8List?> getSongFile(String songId) async {
-    final fileName = '$songId.mp3';
+  Future<Uint8List?> getFile(String bucket, String fileName) async {
     try {
       _connectivity.ensure();
-      return await _client.storage.from('songs').download(fileName);
+      return await _client.storage.from(bucket).download(fileName);
     } on StorageException {
       return null;
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
-        'Supabase failed to get song file: $e',
+        'Supabase failed to get file from bucket $bucket: $e',
         stackTrace: stackTrace,
         level: 1000,
       );
@@ -64,16 +61,16 @@ class SupabaseCacheApi {
     }
   }
 
-  Future<String> uploadSongFile(String fileName, Uint8List bytes) {
+  Future<String> uploadFile(String bucket, String fileName, Uint8List bytes) async {
     try {
       _connectivity.ensure();
-      return _client.storage.from('songs').uploadBinary(fileName, bytes);
+      return await _client.storage.from(bucket).uploadBinary(fileName, bytes);
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
-        'Failed to upload song to Supabase storage: $e',
+        'Failed to upload file to bucket $bucket: $e',
         stackTrace: stackTrace,
-        level: 900,
+        level: 1000,
       );
       rethrow;
     }

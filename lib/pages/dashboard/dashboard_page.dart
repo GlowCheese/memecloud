@@ -5,7 +5,7 @@ import 'package:memecloud/pages/dashboard/home_page.dart';
 import 'package:memecloud/components/grad_background.dart';
 import 'package:memecloud/pages/dashboard/liked_songs_page.dart';
 import 'package:memecloud/pages/experiment/experiment_page.dart';
-import 'package:memecloud/pages/dashboard/search/search_page.dart';
+import 'package:memecloud/pages/dashboard/search_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -38,7 +38,7 @@ class _DashboardPageState extends State<DashboardPage> {
         scaffElems = {
           'appBar': defaultAppBar(context, title: 'null'),
           'bgColor': MyColorSet.grey,
-          'body': Placeholder()
+          'body': Placeholder(),
         };
     }
 
@@ -51,12 +51,14 @@ class _DashboardPageState extends State<DashboardPage> {
             setState(() {});
             await Future.delayed(Duration(seconds: 1));
           },
-          child: Stack(
-            fit: StackFit.expand,
+          child: Column(
             children: <Widget>[
-              scaffElems['body'],
-              getMiniPlayer()
-            ]
+              Expanded(child: scaffElems['body']),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 5),
+                child: getMiniPlayer(),
+              ),
+            ],
           ),
         ),
         floatingActionButton: scaffElems['floatingActionButton'],
@@ -72,10 +74,7 @@ class _DashboardPageState extends State<DashboardPage> {
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.favorite),
-          label: 'Liked',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Liked'),
         BottomNavigationBarItem(
           icon: Icon(Icons.bubble_chart),
           label: 'Experiment',

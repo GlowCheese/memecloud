@@ -24,15 +24,15 @@ Future<List<Color>> getPaletteColors(String imageUrl) async {
   return colors.map((e) => e.color).toList();
 }
 
-Color adjustLightness(Color color, double targetLightness) {
+Color adjustColor(Color color, {double? s, double? l}) {
   final rgbColor = color_pkg.RgbColor(color.red, color.green, color.blue);
 
   final hslColor = rgbColor.toHslColor();
 
   final newHsl = color_pkg.HslColor(
     hslColor.h,
-    hslColor.s,
-    targetLightness * 100,
+    s != null ? s * 100 : hslColor.s,
+    l != null ? l * 100 : hslColor.l
   );
 
   final newRgb = newHsl.toRgbColor();
@@ -59,10 +59,10 @@ String getCurrentRoute(BuildContext context) {
   return GoRouter.of(context).routeInformationProvider.value.uri.toString();
 }
 
-Map ignoreNullValuesOfMap(Map map) {
+Map<K, V> ignoreNullValuesOfMap<K, V>(Map<K, V> map) {
   return Map.fromEntries(
     map.entries.where((e) => e.value != null),
-  ).cast<String, dynamic>();
+  );
 }
 
 String prettyJson(Map json) {

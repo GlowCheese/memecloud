@@ -1,35 +1,38 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
-import 'package:memecloud/components/default_future_builder.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/search_result_model.dart';
-import 'package:memecloud/models/song_model.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:memecloud/components/default_future_builder.dart';
+import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 
-class E02 extends StatefulWidget {
-  final String? queryString;
+class SearchResult extends StatefulWidget {
+  final String queryString;
 
-  const E02({super.key, this.queryString});
+  const SearchResult(this.queryString, {super.key});
 
   @override
-  State<E02> createState() => _E02State();
+  State<SearchResult> createState() => _SearchResultState();
 }
 
-class _E02State extends State<E02> {
+class _SearchResultState extends State<SearchResult> {
   @override
   Widget build(BuildContext context) {
-    return resultBuilder((searchResult) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          bestMatchWidget(searchResult),
-          _SearchNavigation(searchResult),
-        ],
-      );
-    });
+    return defaultFutureBuilder(
+      future: getIt<ApiKit>().searchMulti(widget.queryString),
+      onData: (context, searchResult) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            bestMatchWidget(searchResult),
+            _SearchNavigation(searchResult),
+          ],
+        );
+      },
+    );
   }
 
   Widget bestMatchWidget(SearchResultModel searchResult) {
@@ -42,26 +45,14 @@ class _E02State extends State<E02> {
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [Text('Best match:', style: TextStyle(
-            fontSize: 20
-          ),), SizedBox(height: 5), item],
+          children: [
+            Text('Best match:', style: TextStyle(fontSize: 20)),
+            SizedBox(height: 5),
+            item,
+          ],
         ),
       );
     }
-  }
-
-  Widget resultBuilder(Widget Function(SearchResultModel searchResult) func) {
-    if (widget.queryString == null || widget.queryString == '') {
-      return Align(
-        alignment: Alignment.center,
-        child: Text('Nothing to search!'),
-      );
-    }
-
-    return defaultFutureBuilder(
-      future: getIt<ApiKit>().searchMulti(widget.queryString!),
-      onData:(context, data) => func(data),
-    );
   }
 }
 
@@ -195,7 +186,11 @@ Widget simpleWingetDecode(
     children: [
       ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(8)),
-        child: CachedNetworkImage(imageUrl: thumbnailUrl, width: 40, height: 40)
+        child: CachedNetworkImage(
+          imageUrl: thumbnailUrl,
+          width: 40,
+          height: 40,
+        ),
       ),
       SizedBox(width: 14),
       Flexible(
@@ -214,7 +209,7 @@ Widget simpleWingetDecode(
                   subText,
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.white.withAlpha(180)
+                    color: Colors.white.withAlpha(180),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

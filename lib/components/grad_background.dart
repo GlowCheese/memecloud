@@ -18,8 +18,9 @@ class MyColorSet {
 class GradBackground extends StatelessWidget {
   final Widget child;
   late final Color color;
+  final Color? subColor;
 
-  GradBackground({super.key, Color? color, required this.child}) {
+  GradBackground({super.key, Color? color, this.subColor, required this.child}) {
     this.color = color ?? MyColorSet.grey;
   }
 
@@ -32,7 +33,7 @@ class GradBackground extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [color, colorScheme.surfaceDim],
+              colors: [color, subColor ?? colorScheme.surfaceDim],
               stops: [0.0, 0.4],
               begin: Alignment.topLeft,
               end: Alignment.bottomLeft,
