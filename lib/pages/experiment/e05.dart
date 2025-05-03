@@ -82,7 +82,7 @@ class _E05State extends State<E05> {
 class BoxDisplay extends StatefulWidget {
   final Box box;
 
-  BoxDisplay({super.key, required this.box});
+  const BoxDisplay({super.key, required this.box});
 
   @override
   State<BoxDisplay> createState() => _BoxDisplayState();
