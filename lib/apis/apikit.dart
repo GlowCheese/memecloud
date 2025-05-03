@@ -215,8 +215,8 @@ class ApiKit {
     );
   }
 
-  Future<List<ArtistModel>> getTopArtists() {
-    return getIt<SupabaseApi>().artists.getTopArtists();
+  Future<List<ArtistModel>> getTopArtists(int count) {
+    return getIt<SupabaseApi>().artists.getTopArtists(count);
   }
 
   /* ----------------------
