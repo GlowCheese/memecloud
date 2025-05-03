@@ -215,6 +215,14 @@ class ApiKit {
     );
   }
 
+  /* ----------------------
+  |    RECENT SEARCHES    |
+  ---------------------- */
+
+  void saveSearch(String query) => storage.saveSearch(query);
+  void removeSearch(String query) => storage.saveSearch(query, negate: true);
+  List<String> getRecentSearches() => storage.getRecentSearches();
+
   /* ---------------------
   |    SUPABASE CACHE    |
   |     AND STORAGE      |
@@ -247,7 +255,7 @@ class ApiKit {
     }
 
     if (!await isNonVipSong(songId)) return null;
-    var bytes = await supabase.cache.getFile(bucket, songId);
+    var bytes = await supabase.cache.getFile(bucket, fileName);
     if (bytes == null) {
       final songUrl = await zingMp3.fetchSongUrl(songId);
       if (songUrl == null) {

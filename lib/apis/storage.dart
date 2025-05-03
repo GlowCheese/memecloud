@@ -11,6 +11,7 @@ class HiveBoxes {
       Hive.openBox<bool>('vipSongs'),
       Hive.openBox<Map>('apiCache'),
       Hive.openBox<List<int>>('paletteColors'),
+      Hive.openBox<String>('recentSearches'),
     ]);
     return HiveBoxes();
   }
@@ -19,6 +20,7 @@ class HiveBoxes {
   Box<bool> get vipSongs => Hive.box('vipSongs');
   Box<Map> get apiCache => Hive.box('apiCache');
   Box<List<int>> get paletteColors => Hive.box('paletteColors');
+  Box<String> get recentSearches => Hive.box('recentSearches');
 }
 
 class CachedDataWithFallback<T> {
@@ -29,7 +31,7 @@ class CachedDataWithFallback<T> {
   R fold<R>(R Function(T data) onData, R Function(T? fallback) onFallback) {
     if (data != null) {
       return onData(data as T);
-    } else  {
+    } else {
       return onFallback(fallback);
     }
   }
@@ -115,6 +117,32 @@ class PersistentStorage {
   }
 
   Future<void> setPaletteColors(String url, List<Color> colors) async {
-    await hiveBoxes.paletteColors.put(url, colors.map((e) => e.toARGB32()).toList());
+    await hiveBoxes.paletteColors.put(
+      url,
+      colors.map((e) => e.toARGB32()).toList(),
+    );
+  }
+
+  void saveSearch(String query, {int lim = 7, bool negate = false}) {
+    final box = hiveBoxes.recentSearches;
+    List<String> current = box.values.toList();
+
+    current.remove(query);
+    if (negate == false) {
+      current.insert(0, query);
+    }
+
+    if (current.length > lim) {
+      current = current.sublist(0, lim);
+    }
+
+    for (int i = 0; i < current.length; i++) {
+      box.put(i, current[i]);
+    }
+  }
+
+  List<String> getRecentSearches() {
+    final box = hiveBoxes.recentSearches;
+    return box.values.toList();
   }
 }

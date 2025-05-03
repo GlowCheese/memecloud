@@ -3,7 +3,6 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:memecloud/components/default_appbar.dart';
 import 'package:memecloud/components/grad_background.dart';
 import 'package:memecloud/pages/experiment/e01.dart';
-import 'package:memecloud/pages/experiment/e03.dart';
 import 'package:memecloud/pages/experiment/e04.dart';
 import 'package:memecloud/pages/experiment/e05.dart';
 
@@ -11,7 +10,6 @@ import 'package:memecloud/pages/experiment/e05.dart';
 
 final allPages = {
   'E01': () => E01(),
-  'E03': () => E03(),
   'E04': () => E04(),
   'E05': () => E05(),
 };
