@@ -79,6 +79,7 @@ class _SearchNavigationState extends State<_SearchNavigation> {
         (int page) =>
             getIt<ApiKit>().searchPlaylists(widget.keyword, page: page),
   };
+  List<bool> hasMore = [true, true, true];
   List<List<Widget>> cachedFilterData = [[], [], []];
 
   @override
@@ -172,7 +173,7 @@ class _SearchNavigationState extends State<_SearchNavigation> {
       height: 420,
       child: ListView.separated(
         shrinkWrap: true,
-        itemCount: dataList.length + 1,
+        itemCount: dataList.length + (hasMore[filterIndex] ? 1 : 0),
         separatorBuilder: (context, index) => SizedBox(height: 10),
         itemBuilder: (context, index) {
           if (index < dataList.length) {
@@ -186,7 +187,10 @@ class _SearchNavigationState extends State<_SearchNavigation> {
                   (dataList.length / 16).round() + 1,
                 );
                 if (data == null) {
-                  dataList.add(Center(child: Text('No more result')));
+                  setState(() {
+                    hasMore[filterIndex] = false;
+                    dataList.add(Center(child: Text('No more result')));
+                  });
                 } else {
                   setState(() {
                     dataList.addAll(
