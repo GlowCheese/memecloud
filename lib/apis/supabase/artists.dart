@@ -53,14 +53,14 @@ class SupabaseArtistsApi {
     }
   }
 
-  Future<List<ArtistModel>> getTopArtists() async {
+  Future<List<ArtistModel>> getTopArtists(int count) async {
     try {
       _connectivity.ensure();
       final response = await _client
           .from('artists')
           .select()
           .order('view_in_week', ascending: false)
-          .limit(5);
+          .limit(count);
       
       return response
           .map((artist) => ArtistModel.fromJson<SupabaseApi>({'artist': artist}))
