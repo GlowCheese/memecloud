@@ -9,7 +9,7 @@ class E04 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return defaultFutureBuilder(
-      future: getIt<ApiKit>().getPlaylistInfo('Son-Tung-M-TP'),
+      future: getIt<ApiKit>().getArtistInfo('Sont-Tung-M-TP'),
       onData: (context, data) => Text(data.toString())
     );
   }
