@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/components/default_future_builder.dart';
 import 'package:memecloud/components/grad_background.dart';
+import 'package:memecloud/components/like_button.dart';
 import 'package:memecloud/components/song/song_lyric.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -13,15 +14,10 @@ import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/utils/common.dart';
 
-class SongPage extends StatefulWidget {
-  const SongPage({super.key});
-
-  @override
-  State<SongPage> createState() => _SongPageState();
-}
-
-class _SongPageState extends State<SongPage> {
+class SongPage extends StatelessWidget {
   final playerCubit = getIt<SongPlayerCubit>();
+
+  SongPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +69,7 @@ class _SongPageState extends State<SongPage> {
                             SongControllerView(song: state.currentSong),
                             SizedBox(height: 50),
                             _songLyric(state.currentSong),
+                            SizedBox(height: 10),
                           ],
                         ),
                       ),
@@ -127,7 +124,7 @@ class _SongPageState extends State<SongPage> {
                   ],
                 ),
               ),
-              Expanded(child: SongLyric(lyric: data!, largeText: false,)),
+              Expanded(child: SongLyricWidget(lyric: data!, largeText: false,)),
             ],
           );
         },
@@ -163,18 +160,7 @@ class _SongPageState extends State<SongPage> {
           ),
         ),
         SizedBox(width: 20),
-        IconButton(
-          onPressed: () {
-            setState(() {
-              song.setIsLiked(!song.isLiked!);
-            });
-          },
-          icon: Icon(
-            song.isLiked! ? Icons.favorite : Icons.favorite_outline_outlined,
-            size: 30,
-            color: song.isLiked! ? Colors.red.shade400 : Colors.white,
-          ),
-        ),
+        SongLikeButton(song: song, dftColor: Colors.white)
       ],
     );
   }

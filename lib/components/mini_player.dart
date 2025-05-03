@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:memecloud/components/like_button.dart';
+import 'package:memecloud/components/play_or_pause_button.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/utils/common.dart';
@@ -124,8 +126,8 @@ class _MiniPlayerState extends State<_MiniPlayer> {
                 SizedBox(width: 20),
                 Row(
                   children: [
-                    _playOrPauseButton(onBgColor),
-                    _LikeButton(
+                    PlayOrPauseButton(song: widget.song, color: onBgColor),
+                    SongLikeButton(
                       song: widget.song,
                       dftColor: onBgColor
                     ),
@@ -151,21 +153,6 @@ class _MiniPlayerState extends State<_MiniPlayer> {
     );
   }
 
-  StreamBuilder _playOrPauseButton(Color playButtonColor) {
-    return StreamBuilder(
-      stream: widget.playerCubit.audioPlayer.playingStream,
-      builder: (context, snapshot) {
-        return IconButton(
-          onPressed: widget.playerCubit.playOrPause,
-          icon: Icon(
-            snapshot.data == true ? Icons.pause : Icons.play_arrow,
-            color: playButtonColor,
-          ),
-        );
-      },
-    );
-  }
-
   ClipRRect miniThumbnail() {
     return ClipRRect(
       borderRadius: BorderRadius.horizontal(left: Radius.circular(20)),
@@ -175,33 +162,6 @@ class _MiniPlayerState extends State<_MiniPlayer> {
         height: 60,
         fit: BoxFit.cover,
       ),
-    );
-  }
-}
-
-class _LikeButton extends StatefulWidget {
-  final SongModel song;
-  final Color dftColor;
-
-  const _LikeButton({required this.song, required this.dftColor});
-
-  @override
-  State<_LikeButton> createState() => _LikeButtonState();
-}
-
-class _LikeButtonState extends State<_LikeButton> {
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon:
-          widget.song.isLiked!
-              ? Icon(Icons.favorite_rounded, color: Colors.red)
-              : Icon(Icons.favorite_outline_rounded, color: widget.dftColor),
-      onPressed: () {
-        setState(() {
-          widget.song.setIsLiked(!widget.song.isLiked!);
-        });
-      },
     );
   }
 }

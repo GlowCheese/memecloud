@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memecloud/components/play_or_pause_button.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/models/song_model.dart';
@@ -96,24 +97,17 @@ class SongControllerView extends StatelessWidget {
     );
   }
 
-  StreamBuilder<bool> _playOrPauseButton() {
-    return StreamBuilder<bool>(
-      stream: playerCubit.audioPlayer.playingStream,
-      builder: (context, snapshot) {
-        return Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.greenAccent.shade700,
-          ),
-          child: IconButton(
-            padding: const EdgeInsets.all(18.0),
-            onPressed: () => playerCubit.playOrPause(),
-            iconSize: 30,
-            color: Colors.white,
-            icon: Icon(snapshot.data == true ? Icons.pause : Icons.play_arrow),
-          ),
-        );
-      },
+  Container _playOrPauseButton() {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.greenAccent.shade700,
+      ),
+      child: PlayOrPauseButton(
+        song: song,
+        iconSize: 30,
+        padding: const EdgeInsets.all(18.0)
+      )
     );
   }
 

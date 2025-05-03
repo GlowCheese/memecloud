@@ -4,7 +4,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/apis/zingmp3/endpoints.dart';
-import 'package:memecloud/blocs/liked_songs/liked_songs_cubit.dart';
+import 'package:memecloud/blocs/liked_songs/liked_songs_stream.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/artist_model.dart';
 
@@ -88,7 +88,7 @@ class SongModel {
     if (sync) {
       unawaited(getIt<ApiKit>().setIsLiked(id, newValue));
     }
-    getIt<LikedSongsCubit>().setIsLiked(this, newValue);
+    getIt<LikedSongsStream>().setIsLiked(this, newValue);
     return isLiked = newValue;
   }
 

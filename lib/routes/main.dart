@@ -1,5 +1,5 @@
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/pages/404.dart';
+import 'package:memecloud/pages/404/404.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/pages/song/song_page.dart';
