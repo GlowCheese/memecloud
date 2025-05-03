@@ -5,7 +5,7 @@ import 'package:memecloud/apis/connectivity.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/blocs/liked_songs/liked_songs_stream.dart';
 
-class SongLikeButton extends StatelessWidget {
+class SongLikeButton extends StatefulWidget {
   final SongModel song;
   final Color dftColor;
   final bool defaultIsLiked;
@@ -13,34 +13,62 @@ class SongLikeButton extends StatelessWidget {
   SongLikeButton({
     super.key,
     required this.song,
-    required this.dftColor,
-    this.defaultIsLiked = false
-  }) {
-    if (song.isLiked == null) {
-      song.setIsLiked(defaultIsLiked, sync: false);
+    this.dftColor = Colors.white,
+    this.defaultIsLiked = false,
+  });
+
+  @override
+  State<SongLikeButton> createState() => _SongLikeButtonState();
+}
+
+class _SongLikeButtonState extends State<SongLikeButton> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.song.isLiked == null) {
+      widget.song.setIsLiked(widget.defaultIsLiked, sync: false);
       unawaited(() async {
         try {
-          await song.loadIsLiked();
-        } on ConnectionLoss { return; }
+          await widget.song.loadIsLiked();
+          setState(() {});
+        } on ConnectionLoss {
+          return;
+        }
       }());
     }
   }
-  
+
+  void _syncLike(AsyncSnapshot<SongLikeEvent> snapshot) {
+    final event = snapshot.data;
+    SongModel? song;
+
+    if (event is UserLikeSongEvent) song = event.song;
+    if (event is UserUnlikeSongEvent) song = event.song;
+
+    if (song != null && song.id == widget.song.id) {
+      widget.song.isLiked = song.isLiked;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: getIt<LikedSongsStream>().stream,
       builder: (context, snapshot) {
+        _syncLike(snapshot);
         return IconButton(
           icon:
-              song.isLiked == true
+              widget.song.isLiked == true
                   ? Icon(Icons.favorite_rounded, color: Colors.red.shade400)
-                  : Icon(Icons.favorite_outline_rounded, color: dftColor),
+                  : Icon(
+                    Icons.favorite_outline_rounded,
+                    color: widget.dftColor,
+                  ),
           onPressed: () {
-            song.setIsLiked(song.isLiked != true);
+            widget.song.setIsLiked(widget.song.isLiked != true);
           },
         );
-      }
+      },
     );
   }
 }

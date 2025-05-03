@@ -130,7 +130,7 @@ class _SongListViewState extends State<_SongListView> {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        SongLikeButton(song: song, dftColor: Colors.white, defaultIsLiked: true),
+                        SongLikeButton(song: song, defaultIsLiked: true),
                         PlayOrPauseButton(song: song, songList: currentLikedSongs)
                       ],
                     ),

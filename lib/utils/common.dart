@@ -1,7 +1,8 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:convert';
-import 'dart:developer';
+import 'dart:developer' as dev;
+import 'dart:math';
 import 'package:color/color.dart' as color_pkg;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -9,15 +10,19 @@ import 'package:palette_generator/palette_generator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 Future<List<Color>> getPaletteColors(String imageUrl) async {
-  final PaletteGenerator paletteGenerator = await PaletteGenerator.fromImageProvider(
-    CachedNetworkImageProvider(imageUrl),
-    size: Size(200, 200),
-    maximumColorCount: 20,
-  );
+  final PaletteGenerator paletteGenerator =
+      await PaletteGenerator.fromImageProvider(
+        CachedNetworkImageProvider(imageUrl),
+        size: Size(200, 200),
+        maximumColorCount: 20,
+      );
 
   var colors = paletteGenerator.paletteColors;
   if (colors.isEmpty) {
-    log('paletteGenerator failed to find paletteColors for: $imageUrl', level: 900);
+    dev.log(
+      'paletteGenerator failed to find paletteColors for: $imageUrl',
+      level: 900,
+    );
     return [Colors.grey.shade700];
   }
 
@@ -32,7 +37,7 @@ Color adjustColor(Color color, {double? s, double? l}) {
   final newHsl = color_pkg.HslColor(
     hslColor.h,
     s != null ? s * 100 : hslColor.s,
-    l != null ? l * 100 : hslColor.l
+    l != null ? l * 100 : hslColor.l,
   );
 
   final newRgb = newHsl.toRgbColor();
@@ -47,8 +52,8 @@ Color adjustColor(Color color, {double? s, double? l}) {
 
 Color getTextColor(Color bgColor) {
   return ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
-    ? Colors.white
-    : Colors.black;
+      ? Colors.white
+      : Colors.black;
 }
 
 String normalizeSearchQueryString(String searchQuery) {
@@ -60,12 +65,33 @@ String getCurrentRoute(BuildContext context) {
 }
 
 Map<K, V> ignoreNullValuesOfMap<K, V>(Map<K, V> map) {
-  return Map.fromEntries(
-    map.entries.where((e) => e.value != null),
-  );
+  return Map.fromEntries(map.entries.where((e) => e.value != null));
 }
 
 String prettyJson(Map json) {
   var encoder = JsonEncoder.withIndent('  ');
   return encoder.convert(json);
+}
+
+List mixLists(List<List> lists) {
+  final random = Random();
+  final reversedLists = lists.map((l) => List.of(l.reversed)).toList();
+  int sumLen = reversedLists.fold(0, (prev, l) => prev + l.length);
+  List result = [];
+
+  while (sumLen > 0) {
+    double p = random.nextDouble();
+    for (int i = 0; i < reversedLists.length; i++) {
+      final list = reversedLists[i];
+      if (list.isEmpty) continue;
+      double q = list.length / sumLen;
+      if (p <= q) {
+        result.add(list.removeLast());
+        break;
+      }
+      p -= q;
+    }
+    sumLen--;
+  }
+  return result;
 }
