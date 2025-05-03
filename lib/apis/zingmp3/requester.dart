@@ -74,7 +74,7 @@ class ZingMp3Requester {
     int? page,
     int? count,
     Map<String, dynamic>? extra,
-    List<int> allowedErrorCodes = const []
+    List<int> allowedErrorCodes = const [],
   }) async {
     int retries = 3;
     late Response resp;
@@ -99,8 +99,11 @@ class ZingMp3Requester {
       await Future.delayed(Duration(seconds: 1));
     }
 
-    if (resp.data['err'] != 0 && !allowedErrorCodes.contains(resp.data['err'])) {
-      throw Exception('Unexpected eror code: ${resp.data['err']}. Resp data: ${resp.data}');
+    if (resp.data['err'] != 0 &&
+        !allowedErrorCodes.contains(resp.data['err'])) {
+      throw Exception(
+        'Unexpected eror code: ${resp.data['err']}. Resp data: ${resp.data}',
+      );
     }
 
     return resp.data;
@@ -167,7 +170,11 @@ class ZingMp3Requester {
 
   Future<Map> getArtist(String artistAlias) {
     final path = "/api/v2/page/get/artist";
-    return _sendRequest(path, extra: {'alias': artistAlias}, allowedErrorCodes: [-108]);
+    return _sendRequest(
+      path,
+      extra: {'alias': artistAlias},
+      allowedErrorCodes: [-108],
+    );
   }
 
   Future<Map> getLyric(String songId) {
@@ -185,7 +192,13 @@ class ZingMp3Requester {
       throw ArgumentError.value(page, "page", "page must be at least 1");
     }
     final path = "/api/v2/search";
-    return _sendRequest(path, type: type, page: page, count: 12, extra: {'q': keyword});
+    return _sendRequest(
+      path,
+      type: type,
+      page: page,
+      count: 12,
+      extra: {'q': keyword},
+    );
   }
 
   Future<Map> searchSongs(String keyword, {int page = 1}) {
