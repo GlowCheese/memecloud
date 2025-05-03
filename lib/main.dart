@@ -7,8 +7,8 @@ import 'package:memecloud/core/theme.dart';
 import 'package:memecloud/routes/main.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   await setupLocator();
   await justAudioBackgroundInit();
@@ -22,8 +22,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AdaptiveTheme(
-      light: MaterialTheme(GoogleFonts.bricolageGrotesqueTextTheme()).theme(MaterialTheme.lightScheme()),
-      dark: MaterialTheme(GoogleFonts.bricolageGrotesqueTextTheme()).theme(MaterialTheme.darkScheme()),
+      light: MaterialTheme(
+        GoogleFonts.bricolageGrotesqueTextTheme(),
+      ).theme(MaterialTheme.lightScheme()),
+      dark: MaterialTheme(
+        GoogleFonts.bricolageGrotesqueTextTheme(),
+      ).theme(MaterialTheme.darkScheme()),
       initial: AdaptiveThemeMode.system,
       builder: (theme, darkTheme) {
         return MaterialApp.router(
