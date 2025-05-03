@@ -9,7 +9,7 @@ class E04 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return defaultFutureBuilder(
-      future: getIt<ApiKit>().getArtistInfo('Sont-Tung-M-TP'),
+      future: getIt<ApiKit>().searchArtists('soobin', page: 10),
       onData: (context, data) => Text(data.toString())
     );
   }

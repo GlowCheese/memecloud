@@ -84,8 +84,56 @@ class ZingMp3Api {
   Future<Map> searchMulti(String keyword) async {
     try {
       _connectivity.ensure();
-      final resp = await _requester.searchMulti(keyword);
+      final resp = await _requester.multiSearch(keyword);
       return resp['data'];
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        'ZingMp3Api failed to search: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
+  Future<List?> searchSongs(String keyword, {required int page}) async {
+    try {
+      _connectivity.ensure();
+      final resp = await _requester.searchSongs(keyword, page: page);
+      return resp['data']['items'];
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        'ZingMp3Api failed to search: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
+  Future<List?> searchArtists(String keyword, {required int page}) async {
+    try {
+      _connectivity.ensure();
+      final resp = await _requester.searchArtists(keyword, page: page);
+      return resp['data']['items'];
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        'ZingMp3Api failed to search: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
+  Future<List?> searchPlaylists(String keyword, {required int page}) async {
+    try {
+      _connectivity.ensure();
+      final resp = await _requester.searchPlaylists(keyword, page: page);
+      return resp['data']['items'];
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
