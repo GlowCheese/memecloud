@@ -160,7 +160,7 @@ class SongPage extends StatelessWidget {
           ),
         ),
         SizedBox(width: 20),
-        SongLikeButton(song: song, dftColor: Colors.white)
+        SongLikeButton(song: song)
       ],
     );
   }

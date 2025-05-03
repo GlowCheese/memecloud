@@ -78,7 +78,7 @@ class _RecentSearchesState extends State<RecentSearches> {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(left: 40, right: 22, top: 30),
+      padding: const EdgeInsets.only(left: 30, right: 22, top: 30),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 20,
