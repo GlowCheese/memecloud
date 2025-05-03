@@ -48,12 +48,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   }
 
   Future<String?> _getSongPath(SongModel song) async {
-    try {
-      await song.loadIsLiked();
-      await getIt<ApiKit>().saveSongInfo(song);
-    } on ConnectionLoss {
-      song.setIsLiked(false, sync: false);
-    }
+    unawaited(getIt<ApiKit>().saveSongInfo(song));
     try {
       return await getIt<ApiKit>().getSongPath(song.id);
     } on ConnectionLoss {
@@ -75,7 +70,6 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       if (songPath == null) {
         return !context.mounted || onSongFailedToLoad(context, 'songPath is null');
       } else {
-        // TODO: put this line somewhere else!
         debugPrint('Found song path: $songPath');
         currentSongList = [song];
         if (songList == null) {

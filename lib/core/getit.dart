@@ -9,7 +9,7 @@ import 'package:memecloud/core/dio_init.dart';
 import 'package:memecloud/apis/connectivity.dart';
 import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/apis/zingmp3/endpoints.dart';
-import 'package:memecloud/blocs/liked_songs/liked_songs_cubit.dart';
+import 'package:memecloud/blocs/liked_songs/liked_songs_stream.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 
 final getIt = GetIt.instance;
@@ -40,5 +40,5 @@ Future<void> setupLocator() async {
   getIt.registerSingleton<AudioPlayer>(playerCubit.audioPlayer);
 
   // miscs
-  getIt.registerSingleton<LikedSongsCubit>(LikedSongsCubit());
+  getIt.registerSingleton<LikedSongsStream>(LikedSongsStream());
 }
