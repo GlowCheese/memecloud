@@ -182,17 +182,37 @@ class ApiKit {
   -------------------- */
 
   Future<PlaylistModel?> getPlaylistInfo(String playlistId) async {
-    // TODO: cache this data!
-    final zingResp = await zingMp3.fetchPlaylistInfo(playlistId);
-    if (zingResp == null) return null;
-    return PlaylistModel.fromJson<ZingMp3Api>(zingResp);
+    final String api = '/infoplaylist?id=$playlistId';
+    return await _getOrFetch<Map<String, dynamic>?, PlaylistModel?>(
+      api,
+      fetchFunc: () => zingMp3.fetchPlaylistInfo(playlistId),
+      cacheEncode: (data) => ignoreNullValuesOfMap({'data': data}),
+      cacheDecode: (json) {
+        if (!json.containsKey('data')) return null;
+        return Map.castFrom<dynamic, dynamic, String, dynamic>(json['data']);
+      },
+      outputFixer: (data) {
+        if (data == null) return null;
+        return PlaylistModel.fromJson<ZingMp3Api>(data);
+      },
+    );
   }
 
-  Future<ArtistModel?> getArtistInfo(String artistId) async {
-    // TODO: cache this data!
-    final zingResp = await zingMp3.fetchArtistInfo(artistId);
-    if (zingResp == null) return null;
-    return ArtistModel.fromJson<ZingMp3Api>(zingResp);
+  Future<ArtistModel?> getArtistInfo(String artistAlias) async {
+    final String api = '/infoartist?alias=$artistAlias';
+    return await _getOrFetch<Map<String, dynamic>?, ArtistModel?>(
+      api,
+      fetchFunc: () => zingMp3.fetchArtistInfo(artistAlias),
+      cacheEncode: (data) => ignoreNullValuesOfMap({'data': data}),
+      cacheDecode: (json) {
+        if (!json.containsKey('data')) return null;
+        return Map.castFrom<dynamic, dynamic, String, dynamic>(json['data']);
+      },
+      outputFixer: (data) {
+        if (data == null) return null;
+        return ArtistModel.fromJson<ZingMp3Api>(data);
+      },
+    );
   }
 
   /* ---------------------
@@ -238,8 +258,7 @@ class ApiKit {
 
       bytes = await file.readAsBytes();
       unawaited(supabase.cache.uploadFile(bucket, fileName, bytes));
-    }
-    else {
+    } else {
       await file.writeAsBytes(bytes);
     }
 
