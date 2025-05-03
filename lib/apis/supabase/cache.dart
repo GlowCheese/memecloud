@@ -61,10 +61,10 @@ class SupabaseCacheApi {
     }
   }
 
-  Future<String> uploadFile(String bucket, String fileName, Uint8List bytes) {
+  Future<String> uploadFile(String bucket, String fileName, Uint8List bytes) async {
     try {
       _connectivity.ensure();
-      return _client.storage.from(bucket).uploadBinary(fileName, bytes);
+      return await _client.storage.from(bucket).uploadBinary(fileName, bytes);
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
