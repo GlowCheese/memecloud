@@ -61,10 +61,21 @@ class SupabaseCacheApi {
     }
   }
 
-  Future<String> uploadFile(String bucket, String fileName, Uint8List bytes) async {
+  Future<String?> uploadFile(
+    String bucket,
+    String fileName,
+    Uint8List bytes,
+  ) async {
     try {
       _connectivity.ensure();
       return await _client.storage.from(bucket).uploadBinary(fileName, bytes);
+    } on StorageException catch (e, stackTrace) {
+      log(
+        'Skip uploading $fileName to $bucket. Reason: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      return null;
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
