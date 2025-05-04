@@ -65,7 +65,7 @@ class _ArtistPageState extends State<ArtistPage> {
             return _loadingArtist();
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: SelectableText('Error: ${snapshot.error}'));
           }
           final artist = snapshot.data;
           if (artist == null) {
@@ -75,13 +75,20 @@ class _ArtistPageState extends State<ArtistPage> {
           }
           return CustomScrollView(
             slivers: [
-              SliverToBoxAdapter(child: _artistHeader(artist)),
+              SliverAppBar(
+                toolbarHeight: 300,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: _artistHeader(artist),
+                ),
+              ),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: _artistInfo(artist),
                 ),
               ),
+              _SongsOfArtist(songsFuture: _songsFuture),
+              SliverFillRemaining(),
             ],
           );
         },
@@ -120,7 +127,6 @@ class _ArtistPageState extends State<ArtistPage> {
           ),
         ),
 
-        // Back button
         Positioned(
           top: MediaQuery.of(context).padding.top + 8,
           left: 8,
@@ -218,31 +224,45 @@ class _ArtistPageState extends State<ArtistPage> {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
-        FutureBuilder<List<SongModel>>(
-          future: _songsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            }
-            final songs = snapshot.data ?? [];
-            if (songs.isEmpty) {
-              return const Center(child: Text('Chưa có bài hát nào'));
-            }
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: songs.length,
-              itemBuilder: (context, index) {
-                final song = songs[index];
-                return _SongListTile(song: song);
-              },
-            );
-          },
-        ),
       ],
+    );
+  }
+}
+
+class _SongsOfArtist extends StatelessWidget {
+  const _SongsOfArtist({required Future<List<SongModel>> songsFuture})
+    : _songsFuture = songsFuture;
+
+  final Future<List<SongModel>> _songsFuture;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<SongModel>>(
+      future: _songsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return SliverToBoxAdapter(
+            child: const Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.hasError) {
+          return SliverToBoxAdapter(
+            child: Center(child: Text('Error: ${snapshot.error}')),
+          );
+        }
+        final songs = snapshot.data ?? [];
+        if (songs.isEmpty) {
+          return SliverToBoxAdapter(
+            child: const Center(child: Text('Chưa có bài hát nào')),
+          );
+        }
+        return SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final song = songs[index];
+            return _SongListTile(song: song);
+          }, childCount: songs.length),
+        );
+      },
     );
   }
 }
