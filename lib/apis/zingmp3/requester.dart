@@ -182,7 +182,7 @@ class ZingMp3Requester {
     return _sendRequest(path, id: songId);
   }
 
-  Future<Map> searchMulti(String keyword) {
+  Future<Map> multiSearch(String keyword) {
     final path = "/api/v2/search/multi";
     return _sendRequest(path, extra: {'q': keyword});
   }
@@ -192,13 +192,8 @@ class ZingMp3Requester {
       throw ArgumentError.value(page, "page", "page must be at least 1");
     }
     final path = "/api/v2/search";
-    return _sendRequest(
-      path,
-      type: type,
-      page: page,
-      count: 12,
-      extra: {'q': keyword},
-    );
+
+    return _sendRequest(path, type: type, page: page, count: 16, extra: {'q': keyword});
   }
 
   Future<Map> searchSongs(String keyword, {int page = 1}) {

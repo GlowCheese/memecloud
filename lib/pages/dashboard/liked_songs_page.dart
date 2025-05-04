@@ -3,20 +3,20 @@ import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/components/like_button.dart';
 import 'package:memecloud/components/default_appbar.dart';
 import 'package:memecloud/components/grad_background.dart';
+import 'package:memecloud/components/play_or_pause_button.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/components/default_future_builder.dart';
-import 'package:memecloud/blocs/liked_songs/liked_songs_cubit.dart';
-import 'package:memecloud/blocs/liked_songs/liked_songs_state.dart';
+import 'package:memecloud/blocs/liked_songs/liked_songs_stream.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
-import 'package:memecloud/blocs/song_player/song_player_state.dart';
 
 Map getLikedSongsPage(BuildContext context) {
   return {
     'appBar': defaultAppBar(context, title: 'Liked Songs'),
     'bgColor': MyColorSet.redAccent,
-    'body': LikedSongPage(),
+    'body': LikedSongPage(key: ValueKey("liked song page")),
   };
 }
 
@@ -60,13 +60,15 @@ class _SongListViewState extends State<_SongListView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
-      bloc: getIt<LikedSongsCubit>(),
-      builder: (context, state) {
-        if (state is UserLikeSong) {
-          currentLikedSongs.add(state.song);
-        } else if (state is UserUnlikeSong) {
-          currentLikedSongs.removeWhere((song) => song.id == state.song.id);
+    return StreamBuilder(
+      stream: getIt<LikedSongsStream>().stream,
+      builder: (context, snapshot) {
+        final event = snapshot.data;
+
+        if (event is UserLikeSongEvent) {
+          currentLikedSongs.add(event.song);
+        } else if (event is UserUnlikeSongEvent) {
+          currentLikedSongs.removeWhere((song) => song.id == event.song.id);
         }
 
         if (currentLikedSongs.isEmpty) {
@@ -90,11 +92,6 @@ class _SongListViewState extends State<_SongListView> {
         return BlocBuilder(
           bloc: playerCubit,
           builder: (context, state) {
-            SongModel? currentPlayingSong;
-            if (state is SongPlayerLoaded) {
-              currentPlayingSong = state.currentSong;
-            }
-
             return ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: currentLikedSongs.length,
@@ -133,53 +130,8 @@ class _SongListViewState extends State<_SongListView> {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        AnimatedOpacity(
-                          opacity: unlikedSongs.contains(song) ? 0.0 : 1.0,
-                          duration: Duration(milliseconds: 600),
-                          onEnd: () {
-                            setState(() {
-                              unlikedSongs.remove(song);
-                              currentLikedSongs.remove(song);
-                            });
-                          },
-                          child: IconButton(
-                            icon: const Icon(Icons.favorite, color: Colors.red),
-                            onPressed: () {
-                              if (!unlikedSongs.contains(song)) {
-                                song.setIsLiked(false);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Đã unlike thành công 1 bài hát!',
-                                    ),
-                                    duration: Duration(seconds: 2),
-                                  ),
-                                );
-                                setState(() {
-                                  unlikedSongs.add(song);
-                                });
-                              }
-                            },
-                          ),
-                        ),
-                        IconButton(
-                          icon:
-                              (song.id == currentPlayingSong?.id &&
-                                      playerCubit.isPlaying)
-                                  ? (Icon(Icons.pause_rounded))
-                                  : (Icon(Icons.play_arrow_rounded)),
-                          onPressed: () async {
-                            if (song.id == currentPlayingSong?.id) {
-                              playerCubit.playOrPause();
-                            } else {
-                              await playerCubit.loadAndPlay(
-                                context,
-                                song,
-                                songList: currentLikedSongs,
-                              );
-                            }
-                          },
-                        ),
+                        SongLikeButton(song: song, defaultIsLiked: true),
+                        PlayOrPauseButton(song: song, songList: currentLikedSongs)
                       ],
                     ),
                     onTap: () async {
