@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:memecloud/apis/connectivity.dart';
+import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -68,7 +69,8 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
 
       final songPath = await _getSongPath(song);
       if (songPath == null) {
-        return !context.mounted || onSongFailedToLoad(context, 'songPath is null');
+        return !context.mounted ||
+            onSongFailedToLoad(context, 'songPath is null');
       } else {
         debugPrint('Found song path: $songPath');
         currentSongList = [song];
@@ -149,6 +151,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     }
     if (await _loadSong(context, song, songList: songList)) {
       playOrPause();
+      getIt<SupabaseApi>().songs.incrementView(song.id);
       return true;
     }
     return false;
@@ -173,5 +176,6 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   Future<void> seekToNext() => audioPlayer.seekToNext();
 
   Future<void> seekToPrevious() => audioPlayer.seekToPrevious();
-  Future<void> toggleShuffleMode() => audioPlayer.setShuffleModeEnabled(!shuffleMode);
+  Future<void> toggleShuffleMode() =>
+      audioPlayer.setShuffleModeEnabled(!shuffleMode);
 }
