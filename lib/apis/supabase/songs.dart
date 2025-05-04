@@ -202,6 +202,25 @@ class SupabaseSongsApi {
 
   ///End blacklist song
 
+  ///begin increment view
+  Future<void> incrementView(String songId) async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+
+  if (userId == null) return;
+
+  final response = await Supabase.instance.client
+      .rpc('increment_view', params: {
+        'listened_song_id': songId,
+        'listened_user_id': userId,
+      });
+
+  if (response.error != null) {
+    log('Lỗi tăng view: ${response.error!.message}');
+  }
+  }
+
+  ///end increment view
+
   Future<List<String>> filterNonVipSongs(List<String> songsIds) async {
     try {
       _connectivity.ensure();
