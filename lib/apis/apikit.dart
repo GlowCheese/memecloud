@@ -234,17 +234,26 @@ class ApiKit {
   void removeSearch(String query) => storage.saveSearch(query, negate: true);
   List<String> getRecentSearches() => storage.getRecentSearches();
 
-  Future<List<SongModel>?> searchSongs(String keyword, {required int page}) async {
+  Future<List<SongModel>?> searchSongs(
+    String keyword, {
+    required int page,
+  }) async {
     final jsons = await zingMp3.searchSongs(keyword, page: page);
     return jsons == null ? null : SongModel.fromListJson<ZingMp3Api>(jsons);
   }
 
-  Future<List<PlaylistModel>?> searchPlaylists(String keyword, {required int page}) async {
+  Future<List<PlaylistModel>?> searchPlaylists(
+    String keyword, {
+    required int page,
+  }) async {
     final jsons = await zingMp3.searchPlaylists(keyword, page: page);
     return jsons == null ? null : PlaylistModel.fromListJson<ZingMp3Api>(jsons);
   }
 
-  Future<List<ArtistModel>?> searchArtists(String keyword, {required int page}) async {
+  Future<List<ArtistModel>?> searchArtists(
+    String keyword, {
+    required int page,
+  }) async {
     final jsons = await zingMp3.searchArtists(keyword, page: page);
     return jsons == null ? null : ArtistModel.fromListJson<ZingMp3Api>(jsons);
   }

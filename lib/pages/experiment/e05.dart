@@ -129,7 +129,12 @@ class _BoxDisplayState extends State<BoxDisplay> {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
-                  Center(child: IconButton(onPressed: () => _deleteConfirm(key), icon: Icon(Icons.close))),
+                  Center(
+                    child: IconButton(
+                      onPressed: () => _deleteConfirm(key),
+                      icon: Icon(Icons.close),
+                    ),
+                  ),
                   Center(
                     child: SizedBox(
                       width: 240,
@@ -142,7 +147,12 @@ class _BoxDisplayState extends State<BoxDisplay> {
                     ),
                   ),
                   Center(child: SizedBox(width: 30)),
-                  Center(child: Text(widget.box.get(key).toString(), style: TextStyle(fontSize: 16))),
+                  Center(
+                    child: Text(
+                      widget.box.get(key).toString(),
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
                 ],
               ),
             );
