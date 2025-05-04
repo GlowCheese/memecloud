@@ -135,12 +135,16 @@ class SupabaseSongsApi {
       return existing != null;
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
-      log("Failed to get blacklist state: $e", stackTrace: stackTrace, level: 1000);
+      log(
+        "Failed to get blacklist state: $e",
+        stackTrace: stackTrace,
+        level: 1000,
+      );
       rethrow;
     }
   }
 
-  Future<void> setIsBlacklisted(String songId) async {
+  Future<void> toggleBlacklist(String songId) async {
     try {
       _connectivity.ensure();
       final userId = _client.auth.currentUser!.id;

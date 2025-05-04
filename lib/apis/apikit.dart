@@ -156,6 +156,13 @@ class ApiKit {
   Future<List<SongModel>> getLikedSongsList() =>
       supabase.songs.getLikedSongsList();
 
+  Future<bool> isBlacklisted(String songId) =>
+      supabase.songs.isBlacklisted(songId);
+  Future<void> toggleBlacklist(String songId) =>
+      supabase.songs.toggleBlacklist(songId);
+  Future<List<SongModel>> getBlacklistedSongs() =>
+      supabase.songs.getBlacklistSongs();
+
   /* ----------------------
   |    VIP SONGS FILTER   |
   ---------------------- */
