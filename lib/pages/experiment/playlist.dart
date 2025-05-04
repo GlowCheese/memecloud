@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
-import 'package:memecloud/apis/apikit.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/models/song_model.dart';
-// import 'package:memecloud/models/artist_model.dart';
+import 'package:memecloud/models/artist_model.dart';
+import 'package:memecloud/apis/zingmp3/endpoints.dart';
 import 'package:memecloud/models/playlist_model.dart';
+
+import '../../apis/apikit.dart';
+import '../../core/getit.dart';
 
 class PlaylistScreen extends StatefulWidget {
   final String playlistId;
@@ -17,10 +19,6 @@ class PlaylistScreen extends StatefulWidget {
 
 class _PlaylistScreenState extends State<PlaylistScreen> {
   late Future<PlaylistModel?> _playlistFuture;
-  final TextEditingController _searchController = TextEditingController();
-  List<SongModel> _filteredSongs = [];
-  bool _isLiked = false;
-  int _likeCount = 0;
 
   @override
   void initState() {
@@ -29,121 +27,292 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   }
 
   void _loadPlaylist() {
-    _playlistFuture = GetIt.instance<ApiKit>().getPlaylistInfo(
-      widget.playlistId,
-    );
-  }
-
-  String _formatDuration(List<SongModel>? songs) {
-    if (songs == null || songs.isEmpty) return '0 phút';
-
-    int totalSeconds = 0;
-    for (var song in songs) {
-      totalSeconds += song.duration.inSeconds;
-    }
-
-    int hours = totalSeconds ~/ 3600;
-    int minutes = (totalSeconds % 3600) ~/ 60;
-
-    if (hours > 0) {
-      return '$hours giờ $minutes phút';
-    } else {
-      return '$minutes phút';
-    }
-  }
-
-  void _filterSongs(String query, List<SongModel>? songs) {
-    if (songs == null) return;
-
-    setState(() {
-      if (query.isEmpty) {
-        _filteredSongs = List.from(songs);
-      } else {
-        _filteredSongs =
-            songs
-                .where(
-                  (song) =>
-                      song.title.toLowerCase().contains(query.toLowerCase()),
-                )
-                .toList();
-      }
-    });
-  }
-
-  void _toggleLike(PlaylistModel playlist) {
-    // Call API
-    setState(() {
-      _isLiked = !_isLiked;
-      _likeCount = _isLiked ? _likeCount + 1 : _likeCount - 1;
-    });
-
-    // Hiển thị thông báo
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(_isLiked ? 'Đã thích playlist' : 'Đã bỏ thích playlist'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  void _downloadPlaylist(PlaylistModel playlist) {
-    // ADD LOGIC DOWNLOAD PLAYLIST HERE
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Đang tải xuống playlist...'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    _playlistFuture = getIt<ApiKit>().getPlaylistInfo(widget.playlistId);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: FutureBuilder<PlaylistModel?>(
         future: _playlistFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            );
+          } else if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Có lỗi xảy ra: ${snapshot.error}',
-                style: const TextStyle(color: Colors.red),
+                'Lỗi: ${snapshot.error}',
+                style: const TextStyle(color: Colors.white),
               ),
             );
-          }
-
-          if (!snapshot.hasData || snapshot.data == null) {
+          } else if (!snapshot.hasData || snapshot.data == null) {
             return const Center(
-              child: Text('Không tìm thấy thông tin playlist'),
+              child: Text(
+                'Không tìm thấy playlist',
+                style: TextStyle(color: Colors.white),
+              ),
             );
           }
 
           final playlist = snapshot.data!;
-          final songs = playlist.songs ?? [];
-
-          if (_filteredSongs.isEmpty && songs.isNotEmpty) {
-            _filteredSongs = List.from(songs);
-          }
-
-          // Giả định số lượt thích ban đầu
-          if (_likeCount == 0) {
-            _likeCount = 1000;
-          }
-
           return CustomScrollView(
             slivers: [
-              _buildAppBar(playlist),
-              SliverToBoxAdapter(child: _buildPlaylistHeader(playlist, songs)),
-              SliverToBoxAdapter(child: _buildSearchBar(songs)),
-              SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  if (index >= _filteredSongs.length) return null;
-                  return _buildSongItem(_filteredSongs[index], index);
-                }),
+              // App Bar với nút back và cast
+              SliverAppBar(
+                backgroundColor: Colors.black,
+                pinned: true,
+                elevation: 0,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                title: const Text(
+                  'Playlist',
+                  style: TextStyle(color: Colors.white),
+                ),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.cast, color: Colors.white),
+                    onPressed: () {},
+                  ),
+                ],
               ),
+
+              // Header với thumbnail và thông tin playlist
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Thumbnail
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: CachedNetworkImage(
+                          imageUrl: playlist.thumbnailUrl,
+                          width: 110,
+                          height: 110,
+                          fit: BoxFit.cover,
+                          placeholder:
+                              (context, url) => Container(
+                                color: Colors.grey[800],
+                                width: 110,
+                                height: 110,
+                              ),
+                          errorWidget:
+                              (context, url, error) => Container(
+                                color: Colors.grey[800],
+                                width: 110,
+                                height: 110,
+                                child: const Icon(
+                                  Icons.error,
+                                  color: Colors.white,
+                                ),
+                              ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      // Thông tin playlist
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              playlist.title,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Playlist • ${playlist.songs?.length ?? 0} Tracks • ${_formatDuration(playlist.songs)}',
+                              style: TextStyle(
+                                color: Colors.grey[400],
+                                fontSize: 13,
+                              ),
+                            ),
+                            // Text(
+                            //   '1h ago',
+                            //   style: TextStyle(
+                            //     color: Colors.grey[400],
+                            //     fontSize: 13,
+                            //   ),
+                            // ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.grey[800],
+                                  ),
+                                  child: const Icon(
+                                    Icons.music_note,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'By ${playlist.artistsNames ?? "Trending Music"}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Like, More, Shuffle buttons
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      // Like button
+                      Row(
+                        children: [
+                          Icon(
+                            playlist.followed == true
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color:
+                                playlist.followed == true
+                                    ? Colors.white
+                                    : Colors.white,
+                            size: 22,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '100,7K',
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 24),
+                      // More options
+                      IconButton(
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: Colors.grey[400],
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          // Hiển thị menu tùy chọn cho bài hát
+                          showModalBottomSheet(
+                            context: context,
+                            backgroundColor: Colors.grey[900],
+                            builder:
+                                (context) =>
+                                    SongOptionsSheet(song: playlist.songs![0]),
+                          );
+                        },
+                      ),
+                      const Spacer(),
+                      // Shuffle button
+                      Icon(Icons.shuffle, color: Colors.grey[400], size: 22),
+                      const SizedBox(width: 24),
+                      // Play button
+                      Container(
+                        width: 54,
+                        height: 54,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                        ),
+                        child: const Icon(
+                          Icons.play_arrow,
+                          color: Colors.black,
+                          size: 30,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Genre tags
+              // SliverToBoxAdapter(
+              //   child: Container(
+              //     height: 48,
+              //     margin: const EdgeInsets.only(top: 16, bottom: 16),
+              //     child: ListView(
+              //       scrollDirection: Axis.horizontal,
+              //       padding: const EdgeInsets.symmetric(horizontal: 16),
+              //       children: [
+              //         _buildGenreTag('# Electronic'),
+              //         _buildGenreTag('# Dubstep'),
+              //         _buildGenreTag('# Synthwave'),
+              //       ],
+              //     ),
+              //   ),
+              // ),
+
+              // Description
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (playlist.description != null &&
+                          playlist.description!.isNotEmpty)
+                        Text(
+                          playlist.description!,
+                          style: TextStyle(
+                            color: Colors.grey[200],
+                            fontSize: 14,
+                          ),
+                        )
+                      else
+                        Text(
+                          'Updates weekly with popular tracks in Vietnam.',
+                          style: TextStyle(
+                            color: Colors.grey[200],
+                            fontSize: 14,
+                          ),
+                        ),
+                      TextButton(
+                        onPressed: () {},
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.grey[400],
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(0, 36),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          alignment: Alignment.centerLeft,
+                        ),
+                        child: const Text('Show more'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Danh sách bài hát
+              if (playlist.songs != null && playlist.songs!.isNotEmpty)
+                SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final song = playlist.songs![index];
+                    return SongListTile(song: song, index: index);
+                  }, childCount: playlist.songs!.length),
+                ),
             ],
           );
         },
@@ -151,315 +320,243 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
     );
   }
 
-  Widget _buildAppBar(PlaylistModel playlist) {
-    return SliverAppBar(
-      expandedHeight: 200,
-      pinned: true,
-      floating: false,
-      backgroundColor: Colors.black,
-      systemOverlayStyle: SystemUiOverlayStyle.light,
-      flexibleSpace: FlexibleSpaceBar(
-        title: Text(
-          playlist.title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        background: Stack(
-          fit: StackFit.expand,
-          children: [
-            Image.network(playlist.thumbnailUrl, fit: BoxFit.cover),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        IconButton(
-          icon: Icon(
-            _isLiked ? Icons.favorite : Icons.favorite_border,
-            color: Colors.white,
-          ),
-          onPressed: () => _toggleLike(playlist),
-        ),
-        IconButton(
-          icon: const Icon(Icons.download, color: Colors.white),
-          onPressed: () => _downloadPlaylist(playlist),
-        ),
-      ],
-    );
+  String _formatDuration(List<SongModel>? songs) {
+    if (songs == null || songs.isEmpty) return '0:00';
+    int totalSeconds = 0;
+    for (var song in songs) {
+      // sum up all song durations
+      totalSeconds += song.duration.inSeconds;
+    }
+
+    int hours = totalSeconds ~/ 3600;
+    int minutes = (totalSeconds % 3600) ~/ 60;
+    int seconds = totalSeconds % 60;
+
+    if (hours > 0) {
+      return '$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    } else {
+      return '$minutes:${seconds.toString().padLeft(2, '0')}';
+    }
   }
 
-  Widget _buildPlaylistHeader(PlaylistModel playlist, List<SongModel> songs) {
+  Widget _buildGenreTag(String tag) {
     return Container(
-      padding: const EdgeInsets.all(16.0),
-      color: Colors.grey[900],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      margin: const EdgeInsets.only(right: 8),
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Text(
+          tag,
+          style: const TextStyle(color: Colors.white, fontSize: 14),
+        ),
+      ),
+    );
+  }
+}
+
+class SongListTile extends StatelessWidget {
+  final SongModel song;
+  final int index;
+
+  const SongListTile({Key? key, required this.song, required this.index})
+    : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+      child: Row(
         children: [
-          if (playlist.artistsNames != null &&
-              playlist.artistsNames!.isNotEmpty)
-            Text(
-              playlist.artistsNames!,
-              style: const TextStyle(color: Colors.white70, fontSize: 16),
-            ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text(
-                '${songs.length} bài hát',
-                style: const TextStyle(color: Colors.white70, fontSize: 14),
-              ),
-              const SizedBox(width: 16),
-              Text(
-                _formatDuration(songs),
-                style: const TextStyle(color: Colors.white70, fontSize: 14),
-              ),
-              const SizedBox(width: 16),
-              Row(
-                children: [
-                  const Icon(Icons.favorite, color: Colors.pink, size: 16),
-                  const SizedBox(width: 4),
-                  Text(
-                    '$_likeCount',
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+          // Song thumbnail
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: CachedNetworkImage(
+              imageUrl: song.thumbnailUrl,
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
+              placeholder:
+                  (context, url) =>
+                      Container(color: Colors.grey[800], width: 50, height: 50),
+              errorWidget:
+                  (context, url, error) => Container(
+                    color: Colors.grey[800],
+                    width: 50,
+                    height: 50,
+                    child: const Icon(Icons.music_note, color: Colors.white),
                   ),
-                ],
-              ),
-            ],
-          ),
-          if (playlist.description != null &&
-              playlist.description!.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            // Text(
-            //   // playlist.description!,
-            //   style: const TextStyle(color: Colors.white, fontSize: 14),
-            //   maxLines: 3,
-            //   overflow: TextOverflow.ellipsis,
-            // ),
-          ],
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildActionButton(
-                icon: Icons.play_circle_filled,
-                label: 'Phát',
-                onTap: () {
-                  // Thêm logic phát nhạc
-                },
-                isPrimary: true,
-              ),
-              _buildActionButton(
-                icon: Icons.shuffle,
-                label: 'Ngẫu nhiên',
-                onTap: () {
-                  // Thêm logic phát ngẫu nhiên
-                },
-              ),
-              _buildActionButton(
-                icon: _isLiked ? Icons.favorite : Icons.favorite_border,
-                label: 'Thích',
-                onTap: () => _toggleLike(playlist),
-              ),
-              _buildActionButton(
-                icon: Icons.download,
-                label: 'Tải về',
-                onTap: () => _downloadPlaylist(playlist),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    bool isPrimary = false,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: isPrimary ? Colors.blue : Colors.grey[800],
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: Colors.white, size: 24),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: isPrimary ? Colors.blue : Colors.white70,
-              fontSize: 12,
             ),
           ),
-        ],
-      ),
-    );
-  }
+          const SizedBox(width: 12),
 
-  Widget _buildSearchBar(List<SongModel> songs) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: Colors.grey[850],
-      child: TextField(
-        controller: _searchController,
-        onChanged: (query) => _filterSongs(query, songs),
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          hintText: 'Tìm kiếm bài hát',
-          hintStyle: TextStyle(color: Colors.grey[400]),
-          prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
-          filled: true,
-          fillColor: Colors.grey[800],
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide.none,
+          // Song info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  song.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                Row(
+                  children: [
+                    Text(
+                      song.artistsNames ?? 'Unknown Artist',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                    ),
+                    const SizedBox(width: 8),
+                    //Icon star if
+                    // Icon(Icons.star_border, color: Colors.grey[400], size: 14),
+                  ],
+                ),
+                // Row(
+                //   children: [
+                //     Icon(Icons.play_arrow, color: Colors.grey[400], size: 14),
+                //     const SizedBox(width: 4),
+                //     Text(
+                //       '${_formatPlays(index)}',
+                //       style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                //     ),
+                //     const SizedBox(width: 8),
+                //     Text(
+                //       '•  ${song.duration.inMinutes}:${(song.duration.inSeconds % 60).toString().padLeft(2, '0')}',
+                //       style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                //     ),
+                //   ],
+                // ),
+              ],
+            ),
           ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 0),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildSongItem(SongModel song, int index) {
-    return Container(
-      color: index.isEven ? Colors.grey[900] : Colors.grey[850],
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: Image.network(
-            song.thumbnailUrl ?? 'https://via.placeholder.com/60',
-            width: 60,
-            height: 60,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                width: 60,
-                height: 60,
-                color: Colors.grey[700],
-                child: Icon(Icons.music_note, color: Colors.grey[400]),
+          // More options
+          IconButton(
+            icon: Icon(Icons.more_vert, color: Colors.grey[400], size: 20),
+            onPressed: () {
+              // Hiển thị menu tùy chọn cho bài hát
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.grey[900],
+                builder: (context) => SongOptionsSheet(song: song),
               );
             },
           ),
-        ),
-        title: Text(
-          song.title,
-          style: const TextStyle(color: Colors.white),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Text(
-          song.artistsNames ?? 'Unknown Artist',
-          style: TextStyle(color: Colors.grey[400]),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (song.duration != null)
-              Text(
-                _formatSongDuration(song.duration.inSeconds),
-                style: TextStyle(color: Colors.grey[400]),
-              ),
-            PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert, color: Colors.grey[400]),
-              color: Colors.grey[800],
-              onSelected: (value) {
-                // Xử lý các tùy chọn
-                switch (value) {
-                  case 'download':
-                    _downloadSong(song);
-                    break;
-                  case 'add_to_playlist':
-                    _addToPlaylist(song);
-                    break;
-                  case 'share':
-                    _shareSong(song);
-                    break;
-                }
-              },
-              itemBuilder:
-                  (context) => [
-                    const PopupMenuItem(
-                      value: 'download',
-                      child: Text(
-                        'Tải xuống',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    const PopupMenuItem(
-                      value: 'add_to_playlist',
-                      child: Text(
-                        'Thêm vào playlist',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    const PopupMenuItem(
-                      value: 'share',
-                      child: Text(
-                        'Chia sẻ',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
+        ],
+      ),
+    );
+  }
+
+  String _formatPlays(int index) {
+    // Giả lập số lượt nghe
+    List<String> plays = ['67,5K', '20,1K', '205K', '35,6K', '89,7K', '112K'];
+    return plays[index % plays.length];
+  }
+}
+
+class ArtistCard extends StatelessWidget {
+  final ArtistModel artist;
+
+  const ArtistCard({Key? key, required this.artist}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100,
+      margin: const EdgeInsets.only(right: 12),
+      child: Column(
+        children: [
+          ClipOval(
+            child: CachedNetworkImage(
+              imageUrl: artist.thumbnailUrl,
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
+              placeholder:
+                  (context, url) =>
+                      Container(color: Colors.grey[800], width: 80, height: 80),
+              errorWidget:
+                  (context, url, error) => Container(
+                    color: Colors.grey[800],
+                    width: 80,
+                    height: 80,
+                    child: const Icon(Icons.person, color: Colors.white),
+                  ),
             ),
-          ],
-        ),
-        onTap: () {
-          // Xử lý khi chọn bài hát
-          print('Phát bài hát: ${song.title}');
-        },
+          ),
+          const SizedBox(height: 8),
+          Text(
+            artist.name,
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }
+}
 
-  String _formatSongDuration(int seconds) {
-    final minutes = seconds ~/ 60;
-    final remainingSeconds = seconds % 60;
-    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
-  }
+class SongOptionsSheet extends StatelessWidget {
+  final SongModel song;
 
-  void _downloadSong(SongModel song) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Đang tải xuống: ${song.title}'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
+  const SongOptionsSheet({Key? key, required this.song}) : super(key: key);
 
-  void _addToPlaylist(SongModel song) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Đã thêm ${song.title} vào playlist'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  void _shareSong(SongModel song) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Chia sẻ: ${song.title}'),
-        duration: const Duration(seconds: 2),
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.playlist_add, color: Colors.white),
+            title: const Text(
+              'Thêm vào playlist',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.download, color: Colors.white),
+            title: const Text(
+              'Tải xuống',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.share, color: Colors.white),
+            title: const Text('Chia sẻ', style: TextStyle(color: Colors.white)),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person, color: Colors.white),
+            title: const Text(
+              'Xem nghệ sĩ',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+        ],
       ),
     );
   }
