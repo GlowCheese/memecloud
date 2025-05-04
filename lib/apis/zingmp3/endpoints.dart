@@ -179,7 +179,7 @@ class ZingMp3Api {
       final resp = await _requester.getLyric(songId);
       return ignoreNullValuesOfMap({
         'lyric': resp['data']['lyric'],
-        'file': resp['data']['file']
+        'file': resp['data']['file'],
       });
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, stackTrace);
