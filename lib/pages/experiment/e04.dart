@@ -9,8 +9,12 @@ class E04 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return defaultFutureBuilder(
-      future: getIt<ApiKit>().searchArtists('soobin', page: 10),
-      onData: (context, data) => Text(data.toString())
+      future: getIt<ApiKit>().getPlaylistInfo('ZOZ9FWW7'),
+      onData: (context, data) {
+        return SingleChildScrollView(
+          child: Column(children: [Text(data!.title), Text(data.description!)]),
+        );
+      },
     );
   }
 }
