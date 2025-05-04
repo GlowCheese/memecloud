@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/artist_model.dart';
-import 'package:memecloud/apis/zingmp3/endpoints.dart';
 import 'package:memecloud/models/playlist_model.dart';
+import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 
 import '../../apis/apikit.dart';
 import '../../core/getit.dart';
@@ -67,7 +67,11 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                 elevation: 0,
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
+                  },
                 ),
                 title: const Text(
                   'Playlist',
@@ -310,7 +314,16 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                 SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final song = playlist.songs![index];
-                    return SongListTile(song: song, index: index);
+                    return GestureDetector(
+                      onTap: () {
+                        getIt<SongPlayerCubit>().loadAndPlay(
+                          context,
+                          song,
+                          songList: playlist.songs!,
+                        );
+                      },
+                      child: SongListTile(song: song, index: index),
+                    );
                   }, childCount: playlist.songs!.length),
                 ),
             ],
@@ -339,22 +352,22 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
     }
   }
 
-  Widget _buildGenreTag(String tag) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Text(
-          tag,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
-        ),
-      ),
-    );
-  }
+  // Widget _buildGenreTag(String tag) {
+  //   return Container(
+  //     margin: const EdgeInsets.only(right: 8),
+  //     decoration: BoxDecoration(
+  //       color: Colors.grey[900],
+  //       borderRadius: BorderRadius.circular(16),
+  //     ),
+  //     child: Padding(
+  //       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+  //       child: Text(
+  //         tag,
+  //         style: const TextStyle(color: Colors.white, fontSize: 14),
+  //       ),
+  //     ),
+  //   );
+  // }
 }
 
 class SongListTile extends StatelessWidget {
@@ -406,7 +419,7 @@ class SongListTile extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      song.artistsNames ?? 'Unknown Artist',
+                      song.artistsNames,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(color: Colors.grey[400], fontSize: 14),
@@ -452,11 +465,11 @@ class SongListTile extends StatelessWidget {
     );
   }
 
-  String _formatPlays(int index) {
-    // Giả lập số lượt nghe
-    List<String> plays = ['67,5K', '20,1K', '205K', '35,6K', '89,7K', '112K'];
-    return plays[index % plays.length];
-  }
+  // String _formatPlays(int index) {
+  //   // Giả lập số lượt nghe
+  //   List<String> plays = ['67,5K', '20,1K', '205K', '35,6K', '89,7K', '112K'];
+  //   return plays[index % plays.length];
+  // }
 }
 
 class ArtistCard extends StatelessWidget {
@@ -560,4 +573,8 @@ class SongOptionsSheet extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget handlePlayList(PlaylistModel playlist) {
+  return PlaylistScreen(playlistId: playlist.id);
 }

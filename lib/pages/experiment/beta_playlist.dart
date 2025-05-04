@@ -6,16 +6,16 @@ import 'package:memecloud/models/song_model.dart';
 // import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
 
-class PlaylistScreen extends StatefulWidget {
+class PlaylistPage extends StatefulWidget {
   final String playlistId;
 
-  const PlaylistScreen({Key? key, required this.playlistId}) : super(key: key);
+  const PlaylistPage({Key? key, required this.playlistId}) : super(key: key);
 
   @override
-  _PlaylistScreenState createState() => _PlaylistScreenState();
+  _PlaylistPageState createState() => _PlaylistPageState();
 }
 
-class _PlaylistScreenState extends State<PlaylistScreen> {
+class _PlaylistPageState extends State<PlaylistPage> {
   late Future<PlaylistModel?> _playlistFuture;
   final TextEditingController _searchController = TextEditingController();
   List<SongModel> _filteredSongs = [];
@@ -159,6 +159,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
       backgroundColor: Colors.black,
       systemOverlayStyle: SystemUiOverlayStyle.light,
       flexibleSpace: FlexibleSpaceBar(
+        collapseMode: CollapseMode.pin,
         title: Text(
           playlist.title,
           style: const TextStyle(
@@ -175,7 +176,10 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
+                  colors: [
+                    Colors.transparent,
+                    const Color.fromARGB(255, 122, 118, 118).withOpacity(0.7),
+                  ],
                 ),
               ),
             ),
