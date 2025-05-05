@@ -64,6 +64,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   }) async {
     try {
       debugPrint('Loading song ${song.title}');
+      unawaited(getIt<SupabaseApi>().songs.incrementView(song.id));
       emit(SongPlayerLoading(song));
       await audioPlayer.stop();
 
@@ -151,7 +152,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     }
     if (await _loadSong(context, song, songList: songList)) {
       playOrPause();
-      getIt<SupabaseApi>().songs.incrementView(song.id);
+
       return true;
     }
     return false;

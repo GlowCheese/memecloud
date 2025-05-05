@@ -204,19 +204,17 @@ class SupabaseSongsApi {
 
   ///begin increment view
   Future<void> incrementView(String songId) async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
+    final userId = _client.auth.currentUser?.id;
 
-  if (userId == null) return;
-
-  final response = await Supabase.instance.client
-      .rpc('increment_view', params: {
-        'listened_song_id': songId,
-        'listened_user_id': userId,
-      });
-
-  if (response.error != null) {
-    log('Lỗi tăng view: ${response.error!.message}');
-  }
+    if (userId == null) return;
+    try {
+      await _client.rpc(
+        'increment_view',
+        params: {'listened_song_id': songId, 'listened_user_id': userId},
+      );
+    } catch (e) {
+      log('Lỗi khi increment view ${e.toString()}');
+    }
   }
 
   ///end increment view

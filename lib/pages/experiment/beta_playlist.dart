@@ -9,10 +9,10 @@ import 'package:memecloud/models/playlist_model.dart';
 class PlaylistPage extends StatefulWidget {
   final String playlistId;
 
-  const PlaylistPage({Key? key, required this.playlistId}) : super(key: key);
+  const PlaylistPage({super.key, required this.playlistId});
 
   @override
-  _PlaylistPageState createState() => _PlaylistPageState();
+  State<PlaylistPage> createState() => _PlaylistPageState();
 }
 
 class _PlaylistPageState extends State<PlaylistPage> {

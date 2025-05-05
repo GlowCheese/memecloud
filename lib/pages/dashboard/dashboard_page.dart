@@ -54,9 +54,11 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Column(
             children: <Widget>[
               Expanded(child: scaffElems['body']),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 5),
-                child: getMiniPlayer(),
+              Stack(
+                children: [
+                  Padding(padding: EdgeInsets.all(8)),
+                  getMiniPlayer(),
+                ],
               ),
             ],
           ),
