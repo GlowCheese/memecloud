@@ -51,14 +51,21 @@ class _DashboardPageState extends State<DashboardPage> {
             setState(() {});
             await Future.delayed(Duration(seconds: 1));
           },
-          child: Column(
-            children: <Widget>[
-              Expanded(child: scaffElems['body']),
-              Stack(
-                children: [
-                  Padding(padding: EdgeInsets.all(8)),
-                  getMiniPlayer(),
+          child: Stack(
+            children: [
+              Column(
+                children: <Widget>[
+                  Expanded(child: scaffElems['body']),
+                  SizedBox(
+                    height: 60,
+                  ), 
                 ],
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 10,
+                child: getMiniPlayer(), // phải là Positioned bên trong Stack
               ),
             ],
           ),
