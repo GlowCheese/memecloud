@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:memecloud/components/search_bar.dart';
 import 'package:memecloud/components/default_appbar.dart';
 import 'package:memecloud/components/grad_background.dart';
 import 'package:memecloud/components/search/album_card.dart';
-import 'package:memecloud/components/search/recent_searches.dart';
-import 'package:memecloud/components/search/search_result.dart';
-import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/components/search/search_result_view.dart';
+import 'package:memecloud/components/search/recent_searches_view.dart';
 
 Map getSearchPage(BuildContext context) {
   List<AlbumCard> topGenres = AlbumCard.getTopAlbums();
@@ -44,13 +44,21 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   String? currentSearchQuery;
   bool searchBarIsFocused = false;
-  late TextEditingController searchQueryController;
-
-  @override
-  void initState() {
-    super.initState();
-    searchQueryController = TextEditingController();
-  }
+  final TextEditingController searchQueryController = TextEditingController();
+  late final searchBar = Padding(
+    padding: const EdgeInsets.only(top: 20, left: 35, right: 35),
+    child: MySearchBar(
+      variation: 1,
+      searchQueryController: searchQueryController,
+      onTap: () {
+        setState(() {
+          currentSearchQuery = null;
+          searchBarIsFocused = true;
+        });
+      },
+      onSubmitted: setSearchQuery,
+    ),
+  );
 
   @override
   void dispose() {
@@ -70,14 +78,14 @@ class _SearchPageState extends State<SearchPage> {
     late List<Widget> bodyChildren;
     if (searchBarIsFocused == false) {
       bodyChildren = [
-        _searchBar(),
+        searchBar,
         _genreGrid('Your Top Genres', widget.topGenres, widget.themeData),
         _genreGrid('Browse All', widget.allGenres, widget.themeData),
       ];
     } else if (currentSearchQuery == null) {
-      bodyChildren = [_searchBar(), RecentSearches(onSelect: setSearchQuery)];
+      bodyChildren = [searchBar, RecentSearchesView(onSelect: setSearchQuery)];
     } else {
-      bodyChildren = [_searchBar(), SearchResult(currentSearchQuery!)];
+      bodyChildren = [searchBar, SearchResultView(currentSearchQuery!)];
     }
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -87,49 +95,6 @@ class _SearchPageState extends State<SearchPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: bodyChildren,
         ),
-      ),
-    );
-  }
-
-  Widget _searchBar() {
-    return Container(
-      key: ValueKey("searchBar"),
-      height: 60,
-      margin: EdgeInsets.only(top: 20, left: 35, right: 35),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 20, right: 15),
-            child: SvgPicture.asset(
-              'assets/icons/Search.svg',
-              width: 25,
-              height: 25,
-            ),
-          ),
-          Expanded(
-            child: TextField(
-              controller: searchQueryController,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: 'Songs, Artists, Podcasts & More',
-                hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-              onTap: () {
-                setState(() {
-                  currentSearchQuery = null;
-                  searchBarIsFocused = true;
-                });
-              },
-              style: TextStyle(color: Colors.black),
-              onSubmitted: setSearchQuery,
-            ),
-          ),
-          SizedBox(width: 16),
-        ],
       ),
     );
   }

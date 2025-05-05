@@ -25,7 +25,7 @@ class E04 extends StatelessWidget {
                       return ListTile(
                         leading: Image.network(song.thumbnailUrl),
                         title: Text(song.title),
-                        subtitle: Text(song.artistsNames!),
+                        subtitle: Text(song.artistsNames),
                         trailing: Text(song.duration.toString()),
                       );
                     }).toList(),

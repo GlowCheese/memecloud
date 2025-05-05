@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/getit.dart';
 
-class RecentSearches extends StatefulWidget {
+class RecentSearchesView extends StatefulWidget {
   final void Function(String query)? onSelect;
 
-  const RecentSearches({super.key, this.onSelect});
+  const RecentSearchesView({super.key, this.onSelect});
 
   @override
-  State<RecentSearches> createState() => _RecentSearchesState();
+  State<RecentSearchesView> createState() => _RecentSearchesViewState();
 }
 
-class _RecentSearchesState extends State<RecentSearches> {
+class _RecentSearchesViewState extends State<RecentSearchesView> {
   List<String> data = getIt<ApiKit>().getRecentSearches();
 
   @override

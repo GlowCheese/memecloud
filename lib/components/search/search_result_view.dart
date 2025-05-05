@@ -10,16 +10,16 @@ import 'package:memecloud/components/default_future_builder.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/utils/common.dart';
 
-class SearchResult extends StatefulWidget {
+class SearchResultView extends StatefulWidget {
   final String keyword;
 
-  const SearchResult(this.keyword, {super.key});
+  const SearchResultView(this.keyword, {super.key});
 
   @override
-  State<SearchResult> createState() => _SearchResultState();
+  State<SearchResultView> createState() => _SearchResultViewState();
 }
 
-class _SearchResultState extends State<SearchResult> {
+class _SearchResultViewState extends State<SearchResultView> {
   @override
   Widget build(BuildContext context) {
     return defaultFutureBuilder(

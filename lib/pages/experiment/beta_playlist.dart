@@ -2,37 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/components/default_future_builder.dart';
+import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
-// import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
 
 class PlaylistPage extends StatefulWidget {
   final String playlistId;
 
-  const PlaylistPage({Key? key, required this.playlistId}) : super(key: key);
+  const PlaylistPage({super.key, required this.playlistId});
 
   @override
-  _PlaylistPageState createState() => _PlaylistPageState();
+  State<PlaylistPage> createState() => _PlaylistPageState();
 }
 
 class _PlaylistPageState extends State<PlaylistPage> {
-  late Future<PlaylistModel?> _playlistFuture;
   final TextEditingController _searchController = TextEditingController();
   List<SongModel> _filteredSongs = [];
   bool _isLiked = false;
   int _likeCount = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPlaylist();
-  }
-
-  void _loadPlaylist() {
-    _playlistFuture = GetIt.instance<ApiKit>().getPlaylistInfo(
-      widget.playlistId,
-    );
-  }
 
   String _formatDuration(List<SongModel>? songs) {
     if (songs == null || songs.isEmpty) return '0 phút';
@@ -98,68 +86,50 @@ class _PlaylistPageState extends State<PlaylistPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder<PlaylistModel?>(
-        future: _playlistFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    return defaultFutureBuilder(
+      future: getIt<ApiKit>().getPlaylistInfo(widget.playlistId),
+      onData: (context, data) {
+        final playlist = data!;
+        final songs = playlist.songs ?? [];
+        if (_filteredSongs.isEmpty && songs.isNotEmpty) {
+          _filteredSongs = List.from(songs);
+        }
 
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Có lỗi xảy ra: ${snapshot.error}',
-                style: const TextStyle(color: Colors.red),
-              ),
-            );
-          }
+        if (_likeCount == 0) {
+          _likeCount = 1000;
+        }
 
-          if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(
-              child: Text('Không tìm thấy thông tin playlist'),
-            );
-          }
-
-          final playlist = snapshot.data!;
-          final songs = playlist.songs ?? [];
-
-          if (_filteredSongs.isEmpty && songs.isNotEmpty) {
-            _filteredSongs = List.from(songs);
-          }
-
-          // Giả định số lượt thích ban đầu
-          if (_likeCount == 0) {
-            _likeCount = 1000;
-          }
-
-          return CustomScrollView(
-            slivers: [
-              _buildAppBar(playlist),
-              SliverToBoxAdapter(child: _buildPlaylistHeader(playlist, songs)),
-              SliverToBoxAdapter(child: _buildSearchBar(songs)),
-              SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  if (index >= _filteredSongs.length) return null;
-                  return _buildSongItem(_filteredSongs[index], index);
-                }),
-              ),
-            ],
-          );
-        },
-      ),
+        return CustomScrollView(
+          slivers: [
+            _buildAppBar(playlist),
+            SliverToBoxAdapter(child: _buildPlaylistHeader(playlist, songs)),
+            SliverToBoxAdapter(child: _buildSearchBar(songs)),
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                if (index >= _filteredSongs.length) return null;
+                return _buildSongItem(_filteredSongs[index], index);
+              }),
+            ),
+          ],
+        );
+      },
+      onNull: (context) {
+        return Center(
+          child: Text("Playlist with id ${widget.playlistId} doesn't exist!"),
+        );
+      },
     );
   }
 
   Widget _buildAppBar(PlaylistModel playlist) {
     return SliverAppBar(
       expandedHeight: 200,
-      pinned: true,
       floating: false,
       backgroundColor: Colors.black,
       systemOverlayStyle: SystemUiOverlayStyle.light,
       flexibleSpace: FlexibleSpaceBar(
         collapseMode: CollapseMode.pin,
+        expandedTitleScale: 1.2,
         title: Text(
           playlist.title,
           style: const TextStyle(
@@ -178,7 +148,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    const Color.fromARGB(255, 122, 118, 118).withOpacity(0.7),
+                    Colors.black.withOpacity(0.8),
                   ],
                 ),
               ),
@@ -186,19 +156,6 @@ class _PlaylistPageState extends State<PlaylistPage> {
           ],
         ),
       ),
-      actions: [
-        IconButton(
-          icon: Icon(
-            _isLiked ? Icons.favorite : Icons.favorite_border,
-            color: Colors.white,
-          ),
-          onPressed: () => _toggleLike(playlist),
-        ),
-        IconButton(
-          icon: const Icon(Icons.download, color: Colors.white),
-          onPressed: () => _downloadPlaylist(playlist),
-        ),
-      ],
     );
   }
 
