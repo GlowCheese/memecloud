@@ -6,7 +6,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memecloud/models/song_lyrics_model.dart';
-import 'package:memecloud/components/default_future_builder.dart';
+import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 

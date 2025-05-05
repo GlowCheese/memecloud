@@ -16,7 +16,7 @@ import 'package:memecloud/models/user_model.dart';
 import 'package:memecloud/apis/zingmp3/endpoints.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:memecloud/models/search_result_model.dart';
-import 'package:memecloud/components/default_future_builder.dart';
+import 'package:memecloud/components/miscs/default_future_builder.dart';
 
 class ApiKit {
   final dio = getIt<Dio>();

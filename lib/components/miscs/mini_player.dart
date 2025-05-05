@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/components/like_button.dart';
-import 'package:memecloud/components/play_or_pause_button.dart';
+import 'package:memecloud/components/song/like_button.dart';
+import 'package:memecloud/components/song/play_or_pause_button.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/utils/common.dart';

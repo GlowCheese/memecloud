@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/components/default_future_builder.dart';
+import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/playlist_model.dart';

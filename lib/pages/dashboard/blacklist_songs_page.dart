@@ -3,9 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
-import 'package:memecloud/components/default_appbar.dart';
-import 'package:memecloud/components/grad_background.dart';
-import 'package:memecloud/components/default_future_builder.dart';
+import 'package:memecloud/components/miscs/default_appbar.dart';
+import 'package:memecloud/components/miscs/grad_background.dart';
+import 'package:memecloud/components/miscs/default_future_builder.dart';
 
 Map getBlacklistSongPage(BuildContext context) {
   return {

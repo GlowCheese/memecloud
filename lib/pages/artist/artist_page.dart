@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
-import 'package:memecloud/components/mini_player.dart';
+import 'package:memecloud/components/miscs/mini_player.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/song_model.dart';

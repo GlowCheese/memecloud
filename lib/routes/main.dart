@@ -7,7 +7,7 @@ import 'package:memecloud/pages/auth/signin_page.dart';
 import 'package:memecloud/pages/auth/signup_page.dart';
 import 'package:memecloud/components/song/song_lyric.dart';
 import 'package:memecloud/pages/profile/profile_page.dart';
-import 'package:memecloud/components/grad_background.dart';
+import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/pages/dashboard/dashboard_page.dart';
 import 'package:memecloud/pages/playlist/play_list.dart';
 

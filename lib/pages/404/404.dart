@@ -4,7 +4,7 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:gif_view/gif_view.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/components/code_block.dart';
+import 'package:memecloud/components/miscs/code_block.dart';
 
 class PageNotFound extends StatelessWidget {
   final String routePath;

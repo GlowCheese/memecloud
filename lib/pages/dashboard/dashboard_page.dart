@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/mini_player.dart';
-import 'package:memecloud/components/default_appbar.dart';
+import 'package:memecloud/components/miscs/mini_player.dart';
+import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/pages/dashboard/home_page.dart';
-import 'package:memecloud/components/grad_background.dart';
+import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/pages/dashboard/liked_songs_page.dart';
 import 'package:memecloud/pages/experiment/experiment_page.dart';
 import 'package:memecloud/pages/dashboard/search_page.dart';

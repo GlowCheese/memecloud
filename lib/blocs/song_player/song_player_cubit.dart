@@ -151,7 +151,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     }
     if (await _loadSong(context, song, songList: songList)) {
       playOrPause();
-      getIt<SupabaseApi>().songs.incrementView(song.id);
+      // getIt<SupabaseApi>().songs.incrementView(song.id);
       return true;
     }
     return false;

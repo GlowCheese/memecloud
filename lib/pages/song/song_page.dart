@@ -1,9 +1,9 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/components/default_future_builder.dart';
-import 'package:memecloud/components/grad_background.dart';
-import 'package:memecloud/components/like_button.dart';
+import 'package:memecloud/components/miscs/default_future_builder.dart';
+import 'package:memecloud/components/miscs/grad_background.dart';
+import 'package:memecloud/components/song/like_button.dart';
 import 'package:memecloud/components/song/song_lyric.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';

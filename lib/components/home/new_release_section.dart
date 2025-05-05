@@ -5,7 +5,7 @@ import 'package:memecloud/models/song_model.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:scroll_snap_list/scroll_snap_list.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:memecloud/components/default_future_builder.dart';
+import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 
 Padding _header(String title) {
