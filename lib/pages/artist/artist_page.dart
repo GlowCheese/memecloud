@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
-import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
-import 'package:memecloud/components/miscs/mini_player.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/models/artist_model.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/song_model.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/apis/zingmp3/requester.dart';
 import 'package:memecloud/apis/zingmp3/endpoints.dart';
+import 'package:memecloud/components/miscs/mini_player.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:memecloud/components/miscs/expandable_html.dart';
+import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 
 class ArtistPage extends StatefulWidget {
   final String artistAlias;
@@ -77,6 +77,7 @@ class _ArtistPageState extends State<ArtistPage> {
             slivers: [
               SliverAppBar(
                 toolbarHeight: 300,
+                automaticallyImplyLeading: false,
                 flexibleSpace: FlexibleSpaceBar(
                   background: _artistHeader(artist),
                 ),
@@ -88,7 +89,6 @@ class _ArtistPageState extends State<ArtistPage> {
                 ),
               ),
               _SongsOfArtist(songsFuture: _songsFuture),
-              SliverFillRemaining(),
             ],
           );
         },
@@ -216,7 +216,7 @@ class _ArtistPageState extends State<ArtistPage> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          Html(data: artist.biography),
+          ExpandableHtml(htmlText: artist.biography ?? ''),
           const SizedBox(height: 24),
         ],
         const Text(

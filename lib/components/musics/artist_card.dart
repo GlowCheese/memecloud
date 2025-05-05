@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/musics/default_music_card.dart';
+import 'package:go_router/go_router.dart';
 import 'package:memecloud/models/artist_model.dart';
-
+import 'package:memecloud/components/musics/default_music_card.dart';
 
 class ArtistCard extends StatelessWidget {
   // must be between 1 and 1.
   final int variation;
   final ArtistModel artist;
 
-  const ArtistCard({
-    super.key,
-    required this.variation,
-    required this.artist,
-  });
+  const ArtistCard({super.key, required this.variation, required this.artist});
 
   @override
   Widget build(BuildContext context) {
@@ -21,13 +17,12 @@ class ArtistCard extends StatelessWidget {
 
   Widget _variation1(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
-      // onTap: () => context.push('/playlist_page', extra: playlist.id),
+      onTap: () => context.push('/artist_page', extra: artist.alias),
       child: DefaultMusicCard(
         thumbnailUrl: artist.thumbnailUrl,
         title: artist.name,
-        subTitle: 'Nghệ sĩ'
-      )
+        subTitle: 'Nghệ sĩ',
+      ),
     );
   }
 }

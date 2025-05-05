@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/pages/404/404.dart';
+import 'package:memecloud/pages/artist/artist_page.dart';
 import 'package:memecloud/pages/playlist/playlist_page.dart';
 import 'package:memecloud/pages/song/song_page.dart';
 import 'package:memecloud/pages/auth/signin_page.dart';
@@ -41,6 +42,13 @@ GoRouter getRouter() {
         builder: (context, state) {
           final playlistId = state.extra as String;
           return PlaylistPage(playlistId: playlistId);
+        },
+      ),
+      GoRoute(
+        path: '/artist_page',
+        builder: (context, state) {
+          final artistAlias = state.extra as String;
+          return ArtistPage(artistAlias: artistAlias);
         },
       ),
     ],

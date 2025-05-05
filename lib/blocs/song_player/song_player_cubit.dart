@@ -118,7 +118,6 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       if (state is! SongPlayerLoaded) return Future.value();
       final songPath = await _getSongPath(song);
       if (songPath != null) {
-        getIt<ApiKit>().saveSongInfo(song);
         currentSongList.add(song);
         await audioPlayer.addAudioSource(
           AudioSource.file(songPath, tag: song.mediaItem),

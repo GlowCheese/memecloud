@@ -1,9 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:memecloud/pages/artist/artist_page.dart';
+import 'package:go_router/go_router.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/artist_model.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 
 class TopArtistsSection extends StatelessWidget {
@@ -56,12 +56,9 @@ Widget _artistView(List<ArtistModel> artists) {
 
 Widget _artistTile(BuildContext context, ArtistModel artist) {
   return GestureDetector(
-    onTap:
-        () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => ArtistPage(artistAlias: artist.alias),
-          ),
-        ),
+    onTap: () {
+      context.push('/artist_page', extra: artist.alias);
+    },
     child: Padding(
       padding: const EdgeInsets.only(right: 16),
       child: Column(

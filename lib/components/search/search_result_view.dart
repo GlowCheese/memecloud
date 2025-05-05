@@ -185,11 +185,15 @@ class _SearchNavigationState extends State<_SearchNavigation> {
         separatorBuilder: (context, index) => SizedBox(height: 10),
         itemBuilder: (context, index) {
           if (index < dataList.length) {
-            return simpleWingetDecode(
-              context,
-              dataList[index],
-              songList: songList,
-            );
+            if (dataList[index] is Center) {
+              return dataList[index] as Center;
+            } else {
+              return simpleWingetDecode(
+                context,
+                dataList[index],
+                songList: songList,
+              );
+            }
           }
 
           return Center(
