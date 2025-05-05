@@ -1,15 +1,15 @@
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/pages/404/404.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/pages/404/404.dart';
+import 'package:memecloud/pages/playlist/playlist_page.dart';
 import 'package:memecloud/pages/song/song_page.dart';
 import 'package:memecloud/pages/auth/signin_page.dart';
 import 'package:memecloud/pages/auth/signup_page.dart';
 import 'package:memecloud/components/song/song_lyric.dart';
 import 'package:memecloud/pages/profile/profile_page.dart';
-import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/pages/dashboard/dashboard_page.dart';
-import 'package:memecloud/pages/playlist/play_list.dart';
+import 'package:memecloud/components/miscs/grad_background.dart';
 
 GoRouter? router;
 
@@ -37,11 +37,11 @@ GoRouter getRouter() {
         builder: (context, state) => SongLyricPage(),
       ),
       GoRoute(
-        path: '/playlist',
-        builder:
-            (context, state) => PlaylistScreen(
-              playlistId: state.uri.queryParameters['playlistId'] ?? '',
-            ),
+        path: '/playlist_page',
+        builder: (context, state) {
+          final playlistId = state.extra as String;
+          return PlaylistPage(playlistId: playlistId);
+        },
       ),
     ],
   );

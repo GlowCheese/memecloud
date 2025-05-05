@@ -3,6 +3,7 @@ import 'package:memecloud/components/song/play_or_pause_button.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/utils/common.dart';
 
 class SongControllerView extends StatelessWidget {
   final SongModel song;
@@ -55,25 +56,14 @@ class SongControllerView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(_formatDuration(position)),
-                Text(_formatDuration(song.duration)),
+                Text(formatDuration(position)),
+                Text(formatDuration(song.duration)),
               ],
             ),
           ],
         );
       },
     );
-  }
-
-  String _formatDuration(Duration duration) {
-    final minutes = duration.inMinutes.remainder(60);
-    // ignore: non_constant_identifier_names
-    final minutes_str = minutes.toString().padLeft(2, '0');
-
-    final seconds = duration.inSeconds.remainder(60);
-    // ignore: non_constant_identifier_names
-    final seconds_str = seconds.toString().padLeft(2, '0');
-    return '$minutes_str:$seconds_str';
   }
 
   Widget _songControllerButtons() {

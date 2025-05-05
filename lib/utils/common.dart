@@ -95,3 +95,17 @@ List mixLists(List<List> lists) {
   }
   return result;
 }
+
+String formatDuration(Duration duration) {
+  final hours = duration.inHours;
+  final minutes = duration.inMinutes.remainder(60);
+  final seconds = duration.inSeconds.remainder(60);
+
+  final minutesStr = minutes.toString().padLeft(2, '0');
+  final secondsStr = seconds.toString().padLeft(2, '0');
+
+  if (hours == 0) {
+    return '$minutesStr:$secondsStr';
+  }
+  return '$hours:$minutesStr:$secondsStr';
+}

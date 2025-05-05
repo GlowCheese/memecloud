@@ -1,33 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
+import 'package:memecloud/components/musics/default_music_card.dart';
 
 class SongCard extends StatelessWidget {
+  // must be between 1 and 1.
+  final int variation;
   final SongModel song;
-  final int variationType;
-  
-  const SongCard._(this.song, this.variationType);
+  final List<SongModel>? songList;
 
-  factory SongCard.variation1(SongModel song) {
-    return SongCard._(song, 1);
-  }
+  const SongCard({
+    super.key,
+    required this.variation,
+    required this.song,
+    this.songList,
+  });
 
   @override
   Widget build(BuildContext context) {
-    switch(variationType) {
-      case 1:
-        return _buildVariation1();
-      case 2:
-        return _buildVariation2();
-      default:
-        throw ArgumentError('Unexpected variationType: $variationType', 'variationType');
-    }
+    return _variation1(context);
   }
 
-  Widget _buildVariation1() {
-    return Placeholder();
-  }
-
-  Widget _buildVariation2() {
-    return Placeholder();
+  Widget _variation1(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        await getIt<SongPlayerCubit>().loadAndPlay(
+          context,
+          song,
+          songList: songList,
+        );
+      },
+      child: DefaultMusicCard(
+        thumbnailUrl: song.thumbnailUrl,
+        title: song.title,
+        subTitle: song.artistsNames
+      )
+    );
   }
 }

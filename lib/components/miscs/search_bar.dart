@@ -39,8 +39,11 @@ class _MySearchBarState extends State<MySearchBar> {
     return SearchBar(
       controller: searchQueryController,
       hintText: 'Songs, Artists, Podcasts & More',
-      hintStyle: WidgetStateProperty.all(
+      hintStyle: WidgetStatePropertyAll(
         TextStyle(fontSize: 14, color: Colors.grey),
+      ),
+      textStyle: WidgetStatePropertyAll(
+        TextStyle(fontSize: 15, color: Colors.black),
       ),
       onTap: widget.onTap,
       onSubmitted: widget.onSubmitted,
@@ -64,8 +67,11 @@ class _MySearchBarState extends State<MySearchBar> {
     return SearchBar(
       controller: searchQueryController,
       hintText: 'Tìm kiếm bài hát',
-      hintStyle: WidgetStateProperty.all(
+      hintStyle: WidgetStatePropertyAll(
         TextStyle(fontSize: 14, color: Colors.grey),
+      ),
+      textStyle: WidgetStatePropertyAll(
+        TextStyle(fontSize: 15, color: Colors.black),
       ),
       trailing: [
         SvgPicture.asset('assets/icons/Search.svg', width: 18, height: 18),

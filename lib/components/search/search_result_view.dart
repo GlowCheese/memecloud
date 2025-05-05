@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/utils/common.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/search_result_model.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:memecloud/components/musics/song_card.dart';
+import 'package:memecloud/components/musics/artist_card.dart';
+import 'package:memecloud/components/musics/playlist_card.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
-import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
-import 'package:memecloud/utils/common.dart';
 
 class SearchResultView extends StatefulWidget {
   final String keyword;
@@ -234,75 +235,14 @@ Widget simpleWingetDecode(
   Object item, {
   List<SongModel>? songList,
 }) {
-  late String text;
-  String? subText;
-  late String thumbnailUrl;
-
   if (item is SongModel) {
-    text = item.title;
-    subText = 'Bài hát • ${item.artistsNames}';
-    thumbnailUrl = item.thumbnailUrl;
-  } else if (item is ArtistModel) {
-    text = item.name;
-    subText = 'Nghệ sĩ';
-    thumbnailUrl = item.thumbnailUrl;
-  } else if (item is PlaylistModel) {
-    text = item.title;
-    subText = 'Danh sách phát • ${item.artistsNames!}';
-    thumbnailUrl = item.thumbnailUrl;
-  } else {
-    throw 'Invalid type of item: ${item.runtimeType}';
+    return SongCard(variation: 1, song: item, songList: songList);
   }
-
-  Widget widget = Row(
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      ClipRRect(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
-        child: CachedNetworkImage(
-          imageUrl: thumbnailUrl,
-          width: 40,
-          height: 40,
-        ),
-      ),
-      SizedBox(width: 14),
-      Flexible(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              text,
-              style: TextStyle(fontSize: 18),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              subText,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.white.withAlpha(180),
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    ],
-  );
-
-  if (item is! SongModel) {
-    return widget;
+  if (item is PlaylistModel) {
+    return PlaylistCard(variation: 1, playlist: item);
   }
-
-  return GestureDetector(
-    onTap: () async {
-      await getIt<SongPlayerCubit>().loadAndPlay(
-        context,
-        item,
-        songList: songList,
-      );
-    },
-    child: widget,
-  );
+  if (item is ArtistModel) {
+    return ArtistCard(variation: 1, artist: item);
+  }
+  throw UnsupportedError("Invalid item type: ${item.runtimeType}");
 }
