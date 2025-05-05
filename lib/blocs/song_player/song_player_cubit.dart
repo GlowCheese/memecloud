@@ -2,12 +2,11 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:memecloud/apis/connectivity.dart';
-import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:memecloud/apis/connectivity.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 

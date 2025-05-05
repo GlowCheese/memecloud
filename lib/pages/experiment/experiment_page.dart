@@ -2,18 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:memecloud/pages/experiment/e01.dart';
 import 'package:memecloud/pages/experiment/e04.dart';
 import 'package:memecloud/pages/experiment/e05.dart';
+import 'package:memecloud/pages/experiment/playlist.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:memecloud/pages/experiment/playlist.dart';
-import 'package:memecloud/pages/experiment/beta_playlist.dart';
 
 final allPages = {
   'E01': () => E01(),
   'E04': () => E04(),
   'E05': () => E05(),
   'Playlist': () => PlaylistScreen(playlistId: 'ZOZ9FWW7'),
-  'Beta Playlist': () => PlaylistPage(playlistId: 'ZOZ9FWW7'),
 };
 
 final pageController = ExperimentPageController();

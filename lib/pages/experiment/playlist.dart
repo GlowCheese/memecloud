@@ -281,8 +281,7 @@ class SongListTile extends StatelessWidget {
   final SongModel song;
   final int index;
 
-  const SongListTile({Key? key, required this.song, required this.index})
-    : super(key: key);
+  const SongListTile({super.key, required this.song, required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -376,7 +375,7 @@ class SongListTile extends StatelessWidget {
 class ArtistCard extends StatelessWidget {
   final ArtistModel artist;
 
-  const ArtistCard({Key? key, required this.artist}) : super(key: key);
+  const ArtistCard({super.key, required this.artist});
 
   @override
   Widget build(BuildContext context) {
@@ -424,7 +423,7 @@ class ArtistCard extends StatelessWidget {
 class SongOptionsSheet extends StatelessWidget {
   final SongModel song;
 
-  const SongOptionsSheet({Key? key, required this.song}) : super(key: key);
+  const SongOptionsSheet({super.key, required this.song});
 
   @override
   Widget build(BuildContext context) {

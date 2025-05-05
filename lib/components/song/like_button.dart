@@ -10,7 +10,7 @@ class SongLikeButton extends StatefulWidget {
   final Color dftColor;
   final bool defaultIsLiked;
 
-  SongLikeButton({
+  const SongLikeButton({
     super.key,
     required this.song,
     this.dftColor = Colors.white,
