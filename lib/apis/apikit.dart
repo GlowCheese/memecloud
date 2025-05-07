@@ -182,7 +182,7 @@ class ApiKit {
     ]);
   }
 
-  Future<List<String>> filterNonVipSongs(List<String> songsIds) async {
+  Future<List<String>> filterNonVipSongs(Iterable<String> songsIds) async {
     try {
       return await supabase.songs.filterNonVipSongs(songsIds);
     } on ConnectionLoss {
@@ -197,7 +197,7 @@ class ApiKit {
 
   Future<PlaylistModel?> getPlaylistInfo(String playlistId) async {
     final String api = '/infoplaylist?id=$playlistId';
-    return await _getOrFetch<Map<String, dynamic>?, PlaylistModel?>(
+    return await _getOrFetch<Map<String, dynamic>?, Future<PlaylistModel>?>(
       api,
       fetchFunc: () => zingMp3.fetchPlaylistInfo(playlistId),
       cacheEncode: (data) => ignoreNullValuesOfMap({'data': data}),
@@ -271,7 +271,7 @@ class ApiKit {
     String api = '/search?keyword=$keyword';
     final int lazyTime = 14 * 24 * 60 * 60; // 14 days
 
-    return await _getOrFetch<Map, SearchResultModel>(
+    return await _getOrFetch<Map, Future<SearchResultModel>>(
       api,
       lazyTime: lazyTime,
       fetchFunc: () => zingMp3.searchMulti(keyword),

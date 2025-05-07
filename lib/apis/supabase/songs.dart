@@ -221,18 +221,16 @@ class SupabaseSongsApi {
 
   ///end increment view
 
-  Future<List<String>> filterNonVipSongs(List<String> songsIds) async {
+  Future<List<String>> filterNonVipSongs(Iterable<String> songsIds) async {
     try {
       _connectivity.ensure();
       final resp = await _client
           .from('vip_songs')
           .select('song_id')
-          .inFilter('song_id', songsIds);
+          .inFilter('song_id', songsIds.toList());
 
       final vipSongIds = resp.map((e) => e['song_id']).toSet();
-      final filteredList =
-          songsIds.where((id) => !vipSongIds.contains(id)).toList();
-      return filteredList;
+      return songsIds.where((id) => !vipSongIds.contains(id)).toList();
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log('Failed to fetch vip songs: $e', stackTrace: stackTrace, level: 1000);

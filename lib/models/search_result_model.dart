@@ -17,7 +17,7 @@ class SearchResultModel {
     required this.playlists,
   });
 
-  static SearchResultModel fromJson(Map json) {
+  static Future<SearchResultModel> fromJson(Map json) async {
     late final Object? bestMatch;
     if (!json.containsKey('top')) {
       bestMatch = null;
@@ -30,8 +30,9 @@ class SearchResultModel {
           bestMatch = SongModel.fromJson<ZingMp3Api>(json['top']);
           break;
         case 'playlist':
-          bestMatch = PlaylistModel.fromJson<ZingMp3Api>(json['top']);
+          bestMatch = await PlaylistModel.fromJson<ZingMp3Api>(json['top']);
           break;
+        case 'hub':
         case 'video':
           bestMatch = null;
           break;
@@ -53,14 +54,14 @@ class SearchResultModel {
     if (!json.containsKey('songs')) {
       songs = [];
     } else {
-      songs = SongModel.fromListJson<ZingMp3Api>(json['songs']);
+      songs = await SongModel.fromListJson<ZingMp3Api>(json['songs']);
     }
 
     late final List<PlaylistModel>? playlists;
     if (!json.containsKey('playlists')) {
       playlists = [];
     } else {
-      playlists = PlaylistModel.fromListJson<ZingMp3Api>(json['playlists']);
+      playlists = await PlaylistModel.fromListJson<ZingMp3Api>(json['playlists']);
     }
 
     return SearchResultModel._(

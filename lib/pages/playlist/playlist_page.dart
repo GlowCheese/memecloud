@@ -250,13 +250,18 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        'By ${widget.playlist.artistsNames ?? "Trending Music"}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
+                      Flexible(
+                        child: Text(
+                          widget.playlist.artistsNames ?? "Trending Music",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
+                      SizedBox(width: 10)
                     ],
                   ),
                   _playlistControlButtons(),
