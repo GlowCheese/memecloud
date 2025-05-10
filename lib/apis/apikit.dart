@@ -8,6 +8,7 @@ import 'package:memecloud/apis/storage.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_lyrics_model.dart';
+import 'package:memecloud/models/week_chart_model.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:memecloud/apis/connectivity.dart';
 import 'package:memecloud/apis/supabase/main.dart';
@@ -276,6 +277,31 @@ class ApiKit {
       lazyTime: lazyTime,
       fetchFunc: () => zingMp3.searchMulti(keyword),
       outputFixer: (data) => SearchResultModel.fromJson(data),
+    );
+  }
+
+  /* ----------------------
+  |    WEEK CHART APIs    |
+  ---------------------- */
+
+  Future<WeekChartModel> getVpopWeekChart() async {
+    return WeekChartModel.fromJson<ZingMp3Api>(
+      "Việt Nam",
+      await zingMp3.fetchVpopWeekChart(),
+    );
+  }
+
+  Future<WeekChartModel> getUsukWeekChart() async {
+    return WeekChartModel.fromJson<ZingMp3Api>(
+      "Âu Mĩ",
+      await zingMp3.fetchUsukWeekChart(),
+    );
+  }
+
+  Future<WeekChartModel> getKpopWeekChart() async {
+    return WeekChartModel.fromJson<ZingMp3Api>(
+      "Hàn Quốc",
+      await zingMp3.fetchKpopWeekChart(),
     );
   }
 

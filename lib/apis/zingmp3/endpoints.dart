@@ -191,4 +191,32 @@ class ZingMp3Api {
       rethrow;
     }
   }
+
+  Future<Map<String, dynamic>> _fetchWeekChart(String chartId) async {
+    try {
+      _connectivity.ensure();
+      final resp = await _requester.getWeekChart(chartId);
+      return resp['data'];
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, stackTrace);
+      log(
+        'ZingMp3Api failed to fetch week chart: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchVpopWeekChart() {
+    return _fetchWeekChart('IWZ9Z08I');
+  }
+
+  Future<Map<String, dynamic>> fetchUsukWeekChart() {
+    return _fetchWeekChart('IWZ9Z0BW');
+  }
+
+  Future<Map<String, dynamic>> fetchKpopWeekChart() {
+    return _fetchWeekChart('IWZ9Z0BO');
+  }
 }

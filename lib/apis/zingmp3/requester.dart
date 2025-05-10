@@ -67,6 +67,8 @@ class ZingMp3Requester {
     return params;
   }
 
+  final _allowedErrors = [-104, -201];
+
   Future<Map> _sendRequest(
     String path, {
     String? id,
@@ -92,7 +94,7 @@ class ZingMp3Requester {
           extra: extra,
         ),
       );
-      if (resp.data['err'] != -201) {
+      if (!_allowedErrors.contains(resp.data['err'])) {
         debugPrint('Request sent: ${resp.requestOptions.uri}');
         break;
       }
@@ -174,6 +176,14 @@ class ZingMp3Requester {
       path,
       extra: {'alias': artistAlias},
       allowedErrorCodes: [-108],
+    );
+  }
+
+  Future<Map> getWeekChart(String chartId) {
+    final path = "/api/v2/page/get/week-chart";
+    return _sendRequest(
+      path, id: chartId,
+      extra: {'week': 0, 'year': 0},
     );
   }
 
