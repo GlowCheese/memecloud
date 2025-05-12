@@ -49,7 +49,6 @@ class _SongListView extends StatefulWidget {
 }
 
 class _SongListViewState extends State<_SongListView> {
-  Set<SongModel> unlikedSongs = {};
   late List<SongModel> currentLikedSongs;
 
   @override

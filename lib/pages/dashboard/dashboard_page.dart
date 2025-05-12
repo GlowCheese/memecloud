@@ -54,7 +54,10 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Stack(
             fit: StackFit.expand,
             children: <Widget>[
-              scaffElems['body'],
+              Padding(
+                padding: const EdgeInsets.only(bottom: 50),
+                child: scaffElems['body'],
+              ),
               Positioned(bottom: 5, left: 0, right: 0, child: getMiniPlayer()),
             ],
           ),
