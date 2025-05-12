@@ -2,13 +2,15 @@
 
 import 'package:memecloud/apis/zingmp3/endpoints.dart';
 import 'package:memecloud/models/artist_model.dart';
+import 'package:memecloud/models/music_model.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/utils/common.dart';
 
 class AnonymousPlaylist {}
 
 const String anonymousId = "AnOnYmOuS";
 
-class PlaylistModel {
+class PlaylistModel extends MusicModel {
   /// `id="AnOnYmOuS"` if it isn't an actual playlist
   final String id;
   final String title;
@@ -59,7 +61,7 @@ class PlaylistModel {
                 : null,
         artists:
             json.containsKey('artists')
-                ? ArtistModel.fromListJson<T>(json['artists'])
+                ? await ArtistModel.fromListJson<T>(json['artists'])
                 : null,
       );
     } else {
@@ -67,9 +69,22 @@ class PlaylistModel {
     }
   }
 
-  static Future<List<PlaylistModel>> fromListJson<T>(List list) async {
-    return await Future.wait(
+  static Future<List<PlaylistModel>> fromListJson<T>(List list) {
+    return Future.wait(
       list.map((json) => PlaylistModel.fromJson<T>(json)),
     );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return ignoreNullValuesOfMap({
+      'id': id,
+      'title': title,
+      'thumbnailUrl': thumbnailUrl,
+      'artistsNames': artistsNames,
+      'description': description,
+      'songs': songs?.map((e) => e.toJson()).toList(),
+      'artists': artists?.map((e) => e.toJson()).toList()
+    });
   }
 }

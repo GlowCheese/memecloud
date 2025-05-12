@@ -13,7 +13,7 @@ class SupabaseSongsApi {
   Future<void> saveSongInfo(SongModel song) async {
     try {
       _connectivity.ensure();
-      await _client.from('songs').upsert(song.toJson<SupabaseApi>(only: true));
+      await _client.from('songs').upsert(song.toJson(only: true));
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log('Failed to save song info: $e', stackTrace: stackTrace, level: 1000);
@@ -55,7 +55,7 @@ class SupabaseSongsApi {
               .eq('id', songId)
               .maybeSingle();
       if (response == null) return null;
-      return SongModel.fromJson<SupabaseApi>(response);
+      return await SongModel.fromJson<SupabaseApi>(response);
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log('Failed to getSongInfo: $e', stackTrace: stackTrace, level: 1000);
@@ -104,13 +104,11 @@ class SupabaseSongsApi {
           )''')
           .eq('user_id', userId);
 
-      final songsList =
-          (response as List).map((item) {
-            return SongModel.fromJson<SupabaseApi>(
-              item['songs'],
-              isLiked: true,
-            );
-          }).toList();
+      final songsList = await Future.wait(
+        (response as List).map((item) {
+          return SongModel.fromJson<SupabaseApi>(item['songs'], isLiked: true);
+        }),
+      );
 
       return songsList;
     } catch (e, stackTrace) {
@@ -184,10 +182,7 @@ class SupabaseSongsApi {
           .select('song(*)')
           .eq('user_id', userId);
 
-      final songsList =
-          response
-              .map((item) => SongModel.fromJson<SupabaseApi>(item))
-              .toList();
+      final songsList = await SongModel.fromListJson<SupabaseApi>(response);
       return songsList;
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
@@ -206,17 +201,16 @@ class SupabaseSongsApi {
   Future<void> incrementView(String songId) async {
     final userId = Supabase.instance.client.auth.currentUser?.id;
 
-  if (userId == null) return;
+    if (userId == null) return;
 
-  final response = await Supabase.instance.client
-      .rpc('increment_view', params: {
-        'listened_song_id': songId,
-        'listened_user_id': userId,
-      });
+    final response = await Supabase.instance.client.rpc(
+      'increment_view',
+      params: {'listened_song_id': songId, 'listened_user_id': userId},
+    );
 
-  if (response.error != null) {
-    log('Lỗi tăng view: ${response.error!.message}');
-  }
+    if (response.error != null) {
+      log('Lỗi tăng view: ${response.error!.message}');
+    }
   }
 
   ///end increment view

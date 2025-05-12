@@ -24,10 +24,10 @@ class SearchResultModel {
     } else {
       switch (json['top']['objectType']) {
         case 'artist':
-          bestMatch = ArtistModel.fromJson<ZingMp3Api>(json['top']);
+          bestMatch = await ArtistModel.fromJson<ZingMp3Api>(json['top']);
           break;
         case 'song':
-          bestMatch = SongModel.fromJson<ZingMp3Api>(json['top']);
+          bestMatch = await SongModel.fromJson<ZingMp3Api>(json['top']);
           break;
         case 'playlist':
           bestMatch = await PlaylistModel.fromJson<ZingMp3Api>(json['top']);
@@ -47,7 +47,7 @@ class SearchResultModel {
     if (!json.containsKey('artists')) {
       artists = [];
     } else {
-      artists = ArtistModel.fromListJson<ZingMp3Api>(json['artists']);
+      artists = await ArtistModel.fromListJson<ZingMp3Api>(json['artists']);
     }
 
     late final List<SongModel>? songs;
