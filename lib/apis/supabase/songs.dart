@@ -179,13 +179,16 @@ class SupabaseSongsApi {
 
       final response = await _client
           .from('blacklist')
-          .select('song(*)')
+          .select('song: songs(*, song_artists(artist:artists (*)))')
           .eq('user_id', userId);
 
-      final songsList = await SongModel.fromListJson<SupabaseApi>(response);
+      final songsList = await Future.wait(
+        response.map((e) => SongModel.fromJson<SupabaseApi>(e['song']))
+      );
+
       return songsList;
     } catch (e, stackTrace) {
-      _connectivity.reportCrash(e, StackTrace.current);
+      _connectivity.reportCrash(e, stackTrace);
       log(
         "Failed to get blacklisted songs: $e",
         stackTrace: stackTrace,

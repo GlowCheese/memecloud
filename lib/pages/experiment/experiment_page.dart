@@ -5,11 +5,13 @@ import 'package:memecloud/pages/experiment/e05.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
+import 'package:memecloud/pages/experiment/e06.dart';
 
 final allPages = {
   'E01': () => E01(),
   'E04': () => E04(),
   'E05': () => E05(),
+  'E06': () => E06()
 };
 
 final pageController = ExperimentPageController();

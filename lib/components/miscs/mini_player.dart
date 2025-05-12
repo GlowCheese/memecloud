@@ -52,20 +52,11 @@ class _MiniPlayerState extends State<_MiniPlayer> {
       }
       Color onBgColor = getTextColor(domBg);
 
-      return Positioned(
-        bottom: 10,
-        left: 0,
-        right: 0,
-        child: GestureDetector(
-          onTap: () async {
-            context.push('/song_page');
-          },
-          child: miniPlayerSongDetails(
-            domBg,
-            subDomBg,
-            onBgColor,
-          ),
-        ),
+      return GestureDetector(
+        onTap: () async {
+          context.push('/song_page');
+        },
+        child: miniPlayerSongDetails(domBg, subDomBg, onBgColor),
       );
     });
   }
@@ -127,10 +118,7 @@ class _MiniPlayerState extends State<_MiniPlayer> {
                 Row(
                   children: [
                     PlayOrPauseButton(song: widget.song, color: onBgColor),
-                    SongLikeButton(
-                      song: widget.song,
-                      dftColor: onBgColor
-                    ),
+                    SongLikeButton(song: widget.song, dftColor: onBgColor),
                     _seekNextButton(onBgColor),
                   ],
                 ),

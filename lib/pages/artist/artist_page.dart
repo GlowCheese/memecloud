@@ -57,7 +57,6 @@ class _ArtistPageState extends State<ArtistPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomSheet: getMiniPlayer(),
       body: FutureBuilder<ArtistModel?>(
         future: _artistFuture,
         builder: (context, snapshot) {
@@ -73,22 +72,28 @@ class _ArtistPageState extends State<ArtistPage> {
               child: Text('Không tìm thấy thông tin nghệ sĩ'),
             );
           }
-          return CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                toolbarHeight: 300,
-                automaticallyImplyLeading: false,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: _artistHeader(artist),
-                ),
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    toolbarHeight: 300,
+                    automaticallyImplyLeading: false,
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: _artistHeader(artist),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: _artistInfo(artist),
+                    ),
+                  ),
+                  _SongsOfArtist(songsFuture: _songsFuture),
+                ],
               ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: _artistInfo(artist),
-                ),
-              ),
-              _SongsOfArtist(songsFuture: _songsFuture),
+              Positioned(bottom: 5, left: 0, right: 0, child: getMiniPlayer()),
             ],
           );
         },

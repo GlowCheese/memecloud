@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:memecloud/components/song/show_song_actions.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,48 +27,59 @@ class SongPage extends StatelessWidget {
           return SizedBox();
         }
 
-        return GradBackground2(
-          imageUrl: state.currentSong.thumbnailUrl,
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              appBarTheme: const AppBarTheme(foregroundColor: Colors.white),
-              textTheme: Theme.of(context).textTheme.apply(
-                bodyColor: Colors.white,
-                displayColor: Colors.white,
-              ),
-            ),
-            child: Scaffold(
-              appBar: _appBar(context),
-              backgroundColor: Colors.transparent,
-              body: SingleChildScrollView(
-                physics: BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        SizedBox(height: 46),
-                        _songCover(context, state.currentSong),
-                        SizedBox(height: 30),
-                        _songDetails(state.currentSong),
-                        SizedBox(height: 20),
-                        SongControllerView(song: state.currentSong),
-                        SizedBox(height: 50),
-                        _songLyric(state.currentSong),
-                        SizedBox(height: 10),
-                      ],
-                    ),
-                  ),
+        return SongPageInner(song: state.currentSong);
+      },
+    );
+  }
+}
+
+class SongPageInner extends StatelessWidget {
+  final SongModel song;
+
+  const SongPageInner({super.key, required this.song});
+
+  @override
+  Widget build(BuildContext context) {
+    return GradBackground2(
+      imageUrl: song.thumbnailUrl,
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          appBarTheme: const AppBarTheme(foregroundColor: Colors.white),
+          textTheme: Theme.of(context).textTheme.apply(
+            bodyColor: Colors.white,
+            displayColor: Colors.white,
+          ),
+        ),
+        child: Scaffold(
+          appBar: _appBar(context),
+          backgroundColor: Colors.transparent,
+          body: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Center(
+                child: Column(
+                  children: [
+                    SizedBox(height: 46),
+                    _songCover(context),
+                    SizedBox(height: 30),
+                    _songDetails(),
+                    SizedBox(height: 20),
+                    SongControllerView(song: song),
+                    SizedBox(height: 50),
+                    _songLyric(),
+                    SizedBox(height: 10),
+                  ],
                 ),
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
-  Widget _songLyric(SongModel song) {
+  Widget _songLyric() {
     return Container(
       height: 300,
       decoration: BoxDecoration(
@@ -115,7 +127,7 @@ class SongPage extends StatelessWidget {
     );
   }
 
-  Row _songDetails(SongModel song) {
+  Row _songDetails() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -148,7 +160,7 @@ class SongPage extends StatelessWidget {
     );
   }
 
-  Widget _songCover(BuildContext context, SongModel song) {
+  Widget _songCover(BuildContext context) {
     double size = MediaQuery.of(context).size.width - 64;
     return Container(
       width: size,
@@ -177,6 +189,12 @@ class SongPage extends StatelessWidget {
           }
         },
       ),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.more_vert),
+          onPressed: () => showSongBottomSheetActions(context, song),
+        ),
+      ],
     );
   }
 }
