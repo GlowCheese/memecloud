@@ -35,7 +35,6 @@ class _MusicTabsPageState extends State<MusicTabsPage> {
             unselectedLabelColor: Colors.grey,
             tabs: const [
               Tab(icon: Icon(Icons.favorite), text: 'Đã thích'),
-              Tab(icon: Icon(Icons.trending_up), text: 'BXH'),
               Tab(icon: Icon(Icons.download), text: 'Đã tải'),
             ],
           ),

@@ -100,7 +100,7 @@ class _TopChartPageState extends State<TopChartPage>
         song.artistsNames,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(color: Colors.white.withOpacity(0.7)),
+        style: TextStyle(color: Colors.white),
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
