@@ -18,7 +18,7 @@ class GeneratableSliverList extends StatefulWidget {
 class _GeneratableSliverListState extends State<GeneratableSliverList> {
   bool hasMore = true;
   late int currentIdx = widget.initialPageIdx;
-  List items = [];
+  List<Widget> items = [];
 
   Future<void> loadMorePage() async {
     try {
@@ -26,7 +26,7 @@ class _GeneratableSliverListState extends State<GeneratableSliverList> {
       assert(newData.isNotEmpty);
       setState(() {
         currentIdx += 1;
-        items.expand(newData);
+        items.addAll(newData);
       });
     } catch (_) {
       setState(() => hasMore = false);

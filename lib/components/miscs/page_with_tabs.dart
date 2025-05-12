@@ -1,60 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/miscs/section_divider.dart';
 
-class PageWithTabs extends StatefulWidget {
+
+class PageWithTabs {
   final Widget? nullTab;
   final List<String> tabNames;
   final List<Widget> tabBodies;
 
+  late int selectedTab;
+  final void Function(int tabIdx) onTabSelect;
+
   PageWithTabs({
-    super.key,
     this.nullTab,
     required this.tabNames,
     required this.tabBodies,
+    required this.onTabSelect
   }) {
+    selectedTab = nullTab == null ? 0 : 1;
     assert(tabNames.length == tabBodies.length);
   }
 
-  @override
-  State<PageWithTabs> createState() => _PageWithTabsState();
-}
-
-class _PageWithTabsState extends State<PageWithTabs> {
-  late int selectedTab = widget.nullTab == null ? 0 : -1;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _navigationBar(context),
-        const SectionDivider(),
-        _tabContent(context),
-      ],
-    );
-  }
-
-  Widget _navigationBar(BuildContext context) {
+  Widget navigationBar(BuildContext context) {
     List<Widget> buttons = [];
 
-    for (int i = 0; i < widget.tabNames.length; i++) {
+    for (int i = 0; i < tabNames.length; i++) {
       late Widget button;
-      final tabName = widget.tabNames[i];
+      final tabName = tabNames[i];
 
       if (selectedTab == i) {
         button = FilledButton(
-          onPressed: () {
-            if (widget.nullTab != null) {
-              setState(() => selectedTab = -1);
-            }
-          },
+          onPressed: () => onTabSelect(i),
           child: Text(tabName),
         );
       } else {
         button = ElevatedButton(
-          onPressed: () {
-            setState(() => selectedTab = i);
-          },
+          onPressed: () => onTabSelect(i),
           child: Text(tabName),
         );
       }
@@ -77,10 +56,10 @@ class _PageWithTabsState extends State<PageWithTabs> {
     );
   }
 
-  Widget _tabContent(BuildContext context) {
+  Widget tabContent(BuildContext context) {
     if (selectedTab == -1) {
-      return widget.nullTab!;
+      return nullTab!;
     }
-    return widget.tabBodies[selectedTab];
+    return tabBodies[selectedTab];
   }
 }
