@@ -5,7 +5,7 @@ import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/musics/music_card.dart';
 
 class SongCard extends StatelessWidget {
-  // must be between 1 and 1.
+  /// must be between 1 and 1.
   final int variation;
   final SongModel song;
   final List<SongModel>? songList;

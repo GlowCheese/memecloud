@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class MusicCard extends StatelessWidget {
-  // must be between 1 and 2.
+  /// must be between 1 and 2.
   final int variation;
   final String title;
   final String? subTitle;

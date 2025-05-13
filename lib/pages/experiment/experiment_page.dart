@@ -9,6 +9,8 @@ import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/pages/experiment/e06.dart';
 import 'package:memecloud/pages/experiment/e07.dart';
+import 'package:memecloud/pages/experiment/e11.dart';
+import 'package:memecloud/pages/experiment/e12.dart';
 
 final allPages = {
   'E01': () => E01(),
@@ -17,6 +19,8 @@ final allPages = {
   'E06': () => E06(),
   'E07': () => MusicTabsPage(),
   'E08': () => TopChartPage(),
+  'E11': () => E11(),
+  'E12': () => E12()
 };
 
 final pageController = ExperimentPageController();

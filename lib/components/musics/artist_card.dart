@@ -4,7 +4,7 @@ import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/components/musics/music_card.dart';
 
 class ArtistCard extends StatelessWidget {
-  // must be between 1 and 2.
+  /// must be between 1 and 2.
   final int variation;
   final ArtistModel artist;
   final bool pushReplacement;
