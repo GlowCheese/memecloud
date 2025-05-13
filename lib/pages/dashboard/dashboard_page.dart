@@ -6,6 +6,7 @@ import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/pages/dashboard/liked_songs_page.dart';
 import 'package:memecloud/pages/experiment/experiment_page.dart';
 import 'package:memecloud/pages/dashboard/search_page.dart';
+import 'package:memecloud/pages/dashboard/top_chart_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -32,6 +33,9 @@ class _DashboardPageState extends State<DashboardPage> {
         scaffElems = getLikedSongsPage(context);
         break;
       case 3:
+        scaffElems = getTopChartPage(context);
+        break;
+      case 4:
         scaffElems = getExperimentPage(context);
         break;
       default:
@@ -76,6 +80,10 @@ class _DashboardPageState extends State<DashboardPage> {
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
         BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Liked'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.bar_chart),
+          label: 'Top Charts',
+        ),
         BottomNavigationBarItem(
           icon: Icon(Icons.bubble_chart),
           label: 'Experiment',
