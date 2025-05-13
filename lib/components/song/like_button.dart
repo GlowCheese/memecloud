@@ -30,7 +30,7 @@ class _SongLikeButtonState extends State<SongLikeButton> {
       unawaited(() async {
         try {
           await widget.song.loadIsLiked();
-          setState(() {});
+          if (mounted) setState(() {});
         } on ConnectionLoss {
           return;
         }

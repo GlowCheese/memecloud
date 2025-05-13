@@ -131,28 +131,20 @@ class _TopChartPageState extends State<TopChartPage>
 
   @override
   Widget build(BuildContext context) {
-    return GradBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: const Text(
-            'Top Charts',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: const [
-              Tab(text: 'V-Pop'),
-              Tab(text: 'US-UK'),
-              Tab(text: 'K-Pop'),
-            ],
-            indicatorColor: Colors.white,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
-          ),
+    return Column(
+      children: [
+        TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'V-Pop'),
+            Tab(text: 'US-UK'),
+            Tab(text: 'K-Pop'),
+          ],
+          indicatorColor: Colors.white,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
         ),
-        body: TabBarView(
+        TabBarView(
           controller: _tabController,
           children: [
             _buildChartTab(() => _apiKit.getVpopWeekChart()),
@@ -160,7 +152,7 @@ class _TopChartPageState extends State<TopChartPage>
             _buildChartTab(() => _apiKit.getKpopWeekChart()),
           ],
         ),
-      ),
+      ],
     );
   }
 }
