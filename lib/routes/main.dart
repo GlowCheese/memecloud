@@ -11,6 +11,7 @@ import 'package:memecloud/components/song/song_lyric.dart';
 import 'package:memecloud/pages/profile/profile_page.dart';
 import 'package:memecloud/pages/dashboard/dashboard_page.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
+import 'package:memecloud/utils/transition.dart';
 
 GoRouter? router;
 
@@ -39,16 +40,25 @@ GoRouter getRouter() {
       ),
       GoRoute(
         path: '/playlist_page',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final playlistId = state.extra as String;
-          return PlaylistPage(playlistId: playlistId);
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: PlaylistPage(playlistId: playlistId),
+            transitionsBuilder: PageTransitions.slideTransition,
+          );
         },
       ),
       GoRoute(
         path: '/artist_page',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final artistAlias = state.extra as String;
-          return ArtistPage(artistAlias: artistAlias);
+
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: ArtistPage(artistAlias: artistAlias),
+            transitionsBuilder: PageTransitions.slideTransition,
+          );
         },
       ),
     ],

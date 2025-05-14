@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:memecloud/apis/supabase/artists.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/apis/zingmp3/requester.dart';
@@ -19,16 +23,32 @@ class ArtistPage extends StatefulWidget {
   State<ArtistPage> createState() => _ArtistPageState();
 }
 
-class _ArtistPageState extends State<ArtistPage> {
+class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
   late Future<ArtistModel?> _artistFuture;
   late Future<List<SongModel>> _songsFuture;
+  late Future<List<PlaylistModel>> _albumsFuture;
+  late TabController _tabController;
   bool _isFollowing = false;
+
+  final List<Tab> _tabs = [
+    Tab(text: 'Tiểu sử'),
+    Tab(text: 'Bài hát'),
+    Tab(text: 'Album'),
+  ];
 
   @override
   void initState() {
     super.initState();
     _artistFuture = getIt<ApiKit>().getArtistInfo(widget.artistAlias);
     _songsFuture = _loadArtistSongs();
+    _albumsFuture = _loadArtistAlbums();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<List<SongModel>> _loadArtistSongs() async {
@@ -41,6 +61,18 @@ class _ArtistPageState extends State<ArtistPage> {
     );
     if (response['err'] != 0) return [];
     return SongModel.fromListJson<ZingMp3Api>(response['data']['items']);
+  }
+
+  Future<List<PlaylistModel>> _loadArtistAlbums() async {
+    final artist = await _artistFuture;
+    if (artist == null) return [];
+    final response = await getIt<ZingMp3Requester>().getListArtistAlbum(
+      artistId: artist.id,
+      page: 1,
+      count: 20,
+    );
+    if (response['err'] != 0) return [];
+    return PlaylistModel.fromListJson<ZingMp3Api>(response['data']['items']);
   }
 
   Future<void> _playAllSongs() async {
@@ -85,10 +117,17 @@ class _ArtistPageState extends State<ArtistPage> {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: _artistInfo(artist),
+                  //attach tab view to this
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _ArtistInfo(artist: artist),
+                      _SongsOfArtist(songsFuture: _songsFuture),
+                      _AlbumsOfArtist(albumsFuture: _albumsFuture),
+                    ],
+                  ),
                 ),
               ),
-              _SongsOfArtist(songsFuture: _songsFuture),
             ],
           );
         },
@@ -186,6 +225,11 @@ class _ArtistPageState extends State<ArtistPage> {
                     onPressed: () {
                       setState(() {
                         _isFollowing = !_isFollowing;
+                        unawaited(
+                          getIt<SupabaseArtistsApi>().toggleFollowArtist(
+                            artist.id,
+                          ),
+                        );
                       });
                     },
                   ),
@@ -194,11 +238,35 @@ class _ArtistPageState extends State<ArtistPage> {
             ],
           ),
         ),
+        // Tab bar
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: TabBar(controller: _tabController, tabs: _tabs),
+        ),
       ],
     );
   }
+}
 
-  Widget _artistInfo(ArtistModel artist) {
+class _AlbumsOfArtist extends StatelessWidget {
+  final Future<List<PlaylistModel>> albumsFuture;
+
+  const _AlbumsOfArtist({required this.albumsFuture});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+class _ArtistInfo extends StatelessWidget {
+  final ArtistModel artist;
+  const _ArtistInfo({required this.artist});
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -230,15 +298,14 @@ class _ArtistPageState extends State<ArtistPage> {
 }
 
 class _SongsOfArtist extends StatelessWidget {
-  const _SongsOfArtist({required Future<List<SongModel>> songsFuture})
-    : _songsFuture = songsFuture;
+  final Future<List<SongModel>> songsFuture;
 
-  final Future<List<SongModel>> _songsFuture;
+  const _SongsOfArtist({required this.songsFuture});
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<SongModel>>(
-      future: _songsFuture,
+      future: songsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return SliverToBoxAdapter(

@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/connectivity.dart';
 import 'package:memecloud/apis/supabase/main.dart';
@@ -69,6 +70,34 @@ class SupabaseArtistsApi {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
         "Failed to get top artists: $e",
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
+  //follow artist
+  Future<void> toggleFollowArtist(String artistId) async {
+    try {
+      _connectivity.ensure();
+      final userId = getIt<ApiKit>().currentSession()?.user.id;
+      if (userId == null) {
+        throw Exception('User not logged in');
+      }
+      final response = await _client.from('followers').select().eq('user_id', userId).eq('artist_id', artistId);
+      if (response.isNotEmpty) {
+        await _client.from('followers').delete().eq('user_id', userId).eq('artist_id', artistId);
+      } else {
+        await _client.from('followers').insert({
+          'user_id': userId,
+          'artist_id': artistId,
+        });
+      }
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        "Failed to follow artist: $e",
         stackTrace: stackTrace,
         level: 1000,
       );

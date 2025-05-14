@@ -222,4 +222,17 @@ class ZingMp3Requester {
   Future<Map> searchPlaylists(String keyword, {int page = 1}) {
     return _filteredSearch('playlist', keyword, page: page);
   }
+
+  Future<Map> getListArtistAlbum({
+    required String artistId,
+    required int page,
+    required int count,
+  }) {
+    final path = "/api/v2/page/get/artist-album";
+    return _sendRequest(
+      path,
+      id: artistId,
+      extra: {'page': page, 'count': count},
+    );
+  }
 }
