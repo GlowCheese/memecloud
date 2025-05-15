@@ -324,37 +324,23 @@ class ApiKit {
   }
 
   /// Return `null` if `isNonVipSong(songId) == false`, \
-  /// otherwise the local path for the song file. \
-  /// May requires download the file from remote, or ZingMp3API.
-  Future<String?> getSongPath(String songId) async {
+  /// otherwise the Uri for the song (either remote or local).
+  Future<Uri?> getSongUri(String songId) async {
     final fileName = '$songId.mp3';
-    late Directory dir;
-    late String filePath;
-    late File file;
-    final bucket = 'songs';
+    final dir = storage.userDir;
+    final filePath = '${dir.path}/$fileName';
+    final file = File(filePath);
 
-    for (dir in [storage.userDir, storage.cacheDir]) {
-      file = File(filePath = '${dir.path}/$fileName');
-      if (await file.exists()) return filePath;
-    }
+    if (await file.exists()) return Uri.file(filePath);
 
     if (!await isNonVipSong(songId)) return null;
-    var bytes = await supabase.cache.getFile(bucket, fileName);
-    if (bytes == null) {
-      final songUrl = await zingMp3.fetchSongUrl(songId);
-      if (songUrl == null) {
-        unawaited(markSongAsVip(songId));
-        return null;
-      }
-      await _downloadFile(songUrl, filePath);
-
-      bytes = await file.readAsBytes();
-      unawaited(supabase.cache.uploadFile(bucket, fileName, bytes));
-    } else {
-      await file.writeAsBytes(bytes);
+    final songUrl = await zingMp3.fetchSongUrl(songId);
+    if (songUrl == null) {
+      unawaited(markSongAsVip(songId));
+      return null;
     }
 
-    return filePath;
+    return Uri.parse(songUrl);
   }
 
   Future<SongLyricsModel?> getSongLyric(String songId) async {

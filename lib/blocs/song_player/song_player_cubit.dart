@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:just_audio/just_audio.dart';
@@ -14,6 +13,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   AudioPlayer audioPlayer = AudioPlayer();
   List<SongModel> currentSongList = [];
   double currentSongSpeed = 1.0;
+
   late StreamSubscription _indexSub;
 
   SongPlayerCubit() : super(SongPlayerInitial()) {
@@ -47,10 +47,10 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     return false;
   }
 
-  Future<String?> _getSongPath(SongModel song) async {
+  Future<Uri?> _getSongUri(SongModel song) async {
     unawaited(getIt<ApiKit>().saveSongInfo(song));
     try {
-      return await getIt<ApiKit>().getSongPath(song.id);
+      return await getIt<ApiKit>().getSongUri(song.id);
     } on ConnectionLoss {
       return null;
     }
@@ -66,26 +66,32 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       emit(SongPlayerLoading(song));
       await audioPlayer.stop();
 
-      final songPath = await _getSongPath(song);
-      if (songPath == null) {
+      final songUri = await _getSongUri(song);
+      if (songUri == null) {
         return !context.mounted ||
             onSongFailedToLoad(context, 'songPath is null');
       } else {
-        debugPrint('Found song path: $songPath');
+        debugPrint('Found song path: $songUri');
         currentSongList = [song];
         if (songList == null) {
           await audioPlayer.setAudioSource(
-            AudioSource.file(songPath, tag: song.mediaItem),
+            AudioSource.uri(songUri, tag: song.mediaItem),
           );
           await audioPlayer.setLoopMode(LoopMode.one);
         } else {
           await audioPlayer.setAudioSources([
-            AudioSource.file(songPath, tag: song.mediaItem),
+            AudioSource.uri(songUri, tag: song.mediaItem),
           ]);
           await audioPlayer.setLoopMode(LoopMode.all);
 
+          int songIdx = songList.indexOf(song);
+          final remainingSongs = [
+            ...songList.sublist(songIdx + 1),
+            ...songList.sublist(0, songIdx),
+          ];
+
           unawaited(
-            lazySongPopulate(song, songList).catchError((e, stackTrace) {
+            lazySongPopulate(remainingSongs).catchError((e, stackTrace) {
               log(
                 'Failed to populate songs: $e',
                 stackTrace: stackTrace,
@@ -105,22 +111,14 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     }
   }
 
-  Future<void> lazySongPopulate(
-    SongModel song,
-    List<SongModel> songList,
-  ) async {
-    int initialSongIdx = songList.indexOf(song);
-
-    for (song in [
-      ...songList.sublist(initialSongIdx + 1),
-      ...songList.sublist(0, initialSongIdx),
-    ]) {
+  Future<void> lazySongPopulate(List<SongModel> songList) async {
+    for (SongModel song in songList) {
       if (state is! SongPlayerLoaded) return Future.value();
-      final songPath = await _getSongPath(song);
-      if (songPath != null) {
+      final songUri = await _getSongUri(song);
+      if (songUri != null) {
         currentSongList.add(song);
         await audioPlayer.addAudioSource(
-          AudioSource.file(songPath, tag: song.mediaItem),
+          AudioSource.uri(songUri, tag: song.mediaItem),
         );
       }
     }
