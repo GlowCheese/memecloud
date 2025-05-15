@@ -11,7 +11,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   await setupLocator();
-  await justAudioBackgroundInit();
+  await justAudioInit();
 
   runApp(const MyApp());
 }
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
       dark: MaterialTheme(
         GoogleFonts.bricolageGrotesqueTextTheme(),
       ).theme(MaterialTheme.darkScheme()),
-      initial: AdaptiveThemeMode.system,
+      initial: AdaptiveThemeMode.dark,
       builder: (theme, darkTheme) {
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,

@@ -3,12 +3,14 @@ import 'package:memecloud/components/miscs/default_future_builder.dart';
 
 class GeneratableSliverList extends StatefulWidget {
   final int initialPageIdx;
+  final Duration loadDelay;
   final Future Function(int pageIdx) asyncGenFunction;
 
   const GeneratableSliverList({
     super.key,
     required this.initialPageIdx,
     required this.asyncGenFunction,
+    this.loadDelay = Duration.zero,
   });
 
   @override
@@ -22,6 +24,7 @@ class _GeneratableSliverListState extends State<GeneratableSliverList> {
 
   Future<void> loadMorePage() async {
     try {
+      await Future.delayed(widget.loadDelay);
       final newData = await widget.asyncGenFunction(currentIdx);
       assert(newData.isNotEmpty);
       setState(() {

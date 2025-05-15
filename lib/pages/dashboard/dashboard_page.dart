@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/miscs/mini_player.dart';
+import 'package:memecloud/components/song/mini_player.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/pages/dashboard/home_page.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';

@@ -3,12 +3,14 @@ import 'package:memecloud/components/miscs/default_future_builder.dart';
 
 class GeneratableListView extends StatefulWidget {
   final int initialPageIdx;
+  final Duration loadDelay;
   final Future Function(int pageIdx) asyncGenFunction;
 
   const GeneratableListView({
     super.key,
     required this.initialPageIdx,
     required this.asyncGenFunction,
+    this.loadDelay = Duration.zero,
   });
 
   @override
@@ -22,6 +24,7 @@ class _GeneratableListView extends State<GeneratableListView> {
 
   Future<void> loadMorePage() async {
     try {
+      await Future.delayed(widget.loadDelay);
       final newData = await widget.asyncGenFunction(currentIdx);
       assert(newData.isNotEmpty);
       setState(() {
@@ -52,7 +55,6 @@ class _GeneratableListView extends State<GeneratableListView> {
         );
       },
       itemCount: items.length + 1,
-
     );
   }
 }

@@ -5,7 +5,7 @@ import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/apis/zingmp3/requester.dart';
 import 'package:memecloud/apis/zingmp3/endpoints.dart';
-import 'package:memecloud/components/miscs/mini_player.dart';
+import 'package:memecloud/components/song/mini_player.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/components/miscs/expandable_html.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';

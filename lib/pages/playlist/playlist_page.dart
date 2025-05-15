@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
-import 'package:memecloud/components/miscs/mini_player.dart';
+import 'package:memecloud/components/song/mini_player.dart';
 import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';

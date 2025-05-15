@@ -3,11 +3,11 @@ import 'package:memecloud/models/song_model.dart';
 
 class ChartSong {
   final SongModel song;
-  final int rakingStatus;
+  final int rankingStatus;
   final int weeklyRanking;
   ChartSong._({
     required this.song,
-    required this.rakingStatus,
+    required this.rankingStatus,
     required this.weeklyRanking,
   });
 
@@ -15,7 +15,7 @@ class ChartSong {
     if (T == ZingMp3Api) {
       return ChartSong._(
         song: await SongModel.fromJson<T>(json),
-        rakingStatus: json['rakingStatus'],
+        rankingStatus: json['rakingStatus'],
         weeklyRanking: json['weeklyRanking']
       );
     }
@@ -34,14 +34,14 @@ class WeekChartModel {
   final String bannerUrl;
   final String startDate;
   final String endDate;
-  final List<ChartSong> songs;
+  final List<ChartSong> chartSongs;
 
   WeekChartModel._(
     this.name, {
     required this.bannerUrl,
     required this.startDate,
     required this.endDate,
-    required this.songs,
+    required this.chartSongs,
   });
 
   static Future<WeekChartModel> fromJson<T>(String name, Map<String, dynamic> json) async {
@@ -51,9 +51,11 @@ class WeekChartModel {
         bannerUrl: json['banner'],
         startDate: json['startDate'],
         endDate: json['endDate'],
-        songs: await ChartSong.fromListJson<ZingMp3Api>(json['items'])
+        chartSongs: await ChartSong.fromListJson<ZingMp3Api>(json['items'])
       );
     }
     throw UnsupportedError('Cannot parse week chart for type $T');
   }
+
+  List<SongModel> get songs => chartSongs.map((e) => e.song).toList();
 }

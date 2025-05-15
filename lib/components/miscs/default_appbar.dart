@@ -1,13 +1,11 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 AppBar defaultAppBar(
   BuildContext context, {
   required String title,
   Object iconUri = 'assets/icons/listen.png'
-  // Widget iconUri = const Image.asset(, width: 30, height: 30),
 }) {
   late final Widget icon;
   if (iconUri is String) {
@@ -18,7 +16,6 @@ AppBar defaultAppBar(
     throw UnsupportedError("Unsupported iconUri=$iconUri of type ${iconUri.runtimeType}");
   }
 
-  var adaptiveTheme = AdaptiveTheme.of(context);
   return AppBar(
     backgroundColor: Colors.transparent,
     title: Text(
@@ -32,22 +29,12 @@ AppBar defaultAppBar(
       child: icon,
     ),
     actions: [
-      GestureDetector(
-        onTap: () => adaptiveTheme.toggleThemeMode(useSystem: false),
-        child: Icon(
-          adaptiveTheme.mode.isDark
-              ? Icons.light_mode
-              : Icons.dark_mode_outlined,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(width: 4),
       IconButton(
         color: Colors.white,
         onPressed: () {},
         icon: const Icon(Icons.notifications),
       ),
-      SizedBox(width: 4),
+      SizedBox(width: 8),
       GestureDetector(
         onTap: () => context.push('/profile'),
         child: CircleAvatar(
@@ -56,7 +43,7 @@ AppBar defaultAppBar(
           ),
         ),
       ),
-      SizedBox(width: 12),
+      SizedBox(width: 20),
     ],
   );
 }
