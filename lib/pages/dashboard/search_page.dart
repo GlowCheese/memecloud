@@ -75,27 +75,22 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    late List<Widget> bodyChildren;
+    late Widget body;
     if (searchBarIsFocused == false) {
-      bodyChildren = [
-        searchBar,
-        _genreGrid('Your Top Genres', widget.topGenres, widget.themeData),
-        _genreGrid('Browse All', widget.allGenres, widget.themeData),
-      ];
+      body = ListView(
+        children: [
+          _genreGrid('Your Top Genres', widget.topGenres, widget.themeData),
+          _genreGrid('Browse All', widget.allGenres, widget.themeData),
+        ],
+      );
     } else if (currentSearchQuery == null) {
-      bodyChildren = [searchBar, RecentSearchesView(onSelect: setSearchQuery)];
+      body = RecentSearchesView(onSelect: setSearchQuery);
     } else {
-      bodyChildren = [searchBar, SearchResultView(currentSearchQuery!)];
+      body = SearchResultView(currentSearchQuery!);
     }
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: bodyChildren,
-        ),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [searchBar, Expanded(child: body)],
     );
   }
 

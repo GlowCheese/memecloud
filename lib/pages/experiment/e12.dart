@@ -21,15 +21,19 @@ class E12 extends StatelessWidget {
   Widget build(BuildContext context) {
     return PageWithTabs(
       variation: 1,
-      height: 100,
       tabNames: ['tab_1', 'tab_2', 'tab_3'],
       tabBodies: [
         Text('1'),
         GeneratableListView(
+          key: ValueKey('genlist1'),
           initialPageIdx: 0,
           asyncGenFunction: (page) => genFunc(page, 0),
         ),
-        Text('3'),
+        GeneratableListView(
+          key: ValueKey('genlist2'),
+          initialPageIdx: 0,
+          asyncGenFunction: (page) => genFunc(page, 1),
+        ),
       ],
       widgetBuilder: (tabsNavigator, tabContent) {
         return Column(

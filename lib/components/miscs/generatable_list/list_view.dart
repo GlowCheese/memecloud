@@ -5,12 +5,14 @@ class GeneratableListView extends StatefulWidget {
   final int initialPageIdx;
   final Duration loadDelay;
   final Future Function(int pageIdx) asyncGenFunction;
+  final Widget Function(BuildContext context, int index)? separatorBuilder;
 
   const GeneratableListView({
     super.key,
     required this.initialPageIdx,
     required this.asyncGenFunction,
     this.loadDelay = Duration.zero,
+    this.separatorBuilder,
   });
 
   @override
@@ -38,23 +40,25 @@ class _GeneratableListView extends State<GeneratableListView> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemBuilder: (context, idx) {
-        if (idx < items.length) {
-          return items[idx];
-        }
-        if (!hasMore) {
-          return SizedBox();
-        }
+    Widget itemBuilder(BuildContext context, int idx) {
+      if (idx < items.length) return items[idx];
+      if (!hasMore) return const SizedBox();
+      return defaultFutureBuilder(
+        future: loadMorePage(),
+        onData: (_, __) => const SizedBox(),
+      );
+    }
 
-        return defaultFutureBuilder(
-          future: loadMorePage(),
-          onData: (context, data) {
-            return SizedBox();
-          },
-        );
-      },
-      itemCount: items.length + 1,
-    );
+    final itemCount = items.length + 1;
+
+    if (widget.separatorBuilder == null) {
+      return ListView.builder(itemBuilder: itemBuilder, itemCount: itemCount);
+    } else {
+      return ListView.separated(
+        itemBuilder: itemBuilder,
+        itemCount: itemCount,
+        separatorBuilder: widget.separatorBuilder!,
+      );
+    }
   }
 }

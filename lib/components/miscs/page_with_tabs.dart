@@ -6,20 +6,20 @@ class PageWithTabs extends StatefulWidget {
   final double? height;
   final bool hasNullTab;
   final List<String> tabNames;
-  final List<Widget> tabBodies;
+  late final List<Widget> tabBodies;
   final Widget Function(Widget tabsNavigator, Widget tabContent) widgetBuilder;
 
   PageWithTabs({
     super.key,
     required this.variation,
-    this.height,
     Widget? nullTab,
+    this.height = -1,
     required this.tabNames,
-    required this.tabBodies,
+    required List<Widget> tabBodies,
     required this.widgetBuilder,
   }) : hasNullTab = nullTab != null {
     assert(tabNames.length == tabBodies.length);
-    if (hasNullTab) tabBodies.add(nullTab!);
+    this.tabBodies = [...tabBodies, if (hasNullTab) nullTab!];
   }
 
   @override
@@ -53,7 +53,7 @@ class _PageWithTabsState extends State<PageWithTabs> {
   }
 
   Widget tabContent(BuildContext context) {
-    if (widget.height == null) {
+    if (widget.height == -1) {
       if (selectedTab == null) {
         return widget.tabBodies.last;
       }

@@ -247,7 +247,9 @@ class ApiKit {
     required int page,
   }) async {
     final jsons = await zingMp3.searchSongs(keyword, page: page);
-    return jsons == null ? null : SongModel.fromListJson<ZingMp3Api>(jsons);
+    final result =
+        jsons == null ? null : SongModel.fromListJson<ZingMp3Api>(jsons);
+    return result;
   }
 
   Future<List<PlaylistModel>?> searchPlaylists(
@@ -255,7 +257,9 @@ class ApiKit {
     required int page,
   }) async {
     final jsons = await zingMp3.searchPlaylists(keyword, page: page);
-    return jsons == null ? null : PlaylistModel.fromListJson<ZingMp3Api>(jsons);
+    final result =
+        jsons == null ? null : PlaylistModel.fromListJson<ZingMp3Api>(jsons);
+    return result;
   }
 
   Future<List<ArtistModel>?> searchArtists(
@@ -263,9 +267,11 @@ class ApiKit {
     required int page,
   }) async {
     final jsons = await zingMp3.searchArtists(keyword, page: page);
-    return jsons == null
-        ? null
-        : await ArtistModel.fromListJson<ZingMp3Api>(jsons);
+    final result =
+        jsons == null
+            ? null
+            : await ArtistModel.fromListJson<ZingMp3Api>(jsons);
+    return result;
   }
 
   Future<SearchResultModel> searchMulti(String keyword) async {
