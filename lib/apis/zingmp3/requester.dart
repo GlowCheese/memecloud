@@ -10,6 +10,7 @@ class ZingMp3Requester {
 
   final _version = "1.13.13";
   final _baseUrl = "https://zingmp3.vn";
+  final _acBaseUrl = "https://ac.zingmp3.vn";
   final _apiKey = dotenv.env['ZINGMP3_API_KEY'].toString();
   final _secretKey = dotenv.env['ZINGMP3_SECRET_KEY'].toString();
   get _cTime => (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
@@ -67,6 +68,15 @@ class ZingMp3Requester {
     return params;
   }
 
+  Map<String, dynamic> _prepAcParam({Map<String, dynamic>? extra}) {
+    Map<String, dynamic> params = extra ?? {};
+    params['language'] = 'vi';
+    params['ctime'] = _cTime;
+    params['version'] = _version;
+    params['apiKey'] = _apiKey;
+    return params;
+  }
+
   final _allowedErrors = [-104, -201];
 
   Future<Map> _sendRequest(
@@ -100,6 +110,27 @@ class ZingMp3Requester {
       }
       await Future.delayed(Duration(seconds: 1));
     }
+
+    if (resp.data['err'] != 0 &&
+        !allowedErrorCodes.contains(resp.data['err'])) {
+      throw Exception(
+        'Unexpected eror code: ${resp.data['err']}. Resp data: ${resp.data}',
+      );
+    }
+
+    return resp.data;
+  }
+
+  Future<Map> _sendAcRequest(
+    String path, {
+    Map<String, dynamic>? extra,
+    List<int> allowedErrorCodes = const [],
+  }) async {
+    final Response resp = await dio.get(
+      "$_acBaseUrl$path",
+      queryParameters: _prepAcParam(extra: extra),
+    );
+    debugPrint('Request sent: ${resp.requestOptions.uri}');
 
     if (resp.data['err'] != 0 &&
         !allowedErrorCodes.contains(resp.data['err'])) {
@@ -181,10 +212,7 @@ class ZingMp3Requester {
 
   Future<Map> getWeekChart(String chartId) {
     final path = "/api/v2/page/get/week-chart";
-    return _sendRequest(
-      path, id: chartId,
-      extra: {'week': 0, 'year': 0},
-    );
+    return _sendRequest(path, id: chartId, extra: {'week': 0, 'year': 0});
   }
 
   Future<Map> getLyric(String songId) {
@@ -197,6 +225,11 @@ class ZingMp3Requester {
     return _sendRequest(path, extra: {'q': keyword});
   }
 
+  Future<Map> getSearchSuggestions(String keyword) {
+    final path = "/v1/web/ac-suggestions";
+    return _sendAcRequest(path, extra: {'num': 10, 'query': keyword});
+  }
+
   Future<Map> _filteredSearch(String type, String keyword, {int page = 1}) {
     if (page <= 0) {
       throw ArgumentError.value(page, "page", "page must be at least 1");
@@ -206,7 +239,7 @@ class ZingMp3Requester {
       path,
       type: type,
       page: page,
-      count: 16,
+      count: 18,
       extra: {'q': keyword},
     );
   }

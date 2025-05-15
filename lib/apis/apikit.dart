@@ -7,6 +7,7 @@ import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/storage.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
+import 'package:memecloud/models/search_suggestion_model.dart';
 import 'package:memecloud/models/song_lyrics_model.dart';
 import 'package:memecloud/models/week_chart_model.dart';
 import 'package:memecloud/utils/common.dart';
@@ -247,9 +248,8 @@ class ApiKit {
     required int page,
   }) async {
     final jsons = await zingMp3.searchSongs(keyword, page: page);
-    final result =
-        jsons == null ? null : SongModel.fromListJson<ZingMp3Api>(jsons);
-    return result;
+    if (jsons == null) return null;
+    return SongModel.fromListJson<ZingMp3Api>(jsons);
   }
 
   Future<List<PlaylistModel>?> searchPlaylists(
@@ -257,9 +257,8 @@ class ApiKit {
     required int page,
   }) async {
     final jsons = await zingMp3.searchPlaylists(keyword, page: page);
-    final result =
-        jsons == null ? null : PlaylistModel.fromListJson<ZingMp3Api>(jsons);
-    return result;
+    if (jsons == null) return null;
+    return PlaylistModel.fromListJson<ZingMp3Api>(jsons);
   }
 
   Future<List<ArtistModel>?> searchArtists(
@@ -267,11 +266,14 @@ class ApiKit {
     required int page,
   }) async {
     final jsons = await zingMp3.searchArtists(keyword, page: page);
-    final result =
-        jsons == null
-            ? null
-            : await ArtistModel.fromListJson<ZingMp3Api>(jsons);
-    return result;
+    if (jsons == null) return null;
+    return ArtistModel.fromListJson<ZingMp3Api>(jsons);
+  }
+
+  Future<SearchSuggestionModel?> getSearchSuggestions(String keyword) async {
+    final items = await zingMp3.fetchSearchSuggestions(keyword);
+    if (items == null) return null;
+    return await SearchSuggestionModel.fromList<ZingMp3Api>(items);
   }
 
   Future<SearchResultModel> searchMulti(String keyword) async {

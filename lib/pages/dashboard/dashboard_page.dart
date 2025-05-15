@@ -50,21 +50,15 @@ class _DashboardPageState extends State<DashboardPage> {
       color: scaffElems['bgColor'],
       child: Scaffold(
         appBar: scaffElems['appBar'],
-        body: RefreshIndicator(
-          onRefresh: () async {
-            setState(() {});
-            await Future.delayed(Duration(seconds: 1));
-          },
-          child: Stack(
-            fit: StackFit.expand,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(bottom: 50),
-                child: scaffElems['body'],
-              ),
-              Positioned(bottom: 5, left: 0, right: 0, child: getMiniPlayer()),
-            ],
-          ),
+        body: Stack(
+          fit: StackFit.expand,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 50),
+              child: scaffElems['body'],
+            ),
+            Positioned(bottom: 5, left: 0, right: 0, child: getMiniPlayer()),
+          ],
         ),
         floatingActionButton: scaffElems['floatingActionButton'],
         backgroundColor: Colors.transparent,

@@ -111,12 +111,18 @@ class PersistentStorage {
   }
 
   List<Color>? getPaletteColors(String url) {
+    if (url.length > 255) {
+      url = url.substring(url.length - 255);
+    }
     final value = hiveBoxes.paletteColors.get(url);
     if (value == null) return null;
     return value.map((e) => Color(e)).toList();
   }
 
   Future<void> setPaletteColors(String url, List<Color> colors) async {
+    if (url.length > 255) {
+      url = url.substring(url.length - 255);
+    }
     await hiveBoxes.paletteColors.put(
       url,
       colors.map((e) => e.toARGB32()).toList(),
