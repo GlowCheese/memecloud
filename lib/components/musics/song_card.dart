@@ -82,8 +82,9 @@ class SongCard extends StatelessWidget {
     if (status == 0) {
       statusWidget = Divider(
         height: 4,
-        indent: 6, endIndent: 6,
-        color: Colors.white.withAlpha(156)
+        indent: 6,
+        endIndent: 6,
+        color: Colors.white.withAlpha(156),
       );
     } else {
       late final Icon icon;
@@ -100,7 +101,10 @@ class SongCard extends StatelessWidget {
           Transform.translate(offset: Offset(0, 2), child: icon),
           Transform.translate(
             offset: Offset(0, -2),
-            child: Text(status.abs().toString(), style: TextStyle(fontSize: 12)),
+            child: Text(
+              status.abs().toString(),
+              style: TextStyle(fontSize: 12),
+            ),
           ),
         ],
       );
@@ -114,39 +118,34 @@ class SongCard extends StatelessWidget {
           songList: songList,
         );
       },
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 40,
-                child: Text(
-                  // Display the rank number
-                  '${chartSong!.weeklyRanking}',
-                  style: GoogleFonts.ribeyeMarrow(
-                    color: color,
-                    fontSize: fontSize,
-                    fontWeight: fontWeight,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+          SizedBox(
+            width: 40,
+            child: Text(
+              // Display the rank number
+              '${chartSong!.weeklyRanking}',
+              style: GoogleFonts.ribeyeMarrow(
+                color: color,
+                fontSize: fontSize,
+                fontWeight: fontWeight,
               ),
-              const SizedBox(width: 6),
-              SizedBox(width: 22, child: statusWidget),
-              const SizedBox(width: 10),
-              Expanded(
-                child: MusicCard(
-                  variation: 1,
-                  thumbnailUrl: song.thumbnailUrl,
-                  title: song.title,
-                  subTitle: song.artistsNames,
-                ),
-              ),
-              SizedBox(width: 8),
-            ],
+              textAlign: TextAlign.center,
+            ),
           ),
-          Divider()
+          const SizedBox(width: 6),
+          SizedBox(width: 22, child: statusWidget),
+          const SizedBox(width: 10),
+          Expanded(
+            child: MusicCard(
+              variation: 1,
+              thumbnailUrl: song.thumbnailUrl,
+              title: song.title,
+              subTitle: song.artistsNames,
+            ),
+          ),
+          SizedBox(width: 8),
         ],
       ),
     );

@@ -47,10 +47,12 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     return false;
   }
 
-  Future<Uri?> _getSongUri(SongModel song) async {
+  Future<LockCachingAudioSource?> _getAudioSource(SongModel song) async {
     unawaited(getIt<ApiKit>().saveSongInfo(song));
     try {
-      return await getIt<ApiKit>().getSongUri(song.id);
+      final uri = await getIt<ApiKit>().getSongUri(song.id);
+      if (uri == null) return null;
+      return LockCachingAudioSource(uri, tag: song.mediaItem);
     } on ConnectionLoss {
       return null;
     }
@@ -66,22 +68,17 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       emit(SongPlayerLoading(song));
       await audioPlayer.stop();
 
-      final songUri = await _getSongUri(song);
-      if (songUri == null) {
+      final audioSource = await _getAudioSource(song);
+      if (audioSource == null) {
         return !context.mounted ||
             onSongFailedToLoad(context, 'songPath is null');
       } else {
-        debugPrint('Found song path: $songUri');
         currentSongList = [song];
         if (songList == null) {
-          await audioPlayer.setAudioSource(
-            AudioSource.uri(songUri, tag: song.mediaItem),
-          );
+          await audioPlayer.setAudioSource(audioSource);
           await audioPlayer.setLoopMode(LoopMode.one);
         } else {
-          await audioPlayer.setAudioSources([
-            AudioSource.uri(songUri, tag: song.mediaItem),
-          ]);
+          await audioPlayer.setAudioSources([audioSource]);
           await audioPlayer.setLoopMode(LoopMode.all);
 
           int songIdx = songList.indexOf(song);
@@ -114,12 +111,10 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   Future<void> lazySongPopulate(List<SongModel> songList) async {
     for (SongModel song in songList) {
       if (state is! SongPlayerLoaded) return Future.value();
-      final songUri = await _getSongUri(song);
-      if (songUri != null) {
+      final audioSource = await _getAudioSource(song);
+      if (audioSource != null) {
         currentSongList.add(song);
-        await audioPlayer.addAudioSource(
-          AudioSource.uri(songUri, tag: song.mediaItem),
-        );
+        await audioPlayer.addAudioSource(audioSource);
       }
     }
   }

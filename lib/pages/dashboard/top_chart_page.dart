@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:memecloud/components/miscs/grad_background.dart';
+import 'package:memecloud/components/song/play_or_pause_button.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/week_chart_model.dart';
@@ -12,7 +14,7 @@ import 'package:memecloud/components/miscs/generatable_list/list_view.dart';
 Map getTopChartPage(BuildContext context) {
   return {
     'appBar': defaultAppBar(context, title: 'Top Charts'),
-    'bgColor': Colors.pinkAccent.shade700,
+    'bgColor': MyColorSet.indigo,
     'body': TopChartPage(),
   };
 }
@@ -40,28 +42,44 @@ class _TopChartPageState extends State<TopChartPage>
   }
 
   Widget _buildChartTab(Future<WeekChartModel> Function() chartFetcher) {
-    return defaultFutureBuilder<WeekChartModel>(
-      future: chartFetcher(),
-      onData: (context, chart) {
-        final chartSongs = chart.chartSongs;
-        return GeneratableListView(
-          initialPageIdx: 0,
-          loadDelay: Duration(milliseconds: 800),
-          asyncGenFunction: (int page) async {
-            const int len = 8;
-            return chartSongs.sublist(
-              min(len*page, chartSongs.length),
-              min(len*(page+1), chartSongs.length)
-            ).map((e) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: SongCard(
-                variation: 2,
-                chartSong: e,
-                songList: chart.songs,
-              ))).toList();
-          }
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: defaultFutureBuilder<WeekChartModel>(
+        future: chartFetcher(),
+        onData: (context, chart) {
+          final chartSongs = chart.chartSongs;
+          return GeneratableListView(
+            initialPageIdx: 0,
+            loadDelay: Duration(milliseconds: 800),
+            asyncGenFunction: (int page) async {
+              const int len = 8;
+              return chartSongs
+                  .sublist(
+                    min(len * page, chartSongs.length),
+                    min(len * (page + 1), chartSongs.length),
+                  )
+                  .map(
+                    (e) => Row(
+                      children: [
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: SongCard(
+                            variation: 2,
+                            chartSong: e,
+                            songList: chart.songs,
+                          ),
+                        ),
+                        PlayOrPauseButton(song: e.song, songList: chart.songs),
+                        SizedBox(width: 12),
+                      ],
+                    ),
+                  )
+                  .toList();
+            },
+            separatorBuilder: (context, index) => SizedBox(height: 16),
+          );
+        },
+      ),
     );
   }
 
