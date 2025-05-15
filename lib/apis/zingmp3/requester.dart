@@ -68,15 +68,6 @@ class ZingMp3Requester {
     return params;
   }
 
-  Map<String, dynamic> _prepAcParam({Map<String, dynamic>? extra}) {
-    Map<String, dynamic> params = extra ?? {};
-    params['language'] = 'vi';
-    params['ctime'] = _cTime;
-    params['version'] = _version;
-    params['apiKey'] = _apiKey;
-    return params;
-  }
-
   final _allowedErrors = [-104, -201];
 
   Future<Map> _sendRequest(
@@ -123,12 +114,12 @@ class ZingMp3Requester {
 
   Future<Map> _sendAcRequest(
     String path, {
-    Map<String, dynamic>? extra,
+    Map<String, dynamic>? params,
     List<int> allowedErrorCodes = const [],
   }) async {
     final Response resp = await dio.get(
       "$_acBaseUrl$path",
-      queryParameters: _prepAcParam(extra: extra),
+      queryParameters: params,
     );
     debugPrint('Request sent: ${resp.requestOptions.uri}');
 
@@ -227,7 +218,7 @@ class ZingMp3Requester {
 
   Future<Map> getSearchSuggestions(String keyword) {
     final path = "/v1/web/ac-suggestions";
-    return _sendAcRequest(path, extra: {'num': 10, 'query': keyword});
+    return _sendAcRequest(path, params: {'num': 10, 'query': keyword});
   }
 
   Future<Map> _filteredSearch(String type, String keyword, {int page = 1}) {

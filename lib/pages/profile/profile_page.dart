@@ -14,7 +14,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String fullName = "Nguyễn Văn A";
   String email = "nguyenvana@example.com";
-  bool isDarkMode = false;
   bool isLoading = true;
   String? avatarUrl;
   String? errorMessage;
@@ -56,13 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hồ sơ cá nhân'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.brightness_6),
-            onPressed: _toggleDarkMode,
-          ),
-        ],
+        title: const Text('Hồ sơ cá nhân')
       ),
       body:
           isLoading
@@ -192,14 +185,6 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ],
     );
-  }
-
-  // TODO: set dark mode
-  void _toggleDarkMode() {
-    setState(() {
-      isDarkMode = !isDarkMode;
-    });
-    // Implement your dark mode logic here
   }
 
   void _editFullName() {
