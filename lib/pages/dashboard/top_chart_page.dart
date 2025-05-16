@@ -1,25 +1,20 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/miscs/default_appbar.dart';
+import 'package:memecloud/components/miscs/grad_background.dart';
+import 'package:memecloud/components/song/play_or_pause_button.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/week_chart_model.dart';
-import 'package:memecloud/components/miscs/grad_background.dart';
-import 'package:memecloud/components/song/like_button.dart';
-import 'package:memecloud/components/song/play_or_pause_button.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:memecloud/components/musics/song_card.dart';
+import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
-import 'package:memecloud/blocs/liked_songs/liked_songs_stream.dart';
-import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
-import 'package:memecloud/components/song/like_button.dart';
-import 'package:memecloud/components/miscs/default_future_builder.dart';
+import 'package:memecloud/components/miscs/generatable_list/list_view.dart';
 
 Map getTopChartPage(BuildContext context) {
   return {
     'appBar': defaultAppBar(context, title: 'Top Charts'),
-    'bgColor': MyColorSet.grey,
-    'floatingActionButton': null,
+    'bgColor': MyColorSet.indigo,
     'body': TopChartPage(),
   };
 }
@@ -34,14 +29,11 @@ class TopChartPage extends StatefulWidget {
 class _TopChartPageState extends State<TopChartPage>
     with SingleTickerProviderStateMixin {
   // TabController to control the tabs
-  late TabController _tabController;
+  late final TabController _tabController = TabController(
+    length: 3,
+    vsync: this,
+  );
   final ApiKit _apiKit = getIt<ApiKit>();
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-  }
 
   @override
   void dispose() {
@@ -49,118 +41,74 @@ class _TopChartPageState extends State<TopChartPage>
     super.dispose();
   }
 
-  Widget _buildSongItem(ChartSong chartSong, int index) {
-    final song = chartSong.song;
-    return ListTile(
-      leading: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 30,
-            child: Text(
-              // Display the rank number
-              '${index + 1}',
-              style: TextStyle(
-                color:
-                    index == 0
-                        ? Colors.yellow
-                        : index == 1
-                        ? Colors.grey
-                        : index == 2
-                        ? Colors.brown
-                        : Colors.white,
-                fontWeight: index < 3 ? FontWeight.bold : FontWeight.normal,
-                fontSize: index < 3 ? 24 : 16,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const SizedBox(width: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: CachedNetworkImage(
-              imageUrl: song.thumbnailUrl,
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover,
-            ),
-          ),
-        ],
-      ),
-      title: Text(
-        song.title,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      subtitle: Text(
-        song.artistsNames,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(color: Colors.white),
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          PlayOrPauseButton(song: song),
-          const SizedBox(width: 8),
-          SongLikeButton(song: song),
-        ],
-      ),
-    );
-  }
-
   Widget _buildChartTab(Future<WeekChartModel> Function() chartFetcher) {
-    return defaultFutureBuilder<WeekChartModel>(
-      future: chartFetcher(),
-      onData: (context, chart) {
-        return ListView.builder(
-          padding: const EdgeInsets.only(top: 16),
-          itemCount: chart.songs.length,
-          itemBuilder: (context, index) {
-            final chartSong = chart.songs[index];
-            return _buildSongItem(chartSong, index);
-          },
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: defaultFutureBuilder<WeekChartModel>(
+        future: chartFetcher(),
+        onData: (context, chart) {
+          final chartSongs = chart.chartSongs;
+          return GeneratableListView(
+            initialPageIdx: 0,
+            loadDelay: Duration(milliseconds: 800),
+            asyncGenFunction: (int page) async {
+              const int len = 8;
+              return chartSongs
+                  .sublist(
+                    min(len * page, chartSongs.length),
+                    min(len * (page + 1), chartSongs.length),
+                  )
+                  .map(
+                    (e) => Row(
+                      children: [
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: SongCard(
+                            variation: 2,
+                            chartSong: e,
+                            songList: chart.songs,
+                          ),
+                        ),
+                        PlayOrPauseButton(song: e.song, songList: chart.songs),
+                        SizedBox(width: 12),
+                      ],
+                    ),
+                  )
+                  .toList();
+            },
+            separatorBuilder: (context, index) => SizedBox(height: 16),
+          );
+        },
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return GradBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: const Text(
-            'Top Charts',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: const [
-              Tab(text: 'V-Pop'),
-              Tab(text: 'US-UK'),
-              Tab(text: 'K-Pop'),
-            ],
-            indicatorColor: Colors.white,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
-          ),
-        ),
-        body: TabBarView(
+    return Column(
+      children: [
+        TabBar(
           controller: _tabController,
-          children: [
-            _buildChartTab(() => _apiKit.getVpopWeekChart()),
-            _buildChartTab(() => _apiKit.getUsukWeekChart()),
-            _buildChartTab(() => _apiKit.getKpopWeekChart()),
+          tabs: const [
+            Tab(text: 'V-Pop'),
+            Tab(text: 'US-UK'),
+            Tab(text: 'K-Pop'),
           ],
+          indicatorColor: Colors.white,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
         ),
-      ),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildChartTab(() => _apiKit.getVpopWeekChart()),
+              _buildChartTab(() => _apiKit.getUsukWeekChart()),
+              _buildChartTab(() => _apiKit.getKpopWeekChart()),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

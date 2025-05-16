@@ -10,7 +10,7 @@ class E04 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return defaultFutureBuilder(
-      future: getIt<ApiKit>().getArtistInfo('Son-Tung-M-TP'),
+      future: getIt<ApiKit>().getSearchSuggestions('beast'),
       onData: (context, data) {
         return SingleChildScrollView(
           child: DataInspector(value: data?.toJson()),

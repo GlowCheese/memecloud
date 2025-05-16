@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -7,7 +9,7 @@ import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/search/album_card.dart';
 import 'package:memecloud/components/search/search_result_view.dart';
-import 'package:memecloud/components/search/recent_searches_view.dart';
+import 'package:memecloud/components/search/search_suggestions.dart';
 
 Map getSearchPage(BuildContext context) {
   List<AlbumCard> topGenres = AlbumCard.getTopAlbums();
@@ -42,7 +44,10 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  String? currentSearchQuery;
+  Timer? changeSearchQueryTask;
+  String currentSearchKeyword = "";
+
+  String? finalSearchQuery;
   bool searchBarIsFocused = false;
   final TextEditingController searchQueryController = TextEditingController();
   late final searchBar = Padding(
@@ -51,51 +56,59 @@ class _SearchPageState extends State<SearchPage> {
       variation: 1,
       searchQueryController: searchQueryController,
       onTap: () {
-        setState(() {
-          currentSearchQuery = null;
-          searchBarIsFocused = true;
-        });
+        if (searchBarIsFocused == false || finalSearchQuery != null) {
+          setState(() {
+            finalSearchQuery = null;
+            searchBarIsFocused = true;
+          });
+        }
       },
       onSubmitted: setSearchQuery,
+      onChanged: (p0) {
+        changeSearchQueryTask?.cancel();
+        changeSearchQueryTask = Timer(
+          Duration(milliseconds: p0.isEmpty ? 0 : 500),
+          () => setState(() => currentSearchKeyword = p0),
+        );
+      },
     ),
   );
 
   @override
   void dispose() {
     searchQueryController.dispose();
+    changeSearchQueryTask?.cancel();
     super.dispose();
   }
 
   void setSearchQuery(String value) {
     getIt<ApiKit>().saveSearch(value);
     FocusScope.of(context).unfocus();
-    setState(() => currentSearchQuery = value);
+    setState(() => finalSearchQuery = value);
     searchQueryController.text = value;
   }
 
   @override
   Widget build(BuildContext context) {
-    late List<Widget> bodyChildren;
+    late Widget body;
     if (searchBarIsFocused == false) {
-      bodyChildren = [
-        searchBar,
-        _genreGrid('Your Top Genres', widget.topGenres, widget.themeData),
-        _genreGrid('Browse All', widget.allGenres, widget.themeData),
-      ];
-    } else if (currentSearchQuery == null) {
-      bodyChildren = [searchBar, RecentSearchesView(onSelect: setSearchQuery)];
+      body = ListView(
+        children: [
+          _genreGrid('Your Top Genres', widget.topGenres, widget.themeData),
+          _genreGrid('Browse All', widget.allGenres, widget.themeData),
+        ],
+      );
+    } else if (finalSearchQuery == null) {
+      body = SearchSuggestions(
+        searchKeyword: currentSearchKeyword,
+        onSelect: setSearchQuery,
+      );
     } else {
-      bodyChildren = [searchBar, SearchResultView(currentSearchQuery!)];
+      body = SearchResultView(finalSearchQuery!);
     }
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: bodyChildren,
-        ),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [searchBar, Expanded(child: body)],
     );
   }
 

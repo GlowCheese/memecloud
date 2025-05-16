@@ -5,6 +5,7 @@ class MySearchBar extends StatefulWidget {
   /// Must be between `1` and `2`.
   final int variation;
   final void Function()? onTap;
+  final void Function(String)? onChanged;
   final void Function(String)? onSubmitted;
   final TextEditingController? searchQueryController;
 
@@ -12,6 +13,7 @@ class MySearchBar extends StatefulWidget {
     super.key,
     required this.variation,
     this.onTap,
+    this.onChanged,
     this.onSubmitted,
     this.searchQueryController,
   });
@@ -46,6 +48,7 @@ class _MySearchBarState extends State<MySearchBar> {
         TextStyle(fontSize: 15, color: Colors.black),
       ),
       onTap: widget.onTap,
+      onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
       leading: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -78,6 +81,7 @@ class _MySearchBarState extends State<MySearchBar> {
         SizedBox(width: 5),
       ],
       onTap: widget.onTap,
+      onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
       backgroundColor: WidgetStateProperty.all(Colors.white),
       shape: WidgetStateProperty.all(

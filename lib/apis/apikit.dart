@@ -7,6 +7,7 @@ import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/storage.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
+import 'package:memecloud/models/search_suggestion_model.dart';
 import 'package:memecloud/models/song_lyrics_model.dart';
 import 'package:memecloud/models/week_chart_model.dart';
 import 'package:memecloud/utils/common.dart';
@@ -247,7 +248,8 @@ class ApiKit {
     required int page,
   }) async {
     final jsons = await zingMp3.searchSongs(keyword, page: page);
-    return jsons == null ? null : SongModel.fromListJson<ZingMp3Api>(jsons);
+    if (jsons == null) return null;
+    return SongModel.fromListJson<ZingMp3Api>(jsons);
   }
 
   Future<List<PlaylistModel>?> searchPlaylists(
@@ -255,7 +257,8 @@ class ApiKit {
     required int page,
   }) async {
     final jsons = await zingMp3.searchPlaylists(keyword, page: page);
-    return jsons == null ? null : PlaylistModel.fromListJson<ZingMp3Api>(jsons);
+    if (jsons == null) return null;
+    return PlaylistModel.fromListJson<ZingMp3Api>(jsons);
   }
 
   Future<List<ArtistModel>?> searchArtists(
@@ -263,9 +266,14 @@ class ApiKit {
     required int page,
   }) async {
     final jsons = await zingMp3.searchArtists(keyword, page: page);
-    return jsons == null
-        ? null
-        : await ArtistModel.fromListJson<ZingMp3Api>(jsons);
+    if (jsons == null) return null;
+    return ArtistModel.fromListJson<ZingMp3Api>(jsons);
+  }
+
+  Future<SearchSuggestionModel?> getSearchSuggestions(String keyword) async {
+    final items = await zingMp3.fetchSearchSuggestions(keyword);
+    if (items == null) return null;
+    return await SearchSuggestionModel.fromList<ZingMp3Api>(items);
   }
 
   Future<SearchResultModel> searchMulti(String keyword) async {
@@ -324,37 +332,23 @@ class ApiKit {
   }
 
   /// Return `null` if `isNonVipSong(songId) == false`, \
-  /// otherwise the local path for the song file. \
-  /// May requires download the file from remote, or ZingMp3API.
-  Future<String?> getSongPath(String songId) async {
+  /// otherwise the Uri for the song (either remote or local).
+  Future<Uri?> getSongUri(String songId) async {
     final fileName = '$songId.mp3';
-    late Directory dir;
-    late String filePath;
-    late File file;
-    final bucket = 'songs';
+    final dir = storage.userDir;
+    final filePath = '${dir.path}/$fileName';
+    final file = File(filePath);
 
-    for (dir in [storage.userDir, storage.cacheDir]) {
-      file = File(filePath = '${dir.path}/$fileName');
-      if (await file.exists()) return filePath;
-    }
+    if (await file.exists()) return Uri.file(filePath);
 
     if (!await isNonVipSong(songId)) return null;
-    var bytes = await supabase.cache.getFile(bucket, fileName);
-    if (bytes == null) {
-      final songUrl = await zingMp3.fetchSongUrl(songId);
-      if (songUrl == null) {
-        unawaited(markSongAsVip(songId));
-        return null;
-      }
-      await _downloadFile(songUrl, filePath);
-
-      bytes = await file.readAsBytes();
-      unawaited(supabase.cache.uploadFile(bucket, fileName, bytes));
-    } else {
-      await file.writeAsBytes(bytes);
+    final songUrl = await zingMp3.fetchSongUrl(songId);
+    if (songUrl == null) {
+      unawaited(markSongAsVip(songId));
+      return null;
     }
 
-    return filePath;
+    return Uri.parse(songUrl);
   }
 
   Future<SongLyricsModel?> getSongLyric(String songId) async {

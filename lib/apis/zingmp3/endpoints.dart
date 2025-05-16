@@ -97,6 +97,22 @@ class ZingMp3Api {
     }
   }
 
+  Future<List<Map<String, dynamic>>?> fetchSearchSuggestions(String keyword) async {
+    try {
+      _connectivity.ensure();
+      final resp = await _requester.getSearchSuggestions(keyword);
+      return List.castFrom<dynamic, Map<String, dynamic>>(resp['data']['items']);
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        'ZingMp3Api failed to fetch search suggestions: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
   Future<List?> searchSongs(String keyword, {required int page}) async {
     try {
       _connectivity.ensure();

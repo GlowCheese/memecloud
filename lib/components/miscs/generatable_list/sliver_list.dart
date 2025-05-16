@@ -3,12 +3,14 @@ import 'package:memecloud/components/miscs/default_future_builder.dart';
 
 class GeneratableSliverList extends StatefulWidget {
   final int initialPageIdx;
+  final Duration loadDelay;
   final Future Function(int pageIdx) asyncGenFunction;
 
   const GeneratableSliverList({
     super.key,
     required this.initialPageIdx,
     required this.asyncGenFunction,
+    this.loadDelay = Duration.zero,
   });
 
   @override
@@ -18,15 +20,16 @@ class GeneratableSliverList extends StatefulWidget {
 class _GeneratableSliverListState extends State<GeneratableSliverList> {
   bool hasMore = true;
   late int currentIdx = widget.initialPageIdx;
-  List items = [];
+  List<Widget> items = [];
 
   Future<void> loadMorePage() async {
     try {
+      await Future.delayed(widget.loadDelay);
       final newData = await widget.asyncGenFunction(currentIdx);
       assert(newData.isNotEmpty);
       setState(() {
         currentIdx += 1;
-        items.expand(newData);
+        items.addAll(newData);
       });
     } catch (_) {
       setState(() => hasMore = false);

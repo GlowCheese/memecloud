@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/miscs/section_divider.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/utils/common.dart';
@@ -10,7 +9,10 @@ import 'package:memecloud/models/search_result_model.dart';
 import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/components/musics/artist_card.dart';
 import 'package:memecloud/components/musics/playlist_card.dart';
+import 'package:memecloud/components/miscs/page_with_tabs.dart';
+import 'package:memecloud/components/miscs/section_divider.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
+import 'package:memecloud/components/miscs/generatable_list/list_view.dart';
 
 class SearchResultView extends StatefulWidget {
   final String keyword;
@@ -32,7 +34,7 @@ class _SearchResultViewState extends State<SearchResultView> {
           children: [
             bestMatchWidget(searchResult),
             SizedBox(height: 14),
-            _SearchNavigation(widget.keyword, searchResult),
+            Expanded(child: SearchNavigation(widget.keyword, searchResult)),
           ],
         );
       },
@@ -61,94 +63,73 @@ class _SearchResultViewState extends State<SearchResultView> {
   }
 }
 
-class _SearchNavigation extends StatefulWidget {
+class SearchNavigation extends StatefulWidget {
   final String keyword;
   final SearchResultModel searchResult;
 
-  const _SearchNavigation(this.keyword, this.searchResult);
+  const SearchNavigation(this.keyword, this.searchResult, {super.key});
 
   @override
-  State<_SearchNavigation> createState() => _SearchNavigationState();
+  State<SearchNavigation> createState() => _SearchNavigationState();
 }
 
-class _SearchNavigationState extends State<_SearchNavigation> {
-  int filterIndex = -1;
-
+class _SearchNavigationState extends State<SearchNavigation> {
   late final filterMap = {
-    'Bài hát': (int page) {
-      return getIt<ApiKit>().searchSongs(widget.keyword, page: page);
-    },
-    'Nghệ sĩ': (int page) {
-      return getIt<ApiKit>().searchArtists(widget.keyword, page: page);
-    },
-    'Danh sách phát': (int page) {
-      return getIt<ApiKit>().searchPlaylists(widget.keyword, page: page);
-    },
+    'Bài hát': getIt<ApiKit>().searchSongs,
+    'Nghệ sĩ': getIt<ApiKit>().searchArtists,
+    'Danh sách phát': getIt<ApiKit>().searchPlaylists,
   };
-  List<bool> hasMore = [true, true, true];
-  List<List<Object>> cachedFilterData = [[], [], []];
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> buttons = [];
+    final tabBodies =
+        filterMap.values.map((fetchF) {
+          return GeneratableListView(
+            key: ValueKey(fetchF),
+            initialPageIdx: 1,
+            asyncGenFunction: (page) async {
+              final data = await fetchF(widget.keyword, page: page);
+              if (data == null) return null;
 
-    dynamic filterData;
-    filterMap.forEach((label, filterFunc) {
-      final buttonsLength = buttons.length;
-      if (filterIndex == buttonsLength) {
-        filterData = filterFunc;
-      }
-      buttons.add(
-        Padding(
-          padding: const EdgeInsets.only(right: 10),
-          child:
-              (filterIndex == buttonsLength)
-                  ? (FilledButton(
-                    onPressed: () {
-                      setState(() => filterIndex = -1);
-                    },
-                    child: Text(label),
-                  ))
-                  : (ElevatedButton(
-                    onPressed: () {
-                      setState(() => filterIndex = buttonsLength);
-                    },
-                    child: Text(label),
-                  )),
+              List<SongModel>? songList;
+              if (data.firstOrNull is SongModel) {
+                songList = List.castFrom(data);
+              }
+              return data
+                  .map(
+                    (e) => simpleWingetDecode(context, e, songList: songList),
+                  )
+                  .toList();
+            },
+            separatorBuilder: (context, index) => SizedBox(height: 16,),
+          );
+        }).toList();
+
+    return PageWithTabs(
+      variation: 1,
+      tabNames: filterMap.keys.toList(),
+      tabBodies: tabBodies,
+      nullTab: _searchTop(
+        List.castFrom<dynamic, Object>(
+          mixLists([
+            widget.searchResult.songs,
+            widget.searchResult.artists,
+            widget.searchResult.playlists,
+          ]),
         ),
-      );
-    });
-
-    late Widget content;
-
-    if (filterIndex == -1) {
-      filterData = mixLists([
-        widget.searchResult.songs,
-        widget.searchResult.artists,
-        widget.searchResult.playlists,
-      ]);
-      content = _searchTop(List<Object>.from(filterData), context);
-    } else {
-      content = _filteredSearch(filterData);
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 15, bottom: 5, top: 10),
-          child: SizedBox(
-            height: 40,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              physics: BouncingScrollPhysics(),
-              children: buttons,
-            ),
-          ),
-        ),
-        const SectionDivider(),
-        content,
-      ],
+        context,
+      ),
+      widgetBuilder: (tabsNavigator, tabContent) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            tabsNavigator,
+            const SectionDivider(),
+            Expanded(child: tabContent),
+          ],
+        );
+      },
     );
   }
 
@@ -160,64 +141,16 @@ class _SearchNavigationState extends State<_SearchNavigation> {
       }
     }
 
-    return Column(
-      spacing: 16,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children:
-          filterData
-              .map((e) => simpleWingetDecode(context, e, songList: songList))
-              .toList(),
-    );
-  }
-
-  Widget _filteredSearch(Future<List<Object>?> Function(int page) searchGen) {
-    final dataList = cachedFilterData[filterIndex];
-    List<SongModel>? songList;
-    if (filterIndex == 0) {
-      songList = List.castFrom<dynamic, SongModel>(dataList);
-    }
-
-    return SizedBox(
-      height: 420,
-      child: ListView.separated(
-        shrinkWrap: true,
-        itemCount: dataList.length + (hasMore[filterIndex] ? 1 : 0),
-        separatorBuilder: (context, index) => SizedBox(height: 10),
-        itemBuilder: (context, index) {
-          if (index < dataList.length) {
-            if (dataList[index] is Center) {
-              return dataList[index] as Center;
-            } else {
-              return simpleWingetDecode(
-                context,
-                dataList[index],
-                songList: songList,
-              );
-            }
-          }
-
-          return Center(
-            child: ElevatedButton(
-              onPressed: () async {
-                final data = await searchGen(
-                  (dataList.length / 16).round() + 1,
-                );
-                if (data == null) {
-                  setState(() {
-                    hasMore[filterIndex] = false;
-                    dataList.add(Center(child: Text('No more result')));
-                  });
-                } else {
-                  setState(() {
-                    dataList.addAll(data);
-                  });
-                }
-              },
-              child: Text('Load more...'),
-            ),
-          );
-        },
-      ),
+    return ListView.separated(
+      itemBuilder: (context, index) {
+        return simpleWingetDecode(
+          context,
+          filterData[index],
+          songList: songList,
+        );
+      },
+      itemCount: filterData.length,
+      separatorBuilder: (context, index) => SizedBox(height: 16),
     );
   }
 }
