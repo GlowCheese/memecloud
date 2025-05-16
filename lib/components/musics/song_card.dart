@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
-import 'package:memecloud/components/musics/default_music_card.dart';
+import 'package:memecloud/components/musics/music_card.dart';
 
 class SongCard extends StatelessWidget {
   // must be between 1 and 1.
@@ -31,7 +31,8 @@ class SongCard extends StatelessWidget {
           songList: songList,
         );
       },
-      child: DefaultMusicCard(
+      child: MusicCard(
+        variation: 1,
         thumbnailUrl: song.thumbnailUrl,
         title: song.title,
         subTitle: song.artistsNames

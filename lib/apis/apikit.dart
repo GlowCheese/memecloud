@@ -131,19 +131,19 @@ class ApiKit {
     String api = '/infosong?id=$songId';
     final localResp = storage.getCached(api);
     if (localResp.data != null) {
-      return SongModel.fromJson<SupabaseApi>(localResp.data!);
+      return await SongModel.fromJson<SupabaseApi>(localResp.data!);
     }
 
     final remoteResp = await supabase.songs.getSongInfo(songId);
     if (remoteResp != null) {
-      unawaited(storage.updateCached(api, remoteResp.toJson<SupabaseApi>()));
+      unawaited(storage.updateCached(api, remoteResp.toJson()));
       return remoteResp;
     }
 
     final zingResp = await getIt<ZingMp3Api>().fetchSongInfo(songId);
     if (zingResp != null) {
       unawaited(storage.updateCached(api, zingResp));
-      final song = SongModel.fromJson<ZingMp3Api>(zingResp);
+      final song = await SongModel.fromJson<ZingMp3Api>(zingResp);
       unawaited(saveSongInfo(song));
       return song;
     }
@@ -215,7 +215,7 @@ class ApiKit {
 
   Future<ArtistModel?> getArtistInfo(String artistAlias) async {
     final String api = '/infoartist?alias=$artistAlias';
-    return await _getOrFetch<Map<String, dynamic>?, ArtistModel?>(
+    return await _getOrFetch<Map<String, dynamic>?, Future<ArtistModel>?>(
       api,
       fetchFunc: () => zingMp3.fetchArtistInfo(artistAlias),
       cacheEncode: (data) => ignoreNullValuesOfMap({'data': data}),
@@ -263,7 +263,9 @@ class ApiKit {
     required int page,
   }) async {
     final jsons = await zingMp3.searchArtists(keyword, page: page);
-    return jsons == null ? null : ArtistModel.fromListJson<ZingMp3Api>(jsons);
+    return jsons == null
+        ? null
+        : await ArtistModel.fromListJson<ZingMp3Api>(jsons);
   }
 
   Future<SearchResultModel> searchMulti(String keyword) async {
@@ -436,10 +438,11 @@ Future<List<Map<String, dynamic>>> _getSongsForHomeOutputFixer(
 
     songIds = await getIt<ApiKit>().filterNonVipSongs(songIds);
     songList['items'] =
-        items
-            .where((song) => songIds.contains(song['encodeId']))
-            .map((song) => SongModel.fromJson<ZingMp3Api>(song))
-            .toList();
+        (await Future.wait(
+          List.castFrom<dynamic, Map<String, dynamic>>(items)
+              .where((song) => songIds.contains(song['encodeId']))
+              .map((song) => SongModel.fromJson<ZingMp3Api>(song)),
+        )).whereType<SongModel>().toList();
   }
   return data;
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memecloud/components/miscs/section_divider.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/utils/common.dart';
@@ -44,16 +45,17 @@ class _SearchResultViewState extends State<SearchResultView> {
     } else {
       final Widget item = simpleWingetDecode(context, searchResult.bestMatch!);
 
-      return Padding(
-        padding: const EdgeInsets.only(left: 30, right: 30, top: 14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Best match:', style: TextStyle(fontSize: 20)),
-            SizedBox(height: 5),
-            item,
-          ],
-        ),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionDivider(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: Text('Best match:', style: TextStyle(fontSize: 20)),
+          ),
+          SizedBox(height: 5),
+          item,
+        ],
       );
     }
   }
@@ -144,10 +146,8 @@ class _SearchNavigationState extends State<_SearchNavigation> {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
-          child: content,
-        ),
+        const SectionDivider(),
+        content,
       ],
     );
   }
@@ -222,31 +222,24 @@ class _SearchNavigationState extends State<_SearchNavigation> {
   }
 }
 
-Padding pageDivider() {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 5),
-    child: Divider(
-      color: Colors.white,
-      thickness: 1,
-      indent: 30,
-      endIndent: 30,
-    ),
-  );
-}
-
 Widget simpleWingetDecode(
   BuildContext context,
   Object item, {
   List<SongModel>? songList,
 }) {
-  if (item is SongModel) {
-    return SongCard(variation: 1, song: item, songList: songList);
-  }
-  if (item is PlaylistModel) {
-    return PlaylistCard(variation: 1, playlist: item);
-  }
-  if (item is ArtistModel) {
-    return ArtistCard(variation: 1, artist: item);
-  }
-  throw UnsupportedError("Invalid item type: ${item.runtimeType}");
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 30),
+    child: () {
+      if (item is SongModel) {
+        return SongCard(variation: 1, song: item, songList: songList);
+      }
+      if (item is PlaylistModel) {
+        return PlaylistCard(variation: 1, playlist: item);
+      }
+      if (item is ArtistModel) {
+        return ArtistCard(variation: 1, artist: item);
+      }
+      throw UnsupportedError("Invalid item type: ${item.runtimeType}");
+    }(),
+  );
 }

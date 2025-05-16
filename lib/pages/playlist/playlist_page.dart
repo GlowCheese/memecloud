@@ -50,10 +50,16 @@ class PlaylistPage extends StatelessWidget {
             return GradBackground2(
               imageUrl: data!.thumbnailUrl,
               child: Stack(
+                fit: StackFit.expand,
                 children: [
                   _PlaylistPageInner(playlist: data),
-                  getMiniPlayer()
-                ]
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 5,
+                    child: getMiniPlayer(),
+                  ),
+                ],
               ),
             );
           },
@@ -100,7 +106,8 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
         _appBar(context),
         _generalDetails(),
 
-        widget.playlist.description != null && widget.playlist.description!.isNotEmpty
+        widget.playlist.description != null &&
+                widget.playlist.description!.isNotEmpty
             ? (_playlistDescription())
             : (SliverToBoxAdapter(child: SizedBox(height: 18))),
 
@@ -261,7 +268,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                           ),
                         ),
                       ),
-                      SizedBox(width: 10)
+                      SizedBox(width: 10),
                     ],
                   ),
                   _playlistControlButtons(),

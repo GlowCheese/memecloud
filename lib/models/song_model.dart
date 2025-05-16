@@ -7,8 +7,9 @@ import 'package:memecloud/apis/zingmp3/endpoints.dart';
 import 'package:memecloud/blocs/liked_songs/liked_songs_stream.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/artist_model.dart';
+import 'package:memecloud/models/music_model.dart';
 
-class SongModel {
+class SongModel extends MusicModel {
   final String id;
   final String title;
   final Duration duration;
@@ -30,7 +31,10 @@ class SongModel {
     this.isLiked,
   });
 
-  static SongModel fromJson<T>(Map<String, dynamic> json, {bool? isLiked}) {
+  static Future<SongModel> fromJson<T>(
+    Map<String, dynamic> json, {
+    bool? isLiked,
+  }) async {
     if (T == ZingMp3Api) {
       return SongModel._(
         id: json['encodeId'],
@@ -41,7 +45,10 @@ class SongModel {
         releaseDate: DateTime.fromMillisecondsSinceEpoch(
           json['releaseDate'] * 1000,
         ),
-        artists: !json.containsKey('artists') ? [] : ArtistModel.fromListJson<T>(json['artists']),
+        artists:
+            !json.containsKey('artists')
+                ? []
+                : await ArtistModel.fromListJson<T>(json['artists']),
         isLiked: isLiked,
       );
     } else if (T == SupabaseApi) {
@@ -50,7 +57,18 @@ class SongModel {
         title: json['title'],
         duration: Duration(seconds: json['duration'] as int),
         artistsNames: json['artists_names'],
-        artists: ArtistModel.fromListJson<T>(json['song_artists']),
+        artists: await ArtistModel.fromListJson<T>(json['song_artists']),
+        thumbnailUrl: json['thumbnail_url'],
+        releaseDate: DateTime.parse(json['release_date']),
+        isLiked: isLiked,
+      );
+    } else if (T == ArtistModel) {
+      return SongModel._(
+        id: json['id'],
+        title: json['title'],
+        duration: Duration(seconds: json['duration'] as int),
+        artistsNames: json['artists_names'],
+        artists: await ArtistModel.fromListJson<T>(json['song_artists'])  ,
         thumbnailUrl: json['thumbnail_url'],
         releaseDate: DateTime.parse(json['release_date']),
         isLiked: isLiked,
@@ -60,32 +78,34 @@ class SongModel {
     }
   }
 
-  Map toJson<T>({bool only = false}) {
-    if (T == SupabaseApi) {
-      final releaseDateString = releaseDate.toUtc().toIso8601String();
-      Map<String, Object> res = {
-        'id': id,
-        'title': title,
-        'duration': duration.inSeconds,
-        'artists_names': artistsNames,
-        'thumbnail_url': thumbnailUrl,
-        'release_date': releaseDateString
-      };
-      if (only == false) {
-        res['song_artists'] = artists.map((e) => e.toJson<T>()).toList();
-      }
-      return res;
-    } else {
-      throw UnsupportedError('Unsupported convert UserModel to json for type $T');
+  @override
+  Map<String, dynamic> toJson({bool only = false}) {
+    final releaseDateString = releaseDate.toUtc().toIso8601String();
+    Map<String, Object> res = {
+      'id': id,
+      'title': title,
+      'duration': duration.inSeconds,
+      'artists_names': artistsNames,
+      'thumbnail_url': thumbnailUrl,
+      'release_date': releaseDateString,
+    };
+    if (only == false) {
+      res['song_artists'] = artists.map((e) => e.toJson()).toList();
     }
+    return res;
   }
 
   static Future<List<SongModel>> fromListJson<T>(List list) async {
-    final tmp = list.map((json) => SongModel.fromJson<T>(json)).toList();
+    final tmp = await Future.wait(
+      list.map((json) => SongModel.fromJson<T>(json)),
+    );
+
     try {
-      final songIds = await getIt<ApiKit>().filterNonVipSongs(tmp.map((e) => e.id).toList());
+      final songIds = await getIt<ApiKit>().filterNonVipSongs(
+        tmp.map((e) => e.id).toList(),
+      );
       return tmp.where((e) => songIds.contains(e.id)).toList();
-    } catch(_) {
+    } catch (_) {
       return tmp;
     }
   }
@@ -109,6 +129,6 @@ class SongModel {
     album: 'My album',
     duration: duration,
     artUri: Uri.parse(thumbnailUrl),
-    artist: artistsNames
+    artist: artistsNames,
   );
 }

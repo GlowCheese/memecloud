@@ -18,7 +18,7 @@ class SupabaseArtistsApi {
           .from('artists')
           .upsert(
             artists
-                .map((artist) => artist.toJson<SupabaseApi>()['artist'])
+                .map((artist) => artist.toJson()['artist'])
                 .toList(),
           );
     } catch (e, stackTrace) {
@@ -62,17 +62,15 @@ class SupabaseArtistsApi {
           .select()
           .order('view_in_week', ascending: false)
           .limit(count);
-      
-      return response
-          .map((artist) => ArtistModel.fromJson<SupabaseApi>({'artist': artist}))
-          .toList();
+
+      return await Future.wait(
+        response.map(
+          (artist) => ArtistModel.fromJson<SupabaseApi>({'artist': artist}),
+        ),
+      );
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
-      log(
-        "Failed to get top artists: $e",
-        stackTrace: stackTrace,
-        level: 1000,
-      );
+      log("Failed to get top artists: $e", stackTrace: stackTrace, level: 1000);
       rethrow;
     }
   }

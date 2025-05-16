@@ -3,21 +3,48 @@ import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memecloud/models/song_model.dart';
-import 'package:memecloud/components/song/like_button.dart';
-import 'package:memecloud/components/miscs/default_appbar.dart';
+import 'package:memecloud/models/week_chart_model.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
+import 'package:memecloud/components/song/like_button.dart';
 import 'package:memecloud/components/song/play_or_pause_button.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/blocs/liked_songs/liked_songs_stream.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 
-Map getLikedSongsPage(BuildContext context) {
-  return {
-    'appBar': defaultAppBar(context, title: 'Liked Songs'),
-    'bgColor': MyColorSet.redAccent,
-    'body': LikedSongPage(key: ValueKey("liked song page")),
-  };
+class MusicTabsPage extends StatefulWidget {
+  const MusicTabsPage({super.key});
+
+  @override
+  State<MusicTabsPage> createState() => _MusicTabsPageState();
+}
+
+class _MusicTabsPageState extends State<MusicTabsPage> {
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 3,
+      initialIndex: 1,
+      child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 0,
+          elevation: 0,
+          bottom: TabBar(
+            indicatorColor: MyColorSet.redAccent,
+            labelColor: MyColorSet.redAccent,
+            unselectedLabelColor: Colors.grey,
+            tabs: const [
+              Tab(icon: Icon(Icons.favorite), text: 'Đã thích'),
+              Tab(icon: Icon(Icons.download), text: 'Đã tải'),
+            ],
+          ),
+        ),
+        body: const TabBarView(
+          children: [LikedSongPage(), DownloadedSongsPage()],
+        ),
+      ),
+    );
+  }
 }
 
 class LikedSongPage extends StatefulWidget {
@@ -48,8 +75,12 @@ class _SongListView extends StatefulWidget {
   State<_SongListView> createState() => _SongListViewState();
 }
 
-class _SongListViewState extends State<_SongListView> {
+class _SongListViewState extends State<_SongListView>
+    with AutomaticKeepAliveClientMixin {
   late List<SongModel> currentLikedSongs;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -59,6 +90,7 @@ class _SongListViewState extends State<_SongListView> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return StreamBuilder(
       stream: getIt<LikedSongsStream>().stream,
       builder: (context, snapshot) {
@@ -78,7 +110,7 @@ class _SongListViewState extends State<_SongListView> {
                 Icon(Icons.favorite_border, size: 64, color: Colors.grey),
                 SizedBox(height: 16),
                 Text(
-                  'No liked songs yet',
+                  'Chưa có bài hát nào được thích',
                   style: TextStyle(fontSize: 18, color: Colors.grey),
                 ),
               ],
@@ -130,7 +162,10 @@ class _SongListViewState extends State<_SongListView> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SongLikeButton(song: song, defaultIsLiked: true),
-                        PlayOrPauseButton(song: song, songList: currentLikedSongs)
+                        PlayOrPauseButton(
+                          song: song,
+                          songList: currentLikedSongs,
+                        ),
                       ],
                     ),
                     onTap: () async {
@@ -148,5 +183,14 @@ class _SongListViewState extends State<_SongListView> {
         );
       },
     );
+  }
+}
+
+class DownloadedSongsPage extends StatelessWidget {
+  const DownloadedSongsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder(); // Replace with actual implementation
   }
 }

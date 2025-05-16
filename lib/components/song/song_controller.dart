@@ -68,7 +68,7 @@ class SongControllerView extends StatelessWidget {
 
   Widget _songControllerButtons() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         _shuffleButton(),
         _seekPreviousButton(),

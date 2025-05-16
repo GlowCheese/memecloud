@@ -11,10 +11,10 @@ class ChartSong {
     required this.weeklyRanking,
   });
 
-  static ChartSong fromJson<T>(Map<String, dynamic> json) {
+  static Future<ChartSong> fromJson<T>(Map<String, dynamic> json) async {
     if (T == ZingMp3Api) {
       return ChartSong._(
-        song: SongModel.fromJson<T>(json),
+        song: await SongModel.fromJson<T>(json),
         rakingStatus: json['rakingStatus'],
         weeklyRanking: json['weeklyRanking']
       );
@@ -22,8 +22,10 @@ class ChartSong {
     throw UnsupportedError('Cannot parse chart song for type $T');
   }
 
-  static List<ChartSong> fromListJson<T>(List list) {
-    return list.map((json) => ChartSong.fromJson<T>(json)).toList();
+  static Future<List<ChartSong>> fromListJson<T>(List list) {
+    return Future.wait(
+      list.map((json) => ChartSong.fromJson<T>(json))
+    );
   }
 }
 
@@ -42,14 +44,14 @@ class WeekChartModel {
     required this.songs,
   });
 
-  static WeekChartModel fromJson<T>(String name, Map<String, dynamic> json) {
+  static Future<WeekChartModel> fromJson<T>(String name, Map<String, dynamic> json) async {
     if (T == ZingMp3Api) {
       return WeekChartModel._(
         name,
         bannerUrl: json['banner'],
         startDate: json['startDate'],
         endDate: json['endDate'],
-        songs: ChartSong.fromListJson<ZingMp3Api>(json['items'])
+        songs: await ChartSong.fromListJson<ZingMp3Api>(json['items'])
       );
     }
     throw UnsupportedError('Cannot parse week chart for type $T');
