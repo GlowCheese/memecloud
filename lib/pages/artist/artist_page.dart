@@ -85,7 +85,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
 
   // Future<void> _playAllSongs() async {
   //   final songs = await _songsFuture;
-  //   if (songs.isNotEmpty) {
+  //   if (songs.isNotEmpty && mounted) {
   //     await getIt<SongPlayerCubit>().loadAndPlay(
   //       context,
   //       songs.first,

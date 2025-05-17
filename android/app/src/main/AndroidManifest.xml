@@ -8,13 +8,10 @@
     <application
         android:label="memecloud"
         android:name="${applicationName}"
-<<<<<<< HEAD
         android:icon="@mipmap/ic_launcher">
         android:enableOnBackInvokedCallback="true"
-=======
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
->>>>>>> cc933a24570a942d9d151132aadd7f04d450d878
         <activity
             android:name="com.ryanheise.audioservice.AudioServiceActivity"
             android:exported="true"
