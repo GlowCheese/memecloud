@@ -83,16 +83,16 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
   //   return PlaylistModel.fromListJson<ZingMp3Api>(response['data']['items']);
   // }
 
-  Future<void> _playAllSongs() async {
-    final songs = await _songsFuture;
-    if (songs.isNotEmpty && mounted) {
-      await getIt<SongPlayerCubit>().loadAndPlay(
-        context,
-        songs.first,
-        songList: songs,
-      );
-    }
-  }
+  // Future<void> _playAllSongs() async {
+  //   final songs = await _songsFuture;
+  //   if (songs.isNotEmpty && mounted) {
+  //     await getIt<SongPlayerCubit>().loadAndPlay(
+  //       context,
+  //       songs.first,
+  //       songList: songs,
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
