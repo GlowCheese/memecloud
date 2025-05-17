@@ -102,4 +102,13 @@ class SupabaseArtistsApi {
       rethrow;
     }
   }
+
+  Future<bool> isFollowingArtist(String artistId) async {
+    final userId = getIt<ApiKit>().currentSession()?.user.id;
+    if (userId == null) {
+      return false;
+    }
+    final response = await _client.from('followers').select().eq('user_id', userId).eq('artist_id', artistId);
+    return response.isNotEmpty;
+  }
 }

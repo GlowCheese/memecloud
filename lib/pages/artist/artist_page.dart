@@ -22,6 +22,11 @@ import 'package:memecloud/components/song/play_or_pause_button.dart';
 
 class ArtistPage extends StatefulWidget {
   final String artistAlias;
+  static const primaryColor = Color.fromARGB(255, 57, 133, 255);
+  static const gradientColors = [
+    Color.fromARGB(255, 57, 133, 255),
+    Color.fromARGB(255, 41, 98, 255),
+  ];
 
   const ArtistPage({super.key, required this.artistAlias});
 
@@ -30,27 +35,12 @@ class ArtistPage extends StatefulWidget {
 }
 
 class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
-  late TabController _tabController;
   late Future<ArtistModel?> _artistFuture;
-  bool _isFollowing = false;
-
-  final List<Tab> _tabs = [
-    Tab(text: 'Tiểu sử'),
-    Tab(text: 'Bài hát'),
-    Tab(text: 'Album'),
-  ];
 
   @override
   void initState() {
     super.initState();
     _artistFuture = getIt<ApiKit>().getArtistInfo(widget.artistAlias);
-    _tabController = TabController(length: 3, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   // Future<void> _loadArtist() async {
@@ -140,36 +130,45 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                   SliverToBoxAdapter(
                     child: SizedBox(
                       height:
-                          MediaQuery.of(
-                            context,
-                          ).size.height, // or a fixed height if you prefer
+                          MediaQuery.of(context).size.height -
+                          300, // or a fixed height if you prefer
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: [
-                            _ArtistInfo(artist: artist),
-                            defaultFutureBuilder(
-                              future: Future.wait(songsOfArtist),
-                              onData:
-                                  (context, data) => _SongsOfArtist(
-                                    songs:
-                                        data
-                                            .map((e) => e as SongModel)
-                                            .toList(),
-                                  ),
-                            ),
-                            defaultFutureBuilder(
-                              future: Future.wait(albumsOfArtist),
-                              onData:
-                                  (context, data) => _AlbumsOfArtist(
-                                    albums:
-                                        data
-                                            .map((e) => e as PlaylistModel)
-                                            .toList(),
-                                  ),
-                            ),
-                          ],
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Column(
+                            children: [
+                              _ArtistInfo(artist: artist),
+                              Divider(
+                                color: Theme.of(context).dividerColor,
+                                thickness: 0.5,
+                              ),
+                              defaultFutureBuilder(
+                                future: Future.wait(songsOfArtist),
+                                onData:
+                                    (context, data) => _SongsOfArtist(
+                                      songs:
+                                          data
+                                              .map((e) => e as SongModel)
+                                              .toList(),
+                                    ),
+                              ),
+                              Divider(
+                                color: Theme.of(context).dividerColor,
+                                thickness: 0.5,
+                              ),
+                              defaultFutureBuilder(
+                                future: Future.wait(albumsOfArtist),
+                                onData:
+                                    (context, data) => _AlbumsOfArtist(
+                                      albums:
+                                          data
+                                              .map((e) => e as PlaylistModel)
+                                              .toList(),
+                                    ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -205,10 +204,10 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Theme.of(context).scaffoldBackgroundColor.withAlpha(220),
+                      Theme.of(context).scaffoldBackgroundColor.withAlpha(180),
                       Theme.of(context).scaffoldBackgroundColor,
                     ],
-                    stops: const [0.5, 0.8, 1.0],
+                    stops: const [0.4, 0.7, 1.0],
                   ),
                 ),
               ),
@@ -219,14 +218,19 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
         Positioned(
           top: MediaQuery.of(context).padding.top + 8,
           left: 8,
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pop(context),
-            color: Colors.white,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black26,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
+              color: Colors.white,
+            ),
           ),
         ),
 
-        // Artist name and buttons
         Positioned(
           bottom: 40,
           left: 16,
@@ -237,65 +241,97 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
               Text(
                 artist.name,
                 style: const TextStyle(
-                  fontSize: 28,
+                  fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      offset: Offset(0, 2),
+                      blurRadius: 4,
+                      color: Colors.black26,
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 16),
               Row(
                 children: [
-                  // Play button
                   ElevatedButton.icon(
                     icon: const Icon(Icons.play_arrow),
                     label: const Text('Phát nhạc'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
+                      backgroundColor: ArtistPage.primaryColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 12,
                       ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 4,
                     ),
                     onPressed: () {},
                   ),
                   const SizedBox(width: 12),
-                  // ToDO: follow API
-                  OutlinedButton.icon(
-                    icon: Icon(_isFollowing ? Icons.check : Icons.add),
-                    label: Text(_isFollowing ? 'Đã theo dõi' : 'Theo dõi'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isFollowing = !_isFollowing;
-                        unawaited(
-                          getIt<SupabaseArtistsApi>().toggleFollowArtist(
-                            artist.id,
-                          ),
-                        );
-                      });
-                    },
-                  ),
+                  _FollowButton(artistId: artist.id),
                 ],
               ),
             ],
           ),
         ),
-        // Tab bar
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: TabBar(controller: _tabController, tabs: _tabs),
-        ),
       ],
+    );
+  }
+}
+
+class _FollowButton extends StatefulWidget {
+  final String artistId;
+  const _FollowButton({required this.artistId});
+
+  @override
+  State<_FollowButton> createState() => _FollowButtonState();
+}
+
+class _FollowButtonState extends State<_FollowButton> {
+  late Future<bool> _isFollowingFuture;
+  late bool _isFollowing;
+
+  @override
+  void initState() {
+    super.initState();
+    _isFollowingFuture = getIt<SupabaseApi>().artists.isFollowingArtist(
+      widget.artistId,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return defaultFutureBuilder(
+      future: _isFollowingFuture,
+      onData:
+          (context, data) => OutlinedButton.icon(
+            icon: Icon(data ? Icons.check : Icons.add),
+            label: Text(data ? 'Đã theo dõi' : 'Theo dõi'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.white,
+              side: const BorderSide(color: Colors.white, width: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: () {
+              setState(() {
+                _isFollowing = !_isFollowing;
+                unawaited(
+                  getIt<SupabaseApi>().artists.toggleFollowArtist(
+                    widget.artistId,
+                  ),
+                );
+              });
+            },
+          ),
     );
   }
 }
@@ -306,25 +342,37 @@ class _ArtistInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    log('artist.biography: ${artist.biography}, ${artist.biography?.length}');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (artist.realname != null) ...[
           Text(
-            'Tên thật:',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            'Tên thật',
+            style: Theme.of(
+              context,
+            ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
-          Text('${artist.realname}', style: const TextStyle(fontSize: 16)),
-          const SizedBox(height: 16),
+          Text(
+            '${artist.realname}',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
         ],
         if (artist.biography != null) ...[
-          const Text(
+          Divider(color: Theme.of(context).dividerColor, thickness: 0.5),
+          const SizedBox(height: 4),
+          Text(
             'Tiểu sử',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 8),
-          ExpandableHtml(htmlText: artist.biography ?? ''),
-          const SizedBox(height: 24),
+          ExpandableHtml(
+            htmlText:
+                artist.biography != null && artist.biography!.isNotEmpty
+                    ? artist.biography!
+                    : 'Chưa có thông tin tiểu sử.',
+          ),
         ],
       ],
     );
@@ -338,16 +386,44 @@ class _SongsOfArtist extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-
-      child: ListView.builder(
-        itemBuilder: (context, index) {
-          final song = songs[index];
-          return _SongListTile(song: song);
-        },
-        itemCount: songs.length,
-      ),
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Bài hát',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: ArtistPage.primaryColor,
+                side: const BorderSide(
+                  color: ArtistPage.primaryColor,
+                  width: 1,
+                ),
+              ),
+              icon: const Icon(Icons.list_rounded),
+              label: const Text('Xem tất cả'),
+              onPressed: () {},
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 270,
+          child: ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              final song = songs[index];
+              return _SongListTile(song: song);
+            },
+            itemCount: songs.length > 3 ? 3 : songs.length,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -368,119 +444,133 @@ class _SongListTile extends StatelessWidget {
             state.currentSong.id == song.id &&
             playerCubit.isPlaying;
 
-        return Card(
-          elevation: isPlaying ? 4 : 1,
-          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side:
-                isPlaying
-                    ? BorderSide(
-                      color: Theme.of(context).primaryColor,
-                      width: 2,
-                    )
-                    : BorderSide.none,
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () async {
-              await playerCubit.loadAndPlay(
-                context,
-                song,
-                songList: List<SongModel>.from([song]),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  // Thumbnail with animation
-                  Stack(
+        return SizedBox(
+          height: 80,
+          child: Card(
+            elevation: isPlaying ? 8 : 2,
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side:
+                  isPlaying
+                      ? BorderSide(color: ArtistPage.primaryColor, width: 2)
+                      : BorderSide.none,
+            ),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () async {
+                await playerCubit.loadAndPlay(
+                  context,
+                  song,
+                  songList: List<SongModel>.from([song]),
+                );
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient:
+                      isPlaying
+                          ? LinearGradient(
+                            colors: [
+                              ArtistPage.primaryColor.withOpacity(0.1),
+                              ArtistPage.primaryColor.withOpacity(0.05),
+                            ],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          )
+                          : null,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
                     children: [
-                      Hero(
-                        tag: 'song_${song.id}',
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: CachedNetworkImage(
-                            imageUrl: song.thumbnailUrl,
-                            width: 64,
-                            height: 64,
-                            fit: BoxFit.cover,
-                            placeholder:
-                                (context, url) => Container(
-                                  color: Colors.grey[300],
-                                  child: const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                ),
-                            errorWidget:
-                                (context, url, error) => Container(
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.music_note),
-                                ),
-                          ),
-                        ),
-                      ),
-                      if (isPlaying)
-                        Container(
-                          width: 64,
-                          height: 64,
-                          decoration: BoxDecoration(
-                            color: Colors.black26,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.music_note,
-                              color: Colors.white,
-                              size: 32,
+                      Stack(
+                        children: [
+                          Hero(
+                            tag: 'song_${song.id}',
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: CachedNetworkImage(
+                                imageUrl: song.thumbnailUrl,
+                                width: 64,
+                                height: 64,
+                                fit: BoxFit.cover,
+                                placeholder:
+                                    (context, url) => Container(
+                                      color: Colors.grey[300],
+                                      child: const Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    ),
+                                errorWidget:
+                                    (context, url, error) => Container(
+                                      color: Colors.grey[300],
+                                      child: const Icon(Icons.music_note),
+                                    ),
+                              ),
                             ),
                           ),
+                          if (isPlaying)
+                            Container(
+                              width: 64,
+                              height: 64,
+                              decoration: BoxDecoration(
+                                color: Colors.black38,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.music_note,
+                                  color: Colors.white,
+                                  size: 32,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              song.title,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight:
+                                    isPlaying
+                                        ? FontWeight.bold
+                                        : FontWeight.w500,
+                                color:
+                                    isPlaying ? ArtistPage.primaryColor : null,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              song.artistsNames,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
+                      ),
+                      PlayOrPauseButton(
+                        song: song,
+                        color:
+                            isPlaying
+                                ? ArtistPage.primaryColor
+                                : Colors.grey[600] ?? Colors.grey,
+                      ),
                     ],
                   ),
-                  const SizedBox(width: 16),
-                  // Song info
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          song.title,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight:
-                                isPlaying ? FontWeight.bold : FontWeight.normal,
-                            color:
-                                isPlaying
-                                    ? Theme.of(context).primaryColor
-                                    : null,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          song.artistsNames,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Play/Pause button
-                  PlayOrPauseButton(
-                    song: song,
-                    color:
-                        isPlaying
-                            ? Theme.of(context).primaryColor
-                            : Colors.grey[600] ?? Colors.grey,
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -497,23 +587,41 @@ class _AlbumsOfArtist extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.8,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Album',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
         ),
-        itemBuilder: (context, index) {
-          final album = albums[index];
-          return _AlbumCard(album: album);
-        },
-        itemCount: albums.length,
-      ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.8,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemBuilder: (context, index) {
+                final album = albums[index];
+                return _AlbumCard(album: album);
+              },
+              itemCount: albums.length,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -526,14 +634,13 @@ class _AlbumCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {},
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Album cover with gradient overlay
             Expanded(
               child: Stack(
                 children: [
@@ -561,33 +668,24 @@ class _AlbumCard extends StatelessWidget {
                           ),
                     ),
                   ),
-                  // Gradient overlay
-                  Positioned.fill(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withOpacity(0.7),
-                          ],
-                          stops: const [0.6, 1.0],
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Play button overlay
+
                   Positioned.fill(
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () {},
-                        child: const Center(
-                          child: Icon(
-                            Icons.play_circle_filled,
-                            size: 48,
-                            color: Colors.white,
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: const Icon(
+                              Icons.play_arrow,
+                              size: 48,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
@@ -596,9 +694,8 @@ class _AlbumCard extends StatelessWidget {
                 ],
               ),
             ),
-            // Album info
             Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -609,7 +706,7 @@ class _AlbumCard extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (album.description != null) ...[
@@ -617,7 +714,7 @@ class _AlbumCard extends StatelessWidget {
                     Text(
                       album.description!,
                       style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
