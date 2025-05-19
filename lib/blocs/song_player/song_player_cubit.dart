@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -138,15 +137,14 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     SongModel song, {
     List<SongModel>? songList,
   }) async {
-    unawaited(getIt<SupabaseApi>().songs.incrementView(song.id));
     if (state is SongPlayerLoading) {
       return true;
     }
     if (await _loadSong(context, song, songList: songList)) {
       playOrPause();
+      // getIt<SupabaseApi>().songs.incrementView(song.id);
       return true;
     }
-
     return false;
   }
 

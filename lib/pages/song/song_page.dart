@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:memecloud/components/song/show_song_actions.dart';
+
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -119,6 +121,7 @@ class SongPageInner extends StatelessWidget {
                   ],
                 ),
               ),
+
               Expanded(child: SongLyricWidget(lyric: data!, largeText: false)),
             ],
           );
@@ -155,6 +158,7 @@ class SongPageInner extends StatelessWidget {
           ),
         ),
         SizedBox(width: 20),
+
         SongLikeButton(song: song),
       ],
     );

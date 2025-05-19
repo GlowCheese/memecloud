@@ -183,7 +183,7 @@ class SupabaseSongsApi {
           .eq('user_id', userId);
 
       final songsList = await Future.wait(
-        response.map((e) => SongModel.fromJson<SupabaseApi>(e['song']))
+        response.map((e) => SongModel.fromJson<SupabaseApi>(e['song'])),
       );
 
       return songsList;
@@ -217,7 +217,6 @@ class SupabaseSongsApi {
   }
 
   ///end increment view
-
   Future<List<String>> filterNonVipSongs(Iterable<String> songsIds) async {
     try {
       _connectivity.ensure();

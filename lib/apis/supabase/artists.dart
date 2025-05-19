@@ -96,6 +96,7 @@ class SupabaseArtistsApi {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
         "Failed to follow artist: $e",
+
         stackTrace: stackTrace,
         level: 1000,
       );

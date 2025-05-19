@@ -57,7 +57,7 @@ class PlaylistPage extends StatelessWidget {
                     left: 0,
                     right: 0,
                     bottom: 5,
-                    child: getMiniPlayer(),
+                    child: MiniPlayer(),
                   ),
                 ],
               ),

@@ -2,18 +2,17 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:memecloud/apis/supabase/artists.dart';
+
 import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
+import 'package:memecloud/components/song/mini_player.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/artist_model.dart';
-import 'package:memecloud/apis/zingmp3/requester.dart';
-import 'package:memecloud/apis/zingmp3/endpoints.dart';
-import 'package:memecloud/components/song/mini_player.dart';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/components/miscs/expandable_html.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
@@ -61,6 +60,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
               child: Text('Không tìm thấy thông tin nghệ sĩ'),
             );
           }
+
           final List<Future<SongModel>> songsOfArtist =
               (artist.toJson()['artist']['sections'][0]['items'] as List)
                   .map((e) => SongModel.fromJson<SupabaseApi>(e))
@@ -135,7 +135,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                 ],
               ),
 
-              Positioned(bottom: 5, left: 0, right: 0, child: getMiniPlayer()),
+              Positioned(bottom: 5, left: 0, right: 0, child: MiniPlayer()),
             ],
           );
         },
@@ -177,6 +177,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
         Positioned(
           top: MediaQuery.of(context).padding.top + 8,
           left: 8,
+
           child: Container(
             decoration: BoxDecoration(
               color: Colors.black26,
@@ -192,6 +193,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
 
         Positioned(
           bottom: 40,
+
           left: 16,
           right: 16,
           child: Column(
@@ -220,11 +222,13 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                     label: const Text('Phát nhạc'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ArtistPage.primaryColor,
+
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 12,
                       ),
+
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -302,6 +306,7 @@ class _ArtistInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     log('artist.biography: ${artist.biography}, ${artist.biography?.length}');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

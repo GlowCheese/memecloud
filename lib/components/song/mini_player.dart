@@ -12,31 +12,39 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 
-Widget getMiniPlayer() {
-  final playerCubit = getIt<SongPlayerCubit>();
-  return BlocBuilder<SongPlayerCubit, SongPlayerState>(
-    bloc: playerCubit,
-    builder: (context, state) {
-      if (state is SongPlayerLoaded) {
-        return _MiniPlayer(playerCubit, song: state.currentSong);
-      } else {
-        return SizedBox();
-      }
-    },
-  );
+class MiniPlayer extends StatelessWidget {
+  const MiniPlayer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final playerCubit = getIt<SongPlayerCubit>();
+    return BlocBuilder<SongPlayerCubit, SongPlayerState>(
+      bloc: playerCubit,
+      builder: (context, state) {
+        if (state is SongPlayerLoaded) {
+          return Positioned(
+            left: 0, right: 0, bottom: 10,
+            child: _MiniPlayerInner(playerCubit, state.currentSong)
+          );
+        } else {
+          return SizedBox();
+        }
+      },
+    );
+  }
 }
 
-class _MiniPlayer extends StatefulWidget {
+class _MiniPlayerInner extends StatefulWidget {
   final SongPlayerCubit playerCubit;
   final SongModel song;
 
-  const _MiniPlayer(this.playerCubit, {required this.song});
+  const _MiniPlayerInner(this.playerCubit, this.song);
 
   @override
-  State<_MiniPlayer> createState() => _MiniPlayerState();
+  State<_MiniPlayerInner> createState() => _MiniPlayerInnerState();
 }
 
-class _MiniPlayerState extends State<_MiniPlayer> {
+class _MiniPlayerInnerState extends State<_MiniPlayerInner> {
   @override
   Widget build(BuildContext context) {
     return getIt<ApiKit>().paletteColorsWidgetBuider(widget.song.thumbnailUrl, (
