@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memecloud/components/miscs/page_with_tabs/single.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/utils/common.dart';
@@ -9,7 +10,6 @@ import 'package:memecloud/models/search_result_model.dart';
 import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/components/musics/artist_card.dart';
 import 'package:memecloud/components/musics/playlist_card.dart';
-import 'package:memecloud/components/miscs/page_with_tabs.dart';
 import 'package:memecloud/components/miscs/section_divider.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/miscs/generatable_list/list_view.dart';
@@ -105,7 +105,7 @@ class _SearchNavigationState extends State<SearchNavigation> {
           );
         }).toList();
 
-    return PageWithTabs(
+    return PageWithSingleTab(
       variation: 1,
       tabNames: filterMap.keys.toList(),
       tabBodies: tabBodies,

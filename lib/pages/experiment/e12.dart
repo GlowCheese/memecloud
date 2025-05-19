@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/miscs/generatable_list/list_view.dart';
-import 'package:memecloud/components/miscs/page_with_tabs.dart';
+import 'package:memecloud/components/miscs/page_with_tabs/single.dart';
 import 'package:memecloud/components/miscs/section_divider.dart';
+import 'package:memecloud/components/miscs/generatable_list/list_view.dart';
 
 Future<List<Text>> genFunc(int page, int key) async {
   if (page >= 10) return [];
@@ -19,7 +19,7 @@ class E12 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PageWithTabs(
+    return PageWithSingleTab(
       variation: 1,
       tabNames: ['tab_1', 'tab_2', 'tab_3'],
       tabBodies: [

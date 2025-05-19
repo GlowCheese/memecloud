@@ -43,47 +43,6 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
     _artistFuture = getIt<ApiKit>().getArtistInfo(widget.artistAlias);
   }
 
-  // Future<void> _loadArtist() async {
-  //   _artist = await getIt<ApiKit>().getArtistInfo(widget.artistAlias) ?? null;
-  //   _songs = await _loadArtistSongs();
-  //   _albums = await _loadArtistAlbums();
-  // }
-
-  // Future<List<SongModel>> _loadArtistSongs() async {
-  //   final artist = await _artistFuture;
-  //   if (artist == null) return [];
-
-  //   List<SongModel> songs = [];
-  //   for (var song in artist.toJson()['artist']['sections'][0]['items']) {
-  //     songs.add(await SongModel.fromJson<SupabaseApi>(song));
-  //   }
-  //   log('songs: ${songs.length}');
-  //   return songs;
-  // }
-
-  // Future<List<PlaylistModel>> _loadArtistAlbums() async {
-  //   final artist = await _artistFuture;
-  //   if (artist == null) return [];
-  //   final response = await getIt<ZingMp3Requester>().getListArtistAlbum(
-  //     artistId: artist.id,
-  //     page: 1,
-  //     count: 20,
-  //   );
-  //   if (response['err'] != 0) return [];
-  //   return PlaylistModel.fromListJson<ZingMp3Api>(response['data']['items']);
-  // }
-
-  // Future<void> _playAllSongs() async {
-  //   final songs = await _songsFuture;
-  //   if (songs.isNotEmpty) {
-  //     await getIt<SongPlayerCubit>().loadAndPlay(
-  //       context,
-  //       songs.first,
-  //       songList: songs,
-  //     );
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
