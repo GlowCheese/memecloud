@@ -53,12 +53,7 @@ class PlaylistPage extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   _PlaylistPageInner(playlist: data),
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 5,
-                    child: getMiniPlayer(),
-                  ),
+                  MiniPlayer()
                 ],
               ),
             );

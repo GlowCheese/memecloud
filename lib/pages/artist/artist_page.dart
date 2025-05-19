@@ -176,8 +176,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                   ),
                 ],
               ),
-
-              Positioned(bottom: 5, left: 0, right: 0, child: getMiniPlayer()),
+              MiniPlayer()
             ],
           );
         },
