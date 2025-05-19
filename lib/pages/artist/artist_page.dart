@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
 import 'package:memecloud/apis/supabase/main.dart';
-import 'package:memecloud/blocs/song_player/song_player_state.dart';
+import 'package:memecloud/components/artist/song_list_tile.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/song/mini_player.dart';
 import 'package:memecloud/core/getit.dart';
@@ -15,17 +16,11 @@ import 'package:memecloud/models/artist_model.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/components/miscs/expandable_html.dart';
-import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:memecloud/components/song/play_or_pause_button.dart';
+
+import 'package:memecloud/pages/artist/song_artist_page.dart';
 
 class ArtistPage extends StatefulWidget {
   final String artistAlias;
-  static const primaryColor = Color.fromARGB(255, 57, 133, 255);
-  static const gradientColors = [
-    Color.fromARGB(255, 57, 133, 255),
-    Color.fromARGB(255, 41, 98, 255),
-  ];
 
   const ArtistPage({super.key, required this.artistAlias});
 
@@ -67,77 +62,78 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                   .cast<Future<SongModel>>()
                   .toList();
 
-          log('songsOfArtist: ${songsOfArtist[0].runtimeType}');
           final albumsOfArtist =
               (artist.toJson()['artist']['sections'][2]['items'] as List)
                   .map((e) => PlaylistModel.fromJson<ArtistModel>(e))
                   .cast<Future<PlaylistModel>>()
                   .toList();
 
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              CustomScrollView(
-                slivers: [
-                  SliverAppBar(
-                    toolbarHeight: 300,
-                    automaticallyImplyLeading: false,
-                    flexibleSpace: FlexibleSpaceBar(
-                      background: _artistHeader(artist),
+          return Container(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                CustomScrollView(
+                  slivers: [
+                    SliverAppBar(
+                      toolbarHeight: 270,
+                      automaticallyImplyLeading: false,
+                      flexibleSpace: FlexibleSpaceBar(
+                        background: _artistHeader(artist),
+                      ),
                     ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: SizedBox(
-                      height:
-                          MediaQuery.of(context).size.height -
-                          300, // or a fixed height if you prefer
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SingleChildScrollView(
-                          physics: const BouncingScrollPhysics(),
-                          child: Column(
-                            children: [
-                              _ArtistInfo(artist: artist),
-                              Divider(
-                                color: Theme.of(context).dividerColor,
-                                thickness: 0.5,
-                              ),
-                              defaultFutureBuilder(
-                                future: Future.wait(songsOfArtist),
-                                onData:
-                                    (context, data) => _SongsOfArtist(
-                                      songs:
-                                          data
-                                              .map((e) => e as SongModel)
-                                              .toList(),
-                                    ),
-                              ),
-                              Divider(
-                                color: Theme.of(context).dividerColor,
-                                thickness: 0.5,
-                              ),
-                              defaultFutureBuilder(
-                                future: Future.wait(albumsOfArtist),
-                                onData:
-                                    (context, data) => _AlbumsOfArtist(
-                                      albums:
-                                          data
-                                              .map((e) => e as PlaylistModel)
-                                              .toList(),
-                                    ),
-                              ),
-                            ],
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        height:
+                            MediaQuery.of(context).size.height -
+                            300, // or a fixed height if you prefer
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            child: Column(
+                              children: [
+                                _ArtistInfo(artist: artist),
+                                Divider(
+                                  color: Theme.of(context).dividerColor,
+                                  thickness: 0.5,
+                                ),
+                                defaultFutureBuilder(
+                                  future: Future.wait(songsOfArtist),
+                                  onData:
+                                      (context, data) => _SongsOfArtist(
+                                        songs:
+                                            data
+                                                .map((e) => e as SongModel)
+                                                .toList(),
+                                      ),
+                                ),
+                                Divider(
+                                  color: Theme.of(context).dividerColor,
+                                  thickness: 0.5,
+                                ),
+                                defaultFutureBuilder(
+                                  future: Future.wait(albumsOfArtist),
+                                  onData:
+                                      (context, data) => _AlbumsOfArtist(
+                                        albums:
+                                            data
+                                                .map((e) => e as PlaylistModel)
+                                                .toList(),
+                                      ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-              MiniPlayer(),
-
-            ],
+                MiniPlayer(),
+              ],
+            ),
           );
         },
       ),
@@ -164,8 +160,10 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Theme.of(context).scaffoldBackgroundColor.withAlpha(180),
-                      Theme.of(context).scaffoldBackgroundColor,
+                      Theme.of(
+                        context,
+                      ).colorScheme.primaryContainer.withAlpha(180),
+                      Theme.of(context).colorScheme.primaryContainer,
                     ],
                     stops: const [0.4, 0.7, 1.0],
                   ),
@@ -222,9 +220,11 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                     icon: const Icon(Icons.play_arrow),
                     label: const Text('Phát nhạc'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: ArtistPage.primaryColor,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.tertiaryContainer,
 
-                      foregroundColor: Colors.white,
+                      foregroundColor:
+                          Theme.of(context).colorScheme.onTertiaryContainer,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 12,
@@ -259,7 +259,6 @@ class _FollowButton extends StatefulWidget {
 
 class _FollowButtonState extends State<_FollowButton> {
   late Future<bool> _isFollowingFuture;
-  late bool _isFollowing;
 
   @override
   void initState() {
@@ -286,12 +285,17 @@ class _FollowButtonState extends State<_FollowButton> {
               ),
             ),
             onPressed: () {
+              log('toggle follow ${widget.artistId}');
               setState(() {
-                _isFollowing = !_isFollowing;
                 unawaited(
-                  getIt<SupabaseApi>().artists.toggleFollowArtist(
-                    widget.artistId,
-                  ),
+                  getIt<SupabaseApi>().artists
+                      .toggleFollowArtist(widget.artistId)
+                      .then((_) {
+                        setState(() {
+                          _isFollowingFuture = getIt<SupabaseApi>().artists
+                              .isFollowingArtist(widget.artistId);
+                        });
+                      }),
                 );
               });
             },
@@ -306,8 +310,6 @@ class _ArtistInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log('artist.biography: ${artist.biography}, ${artist.biography?.length}');
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -330,7 +332,7 @@ class _ArtistInfo extends StatelessWidget {
             'Tiểu sử',
             style: Theme.of(
               context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           ExpandableHtml(
             htmlText:
@@ -363,184 +365,34 @@ class _SongsOfArtist extends StatelessWidget {
                 ),
               ),
             ),
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: ArtistPage.primaryColor,
-                side: const BorderSide(
-                  color: ArtistPage.primaryColor,
-                  width: 1,
-                ),
-              ),
-              icon: const Icon(Icons.list_rounded),
-              label: const Text('Xem tất cả'),
-              onPressed: () {},
-            ),
           ],
         ),
         SizedBox(
-          height: 270,
+          height: 85 * math.min(songs.length.toDouble(), 5),
           child: ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
               final song = songs[index];
-              return _SongListTile(song: song);
+              return SongListTile(song: song);
             },
-            itemCount: songs.length > 3 ? 3 : songs.length,
+            itemCount: songs.length > 5 ? 5 : songs.length,
           ),
         ),
-      ],
-    );
-  }
-}
-
-class _SongListTile extends StatelessWidget {
-  final SongModel song;
-  const _SongListTile({required this.song});
-
-  @override
-  Widget build(BuildContext context) {
-    final playerCubit = getIt<SongPlayerCubit>();
-
-    return BlocBuilder<SongPlayerCubit, SongPlayerState>(
-      bloc: playerCubit,
-      builder: (context, state) {
-        final isPlaying =
-            state is SongPlayerLoaded &&
-            state.currentSong.id == song.id &&
-            playerCubit.isPlaying;
-
-        return SizedBox(
-          height: 80,
-          child: Card(
-            elevation: isPlaying ? 8 : 2,
-            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side:
-                  isPlaying
-                      ? BorderSide(color: ArtistPage.primaryColor, width: 2)
-                      : BorderSide.none,
-            ),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(16),
-              onTap: () async {
-                await playerCubit.loadAndPlay(
-                  context,
-                  song,
-                  songList: List<SongModel>.from([song]),
-                );
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient:
-                      isPlaying
-                          ? LinearGradient(
-                            colors: [
-                              ArtistPage.primaryColor.withOpacity(0.1),
-                              ArtistPage.primaryColor.withOpacity(0.05),
-                            ],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          )
-                          : null,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    children: [
-                      Stack(
-                        children: [
-                          Hero(
-                            tag: 'song_${song.id}',
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: CachedNetworkImage(
-                                imageUrl: song.thumbnailUrl,
-                                width: 64,
-                                height: 64,
-                                fit: BoxFit.cover,
-                                placeholder:
-                                    (context, url) => Container(
-                                      color: Colors.grey[300],
-                                      child: const Center(
-                                        child: CircularProgressIndicator(),
-                                      ),
-                                    ),
-                                errorWidget:
-                                    (context, url, error) => Container(
-                                      color: Colors.grey[300],
-                                      child: const Icon(Icons.music_note),
-                                    ),
-                              ),
-                            ),
-                          ),
-                          if (isPlaying)
-                            Container(
-                              width: 64,
-                              height: 64,
-                              decoration: BoxDecoration(
-                                color: Colors.black38,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.music_note,
-                                  color: Colors.white,
-                                  size: 32,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              song.title,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight:
-                                    isPlaying
-                                        ? FontWeight.bold
-                                        : FontWeight.w500,
-                                color:
-                                    isPlaying ? ArtistPage.primaryColor : null,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              song.artistsNames,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                      PlayOrPauseButton(
-                        song: song,
-                        color:
-                            isPlaying
-                                ? ArtistPage.primaryColor
-                                : Colors.grey[600] ?? Colors.grey,
-                      ),
-                    ],
+        if (songs.length > 5)
+          TextButton.icon(
+            onPressed:
+                () => {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SongArtistPage(songs: songs),
+                    ),
                   ),
-                ),
-              ),
-            ),
+                },
+            label: Text("Xem thêm"),
+            icon: Icon(Icons.arrow_right),
           ),
-        );
-      },
+      ],
     );
   }
 }
@@ -601,6 +453,7 @@ class _AlbumCard extends StatelessWidget {
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       clipBehavior: Clip.antiAlias,
+      color: Theme.of(context).colorScheme.onSecondary,
       child: InkWell(
         onTap: () {},
         child: Column(
@@ -638,7 +491,9 @@ class _AlbumCard extends StatelessWidget {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          // TO DO: play album
+                        },
                         child: Center(
                           child: Container(
                             padding: const EdgeInsets.all(12),
