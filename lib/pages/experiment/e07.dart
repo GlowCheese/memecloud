@@ -23,7 +23,7 @@ class _MusicTabsPageState extends State<MusicTabsPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 2,
       initialIndex: 1,
       child: Scaffold(
         appBar: AppBar(

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/song/mini_player.dart';
-import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/pages/dashboard/home_page.dart';
-import 'package:memecloud/components/miscs/grad_background.dart';
-import 'package:memecloud/pages/dashboard/liked_songs_page.dart';
-import 'package:memecloud/pages/experiment/experiment_page.dart';
+import 'package:memecloud/pages/library/library_page.dart';
 import 'package:memecloud/pages/dashboard/search_page.dart';
+import 'package:memecloud/components/song/mini_player.dart';
 import 'package:memecloud/pages/dashboard/top_chart_page.dart';
+import 'package:memecloud/components/miscs/default_appbar.dart';
+import 'package:memecloud/components/miscs/grad_background.dart';
+import 'package:memecloud/pages/experiment/experiment_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -30,10 +30,10 @@ class _DashboardPageState extends State<DashboardPage> {
         scaffElems = getSearchPage(context);
         break;
       case 2:
-        scaffElems = getLikedSongsPage(context);
+        scaffElems = getTopChartPage(context);
         break;
       case 3:
-        scaffElems = getTopChartPage(context);
+        scaffElems = getLibraryPage(context);
         break;
       case 4:
         scaffElems = getExperimentPage(context);
@@ -58,9 +58,8 @@ class _DashboardPageState extends State<DashboardPage> {
               padding: const EdgeInsets.only(bottom: 50),
               child: scaffElems['body'],
             ),
-            Positioned(bottom: 5, left: 0, right: 0, child: MiniPlayer()),
+            MiniPlayer(),
           ],
-
         ),
         floatingActionButton: scaffElems['floatingActionButton'],
         backgroundColor: Colors.transparent,
@@ -75,10 +74,13 @@ class _DashboardPageState extends State<DashboardPage> {
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-        BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Liked'),
         BottomNavigationBarItem(
           icon: Icon(Icons.bar_chart),
           label: 'Top Charts',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.library_music),
+          label: 'My Library',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.bubble_chart),

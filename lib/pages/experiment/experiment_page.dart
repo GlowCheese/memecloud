@@ -5,10 +5,23 @@ import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/pages/experiment/e01.dart';
 import 'package:memecloud/pages/experiment/e04.dart';
 import 'package:memecloud/pages/experiment/e05.dart';
+import 'package:memecloud/pages/experiment/e06.dart';
+import 'package:memecloud/pages/experiment/e11.dart';
+import 'package:memecloud/pages/experiment/e12.dart';
+import 'package:memecloud/pages/experiment/e13.dart';
+import 'package:memecloud/pages/experiment/my_ex.dart';
 
 // register cái mới vào đây
-
-final allPages = {'E01': () => E01(), 'E04': () => E04(), 'E05': () => E05()};
+final allPages = {
+  'E01': () => E01(),
+  'E04': () => E04(),
+  'E05': () => E05(),
+  'E06': () => E06(),
+  'E11': () => E11(),
+  'E12': () => E12(),
+  'E13': () => E13(),
+  'MyEx': () => MyExperiment(),
+};
 
 final pageController = ExperimentPageController();
 
