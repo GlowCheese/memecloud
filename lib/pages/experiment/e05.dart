@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:memecloud/apis/others/storage.dart';
+import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/apis/others/storage.dart';
+import 'package:memecloud/components/miscs/section_divider.dart';
+import 'package:memecloud/components/miscs/page_with_tabs/single.dart';
 
 class E05 extends StatefulWidget {
   const E05({super.key});
@@ -15,66 +17,36 @@ class _E05State extends State<E05> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> buttons = [];
-    late Box filterData;
-
     final hiveBoxes = getIt<PersistentStorage>().hiveBoxes;
 
     final Map<String, Box> filterMap = {
-      'apiCache': hiveBoxes.apiCache,
+      'likedSongs': hiveBoxes.likedSongs,
       'vipSongs': hiveBoxes.vipSongs,
-      'savedSongsInfo': hiveBoxes.savedSongsInfo,
-      'likedSongs': hiveBoxes.likedSongs
+      'savedInfo': hiveBoxes.savedInfo,
+      'apiCache': hiveBoxes.apiCache,
     };
 
-    filterMap.forEach((label, box) {
-      final buttonsLength = buttons.length;
-      if (filterIndex == buttonsLength) {
-        filterData = box;
-      }
-      buttons.add(
-        Padding(
-          padding: const EdgeInsets.only(right: 10),
-          child:
-              (filterIndex == buttonsLength)
-                  ? (FilledButton(
-                    onPressed: () {
-                      setState(() => filterIndex = buttonsLength);
-                    },
-                    child: Text(label),
-                  ))
-                  : (ElevatedButton(
-                    onPressed: () {
-                      setState(() => filterIndex = buttonsLength);
-                    },
-                    child: Text(label),
-                  )),
-        ),
-      );
-    });
-
-    return SingleChildScrollView(
-      physics: BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 15, bottom: 5, top: 10),
-            child: SizedBox(
-              height: 40,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                physics: BouncingScrollPhysics(),
-                children: buttons,
+    return PageWithSingleTab(
+      variation: 1,
+      tabNames: filterMap.keys.toList(),
+      widgetBuilder: (tabsNavigator, tabContent) {
+        return Column(
+          children: [
+            tabsNavigator,
+            SectionDivider(),
+            Expanded(child: tabContent),
+          ],
+        );
+      },
+      tabBodies:
+          filterMap.values.map((filterData) {
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
+                child: BoxDisplay(box: filterData),
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
-            child: BoxDisplay(box: filterData),
-          ),
-        ],
-      ),
+            );
+          }).toList(),
     );
   }
 }

@@ -34,7 +34,7 @@ abstract class SectionModel {
         .toList();
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson({bool only = false}) {
     String? sectionType;
     if (this is SongSection) sectionType = 'song';
     if (this is ArtistSection) sectionType = 'artist';
@@ -43,7 +43,7 @@ abstract class SectionModel {
     return {
       'title': title,
       'section_type': sectionType,
-      'items': items.map((e) => e.toJson()).toList(),
+      'items': items.map((e) => e.toJson(only: only)).toList(),
     };
   }
 }

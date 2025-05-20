@@ -185,7 +185,7 @@ class ZingMp3Requester {
     return _sendRequest(
       path,
       id: artistId,
-      type: "artist",
+      type: 'artist',
       page: page,
       count: count,
       extra: {'sort': 'new', 'sectionId': 'aSong'},

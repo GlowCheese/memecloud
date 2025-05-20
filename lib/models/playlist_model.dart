@@ -79,15 +79,17 @@ class PlaylistModel extends MusicModel {
   }
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson({bool only = false}) {
     return ignoreNullValuesOfMap({
       'id': id,
       'title': title,
       'thumbnailUrl': thumbnailUrl,
       'artistsNames': artistsNames,
       'description': description,
-      'songs': songs?.map((e) => e.toJson()).toList(),
-      'artists': artists?.map((e) => e.toJson()).toList(),
+      if (only == false)
+        'songs': songs?.map((e) => e.toJson()).toList(),
+      if (only == false)
+        'artists': artists?.map((e) => e.toJson()).toList(),
     });
   }
 }

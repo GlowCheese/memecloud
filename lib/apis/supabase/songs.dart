@@ -46,12 +46,7 @@ class SupabaseSongsApi {
       final response =
           await _client
               .from('songs')
-              .select('''
-                *,
-                song_artists(
-                  artist:artists (*)
-                )
-              ''')
+              .select('*, song_artists(artist:artists (*))')
               .eq('id', songId)
               .maybeSingle();
       if (response == null) return null;

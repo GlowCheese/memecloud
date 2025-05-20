@@ -1,3 +1,3 @@
 abstract class MusicModel {
-  Map<String, dynamic> toJson();
+  Map<String, dynamic> toJson({bool only = false});
 }

@@ -125,37 +125,10 @@ class ApiKit {
   ---------------- */
 
   Future<void> saveSongInfo(SongModel song) async {
-    if (storage.isSongInfoSaved(song.id)) {
-      debugPrint("Song info of '${song.id}' already marked as saved!");
-      return;
-    }
+    if (storage.isInfoSaved(song.id, 'song')) return;
     await supabase.songs.saveSongInfo(song);
     await supabase.artists.saveSongArtists(song.id, song.artists);
-    unawaited(storage.markSongInfoAsSaved(song.id));
-  }
-
-  Future<SongModel?> getSongInfo(String songId) async {
-    String api = '/infosong?id=$songId';
-    final localResp = storage.getCached(api);
-    if (localResp.data != null) {
-      return SongModel.fromJson<SupabaseApi>(localResp.data!);
-    }
-
-    final remoteResp = await supabase.songs.getSongInfo(songId);
-    if (remoteResp != null) {
-      unawaited(storage.updateCached(api, remoteResp.toJson()));
-      return remoteResp;
-    }
-
-    final zingResp = await getIt<ZingMp3Api>().fetchSongInfo(songId);
-    if (zingResp != null) {
-      unawaited(storage.updateCached(api, zingResp));
-      final song = SongModel.fromJson<ZingMp3Api>(zingResp);
-      unawaited(saveSongInfo(song));
-      return song;
-    }
-
-    return null;
+    unawaited(storage.markInfoAsSaved(song.id, 'song'));
   }
 
   Future<bool> isBlacklisted(String songId) =>
@@ -170,6 +143,12 @@ class ApiKit {
   |     ARTISTS APIs    |
   -------------------- */
 
+  Future<void> savePlaylistInfo(PlaylistModel playlist) async {
+    if (storage.isInfoSaved(playlist.id, 'playlist')) return;
+    await supabase.playlists.savePlaylistInfo(playlist);
+    unawaited(storage.markInfoAsSaved(playlist.id, 'playlist'));
+  }
+
   Future<PlaylistModel?> getPlaylistInfo(String playlistId) async {
     final String api = '/infoplaylist?id=$playlistId';
     return await _getOrFetch<Map<String, dynamic>?, PlaylistModel?>(
@@ -182,7 +161,9 @@ class ApiKit {
       },
       outputFixer: (data) {
         if (data == null) return null;
-        return PlaylistModel.fromJson<ZingMp3Api>(data);
+        final res = PlaylistModel.fromJson<ZingMp3Api>(data);
+        unawaited(savePlaylistInfo(res));
+        return res;
       },
     );
   }

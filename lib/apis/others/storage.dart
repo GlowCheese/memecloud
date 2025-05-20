@@ -8,7 +8,7 @@ import 'package:path_provider/path_provider.dart';
 class HiveBoxes {
   static Future<HiveBoxes> initialize() async {
     await Future.wait([
-      Hive.openBox<bool>('savedSongsInfo'),
+      Hive.openBox<bool>('savedInfo'),
       Hive.openBox<bool>('vipSongs'),
       Hive.openBox<Map>('apiCache'),
       Hive.openBox<String>('recentSearches'),
@@ -17,7 +17,7 @@ class HiveBoxes {
     return HiveBoxes();
   }
 
-  Box<bool> get savedSongsInfo => Hive.box('savedSongsInfo');
+  Box<bool> get savedInfo => Hive.box('savedInfo');
   Box<bool> get vipSongs => Hive.box('vipSongs');
   Box<Map> get apiCache => Hive.box('apiCache');
   Box<String> get recentSearches => Hive.box('recentSearches');
@@ -65,14 +65,6 @@ class PersistentStorage {
     );
   }
 
-  Future<void> markSongInfoAsSaved(String songId) async {
-    await hiveBoxes.savedSongsInfo.put(songId, true);
-  }
-
-  bool isSongInfoSaved(String songId) {
-    return hiveBoxes.savedSongsInfo.containsKey(songId);
-  }
-
   /* -------------------
   |    STORAGE CACHE   |
   ------------------- */
@@ -96,6 +88,18 @@ class PersistentStorage {
       'data': jsonEncode(data),
       'created_at': DateTime.now().millisecondsSinceEpoch,
     });
+  }
+
+  /* ----------------
+  |    SAVED INFO   |
+  ---------------- */
+
+  Future<void> markInfoAsSaved(String id, String category) {
+    return hiveBoxes.savedInfo.put('$category=$id', true);
+  }
+
+  bool isInfoSaved(String id, String category) {
+    return hiveBoxes.savedInfo.containsKey('$category=$id');
   }
 
   /* ---------------------
@@ -150,7 +154,9 @@ class PersistentStorage {
   Future<void> preloadUserLikedSongs(List<SongModel> songs) async {
     final box = hiveBoxes.likedSongs;
     await box.clear();
-    await box.putAll({for (var song in songs) song.id: jsonEncode(song.toJson())});
+    await box.putAll({
+      for (var song in songs) song.id: jsonEncode(song.toJson()),
+    });
   }
 
   /* ----------------------

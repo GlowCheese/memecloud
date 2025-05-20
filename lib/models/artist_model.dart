@@ -32,7 +32,9 @@ class ArtistModel extends MusicModel {
     if (T == ZingMp3Api) {
       List<SectionModel>? sections;
       if (json.containsKey('sections')) {
-        sections = SectionModel.fromListJson<T>(List.castFrom<dynamic, Map<String, dynamic>>(json['sections']));
+        sections = SectionModel.fromListJson<T>(
+          List.castFrom<dynamic, Map<String, dynamic>>(json['sections']),
+        );
       }
 
       return ArtistModel._(
@@ -61,7 +63,7 @@ class ArtistModel extends MusicModel {
   }
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson({bool only = false}) {
     return {
       'artist': ignoreNullValuesOfMap({
         'id': id,
@@ -72,7 +74,8 @@ class ArtistModel extends MusicModel {
         'realname': realname,
         'bio': biography,
         'short_bio': shortBiography,
-        'sections': sections?.map((e) => e.toJson()).toList(),
+        if (only == false)
+          'sections': sections?.map((e) => e.toJson()).toList(),
       }),
     };
   }
