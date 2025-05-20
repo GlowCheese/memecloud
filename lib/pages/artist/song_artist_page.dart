@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import 'package:memecloud/components/artist/song_list_tile.dart';
@@ -43,6 +45,7 @@ class _SongArtistPageState extends State<SongArtistPage> {
       if (_scrollController.offset >= 300) {
         if (!_showBackToTopButton) {
           setState(() {
+            log("show back to top button");
             _showBackToTopButton = true;
           });
         }
@@ -58,25 +61,23 @@ class _SongArtistPageState extends State<SongArtistPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
       floatingActionButton:
           _showBackToTopButton
               ? FloatingActionButton(
                 onPressed: () {
-                  _scrollController.animateTo(
-                    0,
-                    duration: Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                  );
+                  _scrollToTop();
                 },
                 tooltip: "Về đầu trang",
                 child: Icon(Icons.arrow_upward),
               )
               : null,
       body: CustomScrollView(
+        controller: _scrollController,
+
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         slivers: [
           const SliverAppBar(title: Text("Các bài hát")),
           SliverPadding(

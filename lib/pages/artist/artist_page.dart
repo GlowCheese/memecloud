@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'package:memecloud/apis/supabase/main.dart';
+import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/artist/song_list_tile.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/song/mini_player.dart';
@@ -30,6 +31,8 @@ class ArtistPage extends StatefulWidget {
 
 class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
   late Future<ArtistModel?> _artistFuture;
+  late List<SongModel> songs;
+  late List<PlaylistModel> albums;
 
   @override
   void initState() {
@@ -76,61 +79,66 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                 CustomScrollView(
                   slivers: [
                     SliverAppBar(
-                      toolbarHeight: 270,
+                      expandedHeight: 270,
+                      collapsedHeight: 90,
+                      floating: false,
+                      snap: false,
                       automaticallyImplyLeading: false,
                       flexibleSpace: FlexibleSpaceBar(
+                        collapseMode: CollapseMode.parallax,
                         background: _artistHeader(artist),
                       ),
                     ),
-                    SliverToBoxAdapter(
-                      child: SizedBox(
-                        height:
-                            MediaQuery.of(context).size.height -
-                            300, // or a fixed height if you prefer
-                        child: Padding(
+                    SliverList(
+                      delegate: SliverChildListDelegate([
+                        Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: SingleChildScrollView(
-                            physics: const BouncingScrollPhysics(),
-                            child: Column(
-                              children: [
-                                _ArtistInfo(artist: artist),
-                                Divider(
-                                  color: Theme.of(context).dividerColor,
-                                  thickness: 0.5,
-                                ),
-                                defaultFutureBuilder(
-                                  future: Future.wait(songsOfArtist),
-                                  onData:
-                                      (context, data) => _SongsOfArtist(
-                                        songs:
-                                            data
-                                                .map((e) => e as SongModel)
-                                                .toList(),
-                                      ),
-                                ),
-                                Divider(
-                                  color: Theme.of(context).dividerColor,
-                                  thickness: 0.5,
-                                ),
-                                defaultFutureBuilder(
-                                  future: Future.wait(albumsOfArtist),
-                                  onData:
-                                      (context, data) => _AlbumsOfArtist(
-                                        albums:
-                                            data
-                                                .map((e) => e as PlaylistModel)
-                                                .toList(),
-                                      ),
-                                ),
-                              ],
-                            ),
+                          child: Column(
+                            children: [
+                              _ArtistInfo(artist: artist),
+                              Divider(
+                                color: Theme.of(context).dividerColor,
+                                thickness: 0.5,
+                              ),
+                              defaultFutureBuilder(
+                                future: Future.wait(songsOfArtist),
+                                onData: (context, data) {
+                                  songs =
+                                      data.map((e) => e as SongModel).toList();
+                                  if (songs.isEmpty) {
+                                    return const SizedBox.shrink(
+                                      child: Text('Chưa có bài hát nào.'),
+                                    );
+                                  }
+                                  return _SongsOfArtist(songs: songs);
+                                },
+                              ),
+                              Divider(
+                                color: Theme.of(context).dividerColor,
+                                thickness: 0.5,
+                              ),
+                              defaultFutureBuilder(
+                                future: Future.wait(albumsOfArtist),
+                                onData: (context, data) {
+                                  albums =
+                                      data
+                                          .map((e) => e as PlaylistModel)
+                                          .toList();
+                                  if (albums.isEmpty) {
+                                    return const SizedBox.shrink(
+                                      child: Text('Chưa có album nào.'),
+                                    );
+                                  }
+                                  return _AlbumsOfArtist(albums: albums);
+                                },
+                              ),
+                            ],
                           ),
                         ),
-                      ),
+                      ]),
                     ),
                   ],
                 ),
-
                 MiniPlayer(),
               ],
             ),
@@ -141,10 +149,12 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
   }
 
   Widget _artistHeader(ArtistModel artist) {
+    final playerCubit = getIt<SongPlayerCubit>();
     return Stack(
+      fit: StackFit.loose,
       children: [
         SizedBox(
-          height: 300,
+          height: 350,
           width: double.infinity,
           child: Stack(
             fit: StackFit.expand,
@@ -191,7 +201,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
         ),
 
         Positioned(
-          bottom: 40,
+          bottom: 4,
 
           left: 16,
           right: 16,
@@ -213,32 +223,82 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('Phát nhạc'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Theme.of(context).colorScheme.tertiaryContainer,
-
-                      foregroundColor:
-                          Theme.of(context).colorScheme.onTertiaryContainer,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
+                  Column(
+                    children: [
+                      defaultFutureBuilder(
+                        future: getIt<SupabaseApi>().artists
+                            .getArtistFollowersCount(artist.id),
+                        onData: (context, data) {
+                          return Text(
+                            '${data.toString()} người theo dõi',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                  color: Colors.black26,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
-
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 4,
-                    ),
-                    onPressed: () {},
+                      _FollowButton(artistId: artist.id),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  _FollowButton(artistId: artist.id),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () async {
+                          if (!playerCubit.shuffleMode) {
+                            await playerCubit.toggleShuffleMode();
+                          }
+                          await playerCubit.loadAndPlay(
+                            context,
+                            songs[0],
+                            songList: List<SongModel>.from(songs),
+                          );
+                        },
+                        icon: const Icon(Icons.shuffle),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.play_arrow),
+
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onPrimary,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 12,
+                          ),
+
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 4,
+                        ),
+                        onPressed: () async {
+                          if (playerCubit.shuffleMode) {
+                            await playerCubit.toggleShuffleMode();
+                          }
+                          await playerCubit.loadAndPlay(
+                            context,
+                            songs[0],
+                            songList: List<SongModel>.from(songs),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ],
@@ -274,12 +334,12 @@ class _FollowButtonState extends State<_FollowButton> {
       future: _isFollowingFuture,
       onData:
           (context, data) => OutlinedButton.icon(
-            icon: Icon(data ? Icons.check : Icons.add),
+            icon: Icon(data ? Icons.notifications : null),
             label: Text(data ? 'Đã theo dõi' : 'Theo dõi'),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.white,
               side: const BorderSide(color: Colors.white, width: 2),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -455,7 +515,9 @@ class _AlbumCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       color: Theme.of(context).colorScheme.onSecondary,
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          //TO DO: play album
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

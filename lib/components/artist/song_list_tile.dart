@@ -168,7 +168,7 @@ class SongListTile extends StatelessWidget {
                             color:
                                 isPlaying
                                     ? Theme.of(context).colorScheme.primary
-                                    : Colors.grey[600] ?? Colors.grey,
+                                    : Colors.white,
                           ),
                         ],
                       ),
