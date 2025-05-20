@@ -165,4 +165,4 @@ app.*.symbols
 jsons/
 
 # Experiment
-**/my_ex.dart
+# **/my_ex.dart

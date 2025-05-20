@@ -166,9 +166,25 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   }
 
   bool get shuffleMode => audioPlayer.shuffleModeEnabled;
-  Future<void> seekToNext() => audioPlayer.seekToNext();
 
-  Future<void> seekToPrevious() => audioPlayer.seekToPrevious();
+  Future<void> seekToNext() async {
+    await audioPlayer.seekToNext();
+    if (audioPlayer.currentIndex == null) {
+      return;
+    }
+    final currentSong = currentSongList[audioPlayer.currentIndex!];
+    unawaited(getIt<SupabaseApi>().songs.incrementView(currentSong.id));
+  }
+
+  Future<void> seekToPrevious() async {
+    await audioPlayer.seekToPrevious();
+    if (audioPlayer.currentIndex == null) {
+      return;
+    }
+    final currentSong = currentSongList[audioPlayer.currentIndex!];
+    unawaited(getIt<SupabaseApi>().songs.incrementView(currentSong.id));
+  }
+
   Future<void> toggleShuffleMode() =>
       audioPlayer.setShuffleModeEnabled(!shuffleMode);
 }
