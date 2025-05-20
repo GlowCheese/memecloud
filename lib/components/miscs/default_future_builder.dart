@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:memecloud/apis/connectivity.dart';
+import 'package:memecloud/apis/others/connectivity.dart';
 
 Widget defaultFutureBuilder<T>({
   required Future<T> future,

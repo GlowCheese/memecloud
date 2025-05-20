@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:typed_data';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/apis/storage.dart';
-import 'package:memecloud/apis/connectivity.dart';
+import 'package:memecloud/apis/others/storage.dart';
+import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseCacheApi {

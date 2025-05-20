@@ -13,10 +13,10 @@ class ConnectivityStatus {
   static const ignoreStatusCode = 'IGNORE_1302';
   DateTime _lastConnectivityCrash = DateTime.fromMillisecondsSinceEpoch(0);
 
-  /// Stop a method from calling API for `15` seconds
+  /// Stop a method from calling API for `5` seconds
   /// if connectivity is unstable.
   void ensure() {
-    if (DateTime.now().difference(_lastConnectivityCrash).inSeconds < 15) {
+    if (DateTime.now().difference(_lastConnectivityCrash).inSeconds < 5) {
       throw AuthException(
         'SocketException: Lost connection',
         statusCode: ignoreStatusCode,
@@ -33,7 +33,11 @@ class ConnectivityStatus {
     if (e.toString().contains('SocketException')) {
       if (e is! AuthException || e.statusCode != ignoreStatusCode) {
         _lastConnectivityCrash = DateTime.now();
-        log('${e.runtimeType} detected: $e', stackTrace: stackTrace, level: 900);
+        log(
+          '${e.runtimeType} detected: $e',
+          stackTrace: stackTrace,
+          level: 900,
+        );
       }
       throw ConnectionLoss();
     }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:memecloud/apis/storage.dart';
+import 'package:memecloud/apis/others/storage.dart';
 import 'package:memecloud/core/getit.dart';
 
 class E05 extends StatefulWidget {
@@ -21,10 +21,9 @@ class _E05State extends State<E05> {
     final hiveBoxes = getIt<PersistentStorage>().hiveBoxes;
 
     final Map<String, Box> filterMap = {
-      'savedSongsInfo': hiveBoxes.savedSongsInfo,
       'apiCache': hiveBoxes.apiCache,
       'vipSongs': hiveBoxes.vipSongs,
-      'paletteColors': hiveBoxes.paletteColors,
+      'savedSongsInfo': hiveBoxes.savedSongsInfo,
     };
 
     filterMap.forEach((label, box) {

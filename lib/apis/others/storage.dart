@@ -1,6 +1,5 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
+import 'dart:convert';
 import 'package:hive_flutter/adapters.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -10,7 +9,6 @@ class HiveBoxes {
       Hive.openBox<bool>('savedSongsInfo'),
       Hive.openBox<bool>('vipSongs'),
       Hive.openBox<Map>('apiCache'),
-      Hive.openBox<List<int>>('paletteColors'),
       Hive.openBox<String>('recentSearches'),
     ]);
     return HiveBoxes();
@@ -19,7 +17,6 @@ class HiveBoxes {
   Box<bool> get savedSongsInfo => Hive.box('savedSongsInfo');
   Box<bool> get vipSongs => Hive.box('vipSongs');
   Box<Map> get apiCache => Hive.box('apiCache');
-  Box<List<int>> get paletteColors => Hive.box('paletteColors');
   Box<String> get recentSearches => Hive.box('recentSearches');
 }
 
@@ -108,25 +105,6 @@ class PersistentStorage {
       'data': jsonEncode(data),
       'created_at': DateTime.now().millisecondsSinceEpoch,
     });
-  }
-
-  List<Color>? getPaletteColors(String url) {
-    if (url.length > 255) {
-      url = url.substring(url.length - 255);
-    }
-    final value = hiveBoxes.paletteColors.get(url);
-    if (value == null) return null;
-    return value.map((e) => Color(e)).toList();
-  }
-
-  Future<void> setPaletteColors(String url, List<Color> colors) async {
-    if (url.length > 255) {
-      url = url.substring(url.length - 255);
-    }
-    await hiveBoxes.paletteColors.put(
-      url,
-      colors.map((e) => e.toARGB32()).toList(),
-    );
   }
 
   void saveSearch(String query, {int lim = 7, bool negate = false}) {

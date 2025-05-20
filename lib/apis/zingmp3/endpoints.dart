@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/apis/connectivity.dart';
+import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:memecloud/apis/zingmp3/requester.dart';
 import 'package:memecloud/utils/common.dart';
 

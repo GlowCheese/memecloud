@@ -1,15 +1,14 @@
-import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/utils/common.dart';
+import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:memecloud/components/miscs/palette_colors_builder.dart';
 
 class MyColorSet {
   static final cyan = Colors.cyan.shade900;
   static final purple = Colors.deepPurple.shade300;
   static final grey = Colors.blueGrey;
   static final redAccent = Colors.redAccent.shade200;
-  static final teal = Colors.teal.shade600;
+  static final teal = const Color.fromRGBO(0, 137, 123, 1);
   static final indigo = Colors.indigo.shade400;
   static final orange = Colors.deepOrange.shade400;
   static final pink = Colors.pink.shade900;
@@ -66,7 +65,7 @@ class GradBackground2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return getIt<ApiKit>().paletteColorsWidgetBuider(imageUrl, (paletteColors) {
+    return paletteColorsWidgetBuider(imageUrl, (paletteColors) {
       late final Color bgColor, subBgColor;
       if (AdaptiveTheme.of(context).mode.isDark) {
         bgColor = adjustColor(paletteColors.first, l: 0.3, s: 0.3);

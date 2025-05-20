@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
-import 'package:memecloud/apis/connectivity.dart';
+import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:memecloud/apis/supabase/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -202,9 +202,7 @@ class SupabaseSongsApi {
 
   ///begin increment view
   Future<void> incrementView(String songId) async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-
-    if (userId == null) return;
+    final userId = Supabase.instance.client.auth.currentUser!.id;
 
     final response = await Supabase.instance.client.rpc(
       'increment_view',

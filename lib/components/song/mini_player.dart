@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/components/song/like_button.dart';
-import 'package:memecloud/components/song/play_or_pause_button.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:memecloud/components/song/like_button.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
+import 'package:memecloud/components/song/play_or_pause_button.dart';
+import 'package:memecloud/components/miscs/palette_colors_builder.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
@@ -47,7 +47,7 @@ class _MiniPlayerInner extends StatefulWidget {
 class _MiniPlayerInnerState extends State<_MiniPlayerInner> {
   @override
   Widget build(BuildContext context) {
-    return getIt<ApiKit>().paletteColorsWidgetBuider(widget.song.thumbnailUrl, (
+    return paletteColorsWidgetBuider(widget.song.thumbnailUrl, (
       List<Color> paletteColors,
     ) {
       late final Color domBg, subDomBg;

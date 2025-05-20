@@ -4,21 +4,20 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/apis/storage.dart';
-import 'package:memecloud/models/artist_model.dart';
-import 'package:memecloud/models/playlist_model.dart';
-import 'package:memecloud/models/search_suggestion_model.dart';
-import 'package:memecloud/models/song_lyrics_model.dart';
-import 'package:memecloud/models/week_chart_model.dart';
 import 'package:memecloud/utils/common.dart';
-import 'package:memecloud/apis/connectivity.dart';
-import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/user_model.dart';
+import 'package:memecloud/apis/supabase/main.dart';
+import 'package:memecloud/apis/others/storage.dart';
+import 'package:memecloud/models/artist_model.dart';
+import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/apis/zingmp3/endpoints.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:memecloud/models/week_chart_model.dart';
+import 'package:memecloud/apis/others/connectivity.dart';
+import 'package:memecloud/models/song_lyrics_model.dart';
 import 'package:memecloud/models/search_result_model.dart';
-import 'package:memecloud/components/miscs/default_future_builder.dart';
+import 'package:memecloud/models/search_suggestion_model.dart';
 
 class ApiKit {
   final dio = getIt<Dio>();
@@ -398,27 +397,6 @@ class ApiKit {
           (json) => List.castFrom<dynamic, Map<String, dynamic>>(json['items']),
       cacheEncode: (data) => {'items': data},
       outputFixer: (data) => _getSongsForHomeOutputFixer(data),
-    );
-  }
-
-  /* ---------------------
-  |    MISCELLANEOUS     |
-  --------------------- */
-
-  Widget paletteColorsWidgetBuider(
-    String imageUrl,
-    Widget Function(List<Color> paletteColors) func,
-  ) {
-    final paletteColors = storage.getPaletteColors(imageUrl);
-    if (paletteColors != null) return func(paletteColors);
-
-    return defaultFutureBuilder(
-      future: getPaletteColors(imageUrl),
-      onData: (context, data) {
-        final paletteColors = data;
-        unawaited(storage.setPaletteColors(imageUrl, paletteColors));
-        return func(paletteColors);
-      },
     );
   }
 }
