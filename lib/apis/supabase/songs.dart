@@ -55,7 +55,7 @@ class SupabaseSongsApi {
               .eq('id', songId)
               .maybeSingle();
       if (response == null) return null;
-      return await SongModel.fromJson<SupabaseApi>(response);
+      return SongModel.fromJson<SupabaseApi>(response);
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log('Failed to getSongInfo: $e', stackTrace: stackTrace, level: 1000);
@@ -96,19 +96,13 @@ class SupabaseSongsApi {
 
       final response = await _client
           .from('liked_songs')
-          .select('''songs(
-            *,
-            song_artists(
-              artist:artists (*)
-            )
-          )''')
+          .select('songs(*, song_artists(artist:artists (*)))')
           .eq('user_id', userId);
 
-      final songsList = await Future.wait(
-        (response as List).map((item) {
-          return SongModel.fromJson<SupabaseApi>(item['songs'], isLiked: true);
-        }),
-      );
+      final songsList =
+          (response as List).map((item) {
+            return SongModel.fromJson<SupabaseApi>(item['songs']);
+          }).toList();
 
       return songsList;
     } catch (e, stackTrace) {
@@ -179,13 +173,13 @@ class SupabaseSongsApi {
 
       final response = await _client
           .from('blacklist')
-          .select('song: songs(*, song_artists(artist:artists (*)))')
+          .select('songs(*, song_artists(artist:artists (*)))')
           .eq('user_id', userId);
 
-      final songsList = await Future.wait(
-        response.map((e) => SongModel.fromJson<SupabaseApi>(e['song']))
-      );
-
+      final songsList =
+          response
+              .map((e) => SongModel.fromJson<SupabaseApi>(e['songs']))
+              .toList();
       return songsList;
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, stackTrace);
@@ -243,6 +237,23 @@ class SupabaseSongsApi {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
         'Failed to mark song as vip: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
+  Future<List<String>> getVipSongIds() async {
+    try {
+      _connectivity.ensure();
+      final response = await _client.from('vip_songs').select('song_id');
+      final songIds = List<String>.from(response.map((e) => e['song_id']));
+      return songIds;
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        'Failed to fetch all vip songs: $e',
         stackTrace: stackTrace,
         level: 1000,
       );

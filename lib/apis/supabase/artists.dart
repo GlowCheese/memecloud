@@ -63,11 +63,7 @@ class SupabaseArtistsApi {
           .order('view_in_week', ascending: false)
           .limit(count);
 
-      return await Future.wait(
-        response.map(
-          (artist) => ArtistModel.fromJson<SupabaseApi>({'artist': artist}),
-        ),
-      );
+      return response.map((artist) => ArtistModel.fromJson<SupabaseApi>({'artist': artist})).toList();
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log("Failed to get top artists: $e", stackTrace: stackTrace, level: 1000);

@@ -70,16 +70,17 @@ class _DashboardPageState extends State<DashboardPage> {
   BottomNavigationBar _bottomNavigationBar() {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
+      backgroundColor: Colors.transparent,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
         BottomNavigationBarItem(
           icon: Icon(Icons.bar_chart),
-          label: 'Top Charts',
+          label: 'Charts',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.library_music),
-          label: 'My Library'
+          label: 'Library'
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.bubble_chart),

@@ -114,12 +114,16 @@ class SongPageInner extends StatelessWidget {
                       onPressed: () {
                         context.push('/song_lyric');
                       },
+                      iconSize: 20,
                       icon: Icon(Icons.open_in_full),
                     ),
                   ],
                 ),
               ),
-              Expanded(child: SongLyricWidget(lyric: data!, largeText: false)),
+              Expanded(child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: SongLyricWidget(lyric: data!, largeText: false),
+              )),
             ],
           );
         },

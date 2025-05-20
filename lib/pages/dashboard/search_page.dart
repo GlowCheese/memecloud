@@ -82,7 +82,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void setSearchQuery(String value) {
-    getIt<ApiKit>().saveSearch(value);
+    getIt<ApiKit>().saveRecentSearch(value);
     FocusScope.of(context).unfocus();
     setState(() => finalSearchQuery = value);
     searchQueryController.text = value;

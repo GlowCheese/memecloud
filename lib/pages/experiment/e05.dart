@@ -24,6 +24,7 @@ class _E05State extends State<E05> {
       'apiCache': hiveBoxes.apiCache,
       'vipSongs': hiveBoxes.vipSongs,
       'savedSongsInfo': hiveBoxes.savedSongsInfo,
+      'likedSongs': hiveBoxes.likedSongs
     };
 
     filterMap.forEach((label, box) {

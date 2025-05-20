@@ -27,7 +27,7 @@ class MiniPlayer extends StatelessWidget {
             child: _MiniPlayerInner(playerCubit, state.currentSong)
           );
         } else {
-          return SizedBox();
+          return SizedBox(height: 1);
         }
       },
     );

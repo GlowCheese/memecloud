@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:memecloud/apis/others/events.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:memecloud/models/song_model.dart';
@@ -25,7 +26,9 @@ class ApiKit {
   final supabase = getIt<SupabaseApi>();
   final storage = getIt<PersistentStorage>();
   final _connectivity = getIt<ConnectivityStatus>();
+
   late final SupabaseClient client = supabase.client;
+  late final events = SupabaseEvents(client: client);
 
   /* ---------------------
   |    AUTHENTICATION    |
@@ -65,10 +68,14 @@ class ApiKit {
     return remoteResp;
   }
 
-  Future<void> updateCached(String api, Map data) {
+  Future<void> _updateCached(String api, Map data) {
     return Future.wait([
       storage.updateCached(api, data),
-      client.from('api_cache').upsert({'api': api, 'data': data}),
+      client.from('api_cache').upsert({
+        'api': api,
+        'data': data,
+        'created_at': DateTime.now().toIso8601String(),
+      }),
     ]);
   }
 
@@ -90,7 +97,7 @@ class ApiKit {
     ) async {
       try {
         final data = await fetchFunc();
-        unawaited(updateCached(api, cacheEncode!(data)));
+        unawaited(_updateCached(api, cacheEncode!(data)));
         return outputFixer!(data);
       } catch (_) {
         if (fallback != null) {
@@ -131,7 +138,7 @@ class ApiKit {
     String api = '/infosong?id=$songId';
     final localResp = storage.getCached(api);
     if (localResp.data != null) {
-      return await SongModel.fromJson<SupabaseApi>(localResp.data!);
+      return SongModel.fromJson<SupabaseApi>(localResp.data!);
     }
 
     final remoteResp = await supabase.songs.getSongInfo(songId);
@@ -143,19 +150,13 @@ class ApiKit {
     final zingResp = await getIt<ZingMp3Api>().fetchSongInfo(songId);
     if (zingResp != null) {
       unawaited(storage.updateCached(api, zingResp));
-      final song = await SongModel.fromJson<ZingMp3Api>(zingResp);
+      final song = SongModel.fromJson<ZingMp3Api>(zingResp);
       unawaited(saveSongInfo(song));
       return song;
     }
 
     return null;
   }
-
-  Future<bool> getIsLiked(String songId) => supabase.songs.getIsLiked(songId);
-  Future<void> setIsLiked(String songId, bool isLiked) =>
-      supabase.songs.setIsLiked(songId, isLiked);
-  Future<List<SongModel>> getLikedSongsList() =>
-      supabase.songs.getLikedSongsList();
 
   Future<bool> isBlacklisted(String songId) =>
       supabase.songs.isBlacklisted(songId);
@@ -164,33 +165,6 @@ class ApiKit {
   Future<List<SongModel>> getBlacklistedSongs() =>
       supabase.songs.getBlacklistSongs();
 
-  /* ----------------------
-  |    VIP SONGS FILTER   |
-  ---------------------- */
-
-  Future<bool> isNonVipSong(String songId) async {
-    bool? cached = storage.isNonVipSong(songId);
-    if (cached != null) return cached;
-    bool res = (await filterNonVipSongs([songId])).contains(songId);
-    if (!res) unawaited(storage.markSongAsVip(songId));
-    return res;
-  }
-
-  Future<void> markSongAsVip(String songId) {
-    return Future.wait([
-      storage.markSongAsVip(songId),
-      supabase.songs.markSongAsVip(songId),
-    ]);
-  }
-
-  Future<List<String>> filterNonVipSongs(Iterable<String> songsIds) async {
-    try {
-      return await supabase.songs.filterNonVipSongs(songsIds);
-    } on ConnectionLoss {
-      return songsIds.where((e) => storage.isNonVipSong(e) == true).toList();
-    }
-  }
-
   /* --------------------
   |    PLAYLISTS AND    |
   |     ARTISTS APIs    |
@@ -198,7 +172,7 @@ class ApiKit {
 
   Future<PlaylistModel?> getPlaylistInfo(String playlistId) async {
     final String api = '/infoplaylist?id=$playlistId';
-    return await _getOrFetch<Map<String, dynamic>?, Future<PlaylistModel>?>(
+    return await _getOrFetch<Map<String, dynamic>?, PlaylistModel?>(
       api,
       fetchFunc: () => zingMp3.fetchPlaylistInfo(playlistId),
       cacheEncode: (data) => ignoreNullValuesOfMap({'data': data}),
@@ -215,7 +189,7 @@ class ApiKit {
 
   Future<ArtistModel?> getArtistInfo(String artistAlias) async {
     final String api = '/infoartist?alias=$artistAlias';
-    return await _getOrFetch<Map<String, dynamic>?, Future<ArtistModel>?>(
+    return await _getOrFetch<Map<String, dynamic>?, ArtistModel?>(
       api,
       fetchFunc: () => zingMp3.fetchArtistInfo(artistAlias),
       cacheEncode: (data) => ignoreNullValuesOfMap({'data': data}),
@@ -235,12 +209,49 @@ class ApiKit {
   }
 
   /* ----------------------
-  |    RECENT SEARCHES    |
+  |    LIKEs & FOLLOWs    |
   ---------------------- */
 
-  void saveSearch(String query) => storage.saveSearch(query);
-  void removeSearch(String query) => storage.saveSearch(query, negate: true);
-  List<String> getRecentSearches() => storage.getRecentSearches();
+  bool isSongLiked(String songId) {
+    return storage.isSongLiked(songId);
+  }
+
+  Future setIsSongLiked(SongModel song, bool isLiked) {
+    unawaited(supabase.songs.setIsLiked(song.id, isLiked));
+    return storage.setIsLiked(song, isLiked);
+  }
+
+  List<SongModel> getLikedSongs() {
+    return storage.getLikedSongs();
+  }
+
+  /* ----------------------
+  |    VIP SONGS FILTER   |
+  ---------------------- */
+
+  bool isNonVipSong(String songId) {
+    return storage.isNonVipSong(songId);
+  }
+
+  Future<void> markSongAsVip(String songId) {
+    return Future.wait([
+      storage.markSongAsVip(songId),
+      supabase.songs.markSongAsVip(songId),
+    ]);
+  }
+
+  Iterable<String> filterNonVipSongs(Iterable<String> songIds) {
+    return storage.filterNonVipSongs(songIds);
+  }
+
+  /* ------------------
+  |    SEARCH APIs    |
+  ------------------ */
+
+  void saveRecentSearch(String query) => storage.saveSearch(query);
+  void removeRecentSearch(String query) =>
+      storage.saveSearch(query, negate: true);
+  Iterable<String> getRecentSearches() => storage.getRecentSearches();
 
   Future<List<SongModel>?> searchSongs(
     String keyword, {
@@ -281,7 +292,7 @@ class ApiKit {
     String api = '/search?keyword=$keyword';
     final int lazyTime = 14 * 24 * 60 * 60; // 14 days
 
-    return await _getOrFetch<Map, Future<SearchResultModel>>(
+    return await _getOrFetch<Map, SearchResultModel>(
       api,
       lazyTime: lazyTime,
       fetchFunc: () => zingMp3.searchMulti(keyword),
@@ -330,6 +341,19 @@ class ApiKit {
     }
   }
 
+  bool isSongUriActive(Uri uri) {
+    final authen = uri.queryParameters['authen'];
+    final expStr = authen
+        ?.split('~')
+        .firstWhere((e) => e.startsWith('exp='), orElse: () => '')
+        .split('=')
+        .elementAtOrNull(1);
+
+    final exp = int.tryParse(expStr ?? '') ?? 0;
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    return exp > now + 600;
+  }
+
   /// Return `null` if `isNonVipSong(songId) == false`, \
   /// otherwise the Uri for the song (either remote or local).
   Future<Uri?> getSongUri(String songId) async {
@@ -339,15 +363,30 @@ class ApiKit {
     final file = File(filePath);
 
     if (await file.exists()) return Uri.file(filePath);
+    if (!isNonVipSong(songId)) return null;
 
-    if (!await isNonVipSong(songId)) return null;
-    final songUrl = await zingMp3.fetchSongUrl(songId);
-    if (songUrl == null) {
-      unawaited(markSongAsVip(songId));
-      return null;
+    final api = '/songuri?id=$songId';
+    late Uri? uri;
+
+    for (var i = 0; i < 2; i++) {
+      uri = await _getOrFetch<String?, Uri?>(
+        api,
+        lazyTime: i == 0 ? null : 0,
+        fetchFunc: () => zingMp3.fetchSongUrl(songId),
+        cacheEncode: (data) => {'uri': data},
+        cacheDecode: (json) => json['uri'],
+        outputFixer: (data) {
+          if (data == null) return null;
+          return Uri.parse(data);
+        },
+      );
+      if (uri == null) {
+        unawaited(markSongAsVip(songId));
+        return null;
+      }
+      if (isSongUriActive(uri)) return uri;
     }
-
-    return Uri.parse(songUrl);
+    return null;
   }
 
   Future<SongLyricsModel?> getSongLyric(String songId) async {
@@ -388,7 +427,7 @@ class ApiKit {
 
     return await _getOrFetch<
       List<Map<String, dynamic>>,
-      Future<List<Map<String, dynamic>>>
+      List<Map<String, dynamic>>
     >(
       api,
       lazyTime: lazyTime,
@@ -401,20 +440,19 @@ class ApiKit {
   }
 }
 
-Future<List<Map<String, dynamic>>> _getSongsForHomeOutputFixer(
+List<Map<String, dynamic>> _getSongsForHomeOutputFixer(
   List<Map<String, dynamic>> data,
-) async {
+) {
   for (var songList in data) {
     final items = songList['items'];
     var songIds = List<String>.from(items.map((song) => song['encodeId']));
 
-    songIds = await getIt<ApiKit>().filterNonVipSongs(songIds);
+    songIds = getIt<ApiKit>().filterNonVipSongs(songIds).toList();
     songList['items'] =
-        (await Future.wait(
-          List.castFrom<dynamic, Map<String, dynamic>>(items)
-              .where((song) => songIds.contains(song['encodeId']))
-              .map((song) => SongModel.fromJson<ZingMp3Api>(song)),
-        )).whereType<SongModel>().toList();
+        List.castFrom<dynamic, Map<String, dynamic>>(items)
+            .where((song) => songIds.contains(song['encodeId']))
+            .map((song) => SongModel.fromJson<ZingMp3Api>(song))
+            .toList();
   }
   return data;
 }

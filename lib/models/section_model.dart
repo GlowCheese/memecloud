@@ -10,29 +10,28 @@ abstract class SectionModel {
 
   SectionModel({required this.title, required this.items});
 
-  static Future<SectionModel?> fromJson<T>(Map<String, dynamic> json) async {
+  static SectionModel? fromJson<T>(Map<String, dynamic> json) {
     if (T == ZingMp3Api) {
       if (json['sectionType'] == 'song') {
-        return await SongSection.fromJson<T>(json);
+        return SongSection.fromJson<T>(json);
       }
       // TODO: uncomment this whenever you need it!
       // if (json['sectionType'] == 'artist') {
-      //   return await ArtistSection.fromJson<T>(json);
+      //   return ArtistSection.fromJson<T>(json);
       // }
       if (json['sectionType'] == 'playlist') {
-        return await PlaylistSection.fromJson<T>(json);
+        return PlaylistSection.fromJson<T>(json);
       }
       return null;
     }
     throw UnsupportedError('Cannot parse SectionModel for type $T');
   }
 
-  static Future<List<SectionModel>> fromListJson<T>(
-    List<Map<String, dynamic>> list,
-  ) async {
-    return (await Future.wait(
-      list.map(SectionModel.fromJson<T>)
-    )).whereType<SectionModel>().toList();
+  static List<SectionModel> fromListJson<T>(List<Map<String, dynamic>> list) {
+    return list
+        .map(SectionModel.fromJson<T>)
+        .whereType<SectionModel>()
+        .toList();
   }
 
   Map<String, dynamic> toJson() {
@@ -52,11 +51,11 @@ abstract class SectionModel {
 class SongSection extends SectionModel {
   SongSection({required super.title, required List<SongModel> super.items});
 
-  static Future<SongSection> fromJson<T>(Map<String, dynamic> json) async {
+  static SongSection fromJson<T>(Map<String, dynamic> json) {
     if (T == ZingMp3Api) {
       return SongSection(
         title: json['title'],
-        items: await SongModel.fromListJson<T>(json['items']),
+        items: SongModel.fromListJson<T>(json['items']),
       );
     }
     throw UnsupportedError('Cannot parse SongSection for type $T');
@@ -66,11 +65,11 @@ class SongSection extends SectionModel {
 class ArtistSection extends SectionModel {
   ArtistSection({required super.title, required List<ArtistModel> super.items});
 
-  static Future<ArtistSection> fromJson<T>(Map<String, dynamic> json) async {
+  static ArtistSection fromJson<T>(Map<String, dynamic> json) {
     if (T == ZingMp3Api) {
       return ArtistSection(
         title: json['title'],
-        items: await ArtistModel.fromListJson<T>(json['items']),
+        items: ArtistModel.fromListJson<T>(json['items']),
       );
     }
     throw UnsupportedError('Cannot parse ArtistSection for type $T');
@@ -83,11 +82,11 @@ class PlaylistSection extends SectionModel {
     required List<PlaylistModel> super.items,
   });
 
-  static Future<PlaylistSection> fromJson<T>(Map<String, dynamic> json) async {
+  static PlaylistSection fromJson<T>(Map<String, dynamic> json) {
     if (T == ZingMp3Api) {
       return PlaylistSection(
         title: json['title'],
-        items: await PlaylistModel.fromListJson<T>(json['items']),
+        items: PlaylistModel.fromListJson<T>(json['items']),
       );
     }
     throw UnsupportedError('Cannot parse PlaylistSection for type $T');

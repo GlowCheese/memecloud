@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
-import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/miscs/section_divider.dart';
 import 'package:memecloud/components/miscs/page_with_tabs/multi.dart';
-import 'package:memecloud/components/musics/song_card.dart';
-import 'package:memecloud/core/getit.dart';
 
 Map getLibraryPage(BuildContext context) {
   return {
@@ -43,21 +42,17 @@ class LibraryPage extends StatelessWidget {
 
         if (downloadFocus) return Placeholder();
 
-        return defaultFutureBuilder(
-          future: getIt<ApiKit>().getLikedSongsList(),
-          onData: (context, data) {
-            return ListView.separated(
-              itemBuilder: (context, index) {
-                return SongCard(
-                  variation: 1,
-                  song: data[index],
-                  songList: data,
-                );
-              },
-              separatorBuilder: (context, index) => SizedBox(height: 12),
-              itemCount: data.length,
+        final likedSongs = getIt<ApiKit>().getLikedSongs();
+        return ListView.separated(
+          itemBuilder: (context, index) {
+            return SongCard(
+              variation: 1,
+              song: likedSongs[index],
+              songList: likedSongs,
             );
           },
+          separatorBuilder: (context, index) => SizedBox(height: 12),
+          itemCount: likedSongs.length,
         );
       },
     );

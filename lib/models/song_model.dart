@@ -1,13 +1,11 @@
-import 'dart:async';
-
-import 'package:just_audio_background/just_audio_background.dart';
-import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/apis/supabase/main.dart';
-import 'package:memecloud/apis/zingmp3/endpoints.dart';
 import 'package:memecloud/blocs/liked_songs/liked_songs_stream.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/models/artist_model.dart';
+import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/models/music_model.dart';
+import 'package:memecloud/models/artist_model.dart';
+import 'package:memecloud/apis/zingmp3/endpoints.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 
 class SongModel extends MusicModel {
   final String id;
@@ -17,7 +15,7 @@ class SongModel extends MusicModel {
   final String thumbnailUrl;
   final DateTime releaseDate;
   final List<ArtistModel> artists;
-  bool? isLiked;
+  bool? _isLiked, _isVip;
 
   // Private constructor
   SongModel._({
@@ -28,13 +26,9 @@ class SongModel extends MusicModel {
     required this.artists,
     required this.releaseDate,
     required this.thumbnailUrl,
-    this.isLiked,
   });
 
-  static Future<SongModel> fromJson<T>(
-    Map<String, dynamic> json, {
-    bool? isLiked,
-  }) async {
+  static SongModel fromJson<T>(Map<String, dynamic> json) {
     if (T == ZingMp3Api) {
       return SongModel._(
         id: json['encodeId'],
@@ -48,8 +42,7 @@ class SongModel extends MusicModel {
         artists:
             !json.containsKey('artists')
                 ? []
-                : await ArtistModel.fromListJson<T>(json['artists']),
-        isLiked: isLiked,
+                : ArtistModel.fromListJson<T>(json['artists']),
       );
     } else if (T == SupabaseApi) {
       return SongModel._(
@@ -57,21 +50,9 @@ class SongModel extends MusicModel {
         title: json['title'],
         duration: Duration(seconds: json['duration'] as int),
         artistsNames: json['artists_names'],
-        artists: await ArtistModel.fromListJson<T>(json['song_artists']),
+        artists: ArtistModel.fromListJson<T>(json['song_artists']),
         thumbnailUrl: json['thumbnail_url'],
         releaseDate: DateTime.parse(json['release_date']),
-        isLiked: isLiked,
-      );
-    } else if (T == ArtistModel) {
-      return SongModel._(
-        id: json['id'],
-        title: json['title'],
-        duration: Duration(seconds: json['duration'] as int),
-        artistsNames: json['artists_names'],
-        artists: await ArtistModel.fromListJson<T>(json['song_artists'])  ,
-        thumbnailUrl: json['thumbnail_url'],
-        releaseDate: DateTime.parse(json['release_date']),
-        isLiked: isLiked,
       );
     } else {
       throw UnsupportedError('Unsupported parse json for type $T');
@@ -95,32 +76,32 @@ class SongModel extends MusicModel {
     return res;
   }
 
-  static Future<List<SongModel>> fromListJson<T>(List list) async {
-    final tmp = await Future.wait(
-      list.map((json) => SongModel.fromJson<T>(json)),
-    );
+  static List<SongModel> fromListJson<T>(List list) {
+    final tmp = list.map((json) => SongModel.fromJson<T>(json));
 
     try {
-      final songIds = await getIt<ApiKit>().filterNonVipSongs(
+      final songIds = getIt<ApiKit>().filterNonVipSongs(
         tmp.map((e) => e.id).toList(),
       );
       return tmp.where((e) => songIds.contains(e.id)).toList();
     } catch (_) {
-      return tmp;
+      return tmp.toList();
     }
   }
 
-  bool setIsLiked(bool newValue, {bool sync = true}) {
-    if (sync) {
-      unawaited(getIt<ApiKit>().setIsLiked(id, newValue));
-    }
-    getIt<LikedSongsStream>().setIsLiked(this, newValue);
-    return isLiked = newValue;
+  bool get isLiked {
+    if (_isLiked != null) return _isLiked!;
+    return _isLiked = getIt<ApiKit>().isSongLiked(id);
+  }
+  set isLiked(bool isLiked) {
+    _isLiked = isLiked;
+    getIt<ApiKit>().setIsSongLiked(this, isLiked);
+    getIt<LikedSongsStream>().setIsLiked(this, isLiked);
   }
 
-  Future<bool> loadIsLiked() async {
-    isLiked = await getIt<ApiKit>().getIsLiked(id);
-    return isLiked!;
+  bool? get isVip {
+    if (_isVip != null) return _isVip;
+    return _isVip = !getIt<ApiKit>().isNonVipSong(id);
   }
 
   MediaItem get mediaItem => MediaItem(

@@ -32,10 +32,7 @@ class PlaylistModel extends MusicModel {
     this.followed,
   });
 
-  static Future<PlaylistModel> fromJson<T>(
-    Map<String, dynamic> json, {
-    bool? followed,
-  }) async {
+  static PlaylistModel fromJson<T>(Map<String, dynamic> json) {
     if (T == AnonymousPlaylist) {
       return PlaylistModel._(
         title: json['title'],
@@ -45,7 +42,7 @@ class PlaylistModel extends MusicModel {
             'https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg?cs=srgb&dl=pexels-pixabay-104827.jpg&fm=jpg',
         songs:
             json.containsKey('songs')
-                ? await SongModel.fromListJson<T>(json['songs'])
+                ? SongModel.fromListJson<T>(json['songs'])
                 : null,
       );
     } else if (T == ZingMp3Api) {
@@ -58,11 +55,11 @@ class PlaylistModel extends MusicModel {
         description: json['sortDescription'] ?? json['description'] ?? 'mô tả',
         songs:
             json.containsKey('song')
-                ? await SongModel.fromListJson<T>(json['song']['items'])
+                ? SongModel.fromListJson<T>(json['song']['items'])
                 : null,
         artists:
             json.containsKey('artists')
-                ? await ArtistModel.fromListJson<T>(json['artists'])
+                ? ArtistModel.fromListJson<T>(json['artists'])
                 : null,
       );
     } else if (T == ArtistModel) {
@@ -77,8 +74,8 @@ class PlaylistModel extends MusicModel {
     }
   }
 
-  static Future<List<PlaylistModel>> fromListJson<T>(List list) {
-    return Future.wait(list.map((json) => PlaylistModel.fromJson<T>(json)));
+  static List<PlaylistModel> fromListJson<T>(List list) {
+    return list.map((json) => PlaylistModel.fromJson<T>(json)).toList();
   }
 
   @override

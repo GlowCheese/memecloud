@@ -1,7 +1,5 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/blocs/liked_songs/liked_songs_stream.dart';
 
@@ -22,22 +20,6 @@ class SongLikeButton extends StatefulWidget {
 }
 
 class _SongLikeButtonState extends State<SongLikeButton> {
-  @override
-  void initState() {
-    super.initState();
-    if (widget.song.isLiked == null) {
-      widget.song.setIsLiked(widget.defaultIsLiked, sync: false);
-      unawaited(() async {
-        try {
-          await widget.song.loadIsLiked();
-          if (mounted) setState(() {});
-        } on ConnectionLoss {
-          return;
-        }
-      }());
-    }
-  }
-
   void _syncLike(AsyncSnapshot<SongLikeEvent> snapshot) {
     final event = snapshot.data;
     SongModel? song;
@@ -65,7 +47,7 @@ class _SongLikeButtonState extends State<SongLikeButton> {
                     color: widget.dftColor,
                   ),
           onPressed: () {
-            widget.song.setIsLiked(widget.song.isLiked != true);
+            widget.song.isLiked = widget.song.isLiked != true;
           },
         );
       },

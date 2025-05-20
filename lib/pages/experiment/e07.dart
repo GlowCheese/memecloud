@@ -10,7 +10,6 @@ import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/blocs/liked_songs/liked_songs_stream.dart';
 import 'package:memecloud/components/song/play_or_pause_button.dart';
-import 'package:memecloud/components/miscs/default_future_builder.dart';
 
 class MusicTabsPage extends StatefulWidget {
   const MusicTabsPage({super.key});
@@ -57,12 +56,8 @@ class LikedSongPage extends StatefulWidget {
 class _LikedSongPageState extends State<LikedSongPage> {
   @override
   Widget build(BuildContext context) {
-    return defaultFutureBuilder(
-      future: getIt<ApiKit>().getLikedSongsList(),
-      onData: (context, songs) {
-        return _SongListView(likedSongs: List<SongModel>.from(songs));
-      },
-    );
+    final likedSongs = getIt<ApiKit>().getLikedSongs();
+    return _SongListView(likedSongs: List<SongModel>.from(likedSongs));
   }
 }
 

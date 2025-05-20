@@ -15,7 +15,6 @@ class ArtistModel extends MusicModel {
   final String? biography;
   final String? shortBiography;
   final List<SectionModel>? sections;
-  bool? followed;
 
   ArtistModel._({
     required this.id,
@@ -27,17 +26,13 @@ class ArtistModel extends MusicModel {
     this.biography,
     this.shortBiography,
     this.sections,
-    this.followed,
   });
 
-  static Future<ArtistModel> fromJson<T>(
-    Map<String, dynamic> json, {
-    bool? followed,
-  }) async {
+  static ArtistModel fromJson<T>(Map<String, dynamic> json) {
     if (T == ZingMp3Api) {
       List<SectionModel>? sections;
       if (json.containsKey('sections')) {
-        sections = await SectionModel.fromListJson<T>(List.castFrom<dynamic, Map<String, dynamic>>(json['sections']));
+        sections = SectionModel.fromListJson<T>(List.castFrom<dynamic, Map<String, dynamic>>(json['sections']));
       }
 
       return ArtistModel._(
@@ -50,7 +45,6 @@ class ArtistModel extends MusicModel {
         biography: json['biography'],
         shortBiography: json['sortBiography'],
         sections: sections,
-        followed: followed,
       );
     } else if (T == SupabaseApi) {
       final art = json['artist'];
@@ -60,7 +54,6 @@ class ArtistModel extends MusicModel {
         alias: art['alias'],
         thumbnailUrl: art['thumbnail_url'],
         playlistId: art['playlist_id'],
-        followed: followed,
       );
     } else {
       throw UnsupportedError('Unsupported parse json for type $T');
@@ -84,7 +77,7 @@ class ArtistModel extends MusicModel {
     };
   }
 
-  static Future<List<ArtistModel>> fromListJson<T>(List list) {
-    return Future.wait(list.map((json) => ArtistModel.fromJson<T>(json)));
+  static List<ArtistModel> fromListJson<T>(List list) {
+    return list.map((json) => ArtistModel.fromJson<T>(json)).toList();
   }
 }

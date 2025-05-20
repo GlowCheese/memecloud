@@ -19,7 +19,7 @@ class SearchSuggestions extends StatefulWidget {
 }
 
 class _SearchSuggestionsState extends State<SearchSuggestions> {
-  List<String> data = getIt<ApiKit>().getRecentSearches();
+  List<String> data = getIt<ApiKit>().getRecentSearches().toList();
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +91,7 @@ class _SearchSuggestionsState extends State<SearchSuggestions> {
           padding: const EdgeInsets.only(left: 10),
           child: IconButton(
             onPressed: () {
-              getIt<ApiKit>().removeSearch(item);
+              getIt<ApiKit>().removeRecentSearch(item);
               setState(() {
                 data.remove(item);
               });

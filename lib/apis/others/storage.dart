@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:hive_flutter/adapters.dart';
+import 'package:memecloud/apis/supabase/main.dart';
+import 'package:memecloud/models/song_model.dart';
 import 'package:path_provider/path_provider.dart';
 
 class HiveBoxes {
@@ -10,6 +12,7 @@ class HiveBoxes {
       Hive.openBox<bool>('vipSongs'),
       Hive.openBox<Map>('apiCache'),
       Hive.openBox<String>('recentSearches'),
+      Hive.openBox<String>('likedSongs'),
     ]);
     return HiveBoxes();
   }
@@ -18,6 +21,7 @@ class HiveBoxes {
   Box<bool> get vipSongs => Hive.box('vipSongs');
   Box<Map> get apiCache => Hive.box('apiCache');
   Box<String> get recentSearches => Hive.box('recentSearches');
+  Box<String> get likedSongs => Hive.box('likedSongs');
 }
 
 class CachedDataWithFallback<T> {
@@ -69,22 +73,9 @@ class PersistentStorage {
     return hiveBoxes.savedSongsInfo.containsKey(songId);
   }
 
-  Future<void> markSongAsVip(String songId) async {
-    await hiveBoxes.vipSongs.put(songId, true);
-  }
-
-  Future<void> markSongAsNonVip(String songId) async {
-    await hiveBoxes.vipSongs.put(songId, false);
-  }
-
-  bool? isNonVipSong(String songId) {
-    bool? x = hiveBoxes.vipSongs.get(songId);
-    return x == null ? null : !x;
-  }
-
-  List filterNonVipSongs(List songIds) {
-    return songIds.where((songId) => isNonVipSong(songId) == true).toList();
-  }
+  /* -------------------
+  |    STORAGE CACHE   |
+  ------------------- */
 
   CachedDataWithFallback<T> getCached<T>(String api, {int? lazyTime}) {
     final resp = hiveBoxes.apiCache.get(api);
@@ -107,7 +98,11 @@ class PersistentStorage {
     });
   }
 
-  void saveSearch(String query, {int lim = 7, bool negate = false}) {
+  /* ---------------------
+  |    RECENT SEARCHES   |
+  --------------------- */
+
+  void saveSearch(String query, {int lim = 10, bool negate = false}) {
     final box = hiveBoxes.recentSearches;
     List<String> current = box.values.toList();
 
@@ -125,8 +120,58 @@ class PersistentStorage {
     }
   }
 
-  List<String> getRecentSearches() {
-    final box = hiveBoxes.recentSearches;
-    return box.values.toList();
+  Iterable<String> getRecentSearches() {
+    return hiveBoxes.recentSearches.values;
+  }
+
+  /* -----------------------
+  |    LIKED SONGS CACHE   |
+  ----------------------- */
+
+  List<SongModel> getLikedSongs() {
+    final box = hiveBoxes.likedSongs;
+    return SongModel.fromListJson<SupabaseApi>(
+      box.values.map((e) => jsonDecode(e)).toList(),
+    );
+  }
+
+  bool isSongLiked(String songId) {
+    return hiveBoxes.likedSongs.containsKey(songId);
+  }
+
+  Future setIsLiked(SongModel song, bool isLiked) {
+    final box = hiveBoxes.likedSongs;
+    if (isLiked) {
+      return box.put(song.id, jsonEncode(song.toJson()));
+    }
+    return box.delete(song.id);
+  }
+
+  Future<void> preloadUserLikedSongs(List<SongModel> songs) async {
+    final box = hiveBoxes.likedSongs;
+    await box.clear();
+    await box.putAll({for (var song in songs) song.id: jsonEncode(song.toJson())});
+  }
+
+  /* ----------------------
+  |    VIP SONGs FILTER   |
+  ---------------------- */
+
+  Future<void> markSongAsVip(String songId) async {
+    await hiveBoxes.vipSongs.put(songId, true);
+  }
+
+  bool isNonVipSong(String songId) {
+    return !hiveBoxes.vipSongs.containsKey(songId);
+  }
+
+  Iterable<String> filterNonVipSongs(Iterable<String> songIds) {
+    return songIds.where((songId) => isNonVipSong(songId));
+  }
+
+  Future<void> preloadVipSongs(List<String> vipSongIds) {
+    return hiveBoxes.vipSongs.putAll({
+      for (var songId in vipSongIds) songId: true,
+    });
   }
 }
