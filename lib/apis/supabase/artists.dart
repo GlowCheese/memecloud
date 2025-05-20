@@ -1,8 +1,8 @@
 import 'dart:developer';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:memecloud/apis/supabase/main.dart';
+import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -16,11 +16,7 @@ class SupabaseArtistsApi {
       _connectivity.ensure();
       await _client
           .from('artists')
-          .upsert(
-            artists
-                .map((artist) => artist.toJson()['artist'])
-                .toList(),
-          );
+          .upsert(artists.map((artist) => artist.toJson()['artist']).toList());
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
@@ -63,7 +59,11 @@ class SupabaseArtistsApi {
           .order('view_in_week', ascending: false)
           .limit(count);
 
-      return response.map((artist) => ArtistModel.fromJson<SupabaseApi>({'artist': artist})).toList();
+      return response
+          .map(
+            (artist) => ArtistModel.fromJson<SupabaseApi>({'artist': artist}),
+          )
+          .toList();
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log("Failed to get top artists: $e", stackTrace: stackTrace, level: 1000);
@@ -79,9 +79,17 @@ class SupabaseArtistsApi {
       if (userId == null) {
         throw Exception('User not logged in');
       }
-      final response = await _client.from('followers').select().eq('user_id', userId).eq('artist_id', artistId);
+      final response = await _client
+          .from('followers')
+          .select()
+          .eq('user_id', userId)
+          .eq('artist_id', artistId);
       if (response.isNotEmpty) {
-        await _client.from('followers').delete().eq('user_id', userId).eq('artist_id', artistId);
+        await _client
+            .from('followers')
+            .delete()
+            .eq('user_id', userId)
+            .eq('artist_id', artistId);
       } else {
         await _client.from('followers').insert({
           'user_id': userId,
@@ -90,8 +98,38 @@ class SupabaseArtistsApi {
       }
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
+      log("Failed to follow artist: $e", stackTrace: stackTrace, level: 1000);
+      rethrow;
+    }
+  }
+
+  Future<bool> isFollowingArtist(String artistId) async {
+    final userId = getIt<ApiKit>().currentSession()?.user.id;
+    if (userId == null) {
+      return false;
+    }
+    final response = await _client
+        .from('followers')
+        .select()
+        .eq('user_id', userId)
+        .eq('artist_id', artistId);
+    return response.isNotEmpty;
+  }
+
+  Future<int> getArtistFollowersCount(String artistId) async {
+    try {
+      _connectivity.ensure();
+      final response =
+          await _client
+              .from('followers')
+              .select()
+              .eq('artist_id', artistId)
+              .count();
+      return response.count;
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
       log(
-        "Failed to follow artist: $e",
+        "Failed to get artist followers count: $e",
         stackTrace: stackTrace,
         level: 1000,
       );
