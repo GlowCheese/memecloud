@@ -59,17 +59,9 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
             );
           }
 
-          final List<Future<SongModel>> songsOfArtist =
-              (artist.toJson()['artist']['sections'][0]['items'] as List)
-                  .map((e) => SongModel.fromJson<SupabaseApi>(e))
-                  .cast<Future<SongModel>>()
-                  .toList();
+          songs = artist.sections![0].items.cast<SongModel>().toList();
 
-          final albumsOfArtist =
-              (artist.toJson()['artist']['sections'][2]['items'] as List)
-                  .map((e) => PlaylistModel.fromJson<ArtistModel>(e))
-                  .cast<Future<PlaylistModel>>()
-                  .toList();
+          albums = artist.sections![1].items.cast<PlaylistModel>().toList();
 
           return Container(
             color: Theme.of(context).colorScheme.primaryContainer,
@@ -100,38 +92,25 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                                 color: Theme.of(context).dividerColor,
                                 thickness: 0.5,
                               ),
-                              defaultFutureBuilder(
-                                future: Future.wait(songsOfArtist),
-                                onData: (context, data) {
-                                  songs =
-                                      data.map((e) => e as SongModel).toList();
-                                  if (songs.isEmpty) {
-                                    return const SizedBox.shrink(
-                                      child: Text('Chưa có bài hát nào.'),
-                                    );
-                                  }
-                                  return _SongsOfArtist(songs: songs);
-                                },
-                              ),
+
+                              if (songs.isEmpty)
+                                const SizedBox.shrink(
+                                  child: Text('Chưa có bài hát nào.'),
+                                )
+                              else
+                                _SongsOfArtist(songs: songs),
+
                               Divider(
                                 color: Theme.of(context).dividerColor,
                                 thickness: 0.5,
                               ),
-                              defaultFutureBuilder(
-                                future: Future.wait(albumsOfArtist),
-                                onData: (context, data) {
-                                  albums =
-                                      data
-                                          .map((e) => e as PlaylistModel)
-                                          .toList();
-                                  if (albums.isEmpty) {
-                                    return const SizedBox.shrink(
-                                      child: Text('Chưa có album nào.'),
-                                    );
-                                  }
-                                  return _AlbumsOfArtist(albums: albums);
-                                },
-                              ),
+
+                              if (albums.isEmpty)
+                                const SizedBox.shrink(
+                                  child: Text('Chưa có album nào.'),
+                                )
+                              else
+                                _AlbumsOfArtist(albums: albums),
                             ],
                           ),
                         ),
@@ -494,10 +473,24 @@ class _AlbumsOfArtist extends StatelessWidget {
                 final album = albums[index];
                 return _AlbumCard(album: album);
               },
-              itemCount: albums.length,
+              itemCount: albums.length > 4 ? 4 : albums.length,
             ),
           ),
         ),
+        if (albums.length > 4)
+          TextButton.icon(
+            onPressed:
+                () => {
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => SongArtistPage(songs: albums),
+                  //   ),
+                  // ),
+                },
+            label: Text("Xem thêm"),
+            icon: Icon(Icons.arrow_right),
+          ),
       ],
     );
   }

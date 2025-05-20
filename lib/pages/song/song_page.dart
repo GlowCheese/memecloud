@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/components/song/show_song_actions.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -35,7 +36,6 @@ class SongPage extends StatelessWidget {
 
 class SongPageInner extends StatelessWidget {
   final SongModel song;
-
   const SongPageInner({super.key, required this.song});
 
   @override
@@ -120,10 +120,12 @@ class SongPageInner extends StatelessWidget {
                   ],
                 ),
               ),
-              Expanded(child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: SongLyricWidget(lyric: data!, largeText: false),
-              )),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: SongLyricWidget(lyric: data!, largeText: false),
+                ),
+              ),
             ],
           );
         },
@@ -154,6 +156,19 @@ class SongPageInner extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                   fontSize: 14,
                 ),
+              ),
+              const SizedBox(height: 5),
+              defaultFutureBuilder(
+                future: getIt<SupabaseApi>().songs.getSongViewCount(song.id),
+                onData: (context, data) {
+                  return Text(
+                    '${data.toString()} lượt nghe',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 14,
+                    ),
+                  );
+                }
               ),
             ],
           ),
