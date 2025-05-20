@@ -204,6 +204,27 @@ class SupabaseSongsApi {
   }
 
   ///end increment view
+  Future<int> getSongViewCount(String songId) async {
+    try {
+      _connectivity.ensure();
+      final response =
+          await _client
+              .from('songs')
+              .select('total_view')
+              .eq('id', songId)
+              .single();
+
+      return response['total_view'] ?? 0;
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        'Failed to get song view count: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
 
   Future<List<String>> filterNonVipSongs(Iterable<String> songsIds) async {
     try {
