@@ -256,7 +256,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                     children: [
                       IconButton(
                         onPressed: () async {
-                          if (!playerCubit.shuffleMode) {
+                          if (playerCubit.shuffleMode) {
                             await playerCubit.toggleShuffleMode();
                           }
                           await playerCubit.loadAndPlay(
@@ -287,7 +287,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                           elevation: 4,
                         ),
                         onPressed: () async {
-                          if (playerCubit.shuffleMode) {
+                          if (!playerCubit.shuffleMode) {
                             await playerCubit.toggleShuffleMode();
                           }
                           await playerCubit.loadAndPlay(
