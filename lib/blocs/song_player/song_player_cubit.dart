@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -137,6 +138,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     SongModel song, {
     List<SongModel>? songList,
   }) async {
+    unawaited(getIt<SupabaseApi>().songs.incrementView(song.id));
     if (state is SongPlayerLoading) {
       return true;
     }
@@ -164,9 +166,25 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   }
 
   bool get shuffleMode => audioPlayer.shuffleModeEnabled;
-  Future<void> seekToNext() => audioPlayer.seekToNext();
 
-  Future<void> seekToPrevious() => audioPlayer.seekToPrevious();
+  Future<void> seekToNext() async {
+    await audioPlayer.seekToNext();
+    if (audioPlayer.currentIndex == null) {
+      return;
+    }
+    final currentSong = currentSongList[audioPlayer.currentIndex!];
+    unawaited(getIt<SupabaseApi>().songs.incrementView(currentSong.id));
+  }
+
+  Future<void> seekToPrevious() async {
+    await audioPlayer.seekToPrevious();
+    if (audioPlayer.currentIndex == null) {
+      return;
+    }
+    final currentSong = currentSongList[audioPlayer.currentIndex!];
+    unawaited(getIt<SupabaseApi>().songs.incrementView(currentSong.id));
+  }
+
   Future<void> toggleShuffleMode() =>
       audioPlayer.setShuffleModeEnabled(!shuffleMode);
 }
