@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:memecloud/apis/supabase/main.dart';
+
 import 'package:memecloud/components/song/show_song_actions.dart';
+
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -119,6 +122,7 @@ class SongPageInner extends StatelessWidget {
                   ],
                 ),
               ),
+
               Expanded(child: SongLyricWidget(lyric: data!, largeText: false)),
             ],
           );
@@ -151,10 +155,27 @@ class SongPageInner extends StatelessWidget {
                   fontSize: 14,
                 ),
               ),
+              const SizedBox(height: 2),
+              defaultFutureBuilder(
+                future: getIt<SupabaseApi>().songs.getSongView(song.id),
+                onData: (context, data) {
+                  return Text(
+                    '${data.toString()} views',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 14,
+                    ),
+                  );
+                },
+                onNull: (context) {
+                  return const SizedBox();
+                },
+              ),
             ],
           ),
         ),
         SizedBox(width: 20),
+
         SongLikeButton(song: song),
       ],
     );

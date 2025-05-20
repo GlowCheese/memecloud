@@ -3,12 +3,14 @@ import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memecloud/models/song_model.dart';
+
 import 'package:memecloud/components/song/like_button.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/song/play_or_pause_button.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
+
 import 'package:memecloud/blocs/liked_songs/liked_songs_stream.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 
@@ -130,7 +132,10 @@ class _SongListViewState extends State<_SongListView> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SongLikeButton(song: song, defaultIsLiked: true),
-                        PlayOrPauseButton(song: song, songList: currentLikedSongs)
+                        PlayOrPauseButton(
+                          song: song,
+                          songList: currentLikedSongs,
+                        ),
                       ],
                     ),
                     onTap: () async {

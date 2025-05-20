@@ -28,7 +28,8 @@ class MyApp extends StatelessWidget {
       dark: MaterialTheme(
         GoogleFonts.bricolageGrotesqueTextTheme(),
       ).theme(MaterialTheme.darkScheme()),
-      initial: AdaptiveThemeMode.dark,
+
+      initial: AdaptiveThemeMode.system,
       builder: (theme, darkTheme) {
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,

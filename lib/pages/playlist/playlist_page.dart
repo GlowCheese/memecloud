@@ -51,10 +51,7 @@ class PlaylistPage extends StatelessWidget {
               imageUrl: data!.thumbnailUrl,
               child: Stack(
                 fit: StackFit.expand,
-                children: [
-                  _PlaylistPageInner(playlist: data),
-                  MiniPlayer()
-                ],
+                children: [_PlaylistPageInner(playlist: data), MiniPlayer()],
               ),
             );
           },

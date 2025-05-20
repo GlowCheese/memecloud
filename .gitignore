@@ -163,3 +163,6 @@ app.*.symbols
 
 .env
 jsons/
+
+# Experiment
+# **/my_ex.dart

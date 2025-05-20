@@ -183,7 +183,7 @@ class SupabaseSongsApi {
           .eq('user_id', userId);
 
       final songsList = await Future.wait(
-        response.map((e) => SongModel.fromJson<SupabaseApi>(e['song']))
+        response.map((e) => SongModel.fromJson<SupabaseApi>(e['song'])),
       );
 
       return songsList;
@@ -216,7 +216,28 @@ class SupabaseSongsApi {
     }
   }
 
+
   ///end increment view
+  
+  ///get view of a song
+  Future<int> getSongView(String songId) async {
+    try {
+      _connectivity.ensure();
+      final response = await _client
+          .from('songs')
+          .select('total_view')
+          .eq('id', songId)
+          .maybeSingle();
+
+      if (response == null) return 0;
+      return response['view_count'] ?? 0;
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log('Failed to get song view: $e', stackTrace: stackTrace, level: 1000);
+      rethrow;
+    }
+  }
+
 
   Future<List<String>> filterNonVipSongs(Iterable<String> songsIds) async {
     try {

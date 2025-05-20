@@ -50,6 +50,7 @@ class _DashboardPageState extends State<DashboardPage> {
       color: scaffElems['bgColor'],
       child: Scaffold(
         appBar: scaffElems['appBar'],
+
         body: Stack(
           fit: StackFit.expand,
           children: <Widget>[
@@ -57,7 +58,7 @@ class _DashboardPageState extends State<DashboardPage> {
               padding: const EdgeInsets.only(bottom: 50),
               child: scaffElems['body'],
             ),
-            MiniPlayer()
+            MiniPlayer(),
           ],
         ),
         floatingActionButton: scaffElems['floatingActionButton'],
@@ -79,7 +80,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.library_music),
-          label: 'My Library'
+          label: 'My Library',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.bubble_chart),
