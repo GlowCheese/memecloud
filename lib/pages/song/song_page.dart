@@ -72,7 +72,7 @@ class SongPageInner extends StatelessWidget {
                     SizedBox(height: 20),
                     SongControllerView(song: song),
                     SizedBox(height: 50),
-                    if (song.artists.isNotEmpty) _artistCard(song.artists[0]),
+                    if (song.artists.isNotEmpty) _artistCard(context, song.artists[0]),
                     SizedBox(height: 12)
                   ],
                 ),
@@ -84,18 +84,21 @@ class SongPageInner extends StatelessWidget {
     );
   }
 
-  Widget _artistCard(ArtistModel artist) {
+  Widget _artistCard(BuildContext context, ArtistModel artist) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-          child: SizedBox(
-            height: 200,
-            width: double.infinity,
-            child: CachedNetworkImage(
-              imageUrl: artist.thumbnailUrl,
-              fit: BoxFit.fitWidth,
+        GestureDetector(
+          onTap: () => context.push('/artist_page', extra: artist.alias),
+          child: ClipRRect(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+            child: SizedBox(
+              height: 200,
+              width: double.infinity,
+              child: CachedNetworkImage(
+                imageUrl: artist.thumbnailUrl,
+                fit: BoxFit.fitWidth,
+              ),
             ),
           ),
         ),
@@ -158,27 +161,32 @@ class SongPageInner extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 14),
               defaultFutureBuilder(
                 future: getIt<ApiKit>().getArtistInfo(artist.alias),
                 onData: (context, data) {
                   final bio = data?.shortBiography;
-                  if (bio == null) return SizedBox();
-                  return ExpandableText(
-                    bio,
-                    trimLength: 120,
-                    textStyle: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white.withAlpha(196),
-                    ),
-                    expandTextStyle: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500
+                  if (bio == null || bio.isEmpty) return SizedBox();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 14),
+                    child: ExpandableText(
+                      bio,
+                      trimLength: 120,
+                      textStyle: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white.withAlpha(196),
+                      ),
+                      expandTextStyle: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500
+                      ),
                     ),
                   );
                 },
-                onWaiting: Skeletonizer(child: Text(BoneMock.paragraph)),
+                onWaiting: Skeletonizer(child: Padding(
+                  padding: const EdgeInsets.only(top: 14),
+                  child: Text(BoneMock.paragraph),
+                )),
               ),
             ],
           ),
