@@ -66,7 +66,7 @@ class _DashboardPageState extends State<DashboardPage> {
       children: [
         MiniPlayer(),
         SnakeNavigationBar.color(
-          snakeShape: SnakeShape.circle,
+          snakeShape: SnakeShape.indicator,
           selectedItemColor: Colors.white,
           unselectedItemColor: Colors.white,
           snakeViewColor: Colors.indigo.shade400,

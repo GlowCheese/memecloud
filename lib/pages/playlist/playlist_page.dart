@@ -52,7 +52,10 @@ class PlaylistPage extends StatelessWidget {
               imageUrl: data!.thumbnailUrl,
               child: Stack(
                 fit: StackFit.expand,
-                children: [_PlaylistPageInner(playlist: data), MiniPlayer()],
+                children: [
+                  _PlaylistPageInner(playlist: data),
+                  MiniPlayer(floating: true),
+                ],
               ),
             );
           },
@@ -130,6 +133,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
             ];
           },
         ),
+        SliverToBoxAdapter(child: const SizedBox(height: 72))
       ],
     );
   }

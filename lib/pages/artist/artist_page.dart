@@ -111,9 +111,10 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                         ),
                       ]),
                     ),
+                    SliverToBoxAdapter(child: const SizedBox(height: 72)),
                   ],
                 ),
-                MiniPlayer(),
+                MiniPlayer(floating: true),
               ],
             ),
           );

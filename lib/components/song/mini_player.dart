@@ -14,7 +14,9 @@ import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/components/song/play_or_pause_button.dart';
 
 class MiniPlayer extends StatelessWidget {
-  const MiniPlayer({super.key});
+  final bool floating;
+  
+  const MiniPlayer({super.key, this.floating = false});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,8 @@ class MiniPlayer extends StatelessWidget {
       bloc: playerCubit,
       builder: (context, state) {
         if (state is SongPlayerLoaded) {
-          return _MiniPlayerInner(playerCubit, state.currentSong);
+          final w = _MiniPlayerInner(playerCubit, state.currentSong);
+          return floating ? Positioned(left: 0, right: 0, bottom: 12, child: w) : w;
         } else {
           return SizedBox(height: 1);
         }
