@@ -54,7 +54,7 @@ class _SongListViewState extends State<_SongListView> {
             Icon(Icons.block, size: 80, color: Colors.white.withAlpha(140)),
             const SizedBox(height: 16),
             Text(
-              'No blacklisted songs',
+              'Danh sách trống',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -63,7 +63,7 @@ class _SongListViewState extends State<_SongListView> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Songs you blacklist will appear here',
+              'Các bài hát trong sổ đen sẽ xuất hiện ở đây.',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.white.withAlpha(150),
