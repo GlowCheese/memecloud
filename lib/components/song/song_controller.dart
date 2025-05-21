@@ -33,7 +33,7 @@ class SongControllerView extends StatelessWidget {
           children: [
             SliderTheme(
               data: SliderTheme.of(context).copyWith(
-                activeTrackColor: Colors.blueAccent,
+                activeTrackColor: Colors.white,
                 inactiveTrackColor: Colors.grey.shade700,
                 trackHeight: 4.0,
 

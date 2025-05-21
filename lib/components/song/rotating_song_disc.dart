@@ -1,15 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:memecloud/utils/common.dart';
 
 class RotatingSongDisc extends StatefulWidget {
   final String thumbnailUrl;
   final bool isPlaying;
+  final Color holeColor;
   final double size;
 
   const RotatingSongDisc({
     super.key,
     required this.thumbnailUrl,
     required this.isPlaying,
+    required this.holeColor,
     required this.size,
   });
 
@@ -28,9 +31,9 @@ class _RotatingSongDiscState extends State<RotatingSongDisc>
   void didUpdateWidget(covariant RotatingSongDisc oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.isPlaying) {
-      _controller.repeat(); // tiếp tục quay
+      _controller.repeat();
     } else {
-      _controller.stop(); // dừng quay
+      _controller.stop();
     }
   }
 
@@ -70,7 +73,7 @@ class _RotatingSongDiscState extends State<RotatingSongDisc>
           width: widget.size / 4,
           height: widget.size / 4,
           decoration: BoxDecoration(
-            color: Colors.blueGrey.shade800,
+            color: adjustColor(widget.holeColor, l: 0.2),
             borderRadius: BorderRadius.circular(widget.size / 8),
           ),
         ),

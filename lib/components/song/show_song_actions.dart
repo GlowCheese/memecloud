@@ -38,23 +38,29 @@ Future showSongBottomSheetActions(BuildContext context, SongModel song) async {
                   showSongArtists(context, song.artists);
                 },
               ),
-              isBlacklisted
-                  ? (ListTile(
-                    leading: Icon(Icons.visibility_rounded),
-                    title: Text('Bỏ ẩn bài hát này'),
-                    onTap: () {
-                      context.pop();
-                      getIt<ApiKit>().toggleBlacklist(song.id);
-                    },
-                  ))
-                  : (ListTile(
-                    leading: Icon(Icons.visibility_off_rounded),
-                    title: Text('Ẩn bài hát này'),
-                    onTap: () {
-                      context.pop();
-                      getIt<ApiKit>().toggleBlacklist(song.id);
-                    },
-                  )),
+              if (isBlacklisted)
+                ListTile(
+                  leading: Icon(Icons.visibility_rounded),
+                  title: Text('Bỏ ẩn bài hát này'),
+                  onTap: () {
+                    context.pop();
+                    getIt<ApiKit>().toggleBlacklist(song.id);
+                  },
+                )
+              else
+                ListTile(
+                  leading: Icon(Icons.visibility_off_rounded),
+                  title: Text('Ẩn bài hát này'),
+                  onTap: () {
+                    context.pop();
+                    getIt<ApiKit>().toggleBlacklist(song.id);
+                  },
+                ),
+              ListTile(
+                leading: Icon(Icons.lyrics),
+                title: Text('Xem lời bài hát'),
+                onTap: () => context.push('/song_lyric'),
+              ),
               SizedBox(height: 16),
               // ListTile(
               //   leading: Icon(Icons.playlist_add),

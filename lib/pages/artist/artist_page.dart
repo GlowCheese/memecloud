@@ -18,7 +18,7 @@ import 'package:memecloud/models/playlist_model.dart';
 
 import 'package:memecloud/pages/artist/song_artist_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:memecloud/components/miscs/expandable_html.dart';
+import 'package:memecloud/components/miscs/expandable/html.dart';
 import 'package:memecloud/pages/artist/album_artist_page.dart';
 
 class ArtistPage extends StatefulWidget {
@@ -107,9 +107,10 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                         ),
                       ]),
                     ),
+                    SliverToBoxAdapter(child: const SizedBox(height: 72)),
                   ],
                 ),
-                MiniPlayer(),
+                MiniPlayer(floating: true),
               ],
             ),
           );
