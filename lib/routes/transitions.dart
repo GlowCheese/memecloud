@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 
 class PageTransitions {
-
   static Widget slideTransition(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation, Widget child) {
     const begin = Offset(1.0, 0.0);

@@ -5,12 +5,14 @@ class GeneratableSliverList extends StatefulWidget {
   final int initialPageIdx;
   final Duration loadDelay;
   final Future Function(int pageIdx) asyncGenFunction;
+  final Widget Function(BuildContext context, int index)? separatorBuilder;
 
   const GeneratableSliverList({
     super.key,
     required this.initialPageIdx,
     required this.asyncGenFunction,
     this.loadDelay = Duration.zero,
+    this.separatorBuilder,
   });
 
   @override
@@ -36,26 +38,34 @@ class _GeneratableSliverListState extends State<GeneratableSliverList> {
     }
   }
 
+  int get itemCount {
+    if (widget.separatorBuilder == null) {
+      return items.length + (hasMore ? 1 : 0);
+    }
+    return 2 * (items.length + (hasMore ? 1 : 0)) + 1;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (context, idx) {
-          if (idx < items.length) {
-            return items[idx];
-          }
-          if (!hasMore) {
-            return SizedBox();
+          if (widget.separatorBuilder != null) {
+            if (idx.isOdd) {
+              return widget.separatorBuilder!(context, idx ~/ 2);
+            }
+            else {
+              idx ~/= 2;
+            }
           }
 
+          if (idx < items.length) return items[idx];
           return defaultFutureBuilder(
             future: loadMorePage(),
-            onData: (context, data) {
-              return SizedBox();
-            }
+            onData: (context, data) => SizedBox()
           );
         },
-        childCount: items.length + 1
+        childCount: itemCount
       ),
     );
   }

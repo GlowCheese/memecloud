@@ -38,18 +38,17 @@ class _GeneratableListView extends State<GeneratableListView> {
     }
   }
 
+  int get itemCount => items.length + (hasMore ? 1 : 0);
+
   @override
   Widget build(BuildContext context) {
     Widget itemBuilder(BuildContext context, int idx) {
       if (idx < items.length) return items[idx];
-      if (!hasMore) return const SizedBox();
       return defaultFutureBuilder(
         future: loadMorePage(),
         onData: (_, __) => const SizedBox(),
       );
     }
-
-    final itemCount = items.length + 1;
 
     if (widget.separatorBuilder == null) {
       return ListView.builder(itemBuilder: itemBuilder, itemCount: itemCount);
