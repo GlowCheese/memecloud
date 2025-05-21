@@ -54,13 +54,13 @@ class GradBackground extends StatelessWidget {
 }
 
 class GradBackground2 extends StatefulWidget {
-  final Widget child;
   final String imageUrl;
+  final Widget Function(Color bgColor, Color subBgColor) builder;
 
   const GradBackground2({
     super.key,
     required this.imageUrl,
-    required this.child,
+    required this.builder,
   });
 
   @override
@@ -68,21 +68,34 @@ class GradBackground2 extends StatefulWidget {
 }
 
 class _GradBackground2State extends State<GradBackground2> {
-  List<Color>? paletteColors;
+  List<Color> paletteColors = List.filled(2, Colors.white);
+
+  Future<void> loadPaletteColors() {
+    return getPaletteColors(widget.imageUrl).then((data) {
+      setState(() => paletteColors = data);
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant GradBackground2 oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    unawaited(loadPaletteColors());
+  }
 
   @override
   void initState() {
     super.initState();
-    unawaited(getPaletteColors(widget.imageUrl).then((data) {
-      setState(() => paletteColors = data);
-    }));
+    unawaited(loadPaletteColors());
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    if (paletteColors == null) return Center(child: CircularProgressIndicator());
-    final bgColor = adjustColor(paletteColors!.first, l: 0.5, s: 0.3);
-    final subBgColor = adjustColor(paletteColors!.last, l: 0.1, s: 0.4);
-    return GradBackground(color: bgColor, subColor: subBgColor, child: widget.child);
+    final bgColor = adjustColor(paletteColors.first, l: 0.5, s: 0.3);
+    final subBgColor = adjustColor(paletteColors.last, l: 0.1, s: 0.4);
+    return GradBackground(
+      color: bgColor,
+      subColor: subBgColor,
+      child: widget.builder(bgColor, subBgColor),
+    );
   }
 }

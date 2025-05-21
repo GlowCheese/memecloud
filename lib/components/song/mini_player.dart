@@ -15,7 +15,7 @@ import 'package:memecloud/components/song/play_or_pause_button.dart';
 
 class MiniPlayer extends StatelessWidget {
   final bool floating;
-  
+
   const MiniPlayer({super.key, this.floating = false});
 
   @override
@@ -26,7 +26,9 @@ class MiniPlayer extends StatelessWidget {
       builder: (context, state) {
         if (state is SongPlayerLoaded) {
           final w = _MiniPlayerInner(playerCubit, state.currentSong);
-          return floating ? Positioned(left: 0, right: 0, bottom: 12, child: w) : w;
+          return floating
+              ? Positioned(left: 0, right: 0, bottom: 12, child: w)
+              : w;
         } else {
           return SizedBox(height: 1);
         }
@@ -48,14 +50,22 @@ class _MiniPlayerInner extends StatefulWidget {
 class _MiniPlayerInnerState extends State<_MiniPlayerInner> {
   List<Color>? paletteColors;
 
+  Future<void> loadPaletteColors() {
+    return getPaletteColors(widget.song.thumbnailUrl).then((data) {
+      setState(() => paletteColors = data);
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _MiniPlayerInner oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    unawaited(loadPaletteColors());
+  }
+
   @override
   void initState() {
     super.initState();
-    unawaited(
-      getPaletteColors(widget.song.thumbnailUrl).then((data) {
-        setState(() => paletteColors = data);
-      }),
-    );
+    unawaited(loadPaletteColors());
   }
 
   @override

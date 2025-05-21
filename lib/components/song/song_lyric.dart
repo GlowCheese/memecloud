@@ -25,7 +25,7 @@ class SongLyricPage extends StatelessWidget {
         }
         return Scaffold(
           appBar: _appBar(context, state.currentSong.title),
-          backgroundColor: Colors.brown.shade700,
+          backgroundColor: Colors.brown.shade600,
           body: Column(
             children: [
               SizedBox(height: 30),
@@ -34,16 +34,16 @@ class SongLyricPage extends StatelessWidget {
                   future: getIt<ApiKit>().getSongLyric(state.currentSong.id),
                   onNull: (context) {
                     return Center(
-                      child: Text('This song currently has no lyric!'),
+                      child: Text(
+                        'This song currently has no lyric!',
+                        style: TextStyle(fontSize: 16),
+                      ),
                     );
                   },
                   onData: (context, data) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 22),
-                      child: Hero(
-                        tag: "lyric",
-                        child: SongLyricWidget(lyric: data!, autoScroll: true),
-                      ),
+                      child: SongLyricWidget(lyric: data!, autoScroll: true),
                     );
                   },
                 ),

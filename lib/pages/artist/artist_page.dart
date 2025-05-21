@@ -10,7 +10,7 @@ import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/components/song/mini_player.dart';
 import 'package:memecloud/pages/artist/song_artist_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:memecloud/components/miscs/expandable_html.dart';
+import 'package:memecloud/components/miscs/expandable/html.dart';
 import 'package:memecloud/components/artist/song_list_tile.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';

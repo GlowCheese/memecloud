@@ -41,7 +41,7 @@ class _ExpandableHtmlState extends State<ExpandableHtml> {
               _expanded ? "See less" : "... See more",
               style: TextStyle(
                 color: Colors.blueAccent,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),

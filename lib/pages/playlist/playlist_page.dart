@@ -50,7 +50,7 @@ class PlaylistPage extends StatelessWidget {
           onData: (context, data) {
             return GradBackground2(
               imageUrl: data!.thumbnailUrl,
-              child: Stack(
+              builder: (_, _) => Stack(
                 fit: StackFit.expand,
                 children: [
                   _PlaylistPageInner(playlist: data),

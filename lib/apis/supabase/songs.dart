@@ -206,7 +206,7 @@ class SupabaseSongsApi {
     }
   }
 
-  Future<int> countSongStreams(String songId) async {
+  Future<int> streamCount(String songId) async {
     try {
       _connectivity.ensure();
       final response = await _client

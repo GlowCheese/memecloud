@@ -3,11 +3,14 @@ import 'package:go_router/go_router.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:memecloud/models/song_model.dart';
-import 'package:memecloud/components/song/song_lyric.dart';
+import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/components/song/like_button.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/components/song/song_controller.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
+import 'package:memecloud/components/miscs/expandable/text.dart';
 import 'package:memecloud/components/song/show_song_actions.dart';
 import 'package:memecloud/components/song/rotating_song_disc.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
@@ -43,7 +46,7 @@ class SongPageInner extends StatelessWidget {
   Widget build(BuildContext context) {
     return GradBackground2(
       imageUrl: song.thumbnailUrl,
-      child: Theme(
+      builder: (bgColor, _) => Theme(
         data: Theme.of(context).copyWith(
           appBarTheme: const AppBarTheme(foregroundColor: Colors.white),
           textTheme: Theme.of(context).textTheme.apply(
@@ -60,16 +63,17 @@ class SongPageInner extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Center(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: 72),
-                    _songCover(),
+                    Center(child: _songCover(bgColor)),
                     SizedBox(height: 72),
                     _songDetails(),
                     SizedBox(height: 20),
                     SongControllerView(song: song),
                     SizedBox(height: 50),
-                    _songLyric(),
-                    SizedBox(height: 10),
+                    if (song.artists.isNotEmpty) _artistCard(song.artists[0]),
+                    SizedBox(height: 12)
                   ],
                 ),
               ),
@@ -80,7 +84,110 @@ class SongPageInner extends StatelessWidget {
     );
   }
 
-  Widget _songCover() {
+  Widget _artistCard(ArtistModel artist) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+          child: SizedBox(
+            height: 200,
+            width: double.infinity,
+            child: CachedNetworkImage(
+              imageUrl: artist.thumbnailUrl,
+              fit: BoxFit.fitWidth,
+            ),
+          ),
+        ),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade800,
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        artist.name,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      defaultFutureBuilder(
+                        future: getIt<ApiKit>().artistStreamCount(artist.id),
+                        onData: (context, data) {
+                          return Text(
+                            '$data lượt phát toàn cầu',
+                            style: TextStyle(
+                              color: Colors.white.withAlpha(196),
+                              fontSize: 13,
+                            ),
+                          );
+                        },
+                        onWaiting: Skeletonizer(
+                          child: Text(
+                            BoneMock.words(3),
+                            style: TextStyle(
+                              color: Colors.white.withAlpha(196),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  OutlinedButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Theo dõi',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 14),
+              defaultFutureBuilder(
+                future: getIt<ApiKit>().getArtistInfo(artist.alias),
+                onData: (context, data) {
+                  final bio = data?.shortBiography;
+                  if (bio == null) return SizedBox();
+                  return ExpandableText(
+                    bio,
+                    trimLength: 120,
+                    textStyle: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white.withAlpha(196),
+                    ),
+                    expandTextStyle: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500
+                    ),
+                  );
+                },
+                onWaiting: Skeletonizer(child: Text(BoneMock.paragraph)),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _songCover(Color holeColor) {
     return StreamBuilder<bool>(
       stream: playerCubit.audioPlayer.playingStream,
       builder: (context, snapshot) {
@@ -88,63 +195,10 @@ class SongPageInner extends StatelessWidget {
         return RotatingSongDisc(
           thumbnailUrl: song.thumbnailUrl,
           isPlaying: isPlaying,
+          holeColor: holeColor,
           size: MediaQuery.of(context).size.width - 128,
         );
       },
-    );
-  }
-
-  Widget _songLyric() {
-    return Container(
-      height: 300,
-      decoration: BoxDecoration(
-        color: Colors.brown.shade700,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: defaultFutureBuilder(
-        future: getIt<ApiKit>().getSongLyric(song.id),
-        onNull: (context) {
-          return Center(child: Text('This song currently has no lyric!'));
-        },
-        onData: (context, data) {
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 12.0),
-                      child: Text(
-                        'Lời bài hát',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        context.push('/song_lyric');
-                      },
-                      iconSize: 20,
-                      icon: Icon(Icons.open_in_full),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: SongLyricWidget(lyric: data!, largeText: false),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
     );
   }
 
@@ -209,7 +263,7 @@ class SongPageInner extends StatelessWidget {
       ),
       leading: BackButton(
         style: ButtonStyle(
-          iconSize: WidgetStatePropertyAll(20),
+          iconSize: WidgetStatePropertyAll(22),
           padding: WidgetStatePropertyAll(const EdgeInsets.only(left: 12)),
         ),
         onPressed: () {
@@ -221,11 +275,13 @@ class SongPageInner extends StatelessWidget {
         },
       ),
       actions: [
-        IconButton(
-          icon: Icon(Icons.more_vert),
-          iconSize: 20,
+        Padding(
           padding: const EdgeInsets.only(right: 12),
-          onPressed: () => showSongBottomSheetActions(context, song),
+          child: IconButton(
+            icon: Icon(Icons.more_vert),
+            iconSize: 22,
+            onPressed: () => showSongBottomSheetActions(context, song),
+          ),
         ),
       ],
     );

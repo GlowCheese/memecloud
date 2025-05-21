@@ -69,6 +69,27 @@ class SupabaseArtistsApi {
     }
   }
 
+  Future<int> streamCount(String artistId) async {
+    try {
+      _connectivity.ensure();
+      final response =
+          await _client
+              .from('artists')
+              .select('stream_count')
+              .eq('id', artistId)
+              .maybeSingle();
+      return response?['stream_count'] ?? 0;
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, stackTrace);
+      log(
+        'Failed to count artist streams: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
   Future<List<ArtistModel>> getTopArtists({required int count}) async {
     try {
       _connectivity.ensure();
@@ -77,7 +98,9 @@ class SupabaseArtistsApi {
           .select('*')
           .order('stream_count', ascending: false)
           .limit(count);
-      return response.map((e) => ArtistModel.fromJson<SupabaseApi>({'artist': e})).toList();
+      return response
+          .map((e) => ArtistModel.fromJson<SupabaseApi>({'artist': e}))
+          .toList();
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, stackTrace);
       log(

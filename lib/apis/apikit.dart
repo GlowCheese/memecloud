@@ -150,8 +150,8 @@ class ApiKit {
     ]);
   }
 
-  Future<int> countSongStreams(String songId) {
-    return supabase.songs.countSongStreams(songId);
+  Future<int> songStreamCount(String songId) {
+    return supabase.songs.streamCount(songId);
   }
 
   /* ---------------------
@@ -218,6 +218,10 @@ class ApiKit {
 
   Future<void> toggleFollowArtist(String artistId) {
     return supabase.artists.toggleFollowArtist(artistId);
+  }
+
+  Future<int> artistStreamCount(String artistId) {
+    return supabase.artists.streamCount(artistId);
   }
 
   /* ----------------------
