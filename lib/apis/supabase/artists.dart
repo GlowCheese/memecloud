@@ -1,10 +1,10 @@
 import 'dart:developer';
-import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/supabase/main.dart';
-import 'package:memecloud/apis/others/connectivity.dart';
+import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:memecloud/apis/others/connectivity.dart';
 
 class SupabaseArtistsApi {
   final SupabaseClient _client;
@@ -50,28 +50,46 @@ class SupabaseArtistsApi {
     }
   }
 
-  Future<List<ArtistModel>> getTopArtists(int count) async {
+  Future<int> newArtistStream(String artistId) async {
     try {
       _connectivity.ensure();
-      final response = await _client
-          .from('artists')
-          .select()
-          .order('view_in_week', ascending: false)
-          .limit(count);
-
-      return response
-          .map(
-            (artist) => ArtistModel.fromJson<SupabaseApi>({'artist': artist}),
-          )
-          .toList();
+      final response = await _client.rpc(
+        'new_artist_stream',
+        params: {'artist_id': artistId},
+      );
+      return response as int;
     } catch (e, stackTrace) {
-      _connectivity.reportCrash(e, StackTrace.current);
-      log("Failed to get top artists: $e", stackTrace: stackTrace, level: 1000);
+      _connectivity.reportCrash(e, stackTrace);
+      log(
+        'Failed to record new song stream: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
       rethrow;
     }
   }
 
-  //follow artist
+  Future<List<ArtistModel>> getTopArtists({required int count}) async {
+    try {
+      _connectivity.ensure();
+      final response = await _client
+          .from('artists')
+          .select('*')
+          .order('stream_count', ascending: false)
+          .limit(count);
+      return response.map((e) => ArtistModel.fromJson<SupabaseApi>({'artist': e})).toList();
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, stackTrace);
+      log(
+        'Failed to record new song stream: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
+  // follow artist
   Future<void> toggleFollowArtist(String artistId) async {
     try {
       _connectivity.ensure();

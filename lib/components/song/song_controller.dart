@@ -98,8 +98,8 @@ class SongControllerView extends StatelessWidget {
       ),
       child: PlayOrPauseButton(
         song: song,
-        iconSize: 45,
-        padding: const EdgeInsets.all(12.0)
+        iconSize: 30,
+        padding: const EdgeInsets.all(16.0)
       )
     );
   }

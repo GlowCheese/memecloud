@@ -187,41 +187,37 @@ class SupabaseSongsApi {
     }
   }
 
-  ///End blacklist song
-
-  ///begin increment view
-  Future<void> incrementView(String songId) async {
-    final userId = Supabase.instance.client.auth.currentUser!.id;
-
-    final response = await Supabase.instance.client.rpc(
-      'increment_view',
-      params: {'listened_song_id': songId, 'listened_user_id': userId},
-    );
-
-    if (response.error != null) {
-      log('Lỗi tăng view: ${response.error!.message}');
-    }
-  }
-
-  ///end increment view
-  Future<int> getSongViewCount(String songId) async {
+  Future<int> newSongStream(String songId) async {
     try {
       _connectivity.ensure();
-      final response =
-          await _client
-              .from('songs')
-              .select('total_view')
-              .eq('id', songId)
-              .single();
-
-      return response['total_view'] ?? 0;
+      final response = await _client.rpc(
+        'new_song_stream',
+        params: {'song_id': songId},
+      );
+      return response as int;
     } catch (e, stackTrace) {
-      _connectivity.reportCrash(e, StackTrace.current);
+      _connectivity.reportCrash(e, stackTrace);
       log(
-        'Failed to get song view count: $e',
+        'Failed to record new song stream: $e',
         stackTrace: stackTrace,
         level: 1000,
       );
+      rethrow;
+    }
+  }
+
+  Future<int> countSongStreams(String songId) async {
+    try {
+      _connectivity.ensure();
+      final response = await _client
+          .from('songs')
+          .select('stream_count')
+          .eq('id', songId)
+          .maybeSingle();
+      return response?['stream_count'] ?? 0;
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, stackTrace);
+      log('Failed to count song streams', stackTrace: stackTrace, level: 1000);
       rethrow;
     }
   }

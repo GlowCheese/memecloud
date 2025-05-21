@@ -134,17 +134,24 @@ class ApiKit {
   Future<bool> isBlacklisted(String songId) {
     return supabase.songs.isBlacklisted(songId);
   }
+
   Future<void> toggleBlacklist(String songId) {
     return supabase.songs.toggleBlacklist(songId);
   }
+
   Future<List<SongModel>> getBlacklistedSongs() {
     return supabase.songs.getBlacklistSongs();
   }
-  Future<void> incrementSongView(String songId) {
-    return supabase.songs.incrementView(songId);
+
+  Future<void> newSongStream(SongModel song) {
+    return Future.wait([
+      supabase.songs.newSongStream(song.id),
+      ...song.artists.map((e) => supabase.artists.newArtistStream(e.id)),
+    ]);
   }
-  Future<int> getSongViewCount(String songId) {
-    return supabase.songs.getSongViewCount(songId);
+
+  Future<int> countSongStreams(String songId) {
+    return supabase.songs.countSongStreams(songId);
   }
 
   /* ---------------------
@@ -197,8 +204,8 @@ class ApiKit {
     );
   }
 
-  Future<List<ArtistModel>> getTopArtists(int count) {
-    return supabase.artists.getTopArtists(count);
+  Future<List<ArtistModel>> getTopArtists({required int count}) {
+    return supabase.artists.getTopArtists(count: count);
   }
 
   Future<int> getArtistFollowersCount(String artistId) {

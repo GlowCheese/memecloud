@@ -9,6 +9,7 @@ import 'package:memecloud/components/song/like_button.dart';
 import 'package:memecloud/components/song/song_controller.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/song/show_song_actions.dart';
+import 'package:memecloud/components/song/rotating_song_disc.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
@@ -27,7 +28,7 @@ class SongPage extends StatelessWidget {
           return SizedBox();
         }
 
-        return SongPageInner(song: state.currentSong);
+        return SongPageInner(playerCubit, song: state.currentSong);
       },
     );
   }
@@ -35,7 +36,8 @@ class SongPage extends StatelessWidget {
 
 class SongPageInner extends StatelessWidget {
   final SongModel song;
-  const SongPageInner({super.key, required this.song});
+  final SongPlayerCubit playerCubit;
+  const SongPageInner(this.playerCubit, {super.key, required this.song});
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +62,7 @@ class SongPageInner extends StatelessWidget {
                 child: Column(
                   children: [
                     SizedBox(height: 46),
-                    _songCover(context),
+                    _songCover(),
                     SizedBox(height: 30),
                     _songDetails(),
                     SizedBox(height: 20),
@@ -75,6 +77,20 @@ class SongPageInner extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _songCover() {
+    return StreamBuilder<bool>(
+      stream: playerCubit.audioPlayer.playingStream,
+      builder: (context, snapshot) {
+        final isPlaying = snapshot.data == true;
+        return RotatingSongDisc(
+          thumbnailUrl: song.thumbnailUrl,
+          isPlaying: isPlaying,
+          size: MediaQuery.of(context).size.width - 128,
+        );
+      },
     );
   }
 
@@ -157,18 +173,6 @@ class SongPageInner extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 5),
-              defaultFutureBuilder(
-                future: getIt<ApiKit>().getSongViewCount(song.id),
-                onData: (context, data) {
-                  return Text(
-                    '${data.toString()} lượt nghe',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 14,
-                    ),
-                  );
-                }
-              ),
             ],
           ),
         ),
@@ -178,27 +182,36 @@ class SongPageInner extends StatelessWidget {
     );
   }
 
-  Widget _songCover(BuildContext context) {
-    double size = MediaQuery.of(context).size.width - 64;
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        image: DecorationImage(
-          fit: BoxFit.cover,
-          image: NetworkImage(song.thumbnailUrl),
-        ),
-      ),
-    );
-  }
-
   AppBar _appBar(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.transparent,
       centerTitle: true,
-      title: Text('Now Playing'),
+      title: StreamBuilder<bool>(
+        stream: playerCubit.audioPlayer.playingStream,
+        builder: (context, snapshot) {
+          final isPlaying = snapshot.data == true;
+          final transitionDuration = Duration(milliseconds: 500);
+          return Stack(
+            children: [
+              AnimatedOpacity(
+                opacity: isPlaying ? 1 : 0,
+                duration: transitionDuration,
+                child: Text('Playing', style: TextStyle(fontSize: 20)),
+              ),
+              AnimatedOpacity(
+                opacity: isPlaying ? 0 : 1,
+                duration: transitionDuration,
+                child: Text('Paused', style: TextStyle(fontSize: 20)),
+              ),
+            ],
+          );
+        },
+      ),
       leading: BackButton(
+        style: ButtonStyle(
+          iconSize: WidgetStatePropertyAll(20),
+          padding: WidgetStatePropertyAll(const EdgeInsets.only(left: 12)),
+        ),
         onPressed: () {
           try {
             context.pop();
@@ -210,6 +223,8 @@ class SongPageInner extends StatelessWidget {
       actions: [
         IconButton(
           icon: Icon(Icons.more_vert),
+          iconSize: 20,
+          padding: const EdgeInsets.only(right: 12),
           onPressed: () => showSongBottomSheetActions(context, song),
         ),
       ],

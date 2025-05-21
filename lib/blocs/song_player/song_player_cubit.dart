@@ -23,7 +23,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       } else {
         final newState = SongPlayerLoaded(currentSongList[index]);
         if (newState != state) {
-          unawaited(getIt<ApiKit>().incrementSongView(newState.currentSong.id));
+          unawaited(getIt<ApiKit>().newSongStream(newState.currentSong));
           emit(newState);
         }
       }
