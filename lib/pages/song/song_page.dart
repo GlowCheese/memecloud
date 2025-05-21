@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:memecloud/components/miscs/download_button.dart';
+import 'package:memecloud/components/song/song_download_button.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,41 +48,43 @@ class SongPageInner extends StatelessWidget {
   Widget build(BuildContext context) {
     return GradBackground2(
       imageUrl: song.thumbnailUrl,
-      builder: (bgColor, _) => Theme(
-        data: Theme.of(context).copyWith(
-          appBarTheme: const AppBarTheme(foregroundColor: Colors.white),
-          textTheme: Theme.of(context).textTheme.apply(
-            bodyColor: Colors.white,
-            displayColor: Colors.white,
-          ),
-        ),
-        child: Scaffold(
-          appBar: _appBar(context),
-          backgroundColor: Colors.transparent,
-          body: SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 72),
-                    Center(child: _songCover(bgColor)),
-                    SizedBox(height: 72),
-                    _songDetails(),
-                    SizedBox(height: 20),
-                    SongControllerView(song: song),
-                    SizedBox(height: 50),
-                    if (song.artists.isNotEmpty) _artistCard(context, song.artists[0]),
-                    SizedBox(height: 12)
-                  ],
+      builder:
+          (bgColor, _) => Theme(
+            data: Theme.of(context).copyWith(
+              appBarTheme: const AppBarTheme(foregroundColor: Colors.white),
+              textTheme: Theme.of(context).textTheme.apply(
+                bodyColor: Colors.white,
+                displayColor: Colors.white,
+              ),
+            ),
+            child: Scaffold(
+              appBar: _appBar(context),
+              backgroundColor: Colors.transparent,
+              body: SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 72),
+                        Center(child: _songCover(bgColor)),
+                        SizedBox(height: 72),
+                        _songDetails(),
+                        SizedBox(height: 20),
+                        SongControllerView(song: song),
+                        SizedBox(height: 50),
+                        if (song.artists.isNotEmpty)
+                          _artistCard(context, song.artists[0]),
+                        SizedBox(height: 12),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ),
     );
   }
 
@@ -178,15 +182,17 @@ class SongPageInner extends StatelessWidget {
                       expandTextStyle: TextStyle(
                         fontSize: 16,
                         color: Colors.white,
-                        fontWeight: FontWeight.w500
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   );
                 },
-                onWaiting: Skeletonizer(child: Padding(
-                  padding: const EdgeInsets.only(top: 14),
-                  child: Text(BoneMock.paragraph),
-                )),
+                onWaiting: Skeletonizer(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 14),
+                    child: Text(BoneMock.paragraph),
+                  ),
+                ),
               ),
             ],
           ),
@@ -238,8 +244,10 @@ class SongPageInner extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(width: 20),
-        SongLikeButton(song: song),
+        SizedBox(width: 12),
+        SongDownloadButton(songId: song.id, iconSize: 30),
+        SizedBox(width: 8),
+        SongLikeButton(song: song, iconSize: 30),
       ],
     );
   }

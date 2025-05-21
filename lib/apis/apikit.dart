@@ -183,6 +183,49 @@ class ApiKit {
     );
   }
 
+  /* --------------------
+  |    DOWNLOAD APIs    |
+  -------------------- */
+
+  Future<void> _downloadFile(
+    String url,
+    String savePath, {
+    void Function(int received, int total)? onProgress,
+  }) async {
+    try {
+      _connectivity.ensure();
+      await dio.download(url, savePath, onReceiveProgress: onProgress);
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log('Failed to download file: $e', stackTrace: stackTrace, level: 1000);
+      rethrow;
+    }
+  }
+
+  Future<void> downloadSong(
+    String songId,
+    String songUri, {
+    void Function(int received, int total)? onProgress,
+  }) async {
+    final filePath = '${storage.userDir.path}/$songId.mp3';
+    await _downloadFile(songUri, filePath, onProgress: onProgress);
+    await markSongAsDownloaded(songId);
+  }
+
+  Future<void> undownloadSong(String songId) async {
+    final filePath = '${storage.userDir.path}/$songId.mp3';
+    await File(filePath).delete();
+    return storage.undownloadSong(songId);
+  }
+
+  bool isSongDownloaded(String songId) {
+    return storage.isSongDownloaded(songId);
+  }
+
+  Future<void> markSongAsDownloaded(String songId) {
+    return storage.markSongAsDownloaded(songId);
+  }
+
   /* ---------------------
   |    ARTISTS APIs    |
   -------------------- */
@@ -346,30 +389,6 @@ class ApiKit {
   |     AND STORAGE      |
   --------------------- */
 
-  Future<void> _downloadFile(String url, String savePath) async {
-    try {
-      _connectivity.ensure();
-      await dio.download(url, savePath);
-    } catch (e, stackTrace) {
-      _connectivity.reportCrash(e, StackTrace.current);
-      log('Failed to download song: $e', stackTrace: stackTrace, level: 1000);
-      rethrow;
-    }
-  }
-
-  bool isSongUriActive(Uri uri) {
-    final authen = uri.queryParameters['authen'];
-    final expStr = authen
-        ?.split('~')
-        .firstWhere((e) => e.startsWith('exp='), orElse: () => '')
-        .split('=')
-        .elementAtOrNull(1);
-
-    final exp = int.tryParse(expStr ?? '') ?? 0;
-    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    return exp > now + 600;
-  }
-
   /// Return `null` if `isNonVipSong(songId) == false`, \
   /// otherwise the Uri for the song (either remote or local).
   Future<Uri?> getSongUri(String songId) async {
@@ -400,7 +419,7 @@ class ApiKit {
         unawaited(markSongAsVip(songId));
         return null;
       }
-      if (isSongUriActive(uri)) return uri;
+      if (_isSongUriActive(uri)) return uri;
     }
     return null;
   }
@@ -454,6 +473,19 @@ class ApiKit {
       outputFixer: (data) => _getSongsForHomeOutputFixer(data),
     );
   }
+}
+
+bool _isSongUriActive(Uri uri) {
+  final authen = uri.queryParameters['authen'];
+  final expStr = authen
+      ?.split('~')
+      .firstWhere((e) => e.startsWith('exp='), orElse: () => '')
+      .split('=')
+      .elementAtOrNull(1);
+
+  final exp = int.tryParse(expStr ?? '') ?? 0;
+  final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+  return exp > now + 600;
 }
 
 List<Map<String, dynamic>> _getSongsForHomeOutputFixer(

@@ -13,6 +13,8 @@ class HiveBoxes {
       Hive.openBox<Map>('apiCache'),
       Hive.openBox<String>('recentSearches'),
       Hive.openBox<String>('likedSongs'),
+      Hive.openBox<bool>('downloadedSongs'),
+      Hive.openBox<int>('songDownloadDeps')
     ]);
     return HiveBoxes();
   }
@@ -22,6 +24,8 @@ class HiveBoxes {
   Box<Map> get apiCache => Hive.box('apiCache');
   Box<String> get recentSearches => Hive.box('recentSearches');
   Box<String> get likedSongs => Hive.box('likedSongs');
+  Box<bool> get downloadedSongs => Hive.box('downloadedSongs');
+  Box<int> get songDownloadDeps => Hive.box('songDownloadDeps');
 }
 
 class CachedDataWithFallback<T> {
@@ -179,5 +183,31 @@ class PersistentStorage {
     return hiveBoxes.vipSongs.putAll({
       for (var songId in vipSongIds) songId: true,
     });
+  }
+
+  /* --------------------
+  |    SONG DOWNLOADS   |
+  -------------------- */
+
+  int? _songDownloadDeps(String songId) {
+    return hiveBoxes.songDownloadDeps.get(songId);
+  }
+
+  bool isSongDownloaded(String songId) {
+    return hiveBoxes.downloadedSongs.containsKey(songId);
+  }
+
+  Future<void> markSongAsDownloaded(String songId) {
+    return Future.wait([
+      hiveBoxes.downloadedSongs.put(songId, true),
+      hiveBoxes.songDownloadDeps.put(songId, (_songDownloadDeps(songId) ?? 0) + 1)
+    ]);
+  }
+
+  Future<void> undownloadSong(String songId) {
+    return Future.wait([
+      hiveBoxes.downloadedSongs.delete(songId),
+      hiveBoxes.songDownloadDeps.put(songId, (_songDownloadDeps(songId) ?? 0) - 1)
+    ]);
   }
 }

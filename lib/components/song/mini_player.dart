@@ -143,7 +143,7 @@ class _MiniPlayerInnerState extends State<_MiniPlayerInner> {
                 Row(
                   children: [
                     PlayOrPauseButton(song: widget.song, color: onBgColor),
-                    SongLikeButton(song: widget.song, dftColor: onBgColor),
+                    SongLikeButton(song: widget.song),
                     _seekNextButton(onBgColor),
                   ],
                 ),
