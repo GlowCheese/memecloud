@@ -41,4 +41,13 @@ Future<void> setupLocator() async {
 
   // miscs
   getIt.registerSingleton<LikedSongsStream>(LikedSongsStream());
+
+  // post setup locator cleanup
+  await postSetupLocator();
+}
+
+Future<void> postSetupLocator() async {
+  getIt.unregister<CookieJar>();
+  getIt.unregister<ZingMp3Requester>();
+  getIt.unregister<PersistentStorage>();
 }

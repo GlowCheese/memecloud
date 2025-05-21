@@ -1,24 +1,19 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
-
-import 'package:memecloud/apis/supabase/main.dart';
-import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
-import 'package:memecloud/components/artist/song_list_tile.dart';
-import 'package:memecloud/components/miscs/default_future_builder.dart';
-import 'package:memecloud/components/song/mini_player.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/artist_model.dart';
-
+import 'package:memecloud/models/playlist_model.dart';
+import 'package:memecloud/components/song/mini_player.dart';
+import 'package:memecloud/pages/artist/song_artist_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/components/miscs/expandable_html.dart';
-
-import 'package:memecloud/pages/artist/song_artist_page.dart';
+import 'package:memecloud/components/artist/song_list_tile.dart';
+import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
+import 'package:memecloud/components/miscs/default_future_builder.dart';
 
 class ArtistPage extends StatefulWidget {
   final String artistAlias;
@@ -209,8 +204,9 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                   Column(
                     children: [
                       defaultFutureBuilder(
-                        future: getIt<SupabaseApi>().artists
-                            .getArtistFollowersCount(artist.id),
+                        future: getIt<ApiKit>().getArtistFollowersCount(
+                          artist.id,
+                        ),
                         onData: (context, data) {
                           return Text(
                             '${data.toString()} người theo dõi',
@@ -297,48 +293,40 @@ class _FollowButton extends StatefulWidget {
 }
 
 class _FollowButtonState extends State<_FollowButton> {
-  late Future<bool> _isFollowingFuture;
+  bool? isFollowing;
 
   @override
   void initState() {
     super.initState();
-    _isFollowingFuture = getIt<SupabaseApi>().artists.isFollowingArtist(
-      widget.artistId,
+    unawaited(
+      getIt<ApiKit>().isFollowingArtist(widget.artistId).then((isFollowing) {
+        this.isFollowing = isFollowing;
+      }),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return defaultFutureBuilder(
-      future: _isFollowingFuture,
-      onData:
-          (context, data) => OutlinedButton.icon(
-            icon: Icon(data ? Icons.notifications : null),
-            label: Text(data ? 'Đã theo dõi' : 'Theo dõi'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.white,
-              side: const BorderSide(color: Colors.white, width: 2),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: () {
-              log('toggle follow ${widget.artistId}');
-              setState(() {
-                unawaited(
-                  getIt<SupabaseApi>().artists
-                      .toggleFollowArtist(widget.artistId)
-                      .then((_) {
-                        setState(() {
-                          _isFollowingFuture = getIt<SupabaseApi>().artists
-                              .isFollowingArtist(widget.artistId);
-                        });
-                      }),
-                );
-              });
-            },
-          ),
+    if (isFollowing == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return OutlinedButton.icon(
+      icon: Icon(isFollowing! ? Icons.notifications : null),
+      label: Text(isFollowing! ? 'Đã theo dõi' : 'Theo dõi'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        side: const BorderSide(color: Colors.white, width: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      onPressed: () {
+        log('toggle follow ${widget.artistId}');
+        unawaited(getIt<ApiKit>().toggleFollowArtist(widget.artistId));
+        setState(() {
+          isFollowing = !isFollowing!;
+        });
+      },
     );
   }
 }

@@ -131,16 +131,24 @@ class ApiKit {
     unawaited(storage.markInfoAsSaved(song.id, 'song'));
   }
 
-  Future<bool> isBlacklisted(String songId) =>
-      supabase.songs.isBlacklisted(songId);
-  Future<void> toggleBlacklist(String songId) =>
-      supabase.songs.toggleBlacklist(songId);
-  Future<List<SongModel>> getBlacklistedSongs() =>
-      supabase.songs.getBlacklistSongs();
+  Future<bool> isBlacklisted(String songId) {
+    return supabase.songs.isBlacklisted(songId);
+  }
+  Future<void> toggleBlacklist(String songId) {
+    return supabase.songs.toggleBlacklist(songId);
+  }
+  Future<List<SongModel>> getBlacklistedSongs() {
+    return supabase.songs.getBlacklistSongs();
+  }
+  Future<void> incrementSongView(String songId) {
+    return supabase.songs.incrementView(songId);
+  }
+  Future<int> getSongViewCount(String songId) {
+    return supabase.songs.getSongViewCount(songId);
+  }
 
-  /* --------------------
-  |    PLAYLISTS AND    |
-  |     ARTISTS APIs    |
+  /* ---------------------
+  |    PLAYLISTS APIs    |
   -------------------- */
 
   Future<void> savePlaylistInfo(PlaylistModel playlist) async {
@@ -168,6 +176,10 @@ class ApiKit {
     );
   }
 
+  /* ---------------------
+  |    ARTISTS APIs    |
+  -------------------- */
+
   Future<ArtistModel?> getArtistInfo(String artistAlias) async {
     final String api = '/infoartist?alias=$artistAlias';
     return await _getOrFetch<Map<String, dynamic>?, ArtistModel?>(
@@ -186,7 +198,19 @@ class ApiKit {
   }
 
   Future<List<ArtistModel>> getTopArtists(int count) {
-    return getIt<SupabaseApi>().artists.getTopArtists(count);
+    return supabase.artists.getTopArtists(count);
+  }
+
+  Future<int> getArtistFollowersCount(String artistId) {
+    return supabase.artists.getArtistFollowersCount(artistId);
+  }
+
+  Future<bool> isFollowingArtist(String artistId) {
+    return supabase.artists.isFollowingArtist(artistId);
+  }
+
+  Future<void> toggleFollowArtist(String artistId) {
+    return supabase.artists.toggleFollowArtist(artistId);
   }
 
   /* ----------------------
