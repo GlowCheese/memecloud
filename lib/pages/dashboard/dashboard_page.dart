@@ -50,16 +50,7 @@ class _DashboardPageState extends State<DashboardPage> {
       color: scaffElems['bgColor'],
       child: Scaffold(
         appBar: scaffElems['appBar'],
-        body: Stack(
-          fit: StackFit.expand,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 50),
-              child: scaffElems['body'],
-            ),
-            MiniPlayer()
-          ],
-        ),
+        body: scaffElems['body'],
         floatingActionButton: scaffElems['floatingActionButton'],
         backgroundColor: Colors.transparent,
         bottomNavigationBar: _bottomNavigationBar(),
@@ -67,36 +58,42 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  BottomNavigationBar _bottomNavigationBar() {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.transparent,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.bar_chart),
-          label: 'Charts',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.library_music),
-          label: 'Library'
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.bubble_chart),
-          label: 'Experiment',
+  Widget _bottomNavigationBar() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        MiniPlayer(),
+        BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.transparent,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.bar_chart),
+              label: 'Charts',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.library_music),
+              label: 'Library',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.bubble_chart),
+              label: 'Experiment',
+            ),
+          ],
+          currentIndex: currentPageIndex,
+          selectedItemColor: const Color(0xFF1976D2),
+          unselectedItemColor: Colors.grey,
+          showSelectedLabels: true,
+          showUnselectedLabels: false,
+          onTap: (index) {
+            setState(() {
+              currentPageIndex = index;
+            });
+          },
         ),
       ],
-      currentIndex: currentPageIndex,
-      selectedItemColor: const Color(0xFF1976D2),
-      unselectedItemColor: Colors.grey,
-      showSelectedLabels: true,
-      showUnselectedLabels: false,
-      onTap: (index) {
-        setState(() {
-          currentPageIndex = index;
-        });
-      },
     );
   }
 }

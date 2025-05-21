@@ -22,10 +22,7 @@ class MiniPlayer extends StatelessWidget {
       bloc: playerCubit,
       builder: (context, state) {
         if (state is SongPlayerLoaded) {
-          return Positioned(
-            left: 0, right: 0, bottom: 10,
-            child: _MiniPlayerInner(playerCubit, state.currentSong)
-          );
+          return _MiniPlayerInner(playerCubit, state.currentSong);
         } else {
           return SizedBox(height: 1);
         }
@@ -69,72 +66,75 @@ class _MiniPlayerInnerState extends State<_MiniPlayerInner> {
     });
   }
 
-  Container miniPlayerSongDetails(
+  Widget miniPlayerSongDetails(
     Color domBg,
     Color subDomBg,
     Color onBgColor,
   ) {
-    return Container(
-      height: 60,
-      margin: EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [domBg, subDomBg],
-          stops: [0.0, 0.8],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomRight,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Container(
+        height: 60,
+        margin: EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [domBg, subDomBg],
+            stops: [0.0, 0.8],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
         ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          miniThumbnail(),
-          SizedBox(width: 10),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            miniThumbnail(),
+            SizedBox(width: 10),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.song.title,
+                          style: TextStyle(
+                            color: onBgColor,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                        Text(
+                          widget.song.artistsNames,
+                          style: TextStyle(
+                            color: onBgColor.withAlpha(180),
+                            fontSize: 12,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                  Row(
                     children: [
-                      Text(
-                        widget.song.title,
-                        style: TextStyle(
-                          color: onBgColor,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                      Text(
-                        widget.song.artistsNames,
-                        style: TextStyle(
-                          color: onBgColor.withAlpha(180),
-                          fontSize: 12,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
+                      PlayOrPauseButton(song: widget.song, color: onBgColor),
+                      SongLikeButton(song: widget.song, dftColor: onBgColor),
+                      _seekNextButton(onBgColor),
                     ],
                   ),
-                ),
-                SizedBox(width: 20),
-                Row(
-                  children: [
-                    PlayOrPauseButton(song: widget.song, color: onBgColor),
-                    SongLikeButton(song: widget.song, dftColor: onBgColor),
-                    _seekNextButton(onBgColor),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          SizedBox(width: 5),
-        ],
+            SizedBox(width: 5),
+          ],
+        ),
       ),
     );
   }
