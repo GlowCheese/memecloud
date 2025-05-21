@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/apis/others/storage.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/components/miscs/section_divider.dart';
 import 'package:memecloud/components/miscs/page_with_tabs/single.dart';
 
@@ -17,7 +17,7 @@ class _E05State extends State<E05> {
 
   @override
   Widget build(BuildContext context) {
-    final hiveBoxes = getIt<PersistentStorage>().hiveBoxes;
+    final hiveBoxes = getIt<ApiKit>().storage.hiveBoxes;
 
     final Map<String, Box> filterMap = {
       'likedSongs': hiveBoxes.likedSongs,
