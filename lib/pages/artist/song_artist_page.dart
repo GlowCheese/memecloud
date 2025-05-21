@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'package:memecloud/components/artist/song_list_tile.dart';
+import 'package:memecloud/components/miscs/search_bar.dart';
 
 import 'package:memecloud/models/song_model.dart';
 
@@ -18,18 +19,34 @@ class SongArtistPage extends StatefulWidget {
 class _SongArtistPageState extends State<SongArtistPage> {
   final ScrollController _scrollController = ScrollController();
   bool _showBackToTopButton = false;
+  final TextEditingController _searchController = TextEditingController();
+  List<SongModel> _filteredSongs = [];
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_listenToScroll);
+    _filteredSongs = widget.songs;
   }
 
   @override
   void dispose() {
     _scrollController.removeListener(_listenToScroll);
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
+  }
+
+  void _filterSongs(String query) {
+    setState(() {
+      _filteredSongs =
+          widget.songs
+              .where(
+                (song) =>
+                    song.title.toLowerCase().contains(query.toLowerCase()),
+              )
+              .toList();
+    });
   }
 
   void _scrollToTop() {
@@ -80,16 +97,26 @@ class _SongArtistPageState extends State<SongArtistPage> {
         ),
         slivers: [
           const SliverAppBar(title: Text("Các bài hát")),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: MySearchBar(
+                variation: 2,
+                searchQueryController: _searchController,
+                onChanged: _filterSongs,
+              ),
+            ),
+          ),
           SliverPadding(
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
-                final song = widget.songs[index];
+                final song = _filteredSongs[index];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: SongListTile(song: song),
                 );
-              }, childCount: widget.songs.length),
+              }, childCount: _filteredSongs.length),
             ),
           ),
         ],

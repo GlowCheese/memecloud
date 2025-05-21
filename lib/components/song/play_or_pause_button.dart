@@ -19,11 +19,14 @@ class PlayOrPauseButton extends StatelessWidget {
     this.color = Colors.white,
     this.padding,
     this.iconSize,
-    List<SongModel>? songList
+    List<SongModel>? songList,
   }) {
     this.songList = songList ?? [song];
   }
 
+  Widget _loadingButton(BuildContext context) {
+    return CircularProgressIndicator();
+  }
 
   Widget _playButton(BuildContext context, {required bool load}) {
     return IconButton(
@@ -32,11 +35,7 @@ class PlayOrPauseButton extends StatelessWidget {
       iconSize: iconSize,
       onPressed: () async {
         if (load) {
-          await playerCubit.loadAndPlay(
-            context,
-            song,
-            songList: songList,
-          );
+          await playerCubit.loadAndPlay(context, song, songList: songList);
         } else {
           playerCubit.playOrPause();
         }
@@ -52,11 +51,7 @@ class PlayOrPauseButton extends StatelessWidget {
       iconSize: iconSize,
       onPressed: () async {
         if (load) {
-          await playerCubit.loadAndPlay(
-            context,
-            song,
-            songList: songList,
-          );
+          await playerCubit.loadAndPlay(context, song, songList: songList);
         } else {
           playerCubit.playOrPause();
         }
@@ -70,6 +65,9 @@ class PlayOrPauseButton extends StatelessWidget {
     return BlocBuilder<SongPlayerCubit, SongPlayerState>(
       bloc: playerCubit,
       builder: (context, state) {
+        if (state is SongPlayerLoading && state.currentSong.id == song.id) {
+          return _loadingButton(context);
+        }
         if (state is! SongPlayerLoaded) {
           return _playButton(context, load: true);
         }
@@ -85,9 +83,9 @@ class PlayOrPauseButton extends StatelessWidget {
               return _pauseButton(context, load: false);
             }
             return _playButton(context, load: false);
-          }
+          },
         );
-      }
+      },
     );
   }
 }

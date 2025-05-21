@@ -41,19 +41,21 @@ class LibraryPage extends StatelessWidget {
         final downloadFocus = tabIdxs.contains(1);
 
         if (downloadFocus) return Placeholder();
-
-        final likedSongs = getIt<ApiKit>().getLikedSongs();
-        return ListView.separated(
-          itemBuilder: (context, index) {
-            return SongCard(
-              variation: 1,
-              song: likedSongs[index],
-              songList: likedSongs,
-            );
-          },
-          separatorBuilder: (context, index) => SizedBox(height: 12),
-          itemCount: likedSongs.length,
-        );
+        if (followFocus) {
+          final likedSongs = getIt<ApiKit>().getLikedSongs();
+          return ListView.separated(
+            itemBuilder: (context, index) {
+              return SongCard(
+                variation: 1,
+                song: likedSongs[index],
+                songList: likedSongs,
+              );
+            },
+            separatorBuilder: (context, index) => SizedBox(height: 12),
+            itemCount: likedSongs.length,
+          );
+        }
+        return Placeholder();
       },
     );
   }
