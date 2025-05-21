@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/core/getit.dart';
@@ -10,7 +12,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/components/song/play_or_pause_button.dart';
-import 'package:memecloud/components/miscs/palette_colors_builder.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
@@ -42,99 +43,102 @@ class _MiniPlayerInner extends StatefulWidget {
 }
 
 class _MiniPlayerInnerState extends State<_MiniPlayerInner> {
-  @override
-  Widget build(BuildContext context) {
-    return paletteColorsWidgetBuider(widget.song.thumbnailUrl, (
-      List<Color> paletteColors,
-    ) {
-      late final Color domBg, subDomBg;
-      if (AdaptiveTheme.of(context).mode.isDark) {
-        domBg = adjustColor(paletteColors.first, l: 0.3, s: 0.3);
-        subDomBg = adjustColor(paletteColors.last, l: 0.4, s: 0.4);
-      } else {
-        domBg = adjustColor(paletteColors.first, l: 0.5, s: 0.3);
-        subDomBg = adjustColor(paletteColors.last, l: 0.6, s: 0.4);
-      }
-      Color onBgColor = getTextColor(domBg);
+  List<Color>? paletteColors;
 
-      return GestureDetector(
-        onTap: () async {
-          context.push('/song_page');
-        },
-        child: miniPlayerSongDetails(domBg, subDomBg, onBgColor),
-      );
-    });
+  @override
+  void initState() {
+    super.initState();
+    unawaited(
+      getPaletteColors(widget.song.thumbnailUrl).then((data) {
+        setState(() => paletteColors = data);
+      }),
+    );
   }
 
-  Widget miniPlayerSongDetails(
-    Color domBg,
-    Color subDomBg,
-    Color onBgColor,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Container(
-        height: 60,
-        margin: EdgeInsets.symmetric(horizontal: 10),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [domBg, subDomBg],
-            stops: [0.0, 0.8],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
+  @override
+  Widget build(BuildContext context) {
+    if (paletteColors == null) return SizedBox();
+
+    late final Color domBg, subDomBg;
+    if (AdaptiveTheme.of(context).mode.isDark) {
+      domBg = adjustColor(paletteColors!.first, l: 0.3, s: 0.3);
+      subDomBg = adjustColor(paletteColors!.last, l: 0.4, s: 0.4);
+    } else {
+      domBg = adjustColor(paletteColors!.first, l: 0.5, s: 0.3);
+      subDomBg = adjustColor(paletteColors!.last, l: 0.6, s: 0.4);
+    }
+    Color onBgColor = getTextColor(domBg);
+
+    return GestureDetector(
+      onTap: () async {
+        context.push('/song_page');
+      },
+      child: miniPlayerSongDetails(domBg, subDomBg, onBgColor),
+    );
+  }
+
+  Widget miniPlayerSongDetails(Color domBg, Color subDomBg, Color onBgColor) {
+    return Container(
+      height: 60,
+      margin: EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [domBg, subDomBg],
+          stops: [0.0, 0.8],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomRight,
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            miniThumbnail(),
-            SizedBox(width: 10),
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.song.title,
-                          style: TextStyle(
-                            color: onBgColor,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                        Text(
-                          widget.song.artistsNames,
-                          style: TextStyle(
-                            color: onBgColor.withAlpha(180),
-                            fontSize: 12,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 20),
-                  Row(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          miniThumbnail(),
+          SizedBox(width: 10),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      PlayOrPauseButton(song: widget.song, color: onBgColor),
-                      SongLikeButton(song: widget.song, dftColor: onBgColor),
-                      _seekNextButton(onBgColor),
+                      Text(
+                        widget.song.title,
+                        style: TextStyle(
+                          color: onBgColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                      Text(
+                        widget.song.artistsNames,
+                        style: TextStyle(
+                          color: onBgColor.withAlpha(180),
+                          fontSize: 12,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                SizedBox(width: 20),
+                Row(
+                  children: [
+                    PlayOrPauseButton(song: widget.song, color: onBgColor),
+                    SongLikeButton(song: widget.song, dftColor: onBgColor),
+                    _seekNextButton(onBgColor),
+                  ],
+                ),
+              ],
             ),
-            SizedBox(width: 5),
-          ],
-        ),
+          ),
+          SizedBox(width: 5),
+        ],
       ),
     );
   }
