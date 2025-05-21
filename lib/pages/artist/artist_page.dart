@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/artist/album_list_tile.dart';
 import 'package:memecloud/components/artist/song_list_tile.dart';
+import 'package:memecloud/components/common/confirmation_dialog.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/song/mini_player.dart';
 
@@ -336,13 +337,31 @@ class _FollowButtonState extends State<_FollowButton> {
         ),
         onPressed: () {
           log('toggle follow ${widget.artistId}');
-          unawaited(getIt<ApiKit>().toggleFollowArtist(widget.artistId));
+          if (!isFollowing!) {
+            unawaited(getIt<ApiKit>().toggleFollowArtist(widget.artistId));
+          } else {
+            _showSubmitUnfollowDialog(context);
+          }
           setState(() {
             isFollowing = !isFollowing!;
           });
         },
       ),
     );
+  }
+  
+  void _showSubmitUnfollowDialog(BuildContext context) async {
+    final submitUnfollow = await ConfirmationDialog.show(
+      context: context,
+      title: 'Hủy theo dõi',
+      message: 'Bạn có chắc chắn muốn hủy theo dõi?',
+      confirmText: 'Hủy theo dõi',
+      cancelText: 'Không',
+    );
+
+    if (submitUnfollow == true) {
+      unawaited(getIt<ApiKit>().toggleFollowArtist(widget.artistId));
+    }
   }
 }
 
