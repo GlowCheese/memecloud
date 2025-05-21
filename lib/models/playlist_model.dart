@@ -83,8 +83,8 @@ class PlaylistModel extends MusicModel {
     return ignoreNullValuesOfMap({
       'id': id,
       'title': title,
-      'thumbnailUrl': thumbnailUrl,
-      'artistsNames': artistsNames,
+      'thumbnail_url': thumbnailUrl,
+      'artists_names': artistsNames,
       'description': description,
       if (only == false)
         'songs': songs?.map((e) => e.toJson()).toList(),

@@ -1,26 +1,24 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
-import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/artist/album_list_tile.dart';
 import 'package:memecloud/components/artist/song_list_tile.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/song/mini_player.dart';
+
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/artist_model.dart';
+import 'package:memecloud/models/playlist_model.dart';
 
+import 'package:memecloud/pages/artist/song_artist_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/components/miscs/expandable_html.dart';
 import 'package:memecloud/pages/artist/album_artist_page.dart';
-
-import 'package:memecloud/pages/artist/song_artist_page.dart';
 
 class ArtistPage extends StatefulWidget {
   final String artistAlias;
@@ -45,23 +43,13 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<ArtistModel?>(
+      body: defaultFutureBuilder(
         future: _artistFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return _loadingArtist();
-          }
-          if (snapshot.hasError) {
-            return Center(child: SelectableText('Error: ${snapshot.error}'));
-          }
-          final artist = snapshot.data;
-          if (artist == null) {
-            return const Center(
-              child: Text('Không tìm thấy thông tin nghệ sĩ'),
-            );
-          }
-
-          songs = artist.sections![0].items.cast<SongModel>().toList();
+        onNull: (context) {
+          return const Center(child: Text('Không tìm thấy thông tin nghệ sĩ'));
+        },
+        onData: (context, artist) {
+          songs = artist!.sections![0].items.cast<SongModel>().toList();
 
           albums = artist.sections![1].items.cast<PlaylistModel>().toList();
 
@@ -211,8 +199,9 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                   Column(
                     children: [
                       defaultFutureBuilder(
-                        future: getIt<SupabaseApi>().artists
-                            .getArtistFollowersCount(artist.id),
+                        future: getIt<ApiKit>().getArtistFollowersCount(
+                          artist.id,
+                        ),
                         onData: (context, data) {
                           return Text(
                             '${data.toString()} người theo dõi',
@@ -230,6 +219,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                           );
                         },
                       ),
+                      const SizedBox(height: 10),
                       _FollowButton(artistId: artist.id),
                     ],
                   ),
@@ -237,14 +227,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                     children: [
                       IconButton(
                         onPressed: () async {
-                          if (playerCubit.shuffleMode) {
-                            await playerCubit.toggleShuffleMode();
-                          }
-                          await playerCubit.loadAndPlay(
-                            context,
-                            songs[0],
-                            songList: List<SongModel>.from(songs),
-                          );
+                          await _togglePlayShuffle(playerCubit);
                         },
                         icon: const Icon(Icons.shuffle),
                       ),
@@ -268,14 +251,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                           elevation: 4,
                         ),
                         onPressed: () async {
-                          if (!playerCubit.shuffleMode) {
-                            await playerCubit.toggleShuffleMode();
-                          }
-                          await playerCubit.loadAndPlay(
-                            context,
-                            songs[0],
-                            songList: List<SongModel>.from(songs),
-                          );
+                          await _togglePlayNormal(playerCubit);
                         },
                       ),
                     ],
@@ -286,6 +262,28 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
           ),
         ),
       ],
+    );
+  }
+
+  Future<void> _togglePlayNormal(SongPlayerCubit playerCubit) async {
+    if (!playerCubit.shuffleMode) {
+      await playerCubit.toggleShuffleMode();
+    }
+    await playerCubit.loadAndPlay(
+      context,
+      songs[0],
+      songList: List<SongModel>.from(songs),
+    );
+  }
+
+  Future<void> _togglePlayShuffle(SongPlayerCubit playerCubit) async {
+    if (playerCubit.shuffleMode) {
+      await playerCubit.toggleShuffleMode();
+    }
+    await playerCubit.loadAndPlay(
+      context,
+      songs[0],
+      songList: List<SongModel>.from(songs),
     );
   }
 }
@@ -299,48 +297,50 @@ class _FollowButton extends StatefulWidget {
 }
 
 class _FollowButtonState extends State<_FollowButton> {
-  late Future<bool> _isFollowingFuture;
+  bool? isFollowing;
 
   @override
   void initState() {
     super.initState();
-    _isFollowingFuture = getIt<SupabaseApi>().artists.isFollowingArtist(
-      widget.artistId,
+    unawaited(
+      getIt<ApiKit>().isFollowingArtist(widget.artistId).then((isFollowing) {
+        setState(() {
+          this.isFollowing = isFollowing;
+        });
+      }),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return defaultFutureBuilder(
-      future: _isFollowingFuture,
-      onData:
-          (context, data) => OutlinedButton.icon(
-            icon: Icon(data ? Icons.notifications : null),
-            label: Text(data ? 'Đã theo dõi' : 'Theo dõi'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.white,
-              side: const BorderSide(color: Colors.white, width: 2),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: () {
-              log('toggle follow ${widget.artistId}');
-              setState(() {
-                unawaited(
-                  getIt<SupabaseApi>().artists
-                      .toggleFollowArtist(widget.artistId)
-                      .then((_) {
-                        setState(() {
-                          _isFollowingFuture = getIt<SupabaseApi>().artists
-                              .isFollowingArtist(widget.artistId);
-                        });
-                      }),
-                );
-              });
-            },
+    if (isFollowing == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return SizedBox(
+      height: 40,
+      width: 140,
+      child: OutlinedButton.icon(
+        icon: Icon(
+          isFollowing! ? Icons.notifications : Icons.notifications_off,
+        ),
+        label: Text(isFollowing! ? 'Đã theo dõi' : 'Theo dõi'),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.white,
+          side: const BorderSide(color: Colors.white, width: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
+        ),
+        onPressed: () {
+          log('toggle follow ${widget.artistId}');
+          unawaited(getIt<ApiKit>().toggleFollowArtist(widget.artistId));
+          setState(() {
+            isFollowing = !isFollowing!;
+          });
+        },
+      ),
     );
   }
 }
@@ -497,8 +497,4 @@ class _AlbumsOfArtist extends StatelessWidget {
       ],
     );
   }
-}
-
-Widget _loadingArtist() {
-  return const Center(child: CircularProgressIndicator());
 }

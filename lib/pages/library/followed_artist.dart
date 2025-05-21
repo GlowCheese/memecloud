@@ -1,30 +1,31 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/artist/album_list_tile.dart';
+import 'package:memecloud/components/artist/followed_artist_tile.dart';
+import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/miscs/search_bar.dart';
-import 'package:memecloud/models/playlist_model.dart';
+import 'package:memecloud/models/artist_model.dart';
 
-class AlbumArtistPage extends StatefulWidget {
-  final List<PlaylistModel> albums;
+class FollowedArtistPage extends StatefulWidget {
+  final List<ArtistModel> artists;
 
-  const AlbumArtistPage({super.key, required this.albums});
+  const FollowedArtistPage({super.key, required this.artists});
 
   @override
-  State<AlbumArtistPage> createState() => _AlbumArtistPageState();
+  State<FollowedArtistPage> createState() => _FollowedArtistPageState();
 }
 
-class _AlbumArtistPageState extends State<AlbumArtistPage> {
+class _FollowedArtistPageState extends State<FollowedArtistPage> {
   final ScrollController _scrollController = ScrollController();
   bool _showBackToTopButton = false;
   final TextEditingController _searchController = TextEditingController();
-  List<PlaylistModel> _filteredAlbums = [];
+  List<ArtistModel> _filteredArtists = [];
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_listenToScroll);
-    _filteredAlbums = widget.albums;
+    _filteredArtists = widget.artists;
   }
 
   @override
@@ -35,16 +36,18 @@ class _AlbumArtistPageState extends State<AlbumArtistPage> {
     super.dispose();
   }
 
-  void _filterAlbums(String query) {
+  void _filterArtists(String query) {
     setState(() {
-      _filteredAlbums =
-          widget.albums
+      _filteredArtists =
+          widget.artists
               .where(
-                (album) =>
-                    album.title.toLowerCase().contains(query.toLowerCase()),
+                (artist) =>
+                    artist.name.toLowerCase().contains(query.toLowerCase()),
               )
               .toList();
     });
+    log('Filtered artists: $_filteredArtists');
+    log('Query for artists: $query');
   }
 
   void _scrollToTop() {
@@ -58,24 +61,35 @@ class _AlbumArtistPageState extends State<AlbumArtistPage> {
   void _listenToScroll() {
     _scrollController.addListener(() {
       if (_scrollController.offset >= 300) {
-        if (!_showBackToTopButton) {
-          setState(() {
-            log("show back to top button");
-            _showBackToTopButton = true;
-          });
-        }
-      } else {
         if (_showBackToTopButton) {
-          setState(() {
-            _showBackToTopButton = false;
-          });
+          return;
         }
+        setState(() {
+          _showBackToTopButton = true;
+        });
+      } else {
+        if (!_showBackToTopButton) {
+          return;
+        }
+        setState(() {
+          _showBackToTopButton = false;
+        });
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.artists.isEmpty) {
+      return const Center(
+        child: Column(
+          children: [
+            Icon(Icons.no_accounts, size: 80),
+            Text("Bạn chưa theo dõi nghệ sĩ nào."),
+          ],
+        ),
+      );
+    }
     return Scaffold(
       floatingActionButton:
           _showBackToTopButton
@@ -87,20 +101,23 @@ class _AlbumArtistPageState extends State<AlbumArtistPage> {
                 child: Icon(Icons.arrow_upward),
               )
               : null,
+      appBar: AppBar(title: const Text("Nghệ sĩ đã theo dõi")),
+
       body: CustomScrollView(
         controller: _scrollController,
+
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),
         ),
         slivers: [
-          const SliverAppBar(title: Text("Các album")),
+          const SliverAppBar(title: Text("Các nghệ sĩ")),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: MySearchBar(
                 variation: 2,
                 searchQueryController: _searchController,
-                onChanged: _filterAlbums,
+                onChanged: _filterArtists,
               ),
             ),
           ),
@@ -108,12 +125,13 @@ class _AlbumArtistPageState extends State<AlbumArtistPage> {
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
-                final album = _filteredAlbums[index];
+                final artist = _filteredArtists[index];
+
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: AlbumListTile(album: album),
+                  child: FollowedArtistTile(artist: artist),
                 );
-              }, childCount: _filteredAlbums.length),
+              }, childCount: _filteredArtists.length),
             ),
           ),
         ],

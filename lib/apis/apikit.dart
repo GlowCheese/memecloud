@@ -131,16 +131,31 @@ class ApiKit {
     unawaited(storage.markInfoAsSaved(song.id, 'song'));
   }
 
-  Future<bool> isBlacklisted(String songId) =>
-      supabase.songs.isBlacklisted(songId);
-  Future<void> toggleBlacklist(String songId) =>
-      supabase.songs.toggleBlacklist(songId);
-  Future<List<SongModel>> getBlacklistedSongs() =>
-      supabase.songs.getBlacklistSongs();
+  Future<bool> isBlacklisted(String songId) {
+    return supabase.songs.isBlacklisted(songId);
+  }
 
-  /* --------------------
-  |    PLAYLISTS AND    |
-  |     ARTISTS APIs    |
+  Future<void> toggleBlacklist(String songId) {
+    return supabase.songs.toggleBlacklist(songId);
+  }
+
+  Future<List<SongModel>> getBlacklistedSongs() {
+    return supabase.songs.getBlacklistSongs();
+  }
+
+  Future<void> newSongStream(SongModel song) {
+    return Future.wait([
+      supabase.songs.newSongStream(song.id),
+      ...song.artists.map((e) => supabase.artists.newArtistStream(e.id)),
+    ]);
+  }
+
+  Future<int> countSongStreams(String songId) {
+    return supabase.songs.countSongStreams(songId);
+  }
+
+  /* ---------------------
+  |    PLAYLISTS APIs    |
   -------------------- */
 
   Future<void> savePlaylistInfo(PlaylistModel playlist) async {
@@ -168,6 +183,10 @@ class ApiKit {
     );
   }
 
+  /* ---------------------
+  |    ARTISTS APIs    |
+  -------------------- */
+
   Future<ArtistModel?> getArtistInfo(String artistAlias) async {
     final String api = '/infoartist?alias=$artistAlias';
     return await _getOrFetch<Map<String, dynamic>?, ArtistModel?>(
@@ -185,8 +204,20 @@ class ApiKit {
     );
   }
 
-  Future<List<ArtistModel>> getTopArtists(int count) {
-    return getIt<SupabaseApi>().artists.getTopArtists(count);
+  Future<List<ArtistModel>> getTopArtists({required int count}) {
+    return supabase.artists.getTopArtists(count: count);
+  }
+
+  Future<int> getArtistFollowersCount(String artistId) {
+    return supabase.artists.getArtistFollowersCount(artistId);
+  }
+
+  Future<bool> isFollowingArtist(String artistId) {
+    return supabase.artists.isFollowingArtist(artistId);
+  }
+
+  Future<void> toggleFollowArtist(String artistId) {
+    return supabase.artists.toggleFollowArtist(artistId);
   }
 
   /* ----------------------

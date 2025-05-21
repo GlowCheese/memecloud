@@ -12,7 +12,7 @@ class TopArtistsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return defaultFutureBuilder(
-      future: getIt<ApiKit>().getTopArtists(5),
+      future: getIt<ApiKit>().getTopArtists(count: 5),
       onData: (context, artists) {
         return _artistView(artists);
       },
