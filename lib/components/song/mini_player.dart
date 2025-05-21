@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/core/getit.dart';
@@ -10,10 +12,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/components/song/play_or_pause_button.dart';
-import 'package:memecloud/components/miscs/palette_colors_builder.dart';
 
 class MiniPlayer extends StatelessWidget {
-  const MiniPlayer({super.key});
+  final bool floating;
+  
+  const MiniPlayer({super.key, this.floating = false});
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +25,8 @@ class MiniPlayer extends StatelessWidget {
       bloc: playerCubit,
       builder: (context, state) {
         if (state is SongPlayerLoaded) {
-          return Positioned(
-            left: 0, right: 0, bottom: 10,
-            child: _MiniPlayerInner(playerCubit, state.currentSong)
-          );
+          final w = _MiniPlayerInner(playerCubit, state.currentSong);
+          return floating ? Positioned(left: 0, right: 0, bottom: 12, child: w) : w;
         } else {
           return SizedBox(height: 1);
         }
@@ -45,35 +46,41 @@ class _MiniPlayerInner extends StatefulWidget {
 }
 
 class _MiniPlayerInnerState extends State<_MiniPlayerInner> {
-  @override
-  Widget build(BuildContext context) {
-    return paletteColorsWidgetBuider(widget.song.thumbnailUrl, (
-      List<Color> paletteColors,
-    ) {
-      late final Color domBg, subDomBg;
-      if (AdaptiveTheme.of(context).mode.isDark) {
-        domBg = adjustColor(paletteColors.first, l: 0.3, s: 0.3);
-        subDomBg = adjustColor(paletteColors.last, l: 0.4, s: 0.4);
-      } else {
-        domBg = adjustColor(paletteColors.first, l: 0.5, s: 0.3);
-        subDomBg = adjustColor(paletteColors.last, l: 0.6, s: 0.4);
-      }
-      Color onBgColor = getTextColor(domBg);
+  List<Color>? paletteColors;
 
-      return GestureDetector(
-        onTap: () async {
-          context.push('/song_page');
-        },
-        child: miniPlayerSongDetails(domBg, subDomBg, onBgColor),
-      );
-    });
+  @override
+  void initState() {
+    super.initState();
+    unawaited(
+      getPaletteColors(widget.song.thumbnailUrl).then((data) {
+        setState(() => paletteColors = data);
+      }),
+    );
   }
 
-  Container miniPlayerSongDetails(
-    Color domBg,
-    Color subDomBg,
-    Color onBgColor,
-  ) {
+  @override
+  Widget build(BuildContext context) {
+    if (paletteColors == null) return SizedBox();
+
+    late final Color domBg, subDomBg;
+    if (AdaptiveTheme.of(context).mode.isDark) {
+      domBg = adjustColor(paletteColors!.first, l: 0.3, s: 0.3);
+      subDomBg = adjustColor(paletteColors!.last, l: 0.4, s: 0.4);
+    } else {
+      domBg = adjustColor(paletteColors!.first, l: 0.5, s: 0.3);
+      subDomBg = adjustColor(paletteColors!.last, l: 0.6, s: 0.4);
+    }
+    Color onBgColor = getTextColor(domBg);
+
+    return GestureDetector(
+      onTap: () async {
+        context.push('/song_page');
+      },
+      child: miniPlayerSongDetails(domBg, subDomBg, onBgColor),
+    );
+  }
+
+  Widget miniPlayerSongDetails(Color domBg, Color subDomBg, Color onBgColor) {
     return Container(
       height: 60,
       margin: EdgeInsets.symmetric(horizontal: 10),

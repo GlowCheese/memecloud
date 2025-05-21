@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memecloud/components/miscs/generatable_list/sliver_list.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/song/mini_player.dart';
 import 'package:memecloud/components/musics/song_card.dart';
@@ -53,7 +54,7 @@ class PlaylistPage extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   _PlaylistPageInner(playlist: data),
-                  MiniPlayer()
+                  MiniPlayer(floating: true),
                 ],
               ),
             );
@@ -75,24 +76,6 @@ class _PlaylistPageInner extends StatefulWidget {
 
 class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
   late List<SongModel> _displaySongs = widget.playlist.songs ?? [];
-  late final _searchBar = MySearchBar(
-    variation: 2,
-    onSubmitted: (query) {
-      if (query.trim().isEmpty) {
-        setState(() => _displaySongs = widget.playlist.songs ?? []);
-      }
-
-      String lowercasedQuery = query.toLowerCase();
-      setState(() {
-        _displaySongs =
-            (widget.playlist.songs ?? [])
-                .where(
-                  (song) => song.title.toLowerCase().contains(lowercasedQuery),
-                )
-                .toList();
-      });
-    },
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -106,41 +89,51 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
             ? (_playlistDescription())
             : (SliverToBoxAdapter(child: SizedBox(height: 18))),
 
-        SliverList(
-          delegate: SliverChildBuilderDelegate((context, index) {
+        GeneratableSliverList(
+          initialPageIdx: 0,
+          loadDelay: Duration(milliseconds: 20),
+          asyncGenFunction: (index) async {
+            if (index >= _displaySongs.length) return null;
+
             final song = _displaySongs[index];
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
-              child: Row(
-                children: [
-                  Flexible(
-                    child: SongCard(
-                      variation: 1,
-                      song: song,
-                      songList: _displaySongs,
+            return [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 30,
+                  vertical: 8,
+                ),
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: SongCard(
+                        variation: 1,
+                        song: song,
+                        songList: _displaySongs,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 8),
-                  IconButton(
-                    icon: Icon(
-                      Icons.more_vert,
-                      color: Colors.grey[400],
-                      size: 20,
+                    SizedBox(width: 8),
+                    IconButton(
+                      icon: Icon(
+                        Icons.more_vert,
+                        color: Colors.grey[400],
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        // Hiển thị menu tùy chọn cho bài hát
+                        showModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.grey[900],
+                          builder: (context) => SongOptionsSheet(song: song),
+                        );
+                      },
                     ),
-                    onPressed: () {
-                      // Hiển thị menu tùy chọn cho bài hát
-                      showModalBottomSheet(
-                        context: context,
-                        backgroundColor: Colors.grey[900],
-                        builder: (context) => SongOptionsSheet(song: song),
-                      );
-                    },
-                  ),
-                ],
+                  ],
+                ),
               ),
-            );
-          }, childCount: _displaySongs.length),
+            ];
+          },
         ),
+        SliverToBoxAdapter(child: const SizedBox(height: 72))
       ],
     );
   }
@@ -332,7 +325,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                 ),
               ),
             ),
-            Expanded(child: SizedBox(height: 40, child: _searchBar)),
+            Expanded(child: SizedBox(height: 40, child: _searchBar())),
             SizedBox(width: 15),
           ],
         ),
@@ -340,22 +333,27 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
     );
   }
 
-  // Widget _buildGenreTag(String tag) {
-  //   return Container(
-  //     margin: const EdgeInsets.only(right: 8),
-  //     decoration: BoxDecoration(
-  //       color: Colors.grey[900],
-  //       borderRadius: BorderRadius.circular(16),
-  //     ),
-  //     child: Padding(
-  //       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-  //       child: Text(
-  //         tag,
-  //         style: const TextStyle(color: Colors.white, fontSize: 14),
-  //       ),
-  //     ),
-  //   );
-  // }
+  Widget _searchBar() {
+    return MySearchBar(
+      variation: 2,
+      onSubmitted: (query) {
+        if (query.trim().isEmpty) {
+          setState(() => _displaySongs = widget.playlist.songs ?? []);
+        }
+
+        String lowercasedQuery = query.toLowerCase();
+        setState(() {
+          _displaySongs =
+              (widget.playlist.songs ?? [])
+                  .where(
+                    (song) =>
+                        song.title.toLowerCase().contains(lowercasedQuery),
+                  )
+                  .toList();
+        });
+      },
+    );
+  }
 }
 
 class SongOptionsSheet extends StatelessWidget {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:memecloud/pages/dashboard/home_page.dart';
 import 'package:memecloud/pages/library/library_page.dart';
 import 'package:memecloud/pages/dashboard/search_page.dart';
@@ -50,16 +51,7 @@ class _DashboardPageState extends State<DashboardPage> {
       color: scaffElems['bgColor'],
       child: Scaffold(
         appBar: scaffElems['appBar'],
-        body: Stack(
-          fit: StackFit.expand,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 50),
-              child: scaffElems['body'],
-            ),
-            MiniPlayer()
-          ],
-        ),
+        body: scaffElems['body'],
         floatingActionButton: scaffElems['floatingActionButton'],
         backgroundColor: Colors.transparent,
         bottomNavigationBar: _bottomNavigationBar(),
@@ -67,36 +59,37 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  BottomNavigationBar _bottomNavigationBar() {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.transparent,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.bar_chart),
-          label: 'Charts',
+  Widget _bottomNavigationBar() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 8,
+      children: [
+        MiniPlayer(),
+        SnakeNavigationBar.color(
+          snakeShape: SnakeShape.indicator,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white,
+          snakeViewColor: Colors.indigo.shade400,
+
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          currentIndex: currentPageIndex,
+          onTap: (index) => setState(() => currentPageIndex = index),
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: ''),
+            BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: ''),
+            BottomNavigationBarItem(icon: Icon(Icons.library_music), label: ''),
+            BottomNavigationBarItem(icon: Icon(Icons.bubble_chart), label: ''),
+          ],
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.library_music),
-          label: 'Library'
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.bubble_chart),
-          label: 'Experiment',
-        ),
+        // NavigationBar(
+        //   selectedIndex: currentPageIndex,
+        //   onDestinationSelected:
+        //   destinations: const [
+        //   ],
+        // ),
       ],
-      currentIndex: currentPageIndex,
-      selectedItemColor: const Color(0xFF1976D2),
-      unselectedItemColor: Colors.grey,
-      showSelectedLabels: true,
-      showUnselectedLabels: false,
-      onTap: (index) {
-        setState(() {
-          currentPageIndex = index;
-        });
-      },
     );
   }
 }

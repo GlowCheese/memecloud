@@ -61,9 +61,9 @@ class SongPageInner extends StatelessWidget {
               child: Center(
                 child: Column(
                   children: [
-                    SizedBox(height: 46),
+                    SizedBox(height: 72),
                     _songCover(),
-                    SizedBox(height: 30),
+                    SizedBox(height: 72),
                     _songDetails(),
                     SizedBox(height: 20),
                     SongControllerView(song: song),
