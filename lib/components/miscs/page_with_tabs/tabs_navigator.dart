@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:tab_indicator_styler/tab_indicator_styler.dart';
 
 class TabsNavigator extends StatelessWidget {
   /// must be between 1 and 1;
   final int variation;
+  final TabController? tabController;
   late final List<int> selectedTabs;
   final List<String> tabNames;
   final void Function(int tabIdx)? onTabSelect;
@@ -13,11 +15,17 @@ class TabsNavigator extends StatelessWidget {
     required this.tabNames,
     List<int>? selectedTabs,
     this.onTabSelect,
+    this.tabController,
   }) : selectedTabs = selectedTabs ?? [];
 
   @override
   Widget build(BuildContext context) {
-    return _variation1(context);
+    switch (variation) {
+      case 1:
+        return _variation1(context);
+      default:
+        return _variation2(context);
+    }
   }
 
   Widget _variation1(BuildContext context) {
@@ -53,6 +61,23 @@ class TabsNavigator extends StatelessWidget {
           physics: BouncingScrollPhysics(),
           children: buttons,
         ),
+      ),
+    );
+  }
+
+  Widget _variation2(BuildContext context) {
+    return TabBar(
+      controller: tabController,
+      indicatorColor: Colors.white,
+      labelColor: Colors.white,
+      unselectedLabelColor: Colors.white70,
+      tabs: tabNames.map((e) => Tab(text: e)).toList(),
+      dividerHeight: 0,
+      indicator: MaterialIndicator(
+        height: 3,
+        bottomLeftRadius: 5,
+        bottomRightRadius: 5,
+        color: Colors.white,
       ),
     );
   }

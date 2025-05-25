@@ -51,11 +51,14 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     return false;
   }
 
-  Future<LockCachingAudioSource?> _getAudioSource(SongModel song) async {
+  Future<AudioSource?> _getAudioSource(SongModel song) async {
     unawaited(getIt<ApiKit>().saveSongInfo(song));
     try {
       final uri = await getIt<ApiKit>().getSongUri(song.id);
       if (uri == null) return null;
+      if (uri.scheme == 'file') {
+        return AudioSource.uri(uri, tag: song.mediaItem);
+      }
       return LockCachingAudioSource(uri, tag: song.mediaItem);
     } on ConnectionLoss {
       return null;

@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:memecloud/components/miscs/page_with_tabs/tabs_navigator.dart';
 
 class PageWithSingleTab extends StatefulWidget {
-  /// must be between 1 and 1;
+  /// must be between 1 and 2
   final int variation;
   final Widget? nullTab;
   final List<String> tabNames;
   final List<Widget>? tabBodies;
-  final Widget Function(int selectedTab)? tabBuilder;
   final Widget Function(Widget tabsNavigator, Widget tabContent) widgetBuilder;
 
   const PageWithSingleTab({
@@ -18,15 +17,31 @@ class PageWithSingleTab extends StatefulWidget {
 
     this.nullTab,
     this.tabBodies,
-    this.tabBuilder,
   });
 
   @override
   State<PageWithSingleTab> createState() => _PageWithSingleTabState();
 }
 
-class _PageWithSingleTabState extends State<PageWithSingleTab> {
-  late int? selectedTab = widget.nullTab != null ? null : 0;
+class _PageWithSingleTabState extends State<PageWithSingleTab> with SingleTickerProviderStateMixin {
+  late int? selectedTab;
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(
+      length: widget.tabNames.length,
+      vsync: this,
+    );
+    selectedTab = widget.nullTab != null ? null : 0;
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   void onTabSelect(int tabIdx) {
     if (tabIdx == selectedTab) {
@@ -46,20 +61,24 @@ class _PageWithSingleTabState extends State<PageWithSingleTab> {
         tabNames: widget.tabNames,
         selectedTabs: [if (selectedTab != null) selectedTab!],
         onTabSelect: onTabSelect,
+        tabController: _tabController,
       ),
       tabContent(context),
     );
   }
 
   Widget tabContent(BuildContext context) {
-    if (selectedTab == null) {
-      return widget.nullTab!;
+    switch (widget.variation) {
+      case 1:
+        if (selectedTab == null) {
+          return widget.nullTab!;
+        }
+        return widget.tabBodies![selectedTab!];
+      default:
+        return TabBarView(
+          controller: _tabController,
+          children: widget.tabBodies!,
+        );
     }
-
-    if (widget.tabBuilder != null) {
-      return widget.tabBuilder!(selectedTab!);
-    }
-
-    return widget.tabBodies![selectedTab!];
   }
 }
