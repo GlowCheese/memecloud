@@ -131,19 +131,6 @@ class ApiKit {
     unawaited(storage.markInfoAsSaved(song.id, 'song'));
   }
 
-  bool isBlacklisted(String songId) {
-    return storage.isSongBlacklisted(songId);
-  }
-
-  Future setIsBlacklisted(SongModel song, bool isBlacklisted) {
-    unawaited(supabase.songs.setIsBlacklisted(song.id, isBlacklisted));
-    return storage.setIsBlacklisted(song, isBlacklisted);
-  }
-
-  List<SongModel> getBlacklistedSongs() {
-    return storage.getBlacklistedSongs();
-  }
-
   Future<void> newSongStream(SongModel song) {
     return Future.wait([
       supabase.songs.newSongStream(song.id),
@@ -285,6 +272,27 @@ class ApiKit {
     return storage.getLikedSongs();
   }
 
+  /* --------------------
+  |    BLACKLIST APIs   |
+  -------------------- */
+
+  bool isBlacklisted(String songId) {
+    return storage.isSongBlacklisted(songId);
+  }
+
+  Future setIsBlacklisted(SongModel song, bool isBlacklisted) {
+    unawaited(supabase.songs.setIsBlacklisted(song.id, isBlacklisted));
+    return storage.setIsBlacklisted(song, isBlacklisted);
+  }
+
+  List<SongModel> getBlacklistedSongs() {
+    return storage.getBlacklistedSongs();
+  }
+
+  Iterable<String> filterNonBlacklistedSongs(Iterable<String> songIds) {
+    return storage.filterNonBlacklistedSongs(songIds);
+  }
+
   /* ----------------------
   |    VIP SONGS FILTER   |
   ---------------------- */
@@ -399,7 +407,9 @@ class ApiKit {
     final file = File(filePath);
 
     if (await file.exists()) return Uri.file(filePath);
-    if (!isNonVipSong(songId)) return null;
+    if (!isNonVipSong(songId) || isBlacklisted(songId)) {
+      return null;
+    }
 
     final api = '/songuri?id=$songId';
     late Uri? uri;
@@ -474,6 +484,16 @@ class ApiKit {
       outputFixer: (data) => _getSongsForHomeOutputFixer(data),
     );
   }
+
+  /* -------------------
+  |    MISCELLANEOUS   |
+  ------------------- */
+
+  Iterable<String> filterPlayableSongs(Iterable<String> songIds) {
+    songIds = filterNonVipSongs(songIds);
+    songIds = filterNonBlacklistedSongs(songIds);
+    return songIds;
+  }
 }
 
 bool _isSongUriActive(Uri uri) {
@@ -496,7 +516,7 @@ List<Map<String, dynamic>> _getSongsForHomeOutputFixer(
     final items = songList['items'];
     var songIds = List<String>.from(items.map((song) => song['encodeId']));
 
-    songIds = getIt<ApiKit>().filterNonVipSongs(songIds).toList();
+    songIds = getIt<ApiKit>().filterPlayableSongs(songIds).toList();
     songList['items'] =
         List.castFrom<dynamic, Map<String, dynamic>>(items)
             .where((song) => songIds.contains(song['encodeId']))

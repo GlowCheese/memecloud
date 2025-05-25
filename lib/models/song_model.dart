@@ -80,7 +80,7 @@ class SongModel extends MusicModel {
     final tmp = list.map((json) => SongModel.fromJson<T>(json));
 
     try {
-      final songIds = getIt<ApiKit>().filterNonVipSongs(
+      final songIds = getIt<ApiKit>().filterPlayableSongs(
         tmp.map((e) => e.id).toList(),
       );
       return tmp.where((e) => songIds.contains(e.id)).toList();

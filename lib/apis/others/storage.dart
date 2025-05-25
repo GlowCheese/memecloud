@@ -188,6 +188,10 @@ class PersistentStorage {
     return box.delete(song.id);
   }
 
+  Iterable<String> filterNonBlacklistedSongs(Iterable<String> songIds) {
+    return songIds.where((songId) => !isSongBlacklisted(songId));
+  }
+
   Future<void> preloadUserBlacklistedSongs(List<SongModel> songs) async {
     final box = hiveBoxes.blacklistedSongs;
     await box.clear();
