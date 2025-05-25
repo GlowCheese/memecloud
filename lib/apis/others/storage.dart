@@ -13,6 +13,7 @@ class HiveBoxes {
       Hive.openBox<Map>('apiCache'),
       Hive.openBox<String>('recentSearches'),
       Hive.openBox<String>('likedSongs'),
+      Hive.openBox<String>('blacklistedSongs'),
       Hive.openBox<bool>('downloadedSongs'),
       Hive.openBox<int>('songDownloadDeps')
     ]);
@@ -24,6 +25,7 @@ class HiveBoxes {
   Box<Map> get apiCache => Hive.box('apiCache');
   Box<String> get recentSearches => Hive.box('recentSearches');
   Box<String> get likedSongs => Hive.box('likedSongs');
+  Box<String> get blacklistedSongs => Hive.box('blacklistedSongs');
   Box<bool> get downloadedSongs => Hive.box('downloadedSongs');
   Box<int> get songDownloadDeps => Hive.box('songDownloadDeps');
 }
@@ -157,6 +159,37 @@ class PersistentStorage {
 
   Future<void> preloadUserLikedSongs(List<SongModel> songs) async {
     final box = hiveBoxes.likedSongs;
+    await box.clear();
+    await box.putAll({
+      for (var song in songs) song.id: jsonEncode(song.toJson()),
+    });
+  }
+
+  /* -----------------------------
+  |    BLACKLISTED SONGS CACHE   |
+  ----------------------------- */
+
+  List<SongModel> getBlacklistedSongs() {
+    final box = hiveBoxes.blacklistedSongs;
+    return SongModel.fromListJson<SupabaseApi>(
+      box.values.map((e) => jsonDecode(e)).toList(),
+    );
+  }
+
+  bool isSongBlacklisted(String songId) {
+    return hiveBoxes.blacklistedSongs.containsKey(songId);
+  }
+
+  Future setIsBlacklisted(SongModel song, bool isBlacklisted) {
+    final box = hiveBoxes.blacklistedSongs;
+    if (isBlacklisted) {
+      return box.put(song.id, jsonEncode(song.toJson()));
+    }
+    return box.delete(song.id);
+  }
+
+  Future<void> preloadUserBlacklistedSongs(List<SongModel> songs) async {
+    final box = hiveBoxes.blacklistedSongs;
     await box.clear();
     await box.putAll({
       for (var song in songs) song.id: jsonEncode(song.toJson()),

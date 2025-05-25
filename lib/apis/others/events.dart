@@ -30,13 +30,19 @@ class SupabaseEvents {
   Future<void> _loadUserData() async {
     debugPrint('Loading user data...');
     await Future.wait([
-      _loadUserLikedSongs()
+      _loadUserLikedSongs(),
+      _loadUserBlacklistedSongs()
     ]);
   }
 
   Future<void> _loadUserLikedSongs() async {
-    final songs = await supabase.songs.getLikedSongsList();
+    final songs = await supabase.songs.getLikedSongs();
     await storage.preloadUserLikedSongs(songs);
+  }
+
+  Future<void> _loadUserBlacklistedSongs() async {
+    final songs = await supabase.songs.getBlacklistSongs();
+    await storage.preloadUserBlacklistedSongs(songs);
   }
 
   Future<void> _loadVipSongs() async {

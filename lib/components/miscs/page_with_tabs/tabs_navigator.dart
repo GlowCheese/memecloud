@@ -67,6 +67,7 @@ class TabsNavigator extends StatelessWidget {
 
   Widget _variation2(BuildContext context) {
     return TabBar(
+      isScrollable: tabNames.length >= 5,
       controller: tabController,
       indicatorColor: Colors.white,
       labelColor: Colors.white,

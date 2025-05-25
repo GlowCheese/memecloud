@@ -131,16 +131,17 @@ class ApiKit {
     unawaited(storage.markInfoAsSaved(song.id, 'song'));
   }
 
-  Future<bool> isBlacklisted(String songId) {
-    return supabase.songs.isBlacklisted(songId);
+  bool isBlacklisted(String songId) {
+    return storage.isSongBlacklisted(songId);
   }
 
-  Future<void> toggleBlacklist(String songId) {
-    return supabase.songs.toggleBlacklist(songId);
+  Future setIsBlacklisted(SongModel song, bool isBlacklisted) {
+    unawaited(supabase.songs.setIsBlacklisted(song.id, isBlacklisted));
+    return storage.setIsBlacklisted(song, isBlacklisted);
   }
 
-  Future<List<SongModel>> getBlacklistedSongs() {
-    return supabase.songs.getBlacklistSongs();
+  List<SongModel> getBlacklistedSongs() {
+    return storage.getBlacklistedSongs();
   }
 
   Future<void> newSongStream(SongModel song) {

@@ -27,7 +27,7 @@ class LibraryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return PageWithSingleTab(
       variation: 2,
-      tabNames: const ['❤️ Theo dõi', '📥 Tải xuống'],
+      tabNames: const ['🕒 Gần đây', '❤️ Theo dõi', '📥 Tải xuống'],
       widgetBuilder: (tabsNavigator, tabContent) {
         return Column(
           children: [
@@ -36,7 +36,7 @@ class LibraryPage extends StatelessWidget {
           ],
         );
       },
-      tabBodies: [likedSongsTab(context), Placeholder()],
+      tabBodies: [Placeholder(), likedSongsTab(context), Placeholder()],
     );
   }
 
