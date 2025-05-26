@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/apis/others/storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -32,7 +32,8 @@ class SupabaseEvents {
   }
 
   Future<void> _loadZingCookie() async {
-    await apiKit.getZingCookie();
+    final cookieStr = await supabase.config.getZingCookie();
+    await storage.setCookie(cookieStr);
   }
 
   Future<void> _onUserLoggedIn() async {

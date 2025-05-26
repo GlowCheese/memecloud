@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:hive_flutter/adapters.dart';
 import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/utils/cookie.dart';
 import 'package:path_provider/path_provider.dart';
 
 class HiveBoxes {
@@ -15,7 +16,8 @@ class HiveBoxes {
       Hive.openBox<String>('likedSongs'),
       Hive.openBox<String>('blacklistedSongs'),
       Hive.openBox<bool>('downloadedSongs'),
-      Hive.openBox<int>('songDownloadDeps')
+      Hive.openBox<int>('songDownloadDeps'),
+      Hive.openBox<String>('appConfig'),
     ]);
     return HiveBoxes();
   }
@@ -28,6 +30,7 @@ class HiveBoxes {
   Box<String> get blacklistedSongs => Hive.box('blacklistedSongs');
   Box<bool> get downloadedSongs => Hive.box('downloadedSongs');
   Box<int> get songDownloadDeps => Hive.box('songDownloadDeps');
+  Box<String> get appConfig => Hive.box('appConfig');
 }
 
 class CachedDataWithFallback<T> {
@@ -96,10 +99,34 @@ class PersistentStorage {
     });
   }
 
-  String getZmp3Cookie() {
-    final api = '/zmp3_cookie';
-    final box = hiveBoxes.apiCache;
-    return box.get(api)!['data']['data'];
+  /* --------------------
+  |    ZingMp3 Cookie   |
+  -------------------- */
+
+  T? getZingCookie<T>() {
+    final box = hiveBoxes.appConfig;
+    final cookieStr = box.get('zing_cookie');
+    if (cookieStr == null) return null;
+    return convertCookieToType<String, T>(cookieStr);
+  }
+
+  Future<void> setCookie(String cookieStr) async {
+    final box = hiveBoxes.appConfig;
+    return await box.put('zing_cookie', cookieStr);
+  }
+
+  Future<String> updateCookie(List<String> cookies) async {
+    var oldCookies = getZingCookie<Map<String, String>>() ?? {};
+    for (var cookie in cookies) {
+      final kv = cookieGetFirstKv(cookie);
+      if (kv != null) oldCookies[kv[0]] = kv[1];
+    }
+    
+    final cookieStr = convertCookieToString(oldCookies);
+    
+    final box = hiveBoxes.appConfig;
+    await box.put('zing_cookie', cookieStr);
+    return cookieStr;
   }
 
   /* ----------------
@@ -243,14 +270,20 @@ class PersistentStorage {
   Future<void> markSongAsDownloaded(String songId) {
     return Future.wait([
       hiveBoxes.downloadedSongs.put(songId, true),
-      hiveBoxes.songDownloadDeps.put(songId, (_songDownloadDeps(songId) ?? 0) + 1)
+      hiveBoxes.songDownloadDeps.put(
+        songId,
+        (_songDownloadDeps(songId) ?? 0) + 1,
+      ),
     ]);
   }
 
   Future<void> undownloadSong(String songId) {
     return Future.wait([
       hiveBoxes.downloadedSongs.delete(songId),
-      hiveBoxes.songDownloadDeps.put(songId, (_songDownloadDeps(songId) ?? 0) - 1)
+      hiveBoxes.songDownloadDeps.put(
+        songId,
+        (_songDownloadDeps(songId) ?? 0) - 1,
+      ),
     ]);
   }
 }

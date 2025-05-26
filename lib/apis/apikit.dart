@@ -464,20 +464,21 @@ class ApiKit {
     return SongLyricsModel.parse(file);
   }
 
-  Future<String> getZingCookie() async {
-    final String api = '/zmp3_cookie';
+  /* -----------------
+  |    COOKIE APIs   |
+  ----------------- */
 
-    return await _getOrFetch<String, String>(
-      api,
-      fetchFunc: () async => '',
-      cacheDecode: (json) => json['data'],
-      cacheEncode: (data) => {'data': data},
-    );
+  String getZingCookieStr() {
+    return storage.getZingCookie<String>()!;
   }
 
-  Future<void> updateZingCookie(String cookie) async {
-    final String api = '/zmp3_cookie';
-    _updateCached(api, {'data': cookie});
+  Map<String, String> getZingCookieMap() {
+    return storage.getZingCookie<Map<String, String>>()!;
+  }
+
+  Future<void> updateZingCookie(List<String> cookies) async {
+    final newCookieStr = await storage.updateCookie(cookies);
+    unawaited(supabase.config.setCookie(newCookieStr));
   }
 
   Future<List<Map<String, dynamic>>> getSongsForHome() async {

@@ -35,7 +35,8 @@ Future<void> setupLocator() async {
   final apiKit = getIt.registerSingleton<ApiKit>(ApiKit());
 
   // custom cookie for vip songs
-  dioInterceptorSetCustomCookie(dio, cookieJar, await apiKit.getZingCookie());
+  dioInterceptorSetCustomCookie(dio, cookieJar, (await supabase.config.getZingCookie())!);
+  dioInterceptorUpdateCookieOnSet(dio, apiKit);
 
   // song player
   final playerCubit = SongPlayerCubit();
