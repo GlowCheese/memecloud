@@ -36,16 +36,13 @@ class PlaylistModel extends MusicModel {
     if (T == AnonymousPlaylist) {
       return PlaylistModel._(
         title: json['title'],
-        artistsNames: json['artists_names'],
+        artistsNames: json['artistsNames'],
         description: json['description'],
-        thumbnailUrl:
-            'https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg?cs=srgb&dl=pexels-pixabay-104827.jpg&fm=jpg',
-        songs:
-            json.containsKey('songs')
-                ? SongModel.fromListJson<T>(json['songs'])
-                : null,
+        thumbnailUrl: json['thumbnailUrl'],
+        songs: json.containsKey('songs') ? json['songs'] : null,
       );
-    } else if (T == ZingMp3Api) {
+    }
+    else if (T == ZingMp3Api) {
       return PlaylistModel._(
         id: json['encodeId'],
         title: json['title'],
@@ -62,14 +59,8 @@ class PlaylistModel extends MusicModel {
                 ? ArtistModel.fromListJson<T>(json['artists'])
                 : null,
       );
-    } else if (T == ArtistModel) {
-      return PlaylistModel._(
-        id: json['id'],
-        title: json['title'],
-        thumbnailUrl: json['thumbnailUrl'],
-        artistsNames: json['artistsNames'],
-      );
-    } else {
+    }
+    else {
       throw UnsupportedError('Unsupported parse json for type $T');
     }
   }

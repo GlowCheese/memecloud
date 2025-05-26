@@ -6,13 +6,13 @@ import 'dart:math';
 import 'package:color/color.dart' as color_pkg;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:memecloud/utils/images.dart';
 import 'package:palette_generator/palette_generator.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 Future<List<Color>> getPaletteColors(String imageUrl) async {
   final PaletteGenerator paletteGenerator =
       await PaletteGenerator.fromImageProvider(
-        CachedNetworkImageProvider(imageUrl),
+        getImageProvider(imageUrl),
         size: Size(200, 200),
         maximumColorCount: 20,
       );

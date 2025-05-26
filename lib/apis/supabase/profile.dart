@@ -12,6 +12,7 @@ class SupabaseProfileApi {
   SupabaseProfileApi(this._client);
   final _connectivity = getIt<ConnectivityStatus>();
 
+  UserModel? myProfile;
   final String _bucketName = 'images';
   final String _avatarFolder = 'avatar';
 

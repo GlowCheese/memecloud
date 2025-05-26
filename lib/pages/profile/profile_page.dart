@@ -20,27 +20,22 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    syncUserAccount(); // Gọi hàm khi widget được tạo
+    syncUserAccount();
   }
 
-  Future<void> syncUserAccount() async {
+  void syncUserAccount() {
     try {
       setState(() {
         isLoading = true;
         errorMessage = null;
       });
 
-      final userAccount = await getIt<ApiKit>().getProfile();
+      final userAccount = getIt<ApiKit>().myProfile();
       setState(() {
-        if (userAccount != null) {
-          fullName = userAccount.displayName;
-          email = userAccount.email;
-          avatarUrl = userAccount.avatarUrl;
-          debugPrint('User account: $userAccount');
-        } else {
-          debugPrint('User not found');
-          errorMessage = "Không tìm thấy thông tin người dùng";
-        }
+        fullName = userAccount.displayName;
+        email = userAccount.email;
+        avatarUrl = userAccount.avatarUrl;
+        debugPrint('User account: $userAccount');
         isLoading = false;
       });
     } catch (e) {

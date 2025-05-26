@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/miscs/generatable_list/sliver_list.dart';
-import 'package:memecloud/components/miscs/grad_background.dart';
-import 'package:memecloud/components/song/mini_player.dart';
-import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/utils/common.dart';
+import 'package:memecloud/utils/images.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
+import 'package:memecloud/components/song/mini_player.dart';
+import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/components/miscs/search_bar.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
-import 'package:memecloud/utils/common.dart';
+import 'package:memecloud/components/miscs/generatable_list/sliver_list.dart';
 
 void _playNextAvailableSong(
   BuildContext context,
@@ -32,16 +32,40 @@ void _playNextAvailableSong(
 }
 
 class PlaylistPage extends StatelessWidget {
-  final String playlistId;
+  final String? playlistId;
+  final PlaylistModel? playlist;
 
-  const PlaylistPage({super.key, required this.playlistId});
+  const PlaylistPage({
+    super.key,
+    this.playlist,
+    this.playlistId,
+  });
 
   @override
   Widget build(BuildContext context) {
+    assert((playlist != null) != (playlistId != null));
+
+    if (playlist != null) {
+      return Scaffold(
+        body: SafeArea(
+          child: GradBackground2(
+            imageUrl: playlist!.thumbnailUrl,
+            builder: (_, _) => Stack(
+              fit: StackFit.expand,
+              children: [
+                _PlaylistPageInner(playlist: playlist!),
+                MiniPlayer(floating: true),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    
     return Scaffold(
       body: SafeArea(
         child: defaultFutureBuilder(
-          future: getIt<ApiKit>().getPlaylistInfo(playlistId),
+          future: getIt<ApiKit>().getPlaylistInfo(playlistId!),
           onNull: (context) {
             return Center(
               child: Text("Playlist with id $playlistId doesn't exist!"),
@@ -180,12 +204,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: CachedNetworkImage(
-                    imageUrl: widget.playlist.thumbnailUrl,
-                    width: 120,
-                    height: 120,
-                    fit: BoxFit.cover,
-                  ),
+                  child: getImage(widget.playlist.thumbnailUrl, 120)
                 ),
                 SizedBox(height: 12),
                 Row(
