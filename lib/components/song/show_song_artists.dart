@@ -17,7 +17,7 @@ void showSongArtists(BuildContext context, List<ArtistModel> artists) {
           .map(
             (e) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-              child: ArtistCard(variation: 2, artist: e, pushReplacement: true),
+              child: ArtistCard(variant: 2, artist: e, pushReplacement: true),
             ),
           )
           .toList();

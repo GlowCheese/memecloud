@@ -26,7 +26,7 @@ class LibraryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PageWithSingleTab(
-      variation: 2,
+      variant: 2,
       tabNames: const ['🕒 Gần đây', '❤️ Theo dõi', '📥 Tải xuống'],
       widgetBuilder: (tabsNavigator, tabContent) {
         return Column(
@@ -45,7 +45,7 @@ class LibraryPage extends StatelessWidget {
     return ListView.separated(
       itemBuilder: (context, index) {
         return SongCard(
-          variation: 1,
+          variant: 1,
           song: likedSongs[index],
           songList: likedSongs,
         );

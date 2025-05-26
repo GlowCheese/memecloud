@@ -46,7 +46,7 @@ class TopChartPage extends StatelessWidget {
                         SizedBox(width: 12),
                         Expanded(
                           child: SongCard(
-                            variation: 2,
+                            variant: 2,
                             chartSong: e,
                             songList: chart.songs,
                           ),
@@ -68,7 +68,7 @@ class TopChartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PageWithSingleTab(
-      variation: 2,
+      variant: 2,
       tabNames: ['V-Pop', 'US-UK', 'K-Pop'],
       widgetBuilder: (tabsNavigator, tabContent) {
         return Column(children: [tabsNavigator, Expanded(child: tabContent)]);

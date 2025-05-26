@@ -53,7 +53,7 @@ class _SearchPageState extends State<SearchPage> {
   late final searchBar = Padding(
     padding: const EdgeInsets.only(top: 20, left: 35, right: 35),
     child: MySearchBar(
-      variation: 1,
+      variant: 1,
       searchQueryController: searchQueryController,
       onTap: () {
         if (searchBarIsFocused == false || finalSearchQuery != null) {

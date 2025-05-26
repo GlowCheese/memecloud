@@ -8,7 +8,7 @@ class E13 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PageWithMultiTab(
-      variation: 1,
+      variant: 1,
       tabNames: ['tab 1', 'tab 2', 'tab 3'],
       nullTab: Center(child: Text('No tab is selected!')),
       widgetBuilder:(tabsNavigator, tabContent) {

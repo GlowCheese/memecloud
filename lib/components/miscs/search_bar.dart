@@ -3,7 +3,7 @@ import 'package:flutter_svg/svg.dart';
 
 class MySearchBar extends StatefulWidget {
   /// Must be between `1` and `2`.
-  final int variation;
+  final int variant;
   final void Function()? onTap;
   final void Function(String)? onChanged;
   final void Function(String)? onSubmitted;
@@ -11,7 +11,7 @@ class MySearchBar extends StatefulWidget {
 
   const MySearchBar({
     super.key,
-    required this.variation,
+    required this.variant,
     this.onTap,
     this.onChanged,
     this.onSubmitted,
@@ -28,16 +28,16 @@ class _MySearchBarState extends State<MySearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.variation == 1) {
-      return _variation1(context);
-    } else if (widget.variation == 2) {
-      return _variation2(context);
+    if (widget.variant == 1) {
+      return _variant1(context);
+    } else if (widget.variant == 2) {
+      return _variant2(context);
     } else {
       return Placeholder();
     }
   }
 
-  Widget _variation1(BuildContext context) {
+  Widget _variant1(BuildContext context) {
     return SearchBar(
       controller: searchQueryController,
       hintText: 'Songs, Artists, Podcasts & More',
@@ -66,7 +66,7 @@ class _MySearchBarState extends State<MySearchBar> {
     );
   }
 
-  Widget _variation2(BuildContext context) {
+  Widget _variant2(BuildContext context) {
     return SearchBar(
       controller: searchQueryController,
       hintText: 'Tìm kiếm bài hát',

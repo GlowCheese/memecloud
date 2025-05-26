@@ -8,14 +8,14 @@ import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 
 class SongCard extends StatelessWidget {
   /// must be between 1 and 2.
-  final int variation;
+  final int variant;
   final SongModel? song;
   final ChartSong? chartSong;
   final List<SongModel>? songList;
 
   const SongCard({
     super.key,
-    required this.variation,
+    required this.variant,
     this.song,
     this.chartSong,
     this.songList,
@@ -23,16 +23,16 @@ class SongCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    switch (variation) {
+    switch (variant) {
       case 1:
-        return _variation1(context);
+        return _variant1(context);
       default:
-        return _variation2(context);
+        return _variant2(context);
     }
   }
 
   /// only show thumbnail, title, artists
-  Widget _variation1(BuildContext context) {
+  Widget _variant1(BuildContext context) {
     return GestureDetector(
       onTap: () async {
         await getIt<SongPlayerCubit>().loadAndPlay(
@@ -42,7 +42,7 @@ class SongCard extends StatelessWidget {
         );
       },
       child: MusicCard(
-        variation: 1,
+        variant: 1,
         thumbnailUrl: song!.thumbnailUrl,
         title: song!.title,
         subTitle: song!.artistsNames,
@@ -51,7 +51,7 @@ class SongCard extends StatelessWidget {
   }
 
   /// used in top chart page
-  Widget _variation2(BuildContext context) {
+  Widget _variant2(BuildContext context) {
     final song = chartSong!.song;
     final status = chartSong!.rankingStatus;
     final ranking = chartSong!.weeklyRanking;
@@ -139,7 +139,7 @@ class SongCard extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: MusicCard(
-              variation: 1,
+              variant: 1,
               thumbnailUrl: song.thumbnailUrl,
               title: song.title,
               subTitle: song.artistsNames,

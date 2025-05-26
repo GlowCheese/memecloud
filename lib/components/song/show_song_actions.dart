@@ -21,7 +21,7 @@ Future showSongBottomSheetActions(BuildContext context, SongModel song) async {
           const BottomSheetDragger(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: SongCard(variation: 1, song: song),
+            child: SongCard(variant: 1, song: song),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5),

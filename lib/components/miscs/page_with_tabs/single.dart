@@ -3,7 +3,7 @@ import 'package:memecloud/components/miscs/page_with_tabs/tabs_navigator.dart';
 
 class PageWithSingleTab extends StatefulWidget {
   /// must be between 1 and 2
-  final int variation;
+  final int variant;
   final Widget? nullTab;
   final List<String> tabNames;
   final List<Widget>? tabBodies;
@@ -11,7 +11,7 @@ class PageWithSingleTab extends StatefulWidget {
 
   const PageWithSingleTab({
     super.key,
-    required this.variation,
+    required this.variant,
     required this.tabNames,
     required this.widgetBuilder,
 
@@ -57,7 +57,7 @@ class _PageWithSingleTabState extends State<PageWithSingleTab> with SingleTicker
   Widget build(BuildContext context) {
     return widget.widgetBuilder(
       TabsNavigator(
-        variation: widget.variation,
+        variant: widget.variant,
         tabNames: widget.tabNames,
         selectedTabs: [if (selectedTab != null) selectedTab!],
         onTabSelect: onTabSelect,
@@ -68,7 +68,7 @@ class _PageWithSingleTabState extends State<PageWithSingleTab> with SingleTicker
   }
 
   Widget tabContent(BuildContext context) {
-    switch (widget.variation) {
+    switch (widget.variant) {
       case 1:
         if (selectedTab == null) {
           return widget.nullTab!;

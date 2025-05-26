@@ -3,14 +3,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 class MusicCard extends StatelessWidget {
   /// must be between 1 and 3.
-  final int variation;
+  final int variant;
   final String title;
   final String? subTitle;
   final String thumbnailUrl;
 
   const MusicCard({
     super.key,
-    required this.variation,
+    required this.variant,
     required this.thumbnailUrl,
     required this.title,
     this.subTitle,
@@ -18,15 +18,15 @@ class MusicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    switch (variation) {
-      case 1: return _variation1(context, [40, 14, 18, 14]);
-      case 2: return _variation2(context);
-      default: return _variation1(context, [45, 16, 19, 15]);
+    switch (variant) {
+      case 1: return _variant1(context, [40, 14, 18, 14]);
+      case 2: return _variant2(context);
+      default: return _variant1(context, [45, 16, 19, 15]);
     }
   }
 
   /// with subTitle
-  Widget _variation1(BuildContext context, List<double> sizes) {
+  Widget _variant1(BuildContext context, List<double> sizes) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -66,7 +66,7 @@ class MusicCard extends StatelessWidget {
   }
 
   /// without subTitle
-  Widget _variation2(BuildContext context) {
+  Widget _variant2(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [

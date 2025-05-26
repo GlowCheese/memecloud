@@ -115,7 +115,7 @@ class _FollowedArtistPageState extends State<FollowedArtistPage> {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: MySearchBar(
-                variation: 2,
+                variant: 2,
                 searchQueryController: _searchController,
                 onChanged: _filterArtists,
               ),
