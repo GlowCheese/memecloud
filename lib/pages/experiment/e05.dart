@@ -27,7 +27,7 @@ class _E05State extends State<E05> {
     };
 
     return PageWithSingleTab(
-      variation: 1,
+      variant: 1,
       tabNames: filterMap.keys.toList(),
       widgetBuilder: (tabsNavigator, tabContent) {
         return Column(

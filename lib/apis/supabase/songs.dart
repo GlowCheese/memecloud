@@ -84,7 +84,7 @@ class SupabaseSongsApi {
     }
   }
 
-  Future<List<SongModel>> getLikedSongsList() async {
+  Future<List<SongModel>> getLikedSongs() async {
     try {
       _connectivity.ensure();
       final userId = _client.auth.currentUser!.id;
@@ -131,29 +131,27 @@ class SupabaseSongsApi {
     }
   }
 
-  Future<void> toggleBlacklist(String songId) async {
+  Future<void> setIsBlacklisted(String songId, bool isBlacklisted) async {
     try {
       _connectivity.ensure();
       final userId = _client.auth.currentUser!.id;
 
-      bool alreadyBlacklisted = await isBlacklisted(songId);
-
-      if (alreadyBlacklisted) {
+      if (isBlacklisted) {
+        await _client.from('blacklist').insert({
+          'user_id': userId,
+          'song_id': songId,
+        });
+      } else {
         await _client
             .from('blacklist')
             .delete()
             .eq('user_id', userId)
             .eq('song_id', songId);
-      } else {
-        await _client.from('blacklist').insert({
-          'user_id': userId,
-          'song_id': songId,
-        });
       }
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, stackTrace);
       log(
-        "Failed to toggle blacklist for song: $e",
+        "Failed to set blacklist for song: $e",
         stackTrace: stackTrace,
         level: 1000,
       );
@@ -209,11 +207,12 @@ class SupabaseSongsApi {
   Future<int> streamCount(String songId) async {
     try {
       _connectivity.ensure();
-      final response = await _client
-          .from('songs')
-          .select('stream_count')
-          .eq('id', songId)
-          .maybeSingle();
+      final response =
+          await _client
+              .from('songs')
+              .select('stream_count')
+              .eq('id', songId)
+              .maybeSingle();
       return response?['stream_count'] ?? 0;
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, stackTrace);

@@ -20,7 +20,7 @@ class E11 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PageWithSingleTab(
-      variation: 1,
+      variant: 1,
       tabNames: ['tab_1', 'tab_2', 'tab_3'],
       tabBodies: [
         SliverToBoxAdapter(child: Text('1')),

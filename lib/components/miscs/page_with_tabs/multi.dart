@@ -3,7 +3,7 @@ import 'package:memecloud/components/miscs/page_with_tabs/tabs_navigator.dart';
 
 class PageWithMultiTab extends StatefulWidget {
   /// must be between 1 and 1;
-  final int variation;
+  final int variant;
   final Widget? nullTab;
   final List<String> tabNames;
   final Widget Function(List<int> selectedTabs) tabBuilder;
@@ -11,7 +11,7 @@ class PageWithMultiTab extends StatefulWidget {
 
   const PageWithMultiTab({
     super.key,
-    required this.variation,
+    required this.variant,
     required this.tabNames,
     required this.widgetBuilder,
     this.nullTab,
@@ -40,7 +40,7 @@ class _PageWithMultiTabState extends State<PageWithMultiTab> {
   Widget build(BuildContext context) {
     return widget.widgetBuilder(
       TabsNavigator(
-        variation: widget.variation,
+        variant: widget.variant,
         tabNames: widget.tabNames,
         selectedTabs: selectedTabs,
         onTabSelect: onTabSelect,

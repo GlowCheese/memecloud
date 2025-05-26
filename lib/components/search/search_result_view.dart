@@ -106,7 +106,7 @@ class _SearchNavigationState extends State<SearchNavigation> {
         }).toList();
 
     return PageWithSingleTab(
-      variation: 1,
+      variant: 1,
       tabNames: filterMap.keys.toList(),
       tabBodies: tabBodies,
       nullTab: _searchTop(
@@ -164,13 +164,13 @@ Widget simpleWingetDecode(
     padding: const EdgeInsets.symmetric(horizontal: 30),
     child: () {
       if (item is SongModel) {
-        return SongCard(variation: 1, song: item, songList: songList);
+        return SongCard(variant: 1, song: item, songList: songList);
       }
       if (item is PlaylistModel) {
-        return PlaylistCard(variation: 1, playlist: item);
+        return PlaylistCard(variant: 1, playlist: item);
       }
       if (item is ArtistModel) {
-        return ArtistCard(variation: 1, artist: item);
+        return ArtistCard(variant: 1, artist: item);
       }
       throw UnsupportedError("Invalid item type: ${item.runtimeType}");
     }(),

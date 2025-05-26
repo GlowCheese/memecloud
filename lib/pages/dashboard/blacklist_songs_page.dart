@@ -1,11 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:memecloud/apis/apikit.dart';
+import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
-import 'package:memecloud/components/miscs/default_future_builder.dart';
 
 Map getBlacklistSongPage(BuildContext context) {
   return {
@@ -25,12 +24,8 @@ class BlacklistSongPage extends StatefulWidget {
 class _BlacklistSongPageState extends State<BlacklistSongPage> {
   @override
   Widget build(BuildContext context) {
-    return defaultFutureBuilder(
-      future: getIt<ApiKit>().getBlacklistedSongs(),
-      onData: (context, songs) {
-        return _SongListView(likedSongs: List<SongModel>.from(songs));
-      },
-    );
+    final songs = getIt<ApiKit>().getBlacklistedSongs();
+    return _SongListView(likedSongs: List<SongModel>.from(songs));
   }
 }
 
@@ -111,7 +106,7 @@ class _SongListViewState extends State<_SongListView> {
 
   void _removeFromBlacklist(SongModel song) async {
     try {
-      await getIt<ApiKit>().toggleBlacklist(song.id);
+      await getIt<ApiKit>().setIsBlacklisted(song, false);
       setState(() {
         widget.likedSongs.removeWhere((s) => s.id == song.id);
       });

@@ -5,13 +5,13 @@ import 'package:memecloud/components/musics/music_card.dart';
 
 class ArtistCard extends StatelessWidget {
   /// must be between 1 and 2.
-  final int variation;
+  final int variant;
   final ArtistModel artist;
   final bool pushReplacement;
 
   const ArtistCard({
     super.key,
-    required this.variation,
+    required this.variant,
     required this.artist,
     this.pushReplacement = false
   });
@@ -27,7 +27,7 @@ class ArtistCard extends StatelessWidget {
         }
       },
       child: MusicCard(
-        variation: variation,
+        variant: variant,
         thumbnailUrl: artist.thumbnailUrl,
         title: artist.name,
         subTitle: 'Nghệ sĩ',

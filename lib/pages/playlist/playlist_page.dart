@@ -106,7 +106,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                   children: [
                     Flexible(
                       child: SongCard(
-                        variation: 1,
+                        variant: 1,
                         song: song,
                         songList: _displaySongs,
                       ),
@@ -335,7 +335,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
 
   Widget _searchBar() {
     return MySearchBar(
-      variation: 2,
+      variant: 2,
       onSubmitted: (query) {
         if (query.trim().isEmpty) {
           setState(() => _displaySongs = widget.playlist.songs ?? []);

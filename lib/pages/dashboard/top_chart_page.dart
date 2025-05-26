@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
+import 'package:memecloud/components/miscs/page_with_tabs/single.dart';
 import 'package:memecloud/components/song/play_or_pause_button.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -19,27 +20,8 @@ Map getTopChartPage(BuildContext context) {
   };
 }
 
-class TopChartPage extends StatefulWidget {
+class TopChartPage extends StatelessWidget {
   const TopChartPage({super.key});
-
-  @override
-  State<TopChartPage> createState() => _TopChartPageState();
-}
-
-class _TopChartPageState extends State<TopChartPage>
-    with SingleTickerProviderStateMixin {
-  // TabController to control the tabs
-  late final TabController _tabController = TabController(
-    length: 3,
-    vsync: this,
-  );
-  final ApiKit _apiKit = getIt<ApiKit>();
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
 
   Widget _buildChartTab(Future<WeekChartModel> Function() chartFetcher) {
     return Padding(
@@ -64,7 +46,7 @@ class _TopChartPageState extends State<TopChartPage>
                         SizedBox(width: 12),
                         Expanded(
                           child: SongCard(
-                            variation: 2,
+                            variant: 2,
                             chartSong: e,
                             songList: chart.songs,
                           ),
@@ -85,29 +67,16 @@ class _TopChartPageState extends State<TopChartPage>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'V-Pop'),
-            Tab(text: 'US-UK'),
-            Tab(text: 'K-Pop'),
-          ],
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-        ),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              _buildChartTab(() => _apiKit.getVpopWeekChart()),
-              _buildChartTab(() => _apiKit.getUsukWeekChart()),
-              _buildChartTab(() => _apiKit.getKpopWeekChart()),
-            ],
-          ),
-        ),
+    return PageWithSingleTab(
+      variant: 2,
+      tabNames: ['V-Pop', 'US-UK', 'K-Pop'],
+      widgetBuilder: (tabsNavigator, tabContent) {
+        return Column(children: [tabsNavigator, Expanded(child: tabContent)]);
+      },
+      tabBodies: [
+        _buildChartTab(() => getIt<ApiKit>().getVpopWeekChart()),
+        _buildChartTab(() => getIt<ApiKit>().getUsukWeekChart()),
+        _buildChartTab(() => getIt<ApiKit>().getKpopWeekChart()),
       ],
     );
   }
