@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -17,6 +19,8 @@ class _ProfilePageState extends State<ProfilePage> {
   bool isLoading = true;
   String? avatarUrl;
   String? errorMessage;
+  final _picker = ImagePicker();
+
   @override
   void initState() {
     super.initState();
@@ -46,12 +50,67 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        imageQuality: 80,
+        maxWidth: 800,
+      );
+
+      if (image != null) {
+        setState(() {
+          isLoading = true;
+        });
+
+        try {
+          final newAvatarUrl = await getIt<ApiKit>().setAvatar(
+            File(image.path),
+          );
+          setState(() {
+            avatarUrl = newAvatarUrl;
+          });
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Cập nhật ảnh đại diện thành công!'),
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Có lỗi xảy ra: $e'),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        } finally {
+          setState(() {
+            isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Có lỗi xảy ra: $e'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Hồ sơ cá nhân')
-      ),
+      appBar: AppBar(title: const Text('Hồ sơ cá nhân')),
       body:
           isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -101,17 +160,50 @@ class _ProfilePageState extends State<ProfilePage> {
               width: 3,
             ),
           ),
-          child: ClipOval(
-            child: CachedNetworkImage(
-              imageUrl:
-                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuAqi5s1FOI-T3qoE_2HD1avj69-gvq2cvIw&s', // Replace with your image URL
-              fit: BoxFit.cover,
-              errorWidget:
-                  (context, url, error) => Icon(
-                    Icons.person,
-                    size: 60,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+          child: GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder:
+                    (context) => AlertDialog(
+                      title: const Text('Chọn hình ảnh'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.photo_library),
+                            title: const Text('Chọn từ thư viện'),
+                            onTap: () {
+                              Navigator.pop(context);
+                              _pickImage(ImageSource.gallery);
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.camera_alt),
+                            title: const Text('Chụp ảnh'),
+                            onTap: () {
+                              Navigator.pop(context);
+                              _pickImage(ImageSource.camera);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+              );
+            },
+            child: ClipOval(
+              child: CachedNetworkImage(
+                imageUrl:
+                    avatarUrl ??
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuAqi5s1FOI-T3qoE_2HD1avj69-gvq2cvIw&s',
+                fit: BoxFit.cover,
+                errorWidget:
+                    (context, url, error) => Icon(
+                      Icons.person,
+                      size: 60,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+              ),
             ),
           ),
         ),
