@@ -27,8 +27,13 @@ class ApiKit {
   final storage = getIt<PersistentStorage>();
   final _connectivity = getIt<ConnectivityStatus>();
 
-  late final SupabaseClient client = supabase.client;
-  late final events = SupabaseEvents(client: client);
+  late final SupabaseClient client;
+  late final SupabaseEvents events;
+
+  ApiKit() {
+    client = supabase.client;
+    events = SupabaseEvents(client: client);
+  }
 
   /* ---------------------
   |    AUTHENTICATION    |
@@ -112,6 +117,7 @@ class ApiKit {
   |    PROFILE APIs    |
   ------------------- */
 
+  UserModel myProfile() => supabase.profile.myProfile!;
   Future<UserModel?> getProfile({String? userId}) =>
       supabase.profile.getProfile(userId);
   Future<void> changeName(String newName) async =>

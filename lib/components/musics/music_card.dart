@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:memecloud/utils/images.dart';
 
 class MusicCard extends StatelessWidget {
   /// must be between 1 and 3.
@@ -19,40 +20,39 @@ class MusicCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     switch (variant) {
-      case 1: return _variant1(context, [40, 14, 18, 14]);
-      case 2: return _variant2(context);
-      default: return _variant1(context, [45, 16, 19, 15]);
+      case 1:
+        return _variant1(context);
+      case 2:
+        return _variant2(context);
+      default:
+        return _variant3(context);
     }
   }
 
   /// with subTitle
-  Widget _variant1(BuildContext context, List<double> sizes) {
+  Widget _variant1(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(8)),
-          child: CachedNetworkImage(
-            imageUrl: thumbnailUrl,
-            width: sizes[0],
-            height: sizes[0],
-          ),
+          child: getImage(thumbnailUrl, 40),
         ),
-        SizedBox(width: sizes[1]),
+        SizedBox(width: 14),
         Flexible(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: TextStyle(fontSize: sizes[2]),
+                style: TextStyle(fontSize: 18),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
                 subTitle!,
                 style: TextStyle(
-                  fontSize: sizes[3],
+                  fontSize: 14,
                   color: Colors.white.withAlpha(180),
                 ),
                 maxLines: 1,
@@ -84,6 +84,44 @@ class MusicCard extends StatelessWidget {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  /// with subTitle, bigger thumbnail
+  Widget _variant3(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        ClipRRect(
+          child: getImage(thumbnailUrl, 62),
+        ),
+        SizedBox(width: 14),
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                subTitle!,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.white.withAlpha(180),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ],
     );

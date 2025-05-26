@@ -11,10 +11,9 @@ class MyColorSet {
   static final teal = const Color.fromRGBO(0, 137, 123, 1);
   static final indigo = Colors.indigo.shade400;
   static final orange = Colors.deepOrange.shade400;
-  static final pink = Colors.pink.shade900;
   static final green = Colors.green.shade700;
   static final amber = Colors.amber.shade800;
-  static final lightBlue = Colors.lightBlue.shade700;
+  static final lightBlue = Colors.lightBlue.shade600;
 }
 
 class GradBackground extends StatelessWidget {

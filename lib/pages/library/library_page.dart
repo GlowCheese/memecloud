@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/miscs/page_with_tabs/single.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/components/musics/song_card.dart';
+import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
+import 'package:memecloud/components/musics/playlist_card.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
-import 'package:memecloud/components/miscs/section_divider.dart';
-import 'package:memecloud/components/miscs/page_with_tabs/multi.dart';
+import 'package:memecloud/components/miscs/page_with_tabs/single.dart';
 
 Map getLibraryPage(BuildContext context) {
   return {
@@ -15,7 +14,7 @@ Map getLibraryPage(BuildContext context) {
       title: 'Thư viện',
       iconUri: 'assets/icons/library2.png',
     ),
-    'bgColor': MyColorSet.green,
+    'bgColor': MyColorSet.lightBlue,
     'body': LibraryPage(),
   };
 }
@@ -41,17 +40,22 @@ class LibraryPage extends StatelessWidget {
   }
 
   Widget likedSongsTab(BuildContext context) {
-    final likedSongs = getIt<ApiKit>().getLikedSongs();
-    return ListView.separated(
-      itemBuilder: (context, index) {
-        return SongCard(
-          variant: 1,
-          song: likedSongs[index],
-          songList: likedSongs,
-        );
-      },
-      separatorBuilder: (context, index) => SizedBox(height: 12),
-      itemCount: likedSongs.length,
+    final likedSongsPlaylist = PlaylistModel.fromJson<AnonymousPlaylist>({
+      "title": "Bài hát đã thích",
+      "artistsNames": getIt<ApiKit>().myProfile().displayName,
+      "thumbnailUrl": "assets/icons/liked_songs.jpeg",
+      "songs": getIt<ApiKit>().getLikedSongs()
+    });
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 18),
+      child: ListView.separated(
+        itemBuilder: (context, index) {
+          return PlaylistCard(variant: 2, playlist: likedSongsPlaylist);
+        },
+        separatorBuilder: (context, index) => SizedBox(height: 14),
+        itemCount: 10,
+      ),
     );
   }
 }

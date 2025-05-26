@@ -11,6 +11,9 @@ class SupabaseEvents {
   late final StreamSubscription authStateStream;
 
   SupabaseEvents({required SupabaseClient client}) {
+    unawaited(_loadVipSongs());
+    unawaited(_loadUserData());
+
     authStateStream = client.auth.onAuthStateChange.listen((data) {
       final AuthChangeEvent event = data.event;
       debugPrint('Event: $event');
@@ -18,21 +21,30 @@ class SupabaseEvents {
         case AuthChangeEvent.signedIn:
         case AuthChangeEvent.userUpdated:
         case AuthChangeEvent.tokenRefreshed:
-          unawaited(_loadUserData());
+          unawaited(_onUserLoggedIn());
           break;
         default:
           break;
       }
     });
-    unawaited(_loadVipSongs());
+  }
+
+  Future<void> _onUserLoggedIn() async {
+    await _loadUserData();
   }
 
   Future<void> _loadUserData() async {
     debugPrint('Loading user data...');
     await Future.wait([
+      _loadUserProfile(),
       _loadUserLikedSongs(),
       _loadUserBlacklistedSongs()
     ]);
+  }
+
+  Future<void> _loadUserProfile() async {
+    final f = supabase.profile.getProfile;
+    supabase.profile.myProfile = await f();
   }
 
   Future<void> _loadUserLikedSongs() async {
