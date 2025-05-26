@@ -15,7 +15,7 @@ class SongModel extends MusicModel {
   final String thumbnailUrl;
   final DateTime releaseDate;
   final List<ArtistModel> artists;
-  bool? _isLiked, _isVip;
+  bool? _isLiked;
 
   // Private constructor
   SongModel._({
@@ -97,11 +97,6 @@ class SongModel extends MusicModel {
     _isLiked = isLiked;
     getIt<ApiKit>().setIsSongLiked(this, isLiked);
     getIt<LikedSongsStream>().setIsLiked(this, isLiked);
-  }
-
-  bool? get isVip {
-    if (_isVip != null) return _isVip;
-    return _isVip = !getIt<ApiKit>().isNonVipSong(id);
   }
 
   MediaItem get mediaItem => MediaItem(

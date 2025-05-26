@@ -8,7 +8,7 @@ import 'package:memecloud/core/getit.dart';
 class ZingMp3Requester {
   final Dio dio = getIt<Dio>();
 
-  final _version = "1.13.13";
+  final _version = "1.14.3";
   final _baseUrl = "https://zingmp3.vn";
   final _acBaseUrl = "https://ac.zingmp3.vn";
   final _apiKey = dotenv.env['ZINGMP3_API_KEY'].toString();

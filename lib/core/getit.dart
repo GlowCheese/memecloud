@@ -32,7 +32,10 @@ Future<void> setupLocator() async {
   // local storage & api kit
   final storage = await PersistentStorage.initialize();
   getIt.registerSingleton<PersistentStorage>(storage);
-  getIt.registerSingleton<ApiKit>(ApiKit());
+  final apiKit = getIt.registerSingleton<ApiKit>(ApiKit());
+
+  // custom cookie for vip songs
+  dioInterceptorSetCustomCookie(dio, cookieJar, await apiKit.getZingCookie());
 
   // song player
   final playerCubit = SongPlayerCubit();

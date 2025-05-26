@@ -1,32 +1,38 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/apis/others/storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseEvents {
+  final ApiKit apiKit; 
   final supabase = getIt<SupabaseApi>();
   final storage = getIt<PersistentStorage>();
+
   late final StreamSubscription authStateStream;
 
-  SupabaseEvents({required SupabaseClient client}) {
-    unawaited(_loadVipSongs());
-    unawaited(_loadUserData());
-
-    authStateStream = client.auth.onAuthStateChange.listen((data) {
+  SupabaseEvents(this.apiKit) {
+    unawaited(_loadZingCookie());
+    authStateStream = apiKit.client.auth.onAuthStateChange.listen((data) {
       final AuthChangeEvent event = data.event;
       debugPrint('Event: $event');
       switch (event) {
         case AuthChangeEvent.signedIn:
         case AuthChangeEvent.userUpdated:
         case AuthChangeEvent.tokenRefreshed:
+        case AuthChangeEvent.initialSession:
           unawaited(_onUserLoggedIn());
           break;
         default:
           break;
       }
     });
+  }
+
+  Future<void> _loadZingCookie() async {
+    await apiKit.getZingCookie();
   }
 
   Future<void> _onUserLoggedIn() async {

@@ -8,14 +8,18 @@ class ZingMp3Api {
   final ZingMp3Requester _requester = getIt<ZingMp3Requester>();
   final ConnectivityStatus _connectivity = getIt<ConnectivityStatus>();
 
-  Future<String?> fetchSongUrl(String songId) async {
+  Future<String> fetchSongUrl(String songId) async {
     try {
       _connectivity.ensure();
       final resp = await _requester.getSong(songId);
 
-      // Bài hát chỉ dành cho tài khoản VIP, PRI
-      if (resp['err'] == -1150) return null;
-      return resp['data']['128']!;
+      // // Bài hát chỉ dành cho tài khoản VIP, PRI
+      // if (resp['err'] == -1150) return null;
+
+      final urls = Map.from(resp['data']);
+      // TODO: lossless or 320 does not always available!
+      return urls["lossless"] ?? urls["320"]!;
+
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(

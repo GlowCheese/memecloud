@@ -96,6 +96,12 @@ class PersistentStorage {
     });
   }
 
+  String getZmp3Cookie() {
+    final api = '/zmp3_cookie';
+    final box = hiveBoxes.apiCache;
+    return box.get(api)!['data']['data'];
+  }
+
   /* ----------------
   |    SAVED INFO   |
   ---------------- */

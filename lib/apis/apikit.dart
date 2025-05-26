@@ -32,7 +32,7 @@ class ApiKit {
 
   ApiKit() {
     client = supabase.client;
-    events = SupabaseEvents(client: client);
+    events = SupabaseEvents(this);
   }
 
   /* ---------------------
@@ -413,29 +413,20 @@ class ApiKit {
     final file = File(filePath);
 
     if (await file.exists()) return Uri.file(filePath);
-    if (!isNonVipSong(songId) || isBlacklisted(songId)) {
-      return null;
-    }
+    if (isBlacklisted(songId)) return null;
 
+    late Uri uri;
     final api = '/songuri?id=$songId';
-    late Uri? uri;
 
     for (var i = 0; i < 2; i++) {
-      uri = await _getOrFetch<String?, Uri?>(
+      uri = await _getOrFetch<String, Uri>(
         api,
         lazyTime: i == 0 ? null : 0,
         fetchFunc: () => zingMp3.fetchSongUrl(songId),
         cacheEncode: (data) => {'uri': data},
         cacheDecode: (json) => json['uri'],
-        outputFixer: (data) {
-          if (data == null) return null;
-          return Uri.parse(data);
-        },
+        outputFixer: (data) => Uri.parse(data)
       );
-      if (uri == null) {
-        unawaited(markSongAsVip(songId));
-        return null;
-      }
       if (_isSongUriActive(uri)) return uri;
     }
     return null;
@@ -473,6 +464,22 @@ class ApiKit {
     return SongLyricsModel.parse(file);
   }
 
+  Future<String> getZingCookie() async {
+    final String api = '/zmp3_cookie';
+
+    return await _getOrFetch<String, String>(
+      api,
+      fetchFunc: () async => '',
+      cacheDecode: (json) => json['data'],
+      cacheEncode: (data) => {'data': data},
+    );
+  }
+
+  Future<void> updateZingCookie(String cookie) async {
+    final String api = '/zmp3_cookie';
+    _updateCached(api, {'data': cookie});
+  }
+
   Future<List<Map<String, dynamic>>> getSongsForHome() async {
     final String api = '/home';
     final int lazyTime = 12 * 60 * 60; // 12 hours
@@ -496,7 +503,6 @@ class ApiKit {
   ------------------- */
 
   Iterable<String> filterPlayableSongs(Iterable<String> songIds) {
-    songIds = filterNonVipSongs(songIds);
     songIds = filterNonBlacklistedSongs(songIds);
     return songIds;
   }
