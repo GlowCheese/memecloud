@@ -40,7 +40,7 @@ class PlayOrPauseButton extends StatelessWidget {
           playerCubit.playOrPause();
         }
       },
-      icon: Icon(Icons.play_arrow)
+      icon: Icon(Icons.play_arrow),
     );
   }
 
@@ -56,7 +56,7 @@ class PlayOrPauseButton extends StatelessWidget {
           playerCubit.playOrPause();
         }
       },
-      icon: Icon(Icons.pause)
+      icon: Icon(Icons.pause),
     );
   }
 

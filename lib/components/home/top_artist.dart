@@ -33,7 +33,6 @@ Widget _artistView(List<ArtistModel> artists) {
               'Nghệ sĩ nổi bật',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            TextButton(onPressed: () {}, child: const Text('Xem tất cả')),
           ],
         ),
       ),
@@ -41,16 +40,50 @@ Widget _artistView(List<ArtistModel> artists) {
         height: 140,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
+          physics: const RangeMaintainingScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: artists.length,
+          itemCount: artists.length + 1,
           itemBuilder: (context, index) {
-            final artist = artists[index];
-            return _artistTile(context, artist);
+            if (index < artists.length) {
+              final artist = artists[index];
+              return _artistTile(context, artist);
+            }
+            return _showAllArtistsButton(context);
           },
         ),
       ),
     ],
+  );
+}
+
+Widget _showAllArtistsButton(BuildContext context) {
+  return GestureDetector(
+    onTap: () {
+      context.push('/artist_page');
+    },
+    child: Container(
+      padding: const EdgeInsets.only(right: 16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.arrow_circle_right,
+            size: 80,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Xem tất cả',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ],
+      ),
+    ),
   );
 }
 
@@ -66,10 +99,13 @@ Widget _artistTile(BuildContext context, ArtistModel artist) {
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFF2196F3), width: 2),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.primary,
+                width: 2,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.blue.withAlpha(20),
+                  color: Theme.of(context).shadowColor.withOpacity(0.2),
                   spreadRadius: 1,
                   blurRadius: 6,
                   offset: const Offset(0, 2),

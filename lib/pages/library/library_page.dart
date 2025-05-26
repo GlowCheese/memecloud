@@ -28,12 +28,7 @@ class LibraryPage extends StatelessWidget {
       variant: 2,
       tabNames: const ['🕒 Gần đây', '❤️ Theo dõi', '📥 Tải xuống'],
       widgetBuilder: (tabsNavigator, tabContent) {
-        return Column(
-          children: [
-            tabsNavigator,
-            Expanded(child: tabContent),
-          ],
-        );
+        return Column(children: [tabsNavigator, Expanded(child: tabContent)]);
       },
       tabBodies: [Placeholder(), likedSongsTab(context), Placeholder()],
     );
@@ -44,7 +39,7 @@ class LibraryPage extends StatelessWidget {
       "title": "Bài hát đã thích",
       "artistsNames": getIt<ApiKit>().myProfile().displayName,
       "thumbnailUrl": "assets/icons/liked_songs.jpeg",
-      "songs": getIt<ApiKit>().getLikedSongs()
+      "songs": getIt<ApiKit>().getLikedSongs(),
     });
 
     return Padding(

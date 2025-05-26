@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memecloud/components/song/song_action_sheet.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/song_model.dart';
@@ -96,6 +97,14 @@ class _SongListDisplayState extends State<_SongListDisplay> {
           });
         }
       },
+      onLongPress:
+          () => showModalBottomSheet(
+            context: context,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            builder: (context) => SongActionSheet(song: song),
+          ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

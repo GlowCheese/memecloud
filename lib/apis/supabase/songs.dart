@@ -271,4 +271,34 @@ class SupabaseSongsApi {
       rethrow;
     }
   }
+
+  Future<List<SongModel>> getFollowedArtistsSongs() async {
+    try {
+      _connectivity.ensure();
+      final userId = _client.auth.currentUser!.id;
+
+      final response = await _client
+          .from('followers')
+          .select(
+            'artist_id, artist:artists(*, song_artists(*, song:songs(*)))',
+          )
+          .eq('user_id', userId);
+
+      final songsList = <SongModel>[];
+      for (final artist in response) {
+        for (final song in artist['artist']['songs']) {
+          songsList.add(SongModel.fromJson<SupabaseApi>(song));
+        }
+      }
+      return songsList;
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        'Failed to get followed artists songs: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
 }

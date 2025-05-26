@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/miscs/page_with_tabs/single.dart';
 import 'package:memecloud/components/song/play_or_pause_button.dart';
+import 'package:memecloud/components/song/song_action_sheet.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/week_chart_model.dart';
@@ -41,19 +42,34 @@ class TopChartPage extends StatelessWidget {
                     min(len * (page + 1), chartSongs.length),
                   )
                   .map(
-                    (e) => Row(
-                      children: [
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: SongCard(
-                            variant: 2,
-                            chartSong: e,
+                    (e) => GestureDetector(
+                      onLongPress:
+                          () => showModalBottomSheet(
+                            context: context,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
+                              ),
+                            ),
+                            builder: (context) => SongActionSheet(song: e.song),
+                          ),
+                      child: Row(
+                        children: [
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: SongCard(
+                              variant: 2,
+                              chartSong: e,
+                              songList: chart.songs,
+                            ),
+                          ),
+                          PlayOrPauseButton(
+                            song: e.song,
                             songList: chart.songs,
                           ),
-                        ),
-                        PlayOrPauseButton(song: e.song, songList: chart.songs),
-                        SizedBox(width: 12),
-                      ],
+                          SizedBox(width: 12),
+                        ],
+                      ),
                     ),
                   )
                   .toList();

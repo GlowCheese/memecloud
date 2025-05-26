@@ -54,65 +54,62 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
 
           albums = artist.sections![1].items.cast<PlaylistModel>().toList();
 
-          return Container(
-            color: Theme.of(context).colorScheme.primaryContainer,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                CustomScrollView(
-                  slivers: [
-                    SliverAppBar(
-                      expandedHeight: 270,
-                      collapsedHeight: 90,
-                      floating: false,
-                      snap: false,
-                      automaticallyImplyLeading: false,
-                      flexibleSpace: FlexibleSpaceBar(
-                        collapseMode: CollapseMode.parallax,
-                        background: _artistHeader(artist),
-                      ),
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    expandedHeight: 270,
+                    collapsedHeight: 90,
+                    floating: false,
+                    snap: false,
+                    automaticallyImplyLeading: false,
+                    flexibleSpace: FlexibleSpaceBar(
+                      collapseMode: CollapseMode.parallax,
+                      background: _artistHeader(artist),
                     ),
-                    SliverList(
-                      delegate: SliverChildListDelegate([
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              _ArtistInfo(artist: artist),
-                              Divider(
-                                color: Theme.of(context).dividerColor,
-                                thickness: 0.5,
-                              ),
+                  ),
+                  SliverList(
+                    delegate: SliverChildListDelegate([
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            _ArtistInfo(artist: artist),
+                            Divider(
+                              color: Theme.of(context).dividerColor,
+                              thickness: 0.5,
+                            ),
 
-                              if (songs.isEmpty)
-                                const SizedBox.shrink(
-                                  child: Text('Chưa có bài hát nào.'),
-                                )
-                              else
-                                _SongsOfArtist(songs: songs),
+                            if (songs.isEmpty)
+                              const SizedBox.shrink(
+                                child: Text('Chưa có bài hát nào.'),
+                              )
+                            else
+                              _SongsOfArtist(songs: songs),
 
-                              Divider(
-                                color: Theme.of(context).dividerColor,
-                                thickness: 0.5,
-                              ),
+                            Divider(
+                              color: Theme.of(context).dividerColor,
+                              thickness: 0.5,
+                            ),
 
-                              if (albums.isEmpty)
-                                const SizedBox.shrink(
-                                  child: Text('Chưa có album nào.'),
-                                )
-                              else
-                                _AlbumsOfArtist(albums: albums),
-                            ],
-                          ),
+                            if (albums.isEmpty)
+                              const SizedBox.shrink(
+                                child: Text('Chưa có album nào.'),
+                              )
+                            else
+                              _AlbumsOfArtist(albums: albums),
+                          ],
                         ),
-                      ]),
-                    ),
-                    SliverToBoxAdapter(child: const SizedBox(height: 72)),
-                  ],
-                ),
-                MiniPlayer(floating: true),
-              ],
-            ),
+                      ),
+                    ]),
+                  ),
+                  SliverToBoxAdapter(child: const SizedBox(height: 72)),
+                ],
+              ),
+              MiniPlayer(floating: true),
+            ],
           );
         },
       ),
@@ -144,7 +141,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                       Theme.of(
                         context,
                       ).colorScheme.primaryContainer.withAlpha(180),
-                      Theme.of(context).colorScheme.primaryContainer,
+                      Theme.of(context).scaffoldBackgroundColor,
                     ],
                     stops: const [0.4, 0.7, 1.0],
                   ),
@@ -349,7 +346,7 @@ class _FollowButtonState extends State<_FollowButton> {
       ),
     );
   }
-  
+
   void _showSubmitUnfollowDialog(BuildContext context) async {
     final submitUnfollow = await ConfirmationDialog.show(
       context: context,
