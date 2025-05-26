@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/components/miscs/download_button.dart';
-import 'package:memecloud/components/song/song_download_button.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +15,7 @@ import 'package:memecloud/components/song/show_song_actions.dart';
 import 'package:memecloud/components/song/rotating_song_disc.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
+import 'package:memecloud/components/song/song_download_button.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 
 class SongPage extends StatelessWidget {

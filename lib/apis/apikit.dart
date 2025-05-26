@@ -3,12 +3,11 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:memecloud/apis/firebase/main.dart';
-import 'package:memecloud/apis/others/events.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/user_model.dart';
+import 'package:memecloud/apis/firebase/main.dart';
 import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/apis/others/storage.dart';
 import 'package:memecloud/models/artist_model.dart';
@@ -27,14 +26,7 @@ class ApiKit {
   final supabase = getIt<SupabaseApi>();
   final storage = getIt<PersistentStorage>();
   final _connectivity = getIt<ConnectivityStatus>();
-
-  late final SupabaseClient client;
-  late final SupabaseEvents events;
-
-  ApiKit() {
-    client = supabase.client;
-    events = SupabaseEvents(this);
-  }
+  late final SupabaseClient client = supabase.client;
 
   /* ---------------------
   |    AUTHENTICATION    |
@@ -406,14 +398,13 @@ class ApiKit {
 
   /// Return `null` if `isNonVipSong(songId) == false`, \
   /// otherwise the Uri for the song (either remote or local).
-  Future<Uri?> getSongUri(String songId) async {
+  Future<Uri> getSongUri(String songId) async {
     final fileName = '$songId.mp3';
     final dir = storage.userDir;
     final filePath = '${dir.path}/$fileName';
     final file = File(filePath);
 
     if (await file.exists()) return Uri.file(filePath);
-    if (isBlacklisted(songId)) return null;
 
     final api = '/song_url?id=$songId';
     return storage.getCached<String>(api).fold<Future<Uri>>(
@@ -422,9 +413,9 @@ class ApiKit {
         String? url = await FirebaseApi.getSongUrl(songId);
         if (url == null) {
           url = await zingMp3.fetchSongUrl(songId);
-          await FirebaseApi.uploadSongFromUrl(url, songId);
+          unawaited(FirebaseApi.uploadSongFromUrl(url, songId));
         }
-        storage.updateCached(api, url);
+        unawaited(storage.updateCached(api, url));
         return Uri.parse(url);
       }
     );

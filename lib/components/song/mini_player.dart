@@ -24,8 +24,8 @@ class MiniPlayer extends StatelessWidget {
     return BlocBuilder<SongPlayerCubit, SongPlayerState>(
       bloc: playerCubit,
       builder: (context, state) {
-        if (state is SongPlayerLoaded) {
-          final w = _MiniPlayerInner(playerCubit, state.currentSong);
+        if (state is SongPlayerLoaded || state is SongPlayerLoading) {
+          final w = _MiniPlayerInner(playerCubit, (state as dynamic).currentSong);
           return floating
               ? Positioned(left: 0, right: 0, bottom: 12, child: w)
               : w;
@@ -83,9 +83,7 @@ class _MiniPlayerInnerState extends State<_MiniPlayerInner> {
     Color onBgColor = getTextColor(domBg);
 
     return GestureDetector(
-      onTap: () async {
-        context.push('/song_page');
-      },
+      onTap: () => context.push('/song_page'),
       child: miniPlayerSongDetails(domBg, subDomBg, onBgColor),
     );
   }

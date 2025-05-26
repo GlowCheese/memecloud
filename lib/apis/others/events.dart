@@ -7,15 +7,15 @@ import 'package:memecloud/apis/others/storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseEvents {
-  final ApiKit apiKit; 
+  final client = getIt<ApiKit>().client;
   final supabase = getIt<SupabaseApi>();
   final storage = getIt<PersistentStorage>();
 
   late final StreamSubscription authStateStream;
 
-  SupabaseEvents(this.apiKit) {
+  SupabaseEvents._() {
     unawaited(_loadZingCookie());
-    authStateStream = apiKit.client.auth.onAuthStateChange.listen((data) {
+    authStateStream = client.auth.onAuthStateChange.listen((data) {
       final AuthChangeEvent event = data.event;
       debugPrint('Event: $event');
       switch (event) {
@@ -29,6 +29,12 @@ class SupabaseEvents {
           break;
       }
     });
+  }
+
+  static Future<SupabaseEvents> initialize() async {
+    final res = SupabaseEvents._();
+    await res._loadZingCookie();
+    return res;
   }
 
   Future<void> _loadZingCookie() async {
@@ -62,12 +68,6 @@ class SupabaseEvents {
   Future<void> _loadUserBlacklistedSongs() async {
     final songs = await supabase.songs.getBlacklistSongs();
     await storage.preloadUserBlacklistedSongs(songs);
-  }
-
-  Future<void> _loadVipSongs() async {
-    debugPrint('Loading vip songs...');
-    final songIds = await supabase.songs.getVipSongIds();
-    await storage.preloadVipSongs(songIds);
   }
 
   void dispose() {

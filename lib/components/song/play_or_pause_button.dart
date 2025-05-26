@@ -24,10 +24,6 @@ class PlayOrPauseButton extends StatelessWidget {
     this.songList = songList ?? [song];
   }
 
-  Widget _loadingButton(BuildContext context) {
-    return CircularProgressIndicator();
-  }
-
   Widget _playButton(BuildContext context, {required bool load}) {
     return IconButton(
       color: color,
@@ -66,7 +62,7 @@ class PlayOrPauseButton extends StatelessWidget {
       bloc: playerCubit,
       builder: (context, state) {
         if (state is SongPlayerLoading && state.currentSong.id == song.id) {
-          return _loadingButton(context);
+          return CircularProgressIndicator();
         }
         if (state is! SongPlayerLoaded) {
           return _playButton(context, load: true);

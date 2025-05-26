@@ -87,15 +87,11 @@ class _SongListDisplayState extends State<_SongListDisplay> {
 
     return GestureDetector(
       onTap: () async {
-        if (!(await getIt<SongPlayerCubit>().loadAndPlay(
+        await getIt<SongPlayerCubit>().loadAndPlay(
           context,
           song,
           songList: songList,
-        ))) {
-          setState(() {
-            songList.remove(song);
-          });
-        }
+        );
       },
       onLongPress:
           () => showModalBottomSheet(

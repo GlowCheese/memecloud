@@ -50,29 +50,32 @@ class _SearchPageState extends State<SearchPage> {
   String? finalSearchQuery;
   bool searchBarIsFocused = false;
   final TextEditingController searchQueryController = TextEditingController();
-  late final searchBar = Padding(
-    padding: const EdgeInsets.only(top: 20, left: 35, right: 35),
-    child: MySearchBar(
-      variant: 1,
-      searchQueryController: searchQueryController,
-      onTap: () {
-        if (searchBarIsFocused == false || finalSearchQuery != null) {
-          setState(() {
-            finalSearchQuery = null;
-            searchBarIsFocused = true;
-          });
-        }
-      },
-      onSubmitted: setSearchQuery,
-      onChanged: (p0) {
-        changeSearchQueryTask?.cancel();
-        changeSearchQueryTask = Timer(
-          Duration(milliseconds: p0.isEmpty ? 0 : 500),
-          () => setState(() => currentSearchKeyword = p0),
-        );
-      },
-    ),
-  );
+
+  Widget searchBar() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20, left: 35, right: 35),
+      child: MySearchBar(
+        variant: 1,
+        searchQueryController: searchQueryController,
+        onTap: () {
+          if (searchBarIsFocused == false || finalSearchQuery != null) {
+            setState(() {
+              finalSearchQuery = null;
+              searchBarIsFocused = true;
+            });
+          }
+        },
+        onSubmitted: setSearchQuery,
+        onChanged: (p0) {
+          changeSearchQueryTask?.cancel();
+          changeSearchQueryTask = Timer(
+            Duration(milliseconds: p0.isEmpty ? 0 : 500),
+            () => setState(() => currentSearchKeyword = p0),
+          );
+        },
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -108,7 +111,7 @@ class _SearchPageState extends State<SearchPage> {
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [searchBar, Expanded(child: body)],
+      children: [searchBar(), Expanded(child: body)],
     );
   }
 

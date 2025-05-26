@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/apis/others/events.dart';
 import 'package:memecloud/apis/others/storage.dart';
 import 'package:memecloud/apis/zingmp3/requester.dart';
 import 'package:memecloud/core/dio_init.dart';
@@ -33,6 +34,7 @@ Future<void> setupLocator() async {
   final storage = await PersistentStorage.initialize();
   getIt.registerSingleton<PersistentStorage>(storage);
   final apiKit = getIt.registerSingleton<ApiKit>(ApiKit());
+  getIt.registerSingleton<SupabaseEvents>(await SupabaseEvents.initialize());
 
   // custom cookie for vip songs
   dioInterceptorSetCustomCookie(dio, cookieJar, (await supabase.config.getZingCookie())!);

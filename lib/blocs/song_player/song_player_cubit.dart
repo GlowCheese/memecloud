@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:just_audio/just_audio.dart';
@@ -55,15 +56,17 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     unawaited(getIt<ApiKit>().saveSongInfo(song));
     try {
       final uri = await getIt<ApiKit>().getSongUri(song.id);
-      if (uri == null) return null;
       if (uri.scheme == 'file') {
         return AudioSource.uri(uri, tag: song.mediaItem);
       }
       return LockCachingAudioSource(uri, tag: song.mediaItem);
     } on ConnectionLoss {
+      log('Connection loss while trying to get audio source. Returning null');
       return null;
     }
   }
+
+  CancelableOperation<void>? songsPopulateTask;
 
   Future<bool> _loadSong(
     BuildContext context,
@@ -78,12 +81,12 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       final audioSource = await _getAudioSource(song);
       if (audioSource == null) {
         return !context.mounted ||
-            onSongFailedToLoad(context, 'songPath is null');
+            onSongFailedToLoad(context, 'audioSource is null');
       } else {
         currentSongList = [song];
         if (songList == null) {
           await audioPlayer.setAudioSource(audioSource);
-          await audioPlayer.setLoopMode(LoopMode.one);
+          await audioPlayer.setLoopMode(LoopMode.off);
         } else {
           await audioPlayer.setAudioSources([audioSource]);
           await audioPlayer.setLoopMode(LoopMode.all);
@@ -94,7 +97,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
             ...songList.sublist(0, songIdx),
           ];
 
-          unawaited(
+          songsPopulateTask = CancelableOperation.fromFuture(
             lazySongPopulate(remainingSongs).catchError((e, stackTrace) {
               log(
                 'Failed to populate songs: $e',
@@ -105,7 +108,6 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
           );
         }
         audioPlayer.setSpeed(currentSongSpeed = 1.0);
-        await toggleShuffleMode();
         return true;
       }
     } catch (e, stackTrace) {
@@ -117,11 +119,13 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
 
   Future<void> lazySongPopulate(List<SongModel> songList) async {
     for (SongModel song in songList) {
-      if (state is! SongPlayerLoaded) return Future.value();
       final audioSource = await _getAudioSource(song);
       if (audioSource != null) {
         currentSongList.add(song);
         await audioPlayer.addAudioSource(audioSource);
+      }
+      if (currentSongList.length >= 5) {
+        await Future.delayed(Duration(seconds: 10));
       }
     }
   }
@@ -132,31 +136,28 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     } else {
       audioPlayer.play();
     }
-    emit(state);
   }
 
-  /// Load a song and play. \
-  /// If the player is loading another song, return `true`. \
-  /// Otherwise, return `true` if the song can be played \
-  /// (i.e. `isNonVipSong(song) == true`).
-  Future<bool> loadAndPlay(
+  /// Load a song and play.
+  Future<void> loadAndPlay(
     BuildContext context,
     SongModel song, {
     List<SongModel>? songList,
   }) async {
-    if (state is SongPlayerLoading) {
-      return true;
+    if (state is SongPlayerLoading) return;
+    if (songsPopulateTask?.isCompleted == false) {
+      await songsPopulateTask!.cancel();
     }
-    if (await _loadSong(context, song, songList: songList)) {
+
+    if (context.mounted && await _loadSong(context, song, songList: songList)) {
       playOrPause();
-      return true;
     }
-    return false;
   }
 
   bool get isPlaying => audioPlayer.playing;
 
   Future<void> seekTo(Duration position) async {
+    if (state is! SongPlayerLoaded) return;
     await audioPlayer.seek(position);
     emit(state);
   }
@@ -172,6 +173,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   bool get shuffleMode => audioPlayer.shuffleModeEnabled;
 
   Future<void> seekToNext() async {
+    if (state is! SongPlayerLoaded) return;
     await audioPlayer.seekToNext();
     if (audioPlayer.currentIndex == null) {
       return;
@@ -179,6 +181,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   }
 
   Future<void> seekToPrevious() async {
+    if (state is! SongPlayerLoaded) return;
     await audioPlayer.seekToPrevious();
     if (audioPlayer.currentIndex == null) {
       return;
