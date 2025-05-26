@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:memecloud/apis/firebase/main.dart';
 import 'package:memecloud/apis/others/events.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/utils/common.dart';
@@ -399,10 +400,9 @@ class ApiKit {
     );
   }
 
-  /* ---------------------
-  |    SUPABASE CACHE    |
-  |     AND STORAGE      |
-  --------------------- */
+  /* ----------------------
+  |    STORAGE & CACHE    |
+  ---------------------- */
 
   /// Return `null` if `isNonVipSong(songId) == false`, \
   /// otherwise the Uri for the song (either remote or local).
@@ -415,21 +415,19 @@ class ApiKit {
     if (await file.exists()) return Uri.file(filePath);
     if (isBlacklisted(songId)) return null;
 
-    late Uri uri;
-    final api = '/songuri?id=$songId';
-
-    for (var i = 0; i < 2; i++) {
-      uri = await _getOrFetch<String, Uri>(
-        api,
-        lazyTime: i == 0 ? null : 0,
-        fetchFunc: () => zingMp3.fetchSongUrl(songId),
-        cacheEncode: (data) => {'uri': data},
-        cacheDecode: (json) => json['uri'],
-        outputFixer: (data) => Uri.parse(data)
-      );
-      if (_isSongUriActive(uri)) return uri;
-    }
-    return null;
+    final api = '/song_url?id=$songId';
+    return storage.getCached<String>(api).fold<Future<Uri>>(
+      (url) async => Uri.parse(url),
+      (_) async {
+        String? url = await FirebaseApi.getSongUrl(songId);
+        if (url == null) {
+          url = await zingMp3.fetchSongUrl(songId);
+          await FirebaseApi.uploadSongFromUrl(url, songId);
+        }
+        storage.updateCached(api, url);
+        return Uri.parse(url);
+      }
+    );
   }
 
   Future<SongLyricsModel?> getSongLyric(String songId) async {
@@ -507,19 +505,6 @@ class ApiKit {
     songIds = filterNonBlacklistedSongs(songIds);
     return songIds;
   }
-}
-
-bool _isSongUriActive(Uri uri) {
-  final authen = uri.queryParameters['authen'];
-  final expStr = authen
-      ?.split('~')
-      .firstWhere((e) => e.startsWith('exp='), orElse: () => '')
-      .split('=')
-      .elementAtOrNull(1);
-
-  final exp = int.tryParse(expStr ?? '') ?? 0;
-  final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-  return exp > now + 600;
 }
 
 List<Map<String, dynamic>> _getSongsForHomeOutputFixer(

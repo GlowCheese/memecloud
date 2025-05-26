@@ -17,8 +17,7 @@ class ZingMp3Api {
       // if (resp['err'] == -1150) return null;
 
       final urls = Map.from(resp['data']);
-      // TODO: lossless or 320 does not always available!
-      return urls["lossless"] ?? urls["320"]!;
+      return urls["320"] ?? urls["128"]!;
 
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);

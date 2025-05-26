@@ -163,3 +163,4 @@ app.*.symbols
 
 .env
 jsons/
+android/app/google-services.json
