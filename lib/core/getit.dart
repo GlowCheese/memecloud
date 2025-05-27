@@ -6,6 +6,7 @@ import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/apis/others/events.dart';
 import 'package:memecloud/apis/others/storage.dart';
 import 'package:memecloud/apis/zingmp3/requester.dart';
+import 'package:memecloud/blocs/dl_status/dl_status_manager.dart';
 import 'package:memecloud/core/dio_init.dart';
 import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:memecloud/apis/supabase/main.dart';
@@ -35,6 +36,10 @@ Future<void> setupLocator() async {
   getIt.registerSingleton<PersistentStorage>(storage);
   final apiKit = getIt.registerSingleton<ApiKit>(ApiKit());
   getIt.registerSingleton<SupabaseEvents>(await SupabaseEvents.initialize());
+  
+  // miscellaneous
+  getIt.registerSingleton<DlStatusManager>(DlStatusManager());
+  getIt.registerSingleton<LikedSongsStream>(LikedSongsStream());
 
   // custom cookie for vip songs
   dioInterceptorSetCustomCookie(dio, cookieJar, (await supabase.config.getZingCookie())!);
@@ -44,9 +49,6 @@ Future<void> setupLocator() async {
   final playerCubit = SongPlayerCubit();
   getIt.registerSingleton<SongPlayerCubit>(playerCubit);
   getIt.registerSingleton<AudioPlayer>(playerCubit.audioPlayer);
-
-  // miscs
-  getIt.registerSingleton<LikedSongsStream>(LikedSongsStream());
 
   // post setup locator cleanup
   await postSetupLocator();

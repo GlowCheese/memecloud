@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/utils/common.dart';
@@ -19,6 +20,7 @@ import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:memecloud/models/song_lyrics_model.dart';
 import 'package:memecloud/models/search_result_model.dart';
 import 'package:memecloud/models/search_suggestion_model.dart';
+import 'package:memecloud/blocs/dl_status/dl_status_manager.dart';
 
 class ApiKit {
   final dio = getIt<Dio>();
@@ -205,23 +207,54 @@ class ApiKit {
     }
   }
 
-  Future<bool> downloadSong(
-    SongModel song,
-    String songUri, {
-    void Function(int received, int total)? onProgress,
-    CancelToken? cancelToken,
-  }) async {
-    final filePath = '${storage.userDir.path}/${song.id}.mp3';
-    if (await _downloadFile(
-      songUri,
-      filePath,
-      onProgress: onProgress,
-      cancelToken: cancelToken,
-    )) {
-      await markSongAsDownloaded(song);
-      return true;
+  Future<Map<String, String>?> getSongUrlsForDownload(String songId) async {
+    getIt<DlStatusManager>().update(songId, isFetching: true);
+    try {
+      return await zingMp3.fetchSongUrls(songId);
+    } catch (_) {
+      await getIt<DlStatusManager>().updateCancel(songId);
+      return null;
     }
-    return false;
+  }
+
+  Future<String?> getSongUrlForDownload(
+    String songId, {
+    String quality = "320",
+  }) async {
+    final urls = await getSongUrlsForDownload(songId);
+    if (urls == null) return null;
+
+    if (urls.containsKey(quality) == true) return urls[quality]!;
+    return urls.values.last; // TODO: random one?
+  }
+
+  Future<bool> downloadSong(SongModel song, String songUrl) async {
+    final filePath = '${storage.userDir.path}/${song.id}.mp3';
+
+    final cancelToken = CancelToken();
+    void onProgress(int received, int total) {
+      getIt<DlStatusManager>().updateProgress(song.id, received / total);
+    }
+
+    final downloadTask = CancelableOperation.fromFuture(
+      _downloadFile(
+        songUrl,
+        filePath,
+        onProgress: onProgress,
+        cancelToken: cancelToken,
+      ).then((success) async {
+        if (success) {
+          markSongAsDownloaded(song);
+        } else {
+          markSongAsNotDownloaded(song.id);
+        }
+        return success;
+      }),
+      onCancel: () => cancelToken.cancel(),
+    );
+    getIt<DlStatusManager>().update(song.id, downloadTask: downloadTask);
+
+    return await downloadTask.valueOrCancellation() == true;
   }
 
   Future<void> undownloadSong(String songId) async {
@@ -230,7 +263,7 @@ class ApiKit {
       await File(filePath).delete();
     } catch (_) {
     } finally {
-      storage.undownloadSong(songId);
+      markSongAsNotDownloaded(songId);
     }
   }
 
@@ -242,8 +275,14 @@ class ApiKit {
     return storage.getDownloadedSongs();
   }
 
-  Future<void> markSongAsDownloaded(SongModel song) {
-    return storage.markSongAsDownloaded(song);
+  Future<void> markSongAsNotDownloaded(String songId) async {
+    await storage.markSongAsNotDownloaded(songId);
+    await getIt<DlStatusManager>().updateCancel(songId);
+  }
+
+  Future<void> markSongAsDownloaded(SongModel song) async {
+    await storage.markSongAsDownloaded(song);
+    getIt<DlStatusManager>().update(song.id, isCompleted: true);
   }
 
   /* ---------------------
@@ -323,25 +362,6 @@ class ApiKit {
 
   Iterable<String> filterNonBlacklistedSongs(Iterable<String> songIds) {
     return storage.filterNonBlacklistedSongs(songIds);
-  }
-
-  /* ----------------------
-  |    VIP SONGS FILTER   |
-  ---------------------- */
-
-  bool isNonVipSong(String songId) {
-    return storage.isNonVipSong(songId);
-  }
-
-  Future<void> markSongAsVip(String songId) {
-    return Future.wait([
-      storage.markSongAsVip(songId),
-      supabase.songs.markSongAsVip(songId),
-    ]);
-  }
-
-  Iterable<String> filterNonVipSongs(Iterable<String> songIds) {
-    return storage.filterNonVipSongs(songIds);
   }
 
   /* ------------------

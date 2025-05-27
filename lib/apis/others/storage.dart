@@ -283,7 +283,7 @@ class PersistentStorage {
     ]);
   }
 
-  Future<void> undownloadSong(String songId) async {
+  Future<void> markSongAsNotDownloaded(String songId) async {
     if (hiveBoxes.downloadedSongs.containsKey(songId)) {
       await Future.wait([
         hiveBoxes.downloadedSongs.delete(songId),

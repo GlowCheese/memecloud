@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-
-enum DownloadStatus { notDownloaded, fetchingDownload, downloading, downloaded }
+import 'package:memecloud/blocs/dl_status/dl_status_enum.dart';
 
 class DownloadButton extends StatelessWidget {
-  final DownloadStatus status;
+  final DlStatus status;
   final Duration transitionDuration;
   final double? iconSize;
   final Function() onPressed;
@@ -18,10 +17,10 @@ class DownloadButton extends StatelessWidget {
     required this.onPressed,
   });
 
-  bool get isDownloaded => status == DownloadStatus.downloaded;
-  bool get isDownloading => status == DownloadStatus.downloading;
-  bool get isFetching => status == DownloadStatus.fetchingDownload;
-  bool get isNotDownloaded => status == DownloadStatus.notDownloaded;
+  bool get isDownloaded => status == DlStatus.downloaded;
+  bool get isDownloading => status == DlStatus.downloading;
+  bool get isFetching => status == DlStatus.fetchingDownload;
+  bool get isNotDownloaded => status == DlStatus.notDownloaded;
 
   @override
   Widget build(BuildContext context) {

@@ -1,117 +1,91 @@
-import 'dart:async';
-import 'package:async/async.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memecloud/models/song_model.dart';
-import 'package:memecloud/apis/zingmp3/endpoints.dart';
+import 'package:memecloud/blocs/dl_status/dl_status_enum.dart';
+import 'package:memecloud/blocs/dl_status/dl_status_cubit.dart';
+import 'package:memecloud/blocs/dl_status/dl_status_state.dart';
 import 'package:memecloud/components/miscs/download_button.dart';
+import 'package:memecloud/blocs/dl_status/dl_status_manager.dart';
 
-class SongDownloadButton extends StatefulWidget {
+class SongDownloadButton extends StatelessWidget {
   final SongModel song;
   final double? iconSize;
+  late final DlStatusCubit cubit;
 
-  const SongDownloadButton({super.key, required this.song, this.iconSize});
+  SongDownloadButton({super.key, required this.song, this.iconSize}) {
+    cubit = getIt<DlStatusManager>().getCubit(song.id);
+  }
 
   @override
-  State<SongDownloadButton> createState() => _SongDownloadButtonState();
-}
+  Widget build(BuildContext context) {
+    return BlocBuilder<DlStatusCubit, DlStatusState>(
+      bloc: cubit,
+      builder: (context, state) {
+        double? downloadProgress =
+            state is DownloadingState ? state.downloadProgress : null;
 
-class _SongDownloadButtonState extends State<SongDownloadButton> {
-  double? downloadProgress;
-  late DownloadStatus status =
-      (getIt<ApiKit>().isSongDownloaded(widget.song.id))
-          ? (DownloadStatus.downloaded)
-          : (DownloadStatus.notDownloaded);
+        void onPressed() {
+          switch (state.status) {
+            case DlStatus.notDownloaded:
+              fetchDownloadUrls(context);
+              break;
+            case DlStatus.downloading:
+              cubit.updateCancel();
+              break;
+            case DlStatus.downloaded:
+              confirmUndownload(context);
+              break;
+            default:
+              break;
+          }
+        }
 
-  void fetchDownloadUrls() {
-    setState(() {
-      status = DownloadStatus.fetchingDownload;
-      downloadProgress = null;
-      unawaited(
-        getIt<ZingMp3Api>()
-            .fetchSongUrls(widget.song.id)
-            .then(onUrlsReceived)
-            .catchError((e, stackTrace) {
-              setState(() => status = DownloadStatus.notDownloaded);
-            }),
-      );
+        return DownloadButton(
+          status: state.status,
+          iconSize: iconSize,
+          downloadProgress: downloadProgress,
+          onPressed: onPressed,
+        );
+      },
+    );
+  }
+
+  void fetchDownloadUrls(BuildContext context) {
+    getIt<ApiKit>().getSongUrlsForDownload(song.id).then((urls) {
+      if (context.mounted) {
+        onUrlsReceived(context, urls);
+      }
     });
   }
 
-  void onUrlsReceived(Map<String, String> urls) {
+  void onUrlsReceived(BuildContext context, Map<String, String>? urls) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text("Confirm"),
-          content: Text(
-            "Chọn chất lượng nhac mà bạn muốn tải xuống",
-          ),
+          content: Text("Chọn chất lượng nhac mà bạn muốn tải xuống"),
           actions:
-            urls.entries.map((e) {
-              return TextButton(
-                key: ValueKey(e.key),
-                child: Text(e.key),
-                onPressed: () {
-                  Navigator.pop(context, true);
-                  startDownloadProcess(e.value);
-                },
-              );
-            }).toList()
+              urls!.entries.map((e) {
+                return TextButton(
+                  key: ValueKey(e.key),
+                  child: Text(e.key),
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                    getIt<ApiKit>().downloadSong(song, e.value);
+                  },
+                );
+              }).toList(),
         );
       },
     ).then((data) {
-      if (data != true) {
-        setState(() => status = DownloadStatus.notDownloaded);
-      }
+      if (data != true) cubit.updateCancel();
     });
   }
 
-  CancelToken? cancelToken;
-  CancelableOperation? downloadTask;
-
-  void startDownloadProcess(String url) {
-    cancelToken = CancelToken();
-
-    setState(() {
-      status = DownloadStatus.downloading;
-      downloadTask = CancelableOperation.fromFuture(
-        getIt<ApiKit>()
-            .downloadSong(
-              widget.song,
-              url,
-              onProgress: onProgress,
-              cancelToken: cancelToken,
-            )
-            .then((success) {
-              if (success) onDownloadComplete();
-            })
-            .catchError((e, stackTrace) {
-              setState(() => status = DownloadStatus.notDownloaded);
-            }),
-        onCancel: () async {
-          cancelToken?.cancel();
-          setState(() => status = DownloadStatus.notDownloaded);
-        },
-      );
-    });
-  }
-
-  void onProgress(int received, int total) {
-    setState(() => downloadProgress = received / total);
-  }
-
-  void onDownloadComplete() {
-    setState(() => status = DownloadStatus.downloaded);
-  }
-
-  void cancelDownload() {
-    downloadTask?.cancel();
-  }
-
-  void confirmUndownload() {
+  void confirmUndownload(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
@@ -122,46 +96,19 @@ class _SongDownloadButtonState extends State<SongDownloadButton> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(context),
               child: Text("No"),
             ),
             TextButton(
               onPressed: () {
-                getIt<ApiKit>().undownloadSong(widget.song.id).then((_) {
+                getIt<ApiKit>().undownloadSong(song.id).then((_) {
                   if (context.mounted) Navigator.pop(context);
-                  setState(() => status = DownloadStatus.notDownloaded);
                 });
               },
               child: Text("Yes"),
             ),
           ],
         );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return DownloadButton(
-      status: status,
-      iconSize: widget.iconSize,
-      downloadProgress: downloadProgress,
-      onPressed: () {
-        switch (status) {
-          case DownloadStatus.notDownloaded:
-            fetchDownloadUrls();
-            break;
-          case DownloadStatus.downloading:
-            cancelDownload();
-            break;
-          case DownloadStatus.downloaded:
-            confirmUndownload();
-            break;
-          default:
-            break;
-        }
       },
     );
   }
