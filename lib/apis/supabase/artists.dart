@@ -121,18 +121,18 @@ class SupabaseArtistsApi {
         throw Exception('User not logged in');
       }
       final response = await _client
-          .from('followers')
+          .from('artist_followers')
           .select()
           .eq('user_id', userId)
           .eq('artist_id', artistId);
       if (response.isNotEmpty) {
         await _client
-            .from('followers')
+            .from('artist_followers')
             .delete()
             .eq('user_id', userId)
             .eq('artist_id', artistId);
       } else {
-        await _client.from('followers').insert({
+        await _client.from('artist_followers').insert({
           'user_id': userId,
           'artist_id': artistId,
         });
@@ -151,7 +151,7 @@ class SupabaseArtistsApi {
     }
     log("Checking if user $userId is following artist $artistId");
     final response = await _client
-        .from('followers')
+        .from('artist_followers')
         .select()
         .eq('user_id', userId)
         .eq('artist_id', artistId);
@@ -163,7 +163,7 @@ class SupabaseArtistsApi {
       _connectivity.ensure();
       final response =
           await _client
-              .from('followers')
+              .from('artist_followers')
               .select()
               .eq('artist_id', artistId)
               .count();
@@ -171,7 +171,7 @@ class SupabaseArtistsApi {
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
-        "Failed to get artist followers count: $e",
+        "Failed to get artist artist_followers count: $e",
         stackTrace: stackTrace,
         level: 1000,
       );
@@ -187,7 +187,7 @@ class SupabaseArtistsApi {
         throw Exception('Chưa đăng nhập');
       }
       final response = await _client
-          .from('followers')
+          .from('artist_followers')
           .select('artist_id')
           .eq('user_id', userId);
       final artistIds = response.map((e) => e['artist_id']).toList();

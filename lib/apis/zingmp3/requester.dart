@@ -99,7 +99,7 @@ class ZingMp3Requester {
         debugPrint('Request sent: ${resp.requestOptions.uri}');
         break;
       }
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(Duration(milliseconds: 200));
     }
 
     if (resp.data['err'] != 0 &&

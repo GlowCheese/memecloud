@@ -227,7 +227,7 @@ class SupabaseSongsApi {
       final userId = _client.auth.currentUser!.id;
 
       final response = await _client
-          .from('followers')
+          .from('artist_followers')
           .select(
             'artist_id, artist:artists(*, song_artists(*, song:songs(*)))',
           )
