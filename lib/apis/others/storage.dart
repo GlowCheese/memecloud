@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:hive_flutter/adapters.dart';
-import 'package:memecloud/apis/supabase/main.dart';
-import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/utils/cookie.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/apis/supabase/main.dart';
 
 class HiveBoxes {
   static Future<HiveBoxes> initialize() async {
@@ -15,7 +15,7 @@ class HiveBoxes {
       Hive.openBox<String>('recentSearches'),
       Hive.openBox<String>('likedSongs'),
       Hive.openBox<String>('blacklistedSongs'),
-      Hive.openBox<bool>('downloadedSongs'),
+      Hive.openBox<String>('downloadedSongs'),
       Hive.openBox<int>('songDownloadDeps'),
       Hive.openBox<String>('appConfig'),
     ]);
@@ -28,7 +28,7 @@ class HiveBoxes {
   Box<String> get recentSearches => Hive.box('recentSearches');
   Box<String> get likedSongs => Hive.box('likedSongs');
   Box<String> get blacklistedSongs => Hive.box('blacklistedSongs');
-  Box<bool> get downloadedSongs => Hive.box('downloadedSongs');
+  Box<String> get downloadedSongs => Hive.box('downloadedSongs');
   Box<int> get songDownloadDeps => Hive.box('songDownloadDeps');
   Box<String> get appConfig => Hive.box('appConfig');
 }
@@ -121,9 +121,9 @@ class PersistentStorage {
       final kv = cookieGetFirstKv(cookie);
       if (kv != null) oldCookies[kv[0]] = kv[1];
     }
-    
+
     final cookieStr = convertCookieToString(oldCookies);
-    
+
     final box = hiveBoxes.appConfig;
     await box.put('zing_cookie', cookieStr);
     return cookieStr;
@@ -267,23 +267,31 @@ class PersistentStorage {
     return hiveBoxes.downloadedSongs.containsKey(songId);
   }
 
-  Future<void> markSongAsDownloaded(String songId) {
+  List<SongModel> getDownloadedSongs() {
+    return hiveBoxes.downloadedSongs.values
+        .map((e) => SongModel.fromJson<SupabaseApi>(jsonDecode(e)))
+        .toList();
+  }
+
+  Future<void> markSongAsDownloaded(SongModel song) {
     return Future.wait([
-      hiveBoxes.downloadedSongs.put(songId, true),
+      hiveBoxes.downloadedSongs.put(song.id, jsonEncode(song.toJson())),
       hiveBoxes.songDownloadDeps.put(
-        songId,
-        (_songDownloadDeps(songId) ?? 0) + 1,
+        song.id,
+        (_songDownloadDeps(song.id) ?? 0) + 1,
       ),
     ]);
   }
 
-  Future<void> undownloadSong(String songId) {
-    return Future.wait([
-      hiveBoxes.downloadedSongs.delete(songId),
-      hiveBoxes.songDownloadDeps.put(
-        songId,
-        (_songDownloadDeps(songId) ?? 0) - 1,
-      ),
-    ]);
+  Future<void> undownloadSong(String songId) async {
+    if (hiveBoxes.downloadedSongs.containsKey(songId)) {
+      await Future.wait([
+        hiveBoxes.downloadedSongs.delete(songId),
+        hiveBoxes.songDownloadDeps.put(
+          songId,
+          (_songDownloadDeps(songId) ?? 0) - 1,
+        ),
+      ]);
+    }
   }
 }

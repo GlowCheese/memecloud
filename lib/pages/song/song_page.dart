@@ -244,7 +244,7 @@ class SongPageInner extends StatelessWidget {
           ),
         ),
         SizedBox(width: 12),
-        SongDownloadButton(songId: song.id, iconSize: 30),
+        SongDownloadButton(song: song, iconSize: 30),
         SizedBox(width: 8),
         SongLikeButton(song: song, iconSize: 30),
       ],

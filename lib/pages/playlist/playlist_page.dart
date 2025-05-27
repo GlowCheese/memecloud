@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/utils/common.dart';
@@ -11,6 +10,7 @@ import 'package:memecloud/components/song/mini_player.dart';
 import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/components/miscs/search_bar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
+import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/miscs/generatable_list/sliver_list.dart';
 
@@ -188,25 +188,26 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                   child: getImage(widget.playlist.thumbnailUrl, 120),
                 ),
                 SizedBox(height: 12),
-                Row(
-                  children: [
-                    Icon(
-                      widget.playlist.followed == true
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color:
-                          widget.playlist.followed == true
-                              ? Colors.white
-                              : Colors.white,
-                      size: 26,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '100,7K',
-                      style: TextStyle(color: Colors.grey[400], fontSize: 14),
-                    ),
-                  ],
-                ),
+                if (!widget.playlist.isAnom)
+                  Row(
+                    children: [
+                      Icon(
+                        widget.playlist.followed == true
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color:
+                            widget.playlist.followed == true
+                                ? Colors.white
+                                : Colors.white,
+                        size: 26,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '100,7K',
+                        style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                      ),
+                    ],
+                  ),
               ],
             ),
             const SizedBox(width: 16),
@@ -340,7 +341,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
   Widget _searchBar() {
     return MySearchBar(
       variant: 2,
-      onSubmitted: (query) {
+      onChanged: (query) {
         if (query.trim().isEmpty) {
           setState(() => _displaySongs = widget.playlist.songs ?? []);
         }

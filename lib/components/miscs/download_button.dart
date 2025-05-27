@@ -41,18 +41,25 @@ class DownloadButton extends StatelessWidget {
           opacity: isDownloading || isFetching ? 1 : 0,
           curve: Curves.ease,
           duration: transitionDuration,
-          child: IconButton(
-            iconSize: iconSize,
-            onPressed: onPressed,
-            icon: SizedBox(
-              width: iconSize,
-              height: iconSize,
-              child: CircularProgressIndicator(
-                value: downloadProgress,
-                color: Colors.blue.shade300,
-                strokeWidth: 3,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                iconSize: iconSize,
+                onPressed: onPressed,
+                icon: SizedBox(
+                  width: iconSize,
+                  height: iconSize,
+                  child: CircularProgressIndicator(
+                    value: downloadProgress,
+                    color: Colors.blue.shade300,
+                    strokeWidth: 3,
+                  ),
+                ),
               ),
-            ),
+              if (isDownloading)
+                Icon(Icons.stop, size: 16, color: Colors.blue.shade300),
+            ],
           ),
         ),
         AnimatedOpacity(

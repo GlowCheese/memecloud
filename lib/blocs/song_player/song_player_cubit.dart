@@ -97,6 +97,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
             ...songList.sublist(0, songIdx),
           ];
 
+          lazySongPopulateRunning = true;
           songsPopulateTask = CancelableOperation.fromFuture(
             lazySongPopulate(remainingSongs).catchError((e, stackTrace) {
               log(
@@ -105,6 +106,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
                 level: 1000,
               );
             }),
+            onCancel: () => lazySongPopulateRunning = false,
           );
         }
         audioPlayer.setSpeed(currentSongSpeed = 1.0);
@@ -117,8 +119,11 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     }
   }
 
+  late bool lazySongPopulateRunning;
+
   Future<void> lazySongPopulate(List<SongModel> songList) async {
     for (SongModel song in songList) {
+      if (!lazySongPopulateRunning) break;
       final audioSource = await _getAudioSource(song);
       if (audioSource != null) {
         currentSongList.add(song);

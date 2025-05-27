@@ -20,9 +20,27 @@ class GeneratableSliverList extends StatefulWidget {
 }
 
 class _GeneratableSliverListState extends State<GeneratableSliverList> {
-  bool hasMore = true;
-  late int currentIdx = widget.initialPageIdx;
-  List<Widget> items = [];
+  late bool hasMore;
+  late int currentIdx;
+  late List<Widget> items;
+
+  void _initState() {
+    hasMore = true;
+    items = <Widget>[];
+    currentIdx = widget.initialPageIdx;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant GeneratableSliverList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.asyncGenFunction != oldWidget.asyncGenFunction) _initState();
+  }
 
   Future<void> loadMorePage() async {
     try {
@@ -48,25 +66,21 @@ class _GeneratableSliverListState extends State<GeneratableSliverList> {
   @override
   Widget build(BuildContext context) {
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, idx) {
-          if (widget.separatorBuilder != null) {
-            if (idx.isOdd) {
-              return widget.separatorBuilder!(context, idx ~/ 2);
-            }
-            else {
-              idx ~/= 2;
-            }
+      delegate: SliverChildBuilderDelegate((context, idx) {
+        if (widget.separatorBuilder != null) {
+          if (idx.isOdd) {
+            return widget.separatorBuilder!(context, idx ~/ 2);
+          } else {
+            idx ~/= 2;
           }
+        }
 
-          if (idx < items.length) return items[idx];
-          return defaultFutureBuilder(
-            future: loadMorePage(),
-            onData: (context, data) => SizedBox()
-          );
-        },
-        childCount: itemCount
-      ),
+        if (idx < items.length) return items[idx];
+        return defaultFutureBuilder(
+          future: loadMorePage(),
+          onData: (context, data) => SizedBox(),
+        );
+      }, childCount: itemCount),
     );
   }
 }

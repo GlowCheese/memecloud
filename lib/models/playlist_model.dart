@@ -8,10 +8,9 @@ import 'package:memecloud/utils/common.dart';
 
 class AnonymousPlaylist {}
 
-const String anonymousId = "AnOnYmOuS";
+const String anomPrefix = "anomPl_";
 
 class PlaylistModel extends MusicModel {
-  /// `id="AnOnYmOuS"` if it isn't an actual playlist
   final String id;
   final String title;
   final String thumbnailUrl;
@@ -22,7 +21,7 @@ class PlaylistModel extends MusicModel {
   final bool? followed;
 
   PlaylistModel._({
-    this.id = anonymousId,
+    required this.id,
     required this.title,
     required this.thumbnailUrl,
     this.artistsNames,
@@ -35,6 +34,7 @@ class PlaylistModel extends MusicModel {
   static PlaylistModel fromJson<T>(Map<String, dynamic> json) {
     if (T == AnonymousPlaylist) {
       return PlaylistModel._(
+        id: "$anomPrefix${json['customId'] ?? ''}",
         title: json['title'],
         artistsNames: json['artistsNames'],
         description: json['description'],
@@ -64,6 +64,8 @@ class PlaylistModel extends MusicModel {
       throw UnsupportedError('Unsupported parse json for type $T');
     }
   }
+
+  bool get isAnom => id.startsWith(anomPrefix);
 
   static List<PlaylistModel> fromListJson<T>(List list) {
     return list.map((json) => PlaylistModel.fromJson<T>(json)).toList();

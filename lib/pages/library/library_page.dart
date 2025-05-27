@@ -30,12 +30,17 @@ class LibraryPage extends StatelessWidget {
       widgetBuilder: (tabsNavigator, tabContent) {
         return Column(children: [tabsNavigator, Expanded(child: tabContent)]);
       },
-      tabBodies: [Placeholder(), likedSongsTab(context), Placeholder()],
+      tabBodies: [
+        Placeholder(),
+        likedSongsTab(context),
+        downloadedSongsTab(context),
+      ],
     );
   }
 
   Widget likedSongsTab(BuildContext context) {
     final likedSongsPlaylist = PlaylistModel.fromJson<AnonymousPlaylist>({
+      "customId": "userLikedSongs",
       "title": "Bài hát đã thích",
       "artistsNames": getIt<ApiKit>().myProfile().displayName,
       "thumbnailUrl": "assets/icons/liked_songs.jpeg",
@@ -47,6 +52,27 @@ class LibraryPage extends StatelessWidget {
       child: ListView.separated(
         itemBuilder: (context, index) {
           return PlaylistCard(variant: 2, playlist: likedSongsPlaylist);
+        },
+        separatorBuilder: (context, index) => SizedBox(height: 14),
+        itemCount: 10,
+      ),
+    );
+  }
+
+  Widget downloadedSongsTab(BuildContext context) {
+    final downloadedSongsPlaylist = PlaylistModel.fromJson<AnonymousPlaylist>({
+      "customId": "userDownloadedSongs",
+      "title": "Danh sách tải xuống",
+      "artistsNames": getIt<ApiKit>().myProfile().displayName,
+      "thumbnailUrl": "assets/icons/downloaded_songs.webp",
+      "songs": getIt<ApiKit>().getDownloadedSongs(),
+    });
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 18),
+      child: ListView.separated(
+        itemBuilder: (context, index) {
+          return PlaylistCard(variant: 2, playlist: downloadedSongsPlaylist);
         },
         separatorBuilder: (context, index) => SizedBox(height: 14),
         itemCount: 10,

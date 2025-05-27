@@ -174,14 +174,30 @@ class ApiKit {
   |    DOWNLOAD APIs    |
   -------------------- */
 
-  Future<void> _downloadFile(
+  Future<bool> _downloadFile(
     String url,
     String savePath, {
+    CancelToken? cancelToken,
     void Function(int received, int total)? onProgress,
   }) async {
     try {
       _connectivity.ensure();
-      await dio.download(url, savePath, onReceiveProgress: onProgress);
+      await dio.download(
+        url,
+        savePath,
+        cancelToken: cancelToken,
+        onReceiveProgress: onProgress,
+      );
+      return true;
+    } on DioException catch (e, stackTrace) {
+      if (e.type == DioExceptionType.cancel) {
+        log('Download cancelled.', stackTrace: stackTrace);
+        return false;
+      } else {
+        _connectivity.reportCrash(e, StackTrace.current);
+        log('Failed to download file: $e', stackTrace: stackTrace, level: 1000);
+        rethrow;
+      }
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log('Failed to download file: $e', stackTrace: stackTrace, level: 1000);
@@ -189,28 +205,45 @@ class ApiKit {
     }
   }
 
-  Future<void> downloadSong(
-    String songId,
+  Future<bool> downloadSong(
+    SongModel song,
     String songUri, {
     void Function(int received, int total)? onProgress,
+    CancelToken? cancelToken,
   }) async {
-    final filePath = '${storage.userDir.path}/$songId.mp3';
-    await _downloadFile(songUri, filePath, onProgress: onProgress);
-    await markSongAsDownloaded(songId);
+    final filePath = '${storage.userDir.path}/${song.id}.mp3';
+    if (await _downloadFile(
+      songUri,
+      filePath,
+      onProgress: onProgress,
+      cancelToken: cancelToken,
+    )) {
+      await markSongAsDownloaded(song);
+      return true;
+    }
+    return false;
   }
 
   Future<void> undownloadSong(String songId) async {
     final filePath = '${storage.userDir.path}/$songId.mp3';
-    await File(filePath).delete();
-    return storage.undownloadSong(songId);
+    try {
+      await File(filePath).delete();
+    } catch (_) {
+    } finally {
+      storage.undownloadSong(songId);
+    }
   }
 
   bool isSongDownloaded(String songId) {
     return storage.isSongDownloaded(songId);
   }
 
-  Future<void> markSongAsDownloaded(String songId) {
-    return storage.markSongAsDownloaded(songId);
+  List<SongModel> getDownloadedSongs() {
+    return storage.getDownloadedSongs();
+  }
+
+  Future<void> markSongAsDownloaded(SongModel song) {
+    return storage.markSongAsDownloaded(song);
   }
 
   /* ---------------------
@@ -417,7 +450,7 @@ class ApiKit {
         }
         unawaited(storage.updateCached(api, url));
         return Uri.parse(url);
-      }
+      },
     );
   }
 

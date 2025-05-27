@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:flutter/foundation.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:memecloud/apis/zingmp3/requester.dart';
@@ -8,7 +9,7 @@ class ZingMp3Api {
   final ZingMp3Requester _requester = getIt<ZingMp3Requester>();
   final ConnectivityStatus _connectivity = getIt<ConnectivityStatus>();
 
-  Future<String> fetchSongUrl(String songId) async {
+    Future<Map<String, String>> fetchSongUrls(String songId) async {
     try {
       _connectivity.ensure();
       final resp = await _requester.getSong(songId);
@@ -17,17 +18,27 @@ class ZingMp3Api {
       // if (resp['err'] == -1150) return null;
 
       final urls = Map.from(resp['data']);
-      return urls["320"] ?? urls["128"]!;
-
+      Map<String, String> res = {};
+      for (var entry in urls.entries) {
+        if (entry.value != "VIP") {
+          res[entry.key] = entry.value;
+        }
+      }
+      return res;
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
-        'ZingMp3Api failed to fetch song url: $e',
+        'ZingMp3Api failed to fetch song urls: $e',
         stackTrace: stackTrace,
         level: 1000,
       );
       rethrow;
     }
+  }
+
+  Future<String> fetchSongUrl(String songId, [String quality="320"]) async {
+    final urls = await fetchSongUrls(songId);
+    return urls[quality] ?? urls['320'] ?? urls['128']!;
   }
 
   Future<Map<String, dynamic>?> fetchSongInfo(String songId) async {
