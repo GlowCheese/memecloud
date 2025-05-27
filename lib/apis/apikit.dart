@@ -449,8 +449,6 @@ class ApiKit {
   |    STORAGE & CACHE    |
   ---------------------- */
 
-  /// Return `null` if `isNonVipSong(songId) == false`, \
-  /// otherwise the Uri for the song (either remote or local).
   Future<Uri> getSongUri(String songId) async {
     final fileName = '$songId.mp3';
     final dir = storage.userDir;

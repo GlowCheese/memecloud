@@ -11,7 +11,6 @@ class HiveBoxes {
   static Future<HiveBoxes> initialize() async {
     await Future.wait([
       Hive.openBox<bool>('savedInfo'),
-      Hive.openBox<bool>('vipSongs'),
       Hive.openBox<Map>('apiCache'),
       Hive.openBox<String>('recentSearches'),
       Hive.openBox<String>('likedSongs'),
@@ -25,7 +24,6 @@ class HiveBoxes {
   }
 
   Box<bool> get savedInfo => Hive.box('savedInfo');
-  Box<bool> get vipSongs => Hive.box('vipSongs');
   Box<Map> get apiCache => Hive.box('apiCache');
   Box<String> get recentSearches => Hive.box('recentSearches');
   Box<String> get likedSongs => Hive.box('likedSongs');
@@ -233,28 +231,6 @@ class PersistentStorage {
     await box.clear();
     await box.putAll({
       for (var song in songs) song.id: jsonEncode(song.toJson()),
-    });
-  }
-
-  /* ----------------------
-  |    VIP SONGs FILTER   |
-  ---------------------- */
-
-  Future<void> markSongAsVip(String songId) async {
-    await hiveBoxes.vipSongs.put(songId, true);
-  }
-
-  bool isNonVipSong(String songId) {
-    return !hiveBoxes.vipSongs.containsKey(songId);
-  }
-
-  Iterable<String> filterNonVipSongs(Iterable<String> songIds) {
-    return songIds.where((songId) => isNonVipSong(songId));
-  }
-
-  Future<void> preloadVipSongs(List<String> vipSongIds) {
-    return hiveBoxes.vipSongs.putAll({
-      for (var songId in vipSongIds) songId: true,
     });
   }
 

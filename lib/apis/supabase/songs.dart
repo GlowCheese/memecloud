@@ -221,57 +221,6 @@ class SupabaseSongsApi {
     }
   }
 
-  Future<List<String>> filterNonVipSongs(Iterable<String> songsIds) async {
-    try {
-      _connectivity.ensure();
-      final resp = await _client
-          .from('vip_songs')
-          .select('song_id')
-          .inFilter('song_id', songsIds.toList());
-
-      final vipSongIds = resp.map((e) => e['song_id']).toSet();
-      return songsIds.where((id) => !vipSongIds.contains(id)).toList();
-    } catch (e, stackTrace) {
-      _connectivity.reportCrash(e, StackTrace.current);
-      log('Failed to fetch vip songs: $e', stackTrace: stackTrace, level: 1000);
-      rethrow;
-    }
-  }
-
-  Future<void> markSongAsVip(String songId) async {
-    try {
-      _connectivity.ensure();
-      return await _client.from('vip_songs').upsert({
-        'song_id': songId,
-      }, ignoreDuplicates: true);
-    } catch (e, stackTrace) {
-      _connectivity.reportCrash(e, StackTrace.current);
-      log(
-        'Failed to mark song as vip: $e',
-        stackTrace: stackTrace,
-        level: 1000,
-      );
-      rethrow;
-    }
-  }
-
-  Future<List<String>> getVipSongIds() async {
-    try {
-      _connectivity.ensure();
-      final response = await _client.from('vip_songs').select('song_id');
-      final songIds = List<String>.from(response.map((e) => e['song_id']));
-      return songIds;
-    } catch (e, stackTrace) {
-      _connectivity.reportCrash(e, StackTrace.current);
-      log(
-        'Failed to fetch all vip songs: $e',
-        stackTrace: stackTrace,
-        level: 1000,
-      );
-      rethrow;
-    }
-  }
-
   Future<List<SongModel>> getFollowedArtistsSongs() async {
     try {
       _connectivity.ensure();

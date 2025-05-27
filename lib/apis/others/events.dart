@@ -22,8 +22,12 @@ class SupabaseEvents {
         case AuthChangeEvent.signedIn:
         case AuthChangeEvent.userUpdated:
         case AuthChangeEvent.tokenRefreshed:
-        case AuthChangeEvent.initialSession:
           unawaited(_onUserLoggedIn());
+          break;
+        case AuthChangeEvent.initialSession:
+          if (client.auth.currentUser != null) {
+            unawaited(_onUserLoggedIn());
+          }
           break;
         default:
           break;
