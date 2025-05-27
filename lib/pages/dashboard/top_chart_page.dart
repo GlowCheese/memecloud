@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/miscs/page_with_tabs/single.dart';
 import 'package:memecloud/components/song/play_or_pause_button.dart';
+import 'package:memecloud/components/song/show_song_actions.dart';
 import 'package:memecloud/components/song/song_action_sheet.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -44,15 +45,7 @@ class TopChartPage extends StatelessWidget {
                   .map(
                     (e) => GestureDetector(
                       onLongPress:
-                          () => showModalBottomSheet(
-                            context: context,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(20),
-                              ),
-                            ),
-                            builder: (context) => SongActionSheet(song: e.song),
-                          ),
+                          () => showSongBottomSheetActions(context, e.song),
                       child: Row(
                         children: [
                           SizedBox(width: 12),

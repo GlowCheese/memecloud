@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "943590881907",
+    "project_id": "zing-songs",
+    "storage_bucket": "zing-songs.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:943590881907:android:9be23481cb400c87e08806",
+        "android_client_info": {
+          "package_name": "com.example.memecloud"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYtEp-wP1Tw1osoqhlU__hpDL_pKvoxtw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
