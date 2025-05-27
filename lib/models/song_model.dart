@@ -15,7 +15,6 @@ class SongModel extends MusicModel {
   final String thumbnailUrl;
   final DateTime releaseDate;
   final List<ArtistModel> artists;
-  bool? _isLiked;
 
   // Private constructor
   SongModel._({
@@ -90,11 +89,9 @@ class SongModel extends MusicModel {
   }
 
   bool get isLiked {
-    if (_isLiked != null) return _isLiked!;
-    return _isLiked = getIt<ApiKit>().isSongLiked(id);
+    return getIt<ApiKit>().isSongLiked(id);
   }
   set isLiked(bool isLiked) {
-    _isLiked = isLiked;
     getIt<ApiKit>().setIsSongLiked(this, isLiked);
     getIt<LikedSongsStream>().setIsLiked(this, isLiked);
   }

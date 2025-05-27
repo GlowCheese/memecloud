@@ -55,6 +55,7 @@ class SupabaseEvents {
     await Future.wait([
       _loadUserProfile(),
       _loadUserLikedSongs(),
+      _loadUserFollowedPlaylists(),
       _loadUserBlacklistedSongs()
     ]);
   }
@@ -67,6 +68,11 @@ class SupabaseEvents {
   Future<void> _loadUserLikedSongs() async {
     final songs = await supabase.songs.getLikedSongs();
     await storage.preloadUserLikedSongs(songs);
+  }
+
+  Future<void> _loadUserFollowedPlaylists() async {
+    final playlists = await supabase.playlists.getFollowedPlaylists();
+    await storage.preloadUserFollowedPlaylists(playlists);
   }
 
   Future<void> _loadUserBlacklistedSongs() async {

@@ -20,6 +20,8 @@ Map getLibraryPage(BuildContext context) {
 }
 
 class LibraryPage extends StatelessWidget {
+  static const double horzPad = 24;
+  
   const LibraryPage({super.key});
 
   @override
@@ -32,13 +34,13 @@ class LibraryPage extends StatelessWidget {
       },
       tabBodies: [
         Placeholder(),
-        likedSongsTab(context),
+        favoriteTab(context),
         downloadedSongsTab(context),
       ],
     );
   }
 
-  Widget likedSongsTab(BuildContext context) {
+  Widget favoriteTab(BuildContext context) {
     final likedSongsPlaylist = PlaylistModel.fromJson<AnonymousPlaylist>({
       "customId": "userLikedSongs",
       "title": "Bài hát đã thích",
@@ -47,14 +49,20 @@ class LibraryPage extends StatelessWidget {
       "songs": getIt<ApiKit>().getLikedSongs(),
     });
 
+    final followedPlaylists = getIt<ApiKit>().getFollowedPlaylists();
+
     return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 18),
+      padding: const EdgeInsets.only(left: horzPad, right: horzPad, top: 18),
       child: ListView.separated(
         itemBuilder: (context, index) {
-          return PlaylistCard(variant: 2, playlist: likedSongsPlaylist);
+          if (index == 0) {
+            return PlaylistCard(variant: 2, playlist: likedSongsPlaylist);
+          }
+          final playlist = followedPlaylists[index - 1];
+          return PlaylistCard(variant: 2, playlist: playlist);
         },
-        separatorBuilder: (context, index) => SizedBox(height: 14),
-        itemCount: 10,
+        separatorBuilder: (context, index) => SizedBox(height: 18),
+        itemCount: followedPlaylists.length + 1,
       ),
     );
   }
@@ -69,12 +77,12 @@ class LibraryPage extends StatelessWidget {
     });
 
     return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 18),
+      padding: const EdgeInsets.only(left: horzPad, right: horzPad, top: 18),
       child: ListView.separated(
         itemBuilder: (context, index) {
           return PlaylistCard(variant: 2, playlist: downloadedSongsPlaylist);
         },
-        separatorBuilder: (context, index) => SizedBox(height: 14),
+        separatorBuilder: (context, index) => SizedBox(height: 18),
         itemCount: 10,
       ),
     );

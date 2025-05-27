@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memecloud/components/playlist/PlaylistFollowButton.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/utils/common.dart';
@@ -181,32 +182,18 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 4,
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: getImage(widget.playlist.thumbnailUrl, 120),
                 ),
-                SizedBox(height: 12),
                 if (!widget.playlist.isAnom)
-                  Row(
-                    children: [
-                      Icon(
-                        widget.playlist.followed == true
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        color:
-                            widget.playlist.followed == true
-                                ? Colors.white
-                                : Colors.white,
-                        size: 26,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '100,7K',
-                        style: TextStyle(color: Colors.grey[400], fontSize: 14),
-                      ),
-                    ],
+                  PlaylistFollowButton(
+                    playlist: widget.playlist,
+                    iconSize: 30,
+                    withFolowerCount: true,
                   ),
               ],
             ),
@@ -218,6 +205,8 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                 children: [
                   Text(
                     widget.playlist.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 22,

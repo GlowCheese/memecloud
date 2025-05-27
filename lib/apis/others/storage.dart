@@ -15,6 +15,7 @@ class HiveBoxes {
       Hive.openBox<String>('recentSearches'),
       Hive.openBox<String>('likedSongs'),
       Hive.openBox<String>('blacklistedSongs'),
+      Hive.openBox<String>('followedPlaylists'),
       Hive.openBox<String>('downloadedSongs'),
       Hive.openBox<String>('downloadedPlaylists'),
       Hive.openBox<int>('songDownloadDeps'),
@@ -28,6 +29,7 @@ class HiveBoxes {
   Box<String> get recentSearches => Hive.box('recentSearches');
   Box<String> get likedSongs => Hive.box('likedSongs');
   Box<String> get blacklistedSongs => Hive.box('blacklistedSongs');
+  Box<String> get followedPlaylists => Hive.box('followedPlaylists');
   Box<String> get downloadedSongs => Hive.box('downloadedSongs');
   Box<String> get downloadedPlaylists => Hive.box('downloadedPlaylists');
   Box<int> get songDownloadDeps => Hive.box('songDownloadDeps');
@@ -183,7 +185,7 @@ class PersistentStorage {
     return hiveBoxes.likedSongs.containsKey(songId);
   }
 
-  Future setIsLiked(SongModel song, bool isLiked) {
+  Future setSongIsLiked(SongModel song, bool isLiked) {
     final box = hiveBoxes.likedSongs;
     if (isLiked) {
       return box.put(song.id, jsonEncode(song.toJson()));
@@ -196,6 +198,37 @@ class PersistentStorage {
     await box.clear();
     await box.putAll({
       for (var song in songs) song.id: jsonEncode(song.toJson()),
+    });
+  }
+
+  /* -----------------------------
+  |    FOLLOWED PLAYLIST CACHE   |
+  ----------------------------- */
+
+  List<PlaylistModel> getFollowedPlaylists() {
+    final box = hiveBoxes.followedPlaylists;
+    return PlaylistModel.fromListJson<SupabaseApi>(
+      box.values.map((e) => jsonDecode(e)).toList(),
+    );
+  }
+
+  bool isPlaylistFollowed(String playlistId) {
+    return hiveBoxes.followedPlaylists.containsKey(playlistId);
+  }
+
+  Future setPlaylistIsFollowed(PlaylistModel playlist, bool isFollowed) {
+    final box = hiveBoxes.followedPlaylists;
+    if (isFollowed) {
+      return box.put(playlist.id, jsonEncode(playlist.toJson()));
+    }
+    return box.delete(playlist.id);
+  }
+
+  Future<void> preloadUserFollowedPlaylists(List<PlaylistModel> playlists) async {
+    final box = hiveBoxes.followedPlaylists;
+    await box.clear();
+    await box.putAll({
+      for (var playlist in playlists) playlist.id: jsonEncode(playlist.toJson()),
     });
   }
 

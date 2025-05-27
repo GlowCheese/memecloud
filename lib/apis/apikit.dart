@@ -336,11 +336,28 @@ class ApiKit {
 
   Future setIsSongLiked(SongModel song, bool isLiked) {
     unawaited(supabase.songs.setIsLiked(song.id, isLiked));
-    return storage.setIsLiked(song, isLiked);
+    return storage.setSongIsLiked(song, isLiked);
   }
 
   List<SongModel> getLikedSongs() {
     return storage.getLikedSongs();
+  }
+
+  bool isPlaylistFollowed(String playlistId) {
+    return storage.isPlaylistFollowed(playlistId);
+  }
+
+  Future setIsPlaylistFollowed(PlaylistModel playlist, bool isFollowed) {
+    unawaited(supabase.playlists.setIsFollowed(playlist.id, isFollowed));
+    return storage.setPlaylistIsFollowed(playlist, isFollowed);
+  }
+
+  List<PlaylistModel> getFollowedPlaylists() {
+    return storage.getFollowedPlaylists();
+  }
+
+  Future<int> getPlaylistFollowerCounts(String playlistId) {
+    return supabase.playlists.getPlaylistFollowerCounts(playlistId);
   }
 
   /* --------------------
