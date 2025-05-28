@@ -83,6 +83,30 @@ class _PlaylistPageInner extends StatefulWidget {
 class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
   late List<SongModel> _displaySongs = widget.playlist.songs ?? [];
 
+  void _sortSongsByDuration() {
+    setState(() {
+      _displaySongs.sort((a, b) => a.duration.compareTo(b.duration));
+    });
+  }
+
+  void _sortSongsByReleaseDate() {
+    setState(() {
+      _displaySongs.sort((a, b) => b.releaseDate.compareTo(a.releaseDate));
+    });
+  }
+
+  void _sortSongsByTitle() {
+    setState(() {
+      _displaySongs.sort((a, b) => a.title.compareTo(b.title));
+    });
+  }
+
+  void _sortSongsByArtist() {
+    setState(() {
+      _displaySongs.sort((a, b) => a.artistsNames.compareTo(b.artistsNames));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
@@ -320,6 +344,22 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
               ),
             ),
             Expanded(child: SizedBox(height: 40, child: _searchBar())),
+            IconButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.grey[900],
+                  builder:
+                      (context) => _SortOptionsSheet(
+                        onSortByDuration: _sortSongsByDuration,
+                        onSortByReleaseDate: _sortSongsByReleaseDate,
+                        onSortByTitle: _sortSongsByTitle,
+                        onSortByArtist: _sortSongsByArtist,
+                      ),
+                );
+              },
+              icon: Icon(Icons.sort, color: Colors.grey[400], size: 20),
+            ),
             SizedBox(width: 15),
           ],
         ),
@@ -396,6 +436,76 @@ class SongOptionsSheet extends StatelessWidget {
               style: TextStyle(color: Colors.white),
             ),
             onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SortOptionsSheet extends StatelessWidget {
+  final VoidCallback onSortByDuration;
+  final VoidCallback onSortByReleaseDate;
+  final VoidCallback onSortByTitle;
+  final VoidCallback onSortByArtist;
+
+  const _SortOptionsSheet({
+    required this.onSortByDuration,
+    required this.onSortByReleaseDate,
+    required this.onSortByTitle,
+    required this.onSortByArtist,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.access_time, color: Colors.white),
+            title: const Text(
+              'Sắp xếp theo thời lượng',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              onSortByDuration();
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.calendar_today, color: Colors.white),
+            title: const Text(
+              'Sắp xếp theo ngày phát hành',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              onSortByReleaseDate();
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.title, color: Colors.white),
+            title: const Text(
+              'Sắp xếp theo tên bài hát',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              onSortByTitle();
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person, color: Colors.white),
+            title: const Text(
+              'Sắp xếp theo nghệ sĩ',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              onSortByArtist();
               Navigator.pop(context);
             },
           ),
