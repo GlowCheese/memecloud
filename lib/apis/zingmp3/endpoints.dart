@@ -1,9 +1,8 @@
 import 'dart:developer';
-import 'package:flutter/foundation.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/apis/others/connectivity.dart';
-import 'package:memecloud/apis/zingmp3/requester.dart';
 import 'package:memecloud/utils/common.dart';
+import 'package:memecloud/apis/zingmp3/requester.dart';
+import 'package:memecloud/apis/others/connectivity.dart';
 
 class ZingMp3Api {
   final ZingMp3Requester _requester = getIt<ZingMp3Requester>();

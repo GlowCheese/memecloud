@@ -189,7 +189,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                   borderRadius: BorderRadius.circular(8),
                   child: getImage(widget.playlist.thumbnailUrl, 120),
                 ),
-                if (!widget.playlist.isAnom)
+                if (widget.playlist.type != PlaylistType.zing)
                   PlaylistFollowButton(
                     playlist: widget.playlist,
                     iconSize: 30,
