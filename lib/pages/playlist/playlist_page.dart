@@ -139,6 +139,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                         variant: 1,
                         song: song,
                         songList: _displaySongs,
+                        playlist: widget.playlist,
                       ),
                     ),
                     SizedBox(width: 8),
@@ -293,6 +294,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
               context,
               _displaySongs[0],
               songList: _displaySongs,
+              playlist: widget.playlist,
             );
           },
           icon: const Icon(Icons.play_arrow, color: Colors.black),

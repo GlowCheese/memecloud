@@ -174,6 +174,29 @@ class PersistentStorage {
     );
   }
 
+  Future<void> saveRecentlyPlayedPlaylist(
+    PlaylistModel playlist, {
+    int lim = 20,
+  }) async {
+    final box = hiveBoxes.recentlyPlayedPlaylists;
+
+    await box.delete(playlist.id);
+    List<String> current = box.values.toList();
+
+    current.insert(0, jsonEncode(playlist.toJson()));
+    if (current.length > lim) current = current.sublist(0, lim);
+
+    await Future.wait([
+      for (int i = 0; i < current.length; i++) box.put(i, current[i]),
+    ]);
+  }
+
+  Iterable<PlaylistModel> getRecentlyPlayedPlaylists() {
+    return hiveBoxes.recentlyPlayedPlaylists.values.map((e) => 
+      PlaylistModel.fromJson<SupabaseApi>(jsonDecode(e))
+    );
+  }
+
   /* ---------------------
   |    RECENT SEARCHES   |
   --------------------- */

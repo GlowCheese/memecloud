@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/week_chart_model.dart';
 import 'package:memecloud/components/musics/music_card.dart';
@@ -11,6 +12,7 @@ class SongCard extends StatelessWidget {
   final int variant;
   final SongModel? song;
   final ChartSong? chartSong;
+  final PlaylistModel? playlist;
   final List<SongModel>? songList;
 
   const SongCard({
@@ -19,6 +21,7 @@ class SongCard extends StatelessWidget {
     this.song,
     this.chartSong,
     this.songList,
+    this.playlist
   });
 
   @override
@@ -38,6 +41,7 @@ class SongCard extends StatelessWidget {
         await getIt<SongPlayerCubit>().loadAndPlay(
           context,
           song!,
+          playlist: playlist,
           songList: songList,
         );
       },
@@ -115,6 +119,7 @@ class SongCard extends StatelessWidget {
         await getIt<SongPlayerCubit>().loadAndPlay(
           context,
           song,
+          playlist: playlist,
           songList: songList,
         );
       },

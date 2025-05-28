@@ -182,6 +182,14 @@ class ApiKit {
     return storage.getRecentlyPlayedSongs();
   }
 
+  Iterable<PlaylistModel> getRecentlyPlayedPlaylists() {
+    return storage.getRecentlyPlayedPlaylists();
+  }
+
+  Future<void> saveRecentlyPlayedPlaylist(PlaylistModel playlist) async {
+    await storage.saveRecentlyPlayedPlaylist(playlist);
+  }
+
   /* --------------------
   |    DOWNLOAD APIs    |
   -------------------- */

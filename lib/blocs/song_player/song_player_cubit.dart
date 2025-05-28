@@ -6,6 +6,7 @@ import 'package:memecloud/core/getit.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
@@ -147,6 +148,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   Future<void> loadAndPlay(
     BuildContext context,
     SongModel song, {
+    PlaylistModel? playlist,
     List<SongModel>? songList,
   }) async {
     if (state is SongPlayerLoading) return;
@@ -154,7 +156,11 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       await songsPopulateTask!.cancel();
     }
 
+    songList ??= playlist?.songs;
     if (context.mounted && await _loadSong(context, song, songList: songList)) {
+      if (playlist?.type == PlaylistType.zing || playlist?.type == PlaylistType.user) {
+        unawaited(getIt<ApiKit>().saveRecentlyPlayedPlaylist(playlist!));
+      }
       playOrPause();
     }
   }

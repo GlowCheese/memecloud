@@ -43,7 +43,7 @@ AppBar defaultAppBar(
         onTap: () => context.push('/profile'),
         child: CircleAvatar(
           backgroundImage: CachedNetworkImageProvider(
-            getIt<ApiKit>().myProfile().avatarUrl ??
+            getIt<ApiKit>().supabase.profile.myProfile?.avatarUrl ??
                 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuAqi5s1FOI-T3qoE_2HD1avj69-gvq2cvIw&s',
           ),
         ),

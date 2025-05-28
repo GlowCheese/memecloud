@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
@@ -9,8 +12,9 @@ class PlayOrPauseButton extends StatelessWidget {
   final SongModel song;
   final Color color;
   final double? iconSize;
+  final PlaylistModel? playlist;
   final EdgeInsetsGeometry? padding;
-  late final List<SongModel> songList;
+  final List<SongModel>? songList;
   final playerCubit = getIt<SongPlayerCubit>();
 
   PlayOrPauseButton({
@@ -19,41 +23,41 @@ class PlayOrPauseButton extends StatelessWidget {
     this.color = Colors.white,
     this.padding,
     this.iconSize,
-    List<SongModel>? songList,
-  }) {
-    this.songList = songList ?? [song];
+    this.playlist,
+    this.songList,
+  });
+
+  void onPressed(BuildContext context, bool load) {
+    if (load) {
+      unawaited(
+        playerCubit.loadAndPlay(
+          context,
+          song,
+          playlist: playlist,
+          songList: songList,
+        ),
+      );
+    } else {
+      playerCubit.playOrPause();
+    }
   }
 
-  Widget _playButton(BuildContext context, {required bool load}) {
+  Widget _button(BuildContext context, bool load, Icon icon) {
     return IconButton(
       color: color,
       padding: padding,
       iconSize: iconSize,
-      onPressed: () async {
-        if (load) {
-          await playerCubit.loadAndPlay(context, song, songList: songList);
-        } else {
-          playerCubit.playOrPause();
-        }
-      },
-      icon: Icon(Icons.play_arrow),
+      onPressed: () => onPressed(context, load),
+      icon: icon,
     );
   }
 
-  Widget _pauseButton(BuildContext context, {required bool load}) {
-    return IconButton(
-      color: color,
-      padding: padding,
-      iconSize: iconSize,
-      onPressed: () async {
-        if (load) {
-          await playerCubit.loadAndPlay(context, song, songList: songList);
-        } else {
-          playerCubit.playOrPause();
-        }
-      },
-      icon: Icon(Icons.pause),
-    );
+  Widget _playButton(BuildContext context, bool load) {
+    return _button(context, load, Icon(Icons.play_arrow));
+  }
+
+  Widget _pauseButton(BuildContext context, bool load) {
+    return _button(context, load, Icon(Icons.pause));
   }
 
   @override
@@ -65,20 +69,20 @@ class PlayOrPauseButton extends StatelessWidget {
           return CircularProgressIndicator();
         }
         if (state is! SongPlayerLoaded) {
-          return _playButton(context, load: true);
+          return _playButton(context, true);
         }
 
         if (state.currentSong.id != song.id) {
-          return _playButton(context, load: true);
+          return _playButton(context, true);
         }
 
         return StreamBuilder<bool>(
           stream: playerCubit.audioPlayer.playingStream,
           builder: (context, snapshot) {
             if (snapshot.data == true) {
-              return _pauseButton(context, load: false);
+              return _pauseButton(context, false);
             }
-            return _playButton(context, load: false);
+            return _playButton(context, false);
           },
         );
       },

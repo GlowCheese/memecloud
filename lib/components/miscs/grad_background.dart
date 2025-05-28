@@ -13,7 +13,7 @@ class MyColorSet {
   static final orange = Colors.deepOrange.shade400;
   static final green = Colors.green.shade700;
   static final amber = Colors.amber.shade800;
-  static final lightBlue = Colors.lightBlue.shade600;
+  static final lightBlue = Colors.lightBlue.shade700;
 }
 
 class GradBackground extends StatelessWidget {
