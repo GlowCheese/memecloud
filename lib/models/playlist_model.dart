@@ -73,7 +73,10 @@ class PlaylistModel extends MusicModel {
       return PlaylistModel._(
         id: json['id'] ?? 'noid',
         title: json['title'],
-        type: json['type'],
+        type: PlaylistType.values.firstWhere(
+          (e) => e.name == json['type'],
+          orElse: () => PlaylistType.zing,
+        ),
         artistsNames: json['artistsNames'],
         description: json['description'],
         thumbnailUrl: json['thumbnailUrl'],
@@ -91,7 +94,7 @@ class PlaylistModel extends MusicModel {
   factory PlaylistModel.likedPlaylist() {
     return PlaylistModel.fromJson({
       'title': 'Bài hát đã thích',
-      'type': PlaylistType.likedSongs,
+      'type': PlaylistType.likedSongs.name,
       'artistsNames': userName(),
       'thumbnailUrl': 'assets/icons/liked_songs.jpeg',
       'songs': getIt<ApiKit>().getLikedSongs(),
@@ -101,7 +104,7 @@ class PlaylistModel extends MusicModel {
   factory PlaylistModel.downloadedPlaylist() {
     return PlaylistModel.fromJson({
       'title': 'Bài hát tải xuống',
-      'type': PlaylistType.downloaded,
+      'type': PlaylistType.downloaded.name,
       'artistsNames': userName(),
       'thumbnailUrl': 'assets/icons/downloaded_songs.webp',
       'songs': getIt<ApiKit>().getDownloadedSongs(),
@@ -132,6 +135,7 @@ class PlaylistModel extends MusicModel {
     return ignoreNullValuesOfMap({
       'id': id,
       'title': title,
+      'type': type.name,
       'thumbnail_url': thumbnailUrl,
       'artists_names': artistsNames,
       'description': description,
