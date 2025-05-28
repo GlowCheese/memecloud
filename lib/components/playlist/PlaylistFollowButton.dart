@@ -71,7 +71,7 @@ class _PlaylistFollowButtonState extends State<PlaylistFollowButton> {
               '$_followerCount likes',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),
             )
@@ -81,7 +81,7 @@ class _PlaylistFollowButtonState extends State<PlaylistFollowButton> {
                 BoneMock.words(1),
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
               ),

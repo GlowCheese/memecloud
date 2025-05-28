@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/playlist_model.dart';
@@ -21,7 +24,7 @@ Map getLibraryPage(BuildContext context) {
 
 class LibraryPage extends StatelessWidget {
   static const double horzPad = 24;
-  
+
   const LibraryPage({super.key});
 
   @override
@@ -33,9 +36,45 @@ class LibraryPage extends StatelessWidget {
         return Column(children: [tabsNavigator, Expanded(child: tabContent)]);
       },
       tabBodies: [
-        Placeholder(),
+        recentlyPlayedTab(context),
         favoriteTab(context),
         downloadedSongsTab(context),
+      ],
+    );
+  }
+
+  Widget recentlyPlayedTab(BuildContext context) {
+    final recentlyPlayedSongs =
+        getIt<ApiKit>().getRecentlyPlayedSongs().toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (recentlyPlayedSongs.isNotEmpty)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 12,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(width: horzPad),
+                  Text(
+                    'Phát gần đây',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ],
+              ),
+              ...recentlyPlayedSongs
+                  .sublist(0, min(5, recentlyPlayedSongs.length))
+                  .map(
+                    (song) => SongCard(
+                      variant: 1,
+                      song: song,
+                      songList: recentlyPlayedSongs,
+                    ),
+                  ),
+            ],
+          ),
       ],
     );
   }

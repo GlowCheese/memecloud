@@ -18,6 +18,8 @@ class HiveBoxes {
       Hive.openBox<String>('followedPlaylists'),
       Hive.openBox<String>('downloadedSongs'),
       Hive.openBox<String>('downloadedPlaylists'),
+      Hive.openBox<String>('recentlyPlayedSongs'),
+      Hive.openBox<String>('recentlyPlayedPlaylists'),
       Hive.openBox<int>('songDownloadDeps'),
       Hive.openBox<String>('appConfig'),
     ]);
@@ -32,6 +34,9 @@ class HiveBoxes {
   Box<String> get followedPlaylists => Hive.box('followedPlaylists');
   Box<String> get downloadedSongs => Hive.box('downloadedSongs');
   Box<String> get downloadedPlaylists => Hive.box('downloadedPlaylists');
+  Box<String> get recentlyPlayedSongs => Hive.box('recentlyPlayedSongs');
+  Box<String> get recentlyPlayedPlaylists =>
+      Hive.box('recentlyPlayedPlaylists');
   Box<int> get songDownloadDeps => Hive.box('songDownloadDeps');
   Box<String> get appConfig => Hive.box('appConfig');
 }
@@ -145,6 +150,31 @@ class PersistentStorage {
   }
 
   /* ---------------------
+  |    RECENTLY PLAYED   |
+  |    SONGS/PLAYLISTS   |
+  --------------------- */
+
+  Future<void> saveRecentlyPlayedSong(SongModel song, {int lim = 20}) async {
+    final box = hiveBoxes.recentlyPlayedSongs;
+
+    await box.delete(song.id);
+    List<String> current = box.values.toList();
+
+    current.insert(0, jsonEncode(song.toJson()));
+    if (current.length > lim) current = current.sublist(0, lim);
+
+    await Future.wait([
+      for (int i = 0; i < current.length; i++) box.put(i, current[i]),
+    ]);
+  }
+
+  Iterable<SongModel> getRecentlyPlayedSongs() {
+    return hiveBoxes.recentlyPlayedSongs.values.map((e) => 
+      SongModel.fromJson<SupabaseApi>(jsonDecode(e))
+    );
+  }
+
+  /* ---------------------
   |    RECENT SEARCHES   |
   --------------------- */
 
@@ -224,11 +254,14 @@ class PersistentStorage {
     return box.delete(playlist.id);
   }
 
-  Future<void> preloadUserFollowedPlaylists(List<PlaylistModel> playlists) async {
+  Future<void> preloadUserFollowedPlaylists(
+    List<PlaylistModel> playlists,
+  ) async {
     final box = hiveBoxes.followedPlaylists;
     await box.clear();
     await box.putAll({
-      for (var playlist in playlists) playlist.id: jsonEncode(playlist.toJson()),
+      for (var playlist in playlists)
+        playlist.id: jsonEncode(playlist.toJson()),
     });
   }
 

@@ -136,6 +136,7 @@ class ApiKit {
     return Future.wait([
       supabase.songs.newSongStream(song.id),
       ...song.artists.map((e) => supabase.artists.newArtistStream(e.id)),
+      storage.saveRecentlyPlayedSong(song)
     ]);
   }
 
@@ -170,6 +171,15 @@ class ApiKit {
         return res;
       },
     );
+  }
+
+  /* ---------------------
+  |    RECENTLY PLAYED   |
+  |    SONGS/PLAYLISTS   |
+  --------------------- */
+
+  Iterable<SongModel> getRecentlyPlayedSongs() {
+    return storage.getRecentlyPlayedSongs();
   }
 
   /* --------------------
