@@ -52,12 +52,10 @@ class SupabaseEvents {
 
   Future<void> _loadUserData() async {
     debugPrint('Loading user data...');
-    await Future.wait([
-      _loadUserProfile(),
-      _loadUserLikedSongs(),
-      _loadUserFollowedPlaylists(),
-      _loadUserBlacklistedSongs()
-    ]);
+    await _loadUserProfile();
+    await _loadUserLikedSongs();
+    await _loadUserFollowedPlaylists();
+    await _loadUserBlacklistedSongs();
   }
 
   Future<void> _loadUserProfile() async {

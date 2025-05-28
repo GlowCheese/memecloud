@@ -56,31 +56,15 @@ class SupabasePlaylistsApi {
     try {
       _connectivity.ensure();
       final userId = _client.auth.currentUser!.id;
-
       final response = await _client
           .from('followed_playlists')
-          .select('''
-            playlists(
-              *,
-              playlist_songs(
-                song:songs(
-                  *,
-                  song_artists(
-                    artist:artists(*)
-                  )
-                )
-              ),
-              playlist_artists(
-                artist:artists(*)
-              )
-            )
-          ''')
+          .select('playlists(*)')
           .eq('user_id', userId);
 
       final playlistsList =
-          response.map((e) {
-            return PlaylistModel.fromJson<SupabaseApi>(e['playlists']);
-          }).toList();
+          response
+              .map((e) => PlaylistModel.fromJson<SupabaseApi>(e['playlists']))
+              .toList();
 
       return playlistsList;
     } catch (e, stackTrace) {
@@ -101,7 +85,11 @@ class SupabasePlaylistsApi {
       return response.count;
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
-      log("Failed to get playlist followers count: $e", stackTrace: stackTrace, level: 1000);
+      log(
+        "Failed to get playlist followers count: $e",
+        stackTrace: stackTrace,
+        level: 1000,
+      );
       rethrow;
     }
   }

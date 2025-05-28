@@ -52,7 +52,7 @@ class LibraryPage extends StatelessWidget {
             return PlaylistCard(variant: 2, playlist: likedSongsPlaylist);
           }
           final playlist = followedPlaylists[index - 1];
-          return PlaylistCard(variant: 2, playlist: playlist);
+          return PlaylistCard(variant: 3, playlist: playlist);
         },
         separatorBuilder: (context, index) => SizedBox(height: 18),
         itemCount: followedPlaylists.length + 1,
