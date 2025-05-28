@@ -4,11 +4,11 @@ import 'package:memecloud/models/music_model.dart';
 import 'package:memecloud/models/section_model.dart';
 import 'package:memecloud/apis/zingmp3/endpoints.dart';
 
-class ArtistModel extends MusicModel {
-  final String id;
-  final String name;
-  final String alias;
-  final String thumbnailUrl;
+  class ArtistModel extends MusicModel {
+    final String id;
+    final String name;
+    final String alias;
+    final String thumbnailUrl;
 
   final String? playlistId;
   final String? realname;

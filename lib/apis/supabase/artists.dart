@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:developer';
 import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/core/getit.dart';
@@ -198,6 +199,65 @@ class SupabaseArtistsApi {
       return artistsResponse
           .map((e) => ArtistModel.fromJson<SupabaseApi>({'artist': e}))
           .toList();
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, stackTrace);
+      log(
+        "Failed to get followed artists: $e",
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
+  Future<List<ArtistModel>> getAllArtists({
+    required int offset,
+    required int limit,
+  }) async {
+    sleep(const Duration(milliseconds: 500));
+    try {
+      _connectivity.ensure();
+      final userId = getIt<ApiKit>().currentSession()?.user.id;
+      if (userId == null) {
+        throw Exception('Chưa đăng nhập');
+      }
+      final response = await _client
+          .from('artists')
+          .select('*')
+          .range(offset, offset + limit - 1);
+      final List<ArtistModel> allArtist =
+          response
+              .map((e) => ArtistModel.fromJson<SupabaseApi>({'artist': e}))
+              .toList();
+      return allArtist;
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, stackTrace);
+      log(
+        "Failed to get followed artists: $e",
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
+  Future<List<ArtistModel>> getAllArtistsWithQuery(String query) async {
+    try {
+      _connectivity.ensure();
+      final userId = getIt<ApiKit>().currentSession()?.user.id;
+      if (userId == null) {
+        throw Exception('Chưa đăng nhập');
+      }
+      query = query.toLowerCase();
+      final response = await _client
+          .from('artists')
+          .select('*')
+          .like('name', '%$query%');
+      final List<ArtistModel> allArtist =
+          response
+              .map((e) => ArtistModel.fromJson<SupabaseApi>({'artist': e}))
+              .toList();
+      return allArtist;
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, stackTrace);
       log(

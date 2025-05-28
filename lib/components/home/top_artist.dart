@@ -5,6 +5,7 @@ import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
+import 'package:memecloud/pages/artist/all_artist_page.dart';
 
 class TopArtistsSection extends StatelessWidget {
   const TopArtistsSection({super.key});
@@ -59,7 +60,7 @@ Widget _artistView(List<ArtistModel> artists) {
 Widget _showAllArtistsButton(BuildContext context) {
   return GestureDetector(
     onTap: () {
-      context.push('/artist_page');
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const AllArtistPage()));
     },
     child: Container(
       padding: const EdgeInsets.only(right: 16),
