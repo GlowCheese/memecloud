@@ -1,21 +1,21 @@
 // ignore_for_file: unused_element_parameter
 
-import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/apis/supabase/main.dart';
-import 'package:memecloud/apis/zingmp3/endpoints.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/models/artist_model.dart';
-import 'package:memecloud/models/music_model.dart';
-import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/models/user_model.dart';
 import 'package:memecloud/utils/common.dart';
+import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/apis/supabase/main.dart';
+import 'package:memecloud/models/music_model.dart';
+import 'package:memecloud/models/artist_model.dart';
+import 'package:memecloud/apis/zingmp3/endpoints.dart';
 
-class AnonymousPlaylist {}
-
-const String anomPrefix = "anomPl_";
+enum PlaylistType { zing, likedSongs, downloaded, user }
 
 class PlaylistModel extends MusicModel {
   final String id;
   final String title;
+  final PlaylistType type;
   final String thumbnailUrl;
   final String? artistsNames;
   final String? description;
@@ -25,6 +25,7 @@ class PlaylistModel extends MusicModel {
   PlaylistModel._({
     required this.id,
     required this.title,
+    required this.type,
     required this.thumbnailUrl,
     this.artistsNames,
     this.description,
@@ -33,19 +34,11 @@ class PlaylistModel extends MusicModel {
   });
 
   static PlaylistModel fromJson<T>(Map<String, dynamic> json) {
-    if (T == AnonymousPlaylist) {
-      return PlaylistModel._(
-        id: "$anomPrefix${json['customId'] ?? ''}",
-        title: json['title'],
-        artistsNames: json['artistsNames'],
-        description: json['description'],
-        thumbnailUrl: json['thumbnailUrl'],
-        songs: json.containsKey('songs') ? json['songs'] : null,
-      );
-    } else if (T == ZingMp3Api) {
+    if (T == ZingMp3Api) {
       return PlaylistModel._(
         id: json['encodeId'],
         title: json['title'],
+        type: PlaylistType.zing,
         artistsNames: json['artistsNames'],
         thumbnailUrl:
             json['thumbnailM'] ?? json['thumbnail'] ?? json['thumbnailUrl'],
@@ -63,6 +56,7 @@ class PlaylistModel extends MusicModel {
       return PlaylistModel._(
         id: json['id'],
         title: json['title'],
+        type: PlaylistType.zing,
         artistsNames: json['artists_names'],
         thumbnailUrl: json['thumbnail_url'],
         description: json['description'],
@@ -76,14 +70,61 @@ class PlaylistModel extends MusicModel {
                 .toList(),
       );
     } else {
-      throw UnsupportedError('Unsupported parse json for type $T');
+      return PlaylistModel._(
+        id: json['id'] ?? 'noid',
+        title: json['title'],
+        type: json['type'],
+        artistsNames: json['artistsNames'],
+        description: json['description'],
+        thumbnailUrl: json['thumbnailUrl'],
+        songs: json.containsKey('songs') ? json['songs'] : null,
+      );
     }
   }
 
-  bool get isAnom => id.startsWith(anomPrefix);
-
   static List<PlaylistModel> fromListJson<T>(List list) {
     return list.map((json) => PlaylistModel.fromJson<T>(json)).toList();
+  }
+
+  static String userName() => getIt<ApiKit>().myProfile().displayName;
+
+  factory PlaylistModel.likedPlaylist() {
+    return PlaylistModel.fromJson({
+      'title': 'Bài hát đã thích',
+      'type': PlaylistType.likedSongs,
+      'artistsNames': userName(),
+      'thumbnailUrl': 'assets/icons/liked_songs.jpeg',
+      'songs': getIt<ApiKit>().getLikedSongs(),
+    });
+  }
+
+  factory PlaylistModel.downloadedPlaylist() {
+    return PlaylistModel.fromJson({
+      'title': 'Bài hát tải xuống',
+      'type': PlaylistType.downloaded,
+      'artistsNames': userName(),
+      'thumbnailUrl': 'assets/icons/downloaded_songs.webp',
+      'songs': getIt<ApiKit>().getDownloadedSongs(),
+    });
+  }
+
+  factory PlaylistModel.userPlaylist({
+    required UserModel user,
+    required String id,
+    required String title,
+    String? description,
+    String thumbnailUrl = 'assets/icons/user_playlist.png',
+    List<SongModel>? songs,
+  }) {
+    return PlaylistModel._(
+      id: id,
+      title: title,
+      type: PlaylistType.user,
+      thumbnailUrl: thumbnailUrl,
+      artistsNames: user.displayName,
+      description: description,
+      songs: songs ?? [],
+    );
   }
 
   @override
@@ -94,8 +135,10 @@ class PlaylistModel extends MusicModel {
       'thumbnail_url': thumbnailUrl,
       'artists_names': artistsNames,
       'description': description,
-      if (only == false) 'playlist_songs': songs?.map((e) => {'song': e.toJson()}).toList(),
-      if (only == false) 'playlist_artists': artists?.map((e) => e.toJson()).toList(),
+      if (only == false)
+        'playlist_songs': songs?.map((e) => {'song': e.toJson()}).toList(),
+      if (only == false)
+        'playlist_artists': artists?.map((e) => e.toJson()).toList(),
     });
   }
 

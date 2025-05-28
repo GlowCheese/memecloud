@@ -41,14 +41,7 @@ class LibraryPage extends StatelessWidget {
   }
 
   Widget favoriteTab(BuildContext context) {
-    final likedSongsPlaylist = PlaylistModel.fromJson<AnonymousPlaylist>({
-      "customId": "userLikedSongs",
-      "title": "Bài hát đã thích",
-      "artistsNames": getIt<ApiKit>().myProfile().displayName,
-      "thumbnailUrl": "assets/icons/liked_songs.jpeg",
-      "songs": getIt<ApiKit>().getLikedSongs(),
-    });
-
+    final likedSongsPlaylist = PlaylistModel.likedPlaylist();
     final followedPlaylists = getIt<ApiKit>().getFollowedPlaylists();
 
     return Padding(
@@ -68,13 +61,7 @@ class LibraryPage extends StatelessWidget {
   }
 
   Widget downloadedSongsTab(BuildContext context) {
-    final downloadedSongsPlaylist = PlaylistModel.fromJson<AnonymousPlaylist>({
-      "customId": "userDownloadedSongs",
-      "title": "Danh sách tải xuống",
-      "artistsNames": getIt<ApiKit>().myProfile().displayName,
-      "thumbnailUrl": "assets/icons/downloaded_songs.webp",
-      "songs": getIt<ApiKit>().getDownloadedSongs(),
-    });
+    final downloadedSongsPlaylist = PlaylistModel.downloadedPlaylist();
 
     return Padding(
       padding: const EdgeInsets.only(left: horzPad, right: horzPad, top: 18),
