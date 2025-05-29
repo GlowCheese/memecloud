@@ -6,15 +6,16 @@ import 'package:memecloud/core/getit.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 
 class SongPlayerCubit extends Cubit<SongPlayerState> {
-  AudioPlayer audioPlayer = AudioPlayer();
-  List<SongModel> currentSongList = [];
+  final audioPlayer = AudioPlayer();
+
   double currentSongSpeed = 1.0;
+  List<SongModel> currentSongList = [];
 
   late StreamSubscription _indexSub;
 

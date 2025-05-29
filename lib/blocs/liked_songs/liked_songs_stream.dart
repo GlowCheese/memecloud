@@ -1,17 +1,6 @@
 import 'dart:async';
 import 'package:memecloud/models/song_model.dart';
-
-class SongLikeEvent {}
-
-class UserLikeSongEvent extends SongLikeEvent {
-  final SongModel song;
-  UserLikeSongEvent({required this.song});
-}
-
-class UserUnlikeSongEvent extends SongLikeEvent {
-  final SongModel song;
-  UserUnlikeSongEvent({required this.song});
-}
+import 'package:memecloud/blocs/liked_songs/song_like_event.dart';
 
 class LikedSongsStream {
   final _controller = StreamController<SongLikeEvent>.broadcast();

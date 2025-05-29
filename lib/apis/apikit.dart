@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
+import 'package:memecloud/blocs/recent_played/recent_played_stream.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:memecloud/models/song_model.dart';
@@ -133,10 +134,11 @@ class ApiKit {
   }
 
   Future<void> newSongStream(SongModel song) {
+    getIt<RecentPlayedStream>().addSong(song);
     return Future.wait([
       supabase.songs.newSongStream(song.id),
       ...song.artists.map((e) => supabase.artists.newArtistStream(e.id)),
-      storage.saveRecentlyPlayedSong(song)
+      storage.saveRecentlyPlayedSong(song),
     ]);
   }
 
@@ -187,6 +189,7 @@ class ApiKit {
   }
 
   Future<void> saveRecentlyPlayedPlaylist(PlaylistModel playlist) async {
+    getIt<RecentPlayedStream>().addPlaylist(playlist);
     await storage.saveRecentlyPlayedPlaylist(playlist);
   }
 

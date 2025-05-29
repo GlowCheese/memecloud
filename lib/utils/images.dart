@@ -10,12 +10,12 @@ Widget getImage(String url, double size, {BoxFit fit = BoxFit.cover}) {
       width: size,
       height: size,
       fit: fit,
-      placeholder: (_, __) => SizedBox(
+      placeholder: (_, _) => SizedBox(
         width: size,
         height: size,
         child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
       ),
-      errorWidget: (_, __, ___) => Icon(Icons.error),
+      errorWidget: (_, _, _) => Icon(Icons.error),
     );
   } else {
     return Image.asset(

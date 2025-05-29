@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:memecloud/blocs/recent_played/recent_played_event.dart';
+import 'package:memecloud/blocs/recent_played/recent_played_stream.dart';
 import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -44,137 +46,156 @@ class LibraryPage extends StatelessWidget {
     );
   }
 
+  Widget _showAllRecentlyPlayedSongsButton(BuildContext context) {
+    return TextButton(
+      child: const Text('Xem tất cả'),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return RecentPlayedStreamBuilder(
+                builder: (context, recentlyPlayedSongs, _) {
+                  return _ItemsScrollView(
+                    title: 'Phát gần đây',
+                    items: [
+                      for (var song in recentlyPlayedSongs)
+                        SongCard(
+                          key: ValueKey(song.id),
+                          variant: 3,
+                          song: song,
+                          songList: recentlyPlayedSongs,
+                        ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _showAllRecentlyPlayedPlaylistsButton(BuildContext context) {
+    return TextButton(
+      child: const Text('Xem tất cả'),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return RecentPlayedStreamBuilder(
+                builder: (context, _, recentlyPlayedPlaylists) {
+                  return _ItemsScrollView(
+                    title: 'Danh sách phát gần đây',
+                    items: [
+                      for (var playlist in recentlyPlayedPlaylists)
+                        PlaylistCard(
+                          key: ValueKey(playlist.id),
+                          variant: 1,
+                          playlist: playlist,
+                        ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   Widget recentlyPlayedTab(BuildContext context) {
-    final recentlyPlayedSongs =
-        getIt<ApiKit>().getRecentlyPlayedSongs().toList();
-
-    final recentlyPlayedPlaylists =
-        getIt<ApiKit>().getRecentlyPlayedPlaylists().toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (recentlyPlayedSongs.isNotEmpty)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: horzPad,
-                  right: horzPad,
-                  top: 18,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Phát gần đây',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+    return RecentPlayedStreamBuilder(
+      builder: (context, recentlyPlayedSongs, recentlyPlayedPlaylists) {
+        return ListView(
+          shrinkWrap: true,
+          physics: BouncingScrollPhysics(),
+          children: <Widget>[
+            if (recentlyPlayedSongs.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: horzPad,
+                      right: horzPad,
+                      top: 18,
                     ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => _ItemsScrollView(
-                                  title: 'Phát gần đây',
-                                  items: recentlyPlayedSongs.map(
-                                    (song) => SongCard(
-                                      key: ValueKey(song.id),
-                                      variant: 1,
-                                      song: song,
-                                      songList: recentlyPlayedSongs,
-                                    ),
-                                  ).toList(),
-                                ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Phát gần đây',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
-                        );
-                      },
-                      child: const Text('Xem tất cả'),
-                    ),
-                  ],
-                ),
-              ),
-              ...recentlyPlayedSongs
-                  .sublist(0, min(5, recentlyPlayedSongs.length))
-                  .map(
-                    (song) => Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: horzPad,
-                        vertical: 6,
-                      ),
-                      child: SongCard(
-                        variant: 1,
-                        song: song,
-                        songList: recentlyPlayedSongs,
-                      ),
+                        ),
+                        _showAllRecentlyPlayedSongsButton(context),
+                      ],
                     ),
                   ),
-            ],
-          ),
-
-        if (recentlyPlayedPlaylists.isNotEmpty)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: horzPad,
-                  right: horzPad,
-                  top: 18,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Danh sách phát',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => _ItemsScrollView(
-                                  title: 'Danh sách phát gần đây',
-                                  items: recentlyPlayedPlaylists.map(
-                                    (playlist) => PlaylistCard(
-                                      key: ValueKey(playlist.id),
-                                      variant: 1,
-                                      playlist: playlist,
-                                    ),
-                                  ).toList(),
-                                ),
+                  ...recentlyPlayedSongs
+                      .sublist(0, min(5, recentlyPlayedSongs.length))
+                      .map(
+                        (song) => Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: horzPad,
+                            vertical: 6,
                           ),
-                        );
-                      },
-                      child: const Text('Xem tất cả'),
-                    ),
-                  ],
-                ),
-              ),
-              ...recentlyPlayedPlaylists
-                  .sublist(0, min(5, recentlyPlayedPlaylists.length))
-                  .map(
-                    (playlist) => Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: horzPad,
-                        vertical: 6,
+                          child: SongCard(
+                            variant: 3,
+                            song: song,
+                            songList: recentlyPlayedSongs,
+                          ),
+                        ),
                       ),
-                      child: PlaylistCard(variant: 1, playlist: playlist),
+                ],
+              ),
+
+            if (recentlyPlayedPlaylists.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: horzPad,
+                      right: horzPad,
+                      top: 18,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Danh sách phát',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        _showAllRecentlyPlayedPlaylistsButton(context),
+                      ],
                     ),
                   ),
-            ],
-          ),
-      ],
+                  ...recentlyPlayedPlaylists
+                      .sublist(0, min(5, recentlyPlayedPlaylists.length))
+                      .map(
+                        (playlist) => Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: horzPad,
+                            vertical: 6,
+                          ),
+                          child: PlaylistCard(variant: 1, playlist: playlist),
+                        ),
+                      ),
+                ],
+              ),
+          ],
+        );
+      },
     );
   }
 

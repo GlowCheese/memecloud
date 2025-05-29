@@ -7,6 +7,7 @@ import 'package:memecloud/apis/others/events.dart';
 import 'package:memecloud/apis/others/storage.dart';
 import 'package:memecloud/apis/zingmp3/requester.dart';
 import 'package:memecloud/blocs/dl_status/dl_status_manager.dart';
+import 'package:memecloud/blocs/recent_played/recent_played_stream.dart';
 import 'package:memecloud/core/dio_init.dart';
 import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:memecloud/apis/supabase/main.dart';
@@ -40,6 +41,7 @@ Future<void> setupLocator() async {
   // miscellaneous
   getIt.registerSingleton<DlStatusManager>(DlStatusManager());
   getIt.registerSingleton<LikedSongsStream>(LikedSongsStream());
+  getIt.registerSingleton<RecentPlayedStream>(RecentPlayedStream());
 
   // custom cookie for vip songs
   dioInterceptorSetCustomCookie(dio, cookieJar, (await supabase.config.getZingCookie())!);

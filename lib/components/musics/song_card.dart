@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gif_view/gif_view.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
@@ -8,20 +11,21 @@ import 'package:memecloud/components/musics/music_card.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 
 class SongCard extends StatelessWidget {
-  /// must be between 1 and 2.
+  /// must be between 1 and 3.
   final int variant;
   final SongModel? song;
   final ChartSong? chartSong;
   final PlaylistModel? playlist;
   final List<SongModel>? songList;
+  final playerCubit = getIt<SongPlayerCubit>();
 
-  const SongCard({
+  SongCard({
     super.key,
     required this.variant,
     this.song,
     this.chartSong,
     this.songList,
-    this.playlist
+    this.playlist,
   });
 
   @override
@@ -29,22 +33,34 @@ class SongCard extends StatelessWidget {
     switch (variant) {
       case 1:
         return _variant1(context);
-      default:
+      case 2:
         return _variant2(context);
+      default:
+        return _variant3(context);
     }
   }
 
-  /// only show thumbnail, title, artists
-  Widget _variant1(BuildContext context) {
+  Widget gestureDectectorWrapper(
+    BuildContext context, {
+    required Widget child,
+  }) {
     return GestureDetector(
       onTap: () async {
-        await getIt<SongPlayerCubit>().loadAndPlay(
+        await playerCubit.loadAndPlay(
           context,
-          song!,
+          song ?? chartSong!.song,
           playlist: playlist,
           songList: songList,
         );
       },
+      child: child,
+    );
+  }
+
+  /// only show thumbnail, title, artists
+  Widget _variant1(BuildContext context) {
+    return gestureDectectorWrapper(
+      context,
       child: MusicCard(
         variant: 1,
         thumbnailUrl: song!.thumbnailUrl,
@@ -114,15 +130,8 @@ class SongCard extends StatelessWidget {
       );
     }
 
-    return GestureDetector(
-      onTap: () async {
-        await getIt<SongPlayerCubit>().loadAndPlay(
-          context,
-          song,
-          playlist: playlist,
-          songList: songList,
-        );
-      },
+    return gestureDectectorWrapper(
+      context,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -151,6 +160,40 @@ class SongCard extends StatelessWidget {
             ),
           ),
           SizedBox(width: 8),
+        ],
+      ),
+    );
+  }
+
+  /// same as _variant1, but with eq_accent.gif
+  Widget _variant3(BuildContext context) {
+    return gestureDectectorWrapper(
+      context,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Flexible(
+            child: MusicCard(
+              variant: 1,
+              thumbnailUrl: song!.thumbnailUrl,
+              title: song!.title,
+              subTitle: song!.artistsNames,
+            ),
+          ),
+          BlocBuilder(
+            bloc: playerCubit,
+            builder: (context, state) {
+              return Offstage(
+                offstage:
+                    state is! SongPlayerLoaded ||
+                    state.currentSong.id != song!.id,
+                child: GifView.asset(
+                  'assets/gifs/eq_accent.gif',
+                  height: 30, width: 30,
+                ),
+              );
+            },
+          ),
         ],
       ),
     );

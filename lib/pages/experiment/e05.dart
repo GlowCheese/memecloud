@@ -60,7 +60,7 @@ class BoxDisplay extends StatefulWidget {
 }
 
 class _BoxDisplayState extends State<BoxDisplay> {
-  Future _deleteConfirm(key) {
+  Future _deleteConfirm(dynamic key) {
     return showDialog(
       context: context,
       builder:
@@ -90,7 +90,7 @@ class _BoxDisplayState extends State<BoxDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> boxKeys = List<String>.from(widget.box.keys);
+    final boxKeys = widget.box.keys.toList();
     return Column(
       spacing: 10,
       children:
