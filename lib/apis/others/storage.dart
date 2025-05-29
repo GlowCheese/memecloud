@@ -157,8 +157,8 @@ class PersistentStorage {
   Future<void> saveRecentlyPlayedSong(SongModel song, {int lim = 20}) async {
     final box = hiveBoxes.recentlyPlayedSongs;
 
-    await box.delete(song.id);
     List<String> current = box.values.toList();
+    current.removeWhere((e) => jsonDecode(e)['id'] == song.id);
 
     current.insert(0, jsonEncode(song.toJson()));
     if (current.length > lim) current = current.sublist(0, lim);
@@ -169,8 +169,8 @@ class PersistentStorage {
   }
 
   Iterable<SongModel> getRecentlyPlayedSongs() {
-    return hiveBoxes.recentlyPlayedSongs.values.map((e) => 
-      SongModel.fromJson<SupabaseApi>(jsonDecode(e))
+    return hiveBoxes.recentlyPlayedSongs.values.map(
+      (e) => SongModel.fromJson<SupabaseApi>(jsonDecode(e)),
     );
   }
 
@@ -180,8 +180,8 @@ class PersistentStorage {
   }) async {
     final box = hiveBoxes.recentlyPlayedPlaylists;
 
-    await box.delete(playlist.id);
     List<String> current = box.values.toList();
+    current.removeWhere((e) => jsonDecode(e)['id'] == playlist.id);
 
     current.insert(0, jsonEncode(playlist.toJson()));
     if (current.length > lim) current = current.sublist(0, lim);
@@ -192,8 +192,8 @@ class PersistentStorage {
   }
 
   Iterable<PlaylistModel> getRecentlyPlayedPlaylists() {
-    return hiveBoxes.recentlyPlayedPlaylists.values.map((e) => 
-      PlaylistModel.fromJson<SupabaseApi>(jsonDecode(e))
+    return hiveBoxes.recentlyPlayedPlaylists.values.map(
+      (e) => PlaylistModel.fromJson<SupabaseApi>(jsonDecode(e)),
     );
   }
 
