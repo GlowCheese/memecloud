@@ -58,6 +58,18 @@ class _MySearchBarState extends State<MySearchBar> {
           height: 25,
         ),
       ),
+      trailing: [
+        if (searchQueryController.text.isNotEmpty)
+          IconButton(
+            icon: Icon(Icons.clear),
+            onPressed: () {
+              searchQueryController.clear();
+              widget.onChanged?.call(
+                '',
+              );
+            },
+          ),
+      ],
       backgroundColor: WidgetStateProperty.all(Colors.white),
       shape: WidgetStateProperty.all(
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),

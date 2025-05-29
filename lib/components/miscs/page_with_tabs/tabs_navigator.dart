@@ -38,29 +38,43 @@ class TabsNavigator extends StatelessWidget {
       if (selectedTabs.contains(i)) {
         button = FilledButton(
           onPressed: () => onTabSelect?.call(i),
+          style: ButtonStyle(
+            padding: WidgetStatePropertyAll(
+              EdgeInsets.symmetric(horizontal: 15),
+            ),
+            backgroundColor: WidgetStatePropertyAll(
+              Colors.amber.shade100, // Change to your desired color
+            ),
+          ),
           child: Text(tabName),
         );
       } else {
         button = ElevatedButton(
           onPressed: () => onTabSelect?.call(i),
-          child: Text(tabName),
+          style: ButtonStyle(
+            padding: WidgetStatePropertyAll(
+              EdgeInsets.symmetric(horizontal: 15),
+            ),
+            backgroundColor: WidgetStatePropertyAll(
+              Colors.blueGrey.shade300.withAlpha(108),
+            ),
+          ),
+          child: Text(tabName, style: TextStyle(color: Colors.white)),
         );
       }
 
-      buttons.add(
-        Padding(padding: const EdgeInsets.only(right: 10), child: button),
-      );
+      buttons.add(button);
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 15, bottom: 5, top: 10),
-      child: SizedBox(
-        height: 40,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          physics: BouncingScrollPhysics(),
-          children: buttons,
-        ),
+    return SizedBox(
+      height: 30,
+      child: ListView.separated(
+        shrinkWrap: true,
+        scrollDirection: Axis.horizontal,
+        physics: BouncingScrollPhysics(),
+        itemCount: buttons.length,
+        separatorBuilder: (context, index) => SizedBox(width: 10),
+        itemBuilder: (context, index) => buttons[index],
       ),
     );
   }

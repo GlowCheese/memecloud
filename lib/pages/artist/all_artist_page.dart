@@ -158,7 +158,6 @@ class _AllArtistPageState extends State<AllArtistPage> {
                     );
                   }
                 },
-                itemExtent: 50,
               ),
             ),
           ],

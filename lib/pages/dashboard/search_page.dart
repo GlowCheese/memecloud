@@ -53,7 +53,7 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget searchBar() {
     return Padding(
-      padding: const EdgeInsets.only(top: 20, left: 35, right: 35),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 35),
       child: MySearchBar(
         variant: 1,
         searchQueryController: searchQueryController,
@@ -97,7 +97,9 @@ class _SearchPageState extends State<SearchPage> {
     if (searchBarIsFocused == false) {
       body = ListView(
         children: [
+          SizedBox(height: 23),
           _genreGrid('Your Top Genres', widget.topGenres, widget.themeData),
+          SizedBox(height: 35),
           _genreGrid('Browse All', widget.allGenres, widget.themeData),
         ],
       );
@@ -124,7 +126,7 @@ class _SearchPageState extends State<SearchPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 40, top: 35),
+          padding: const EdgeInsets.only(left: 40),
           child: Text(
             title,
             style: TextStyle(

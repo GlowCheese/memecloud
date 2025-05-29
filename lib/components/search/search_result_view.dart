@@ -101,7 +101,7 @@ class _SearchNavigationState extends State<SearchNavigation> {
                   )
                   .toList();
             },
-            separatorBuilder: (context, index) => SizedBox(height: 16,),
+            separatorBuilder: (context, index) => SizedBox(height: 16),
           );
         }).toList();
 
@@ -124,7 +124,7 @@ class _SearchNavigationState extends State<SearchNavigation> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            tabsNavigator,
+            Center(child: tabsNavigator),
             const SectionDivider(),
             Expanded(child: tabContent),
           ],

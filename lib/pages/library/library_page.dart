@@ -30,10 +30,19 @@ class LibraryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PageWithSingleTab(
-      variant: 2,
+      variant: 1,
       tabNames: const ['🕒 Gần đây', '❤️ Theo dõi', '📥 Tải xuống'],
       widgetBuilder: (tabsNavigator, tabContent) {
-        return Column(children: [tabsNavigator, Expanded(child: tabContent)]);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: tabsNavigator,
+            ),
+            Expanded(child: tabContent),
+          ],
+        );
       },
       tabBodies: [
         recentlyPlayedTab(context),
