@@ -31,7 +31,12 @@ class LibraryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return PageWithSingleTab(
       variant: 1,
-      tabNames: const ['🕒 Gần đây', '❤️ Theo dõi', '📥 Tải xuống'],
+      tabNames: const [
+        '🕒 Gần đây',
+        '❤️ Theo dõi',
+        '📥 Tải xuống',
+        '👎 Danh sách đen',
+      ],
       widgetBuilder: (tabsNavigator, tabContent) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,7 +53,29 @@ class LibraryPage extends StatelessWidget {
         recentlyPlayedTab(context),
         favoriteTab(context),
         downloadedSongsTab(context),
+        blacklistTab(context),
       ],
+    );
+  }
+
+  Widget blacklistTab(BuildContext context) {
+    final blacklistedSongs = getIt<ApiKit>().getBlacklistedSongs();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: COLUMN_THAT_IS_USED_TO_DISPLAY_MUSIC_CARDS(
+        title: 'Bài hát bị chặn',
+        children: <Widget>[
+          for (var song in blacklistedSongs)
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: horzPad,
+                vertical: 6,
+              ),
+              child: SongCard(variant: 4, song: song),
+            ),
+        ],
+      ),
     );
   }
 
@@ -121,82 +148,45 @@ class LibraryPage extends StatelessWidget {
           physics: BouncingScrollPhysics(),
           children: <Widget>[
             if (recentlyPlayedSongs.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: horzPad,
-                      right: horzPad,
-                      top: 18,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Phát gần đây',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        _showAllRecentlyPlayedSongsButton(context),
-                      ],
-                    ),
-                  ),
-                  ...recentlyPlayedSongs
-                      .sublist(0, min(5, recentlyPlayedSongs.length))
-                      .map(
-                        (song) => Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: horzPad,
-                            vertical: 6,
-                          ),
-                          child: SongCard(
-                            variant: 3,
-                            song: song,
-                            songList: recentlyPlayedSongs,
-                          ),
-                        ),
+              COLUMN_THAT_IS_USED_TO_DISPLAY_MUSIC_CARDS(
+                title: 'Phát gần đây',
+                showAllButton: _showAllRecentlyPlayedSongsButton(context),
+                children: <Widget>[
+                  for (var i = 0; i < min(5, recentlyPlayedSongs.length); i++)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: horzPad,
+                        vertical: 6,
                       ),
+                      child: SongCard(
+                        variant: 3,
+                        song: recentlyPlayedSongs[i],
+                        songList: recentlyPlayedSongs,
+                      ),
+                    ),
                 ],
               ),
 
             if (recentlyPlayedPlaylists.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              COLUMN_THAT_IS_USED_TO_DISPLAY_MUSIC_CARDS(
+                title: 'Danh sách phát',
+                showAllButton: _showAllRecentlyPlayedPlaylistsButton(context),
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: horzPad,
-                      right: horzPad,
-                      top: 18,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Danh sách phát',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        _showAllRecentlyPlayedPlaylistsButton(context),
-                      ],
-                    ),
-                  ),
-                  ...recentlyPlayedPlaylists
-                      .sublist(0, min(5, recentlyPlayedPlaylists.length))
-                      .map(
-                        (playlist) => Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: horzPad,
-                            vertical: 6,
-                          ),
-                          child: PlaylistCard(variant: 1, playlist: playlist),
-                        ),
+                  for (
+                    var i = 0;
+                    i < min(5, recentlyPlayedPlaylists.length);
+                    i++
+                  )
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: horzPad,
+                        vertical: 6,
                       ),
+                      child: PlaylistCard(
+                        variant: 1,
+                        playlist: recentlyPlayedPlaylists[i],
+                      ),
+                    ),
                 ],
               ),
           ],
@@ -237,6 +227,45 @@ class LibraryPage extends StatelessWidget {
         separatorBuilder: (context, index) => SizedBox(height: 18),
         itemCount: 10,
       ),
+    );
+  }
+}
+
+class COLUMN_THAT_IS_USED_TO_DISPLAY_MUSIC_CARDS extends StatelessWidget {
+  final String title;
+  final Widget? showAllButton;
+  final List<Widget> children;
+
+  const COLUMN_THAT_IS_USED_TO_DISPLAY_MUSIC_CARDS({
+    required this.title,
+    this.showAllButton,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(
+            left: horzPad,
+            right: horzPad,
+            top: 18,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              if (showAllButton != null) showAllButton!,
+            ],
+          ),
+        ),
+        ...children,
+      ],
     );
   }
 }

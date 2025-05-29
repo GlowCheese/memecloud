@@ -23,6 +23,7 @@ class _E05State extends State<E05> {
       'likedSongs': hiveBoxes.likedSongs,
       'savedInfo': hiveBoxes.savedInfo,
       'apiCache': hiveBoxes.apiCache,
+      'blacklistedSongs': hiveBoxes.blacklistedSongs,
     };
 
     return PageWithSingleTab(

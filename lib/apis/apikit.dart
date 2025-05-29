@@ -600,15 +600,6 @@ class ApiKit {
       outputFixer: (data) => _getSongsForHomeOutputFixer(data),
     );
   }
-
-  /* -------------------
-  |    MISCELLANEOUS   |
-  ------------------- */
-
-  Iterable<String> filterPlayableSongs(Iterable<String> songIds) {
-    songIds = filterNonBlacklistedSongs(songIds);
-    return songIds;
-  }
 }
 
 List<Map<String, dynamic>> _getSongsForHomeOutputFixer(
@@ -618,7 +609,7 @@ List<Map<String, dynamic>> _getSongsForHomeOutputFixer(
     final items = songList['items'];
     var songIds = List<String>.from(items.map((song) => song['encodeId']));
 
-    songIds = getIt<ApiKit>().filterPlayableSongs(songIds).toList();
+    songIds = getIt<ApiKit>().filterNonBlacklistedSongs(songIds).toList();
     songList['items'] =
         List.castFrom<dynamic, Map<String, dynamic>>(items)
             .where((song) => songIds.contains(song['encodeId']))

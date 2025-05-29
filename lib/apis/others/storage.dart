@@ -296,6 +296,7 @@ class PersistentStorage {
     final box = hiveBoxes.blacklistedSongs;
     return SongModel.fromListJson<SupabaseApi>(
       box.values.map((e) => jsonDecode(e)).toList(),
+      includeBlacklisted: true
     );
   }
 

@@ -75,13 +75,14 @@ class SongModel extends MusicModel {
     return res;
   }
 
-  static List<SongModel> fromListJson<T>(List list) {
+  static List<SongModel> fromListJson<T>(List list, {bool includeBlacklisted = false}) {
     final tmp = list.map((json) => SongModel.fromJson<T>(json));
 
     try {
-      final songIds = getIt<ApiKit>().filterPlayableSongs(
-        tmp.map((e) => e.id).toList(),
-      );
+      var songIds = tmp.map((e) => e.id);
+      if (!includeBlacklisted) {
+        songIds = getIt<ApiKit>().filterNonBlacklistedSongs(songIds);
+      }
       return tmp.where((e) => songIds.contains(e.id)).toList();
     } catch (_) {
       return tmp.toList();
