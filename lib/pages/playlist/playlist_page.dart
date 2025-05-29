@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/playlist/PlaylistFollowButton.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/utils/common.dart';
@@ -13,7 +12,10 @@ import 'package:memecloud/components/miscs/search_bar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
+import 'package:memecloud/components/playlist/PlaylistFollowButton.dart';
 import 'package:memecloud/components/miscs/generatable_list/sliver_list.dart';
+
+enum SortPlaylistOptions { duration, releaseDate, title, artist }
 
 class PlaylistPage extends StatelessWidget {
   final String? playlistId;
@@ -81,31 +83,8 @@ class _PlaylistPageInner extends StatefulWidget {
 }
 
 class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
+  SortPlaylistOptions? _sortOption;
   late List<SongModel> _displaySongs = widget.playlist.songs ?? [];
-
-  void _sortSongsByDuration() {
-    setState(() {
-      _displaySongs.sort((a, b) => a.duration.compareTo(b.duration));
-    });
-  }
-
-  void _sortSongsByReleaseDate() {
-    setState(() {
-      _displaySongs.sort((a, b) => b.releaseDate.compareTo(a.releaseDate));
-    });
-  }
-
-  void _sortSongsByTitle() {
-    setState(() {
-      _displaySongs.sort((a, b) => a.title.compareTo(b.title));
-    });
-  }
-
-  void _sortSongsByArtist() {
-    setState(() {
-      _displaySongs.sort((a, b) => a.artistsNames.compareTo(b.artistsNames));
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,53 +98,68 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
             ? (_playlistDescription())
             : (SliverToBoxAdapter(child: SizedBox(height: 18))),
 
-        GeneratableSliverList(
-          initialPageIdx: 0,
-          loadDelay: Duration(milliseconds: 20),
-          asyncGenFunction: (index) async {
-            if (index >= _displaySongs.length) return null;
-
-            final song = _displaySongs[index];
-            return [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 8,
-                ),
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: SongCard(
-                        variant: 1,
-                        song: song,
-                        songList: _displaySongs,
-                        playlist: widget.playlist,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    IconButton(
-                      icon: Icon(
-                        Icons.more_vert,
-                        color: Colors.grey[400],
-                        size: 20,
-                      ),
-                      onPressed: () {
-                        // Hiển thị menu tùy chọn cho bài hát
-                        showModalBottomSheet(
-                          context: context,
-                          backgroundColor: Colors.grey[900],
-                          builder: (context) => SongOptionsSheet(song: song),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ];
-          },
-        ),
+        _songsSliverList(context),
         SliverToBoxAdapter(child: const SizedBox(height: 72)),
       ],
+    );
+  }
+
+  GeneratableSliverList _songsSliverList(BuildContext context) {
+    final _sortedDisplaySongs = List<SongModel>.from(_displaySongs);
+    if (_sortOption == SortPlaylistOptions.duration) {
+      _sortedDisplaySongs.sort((a, b) => a.duration.compareTo(b.duration));
+    } else if (_sortOption == SortPlaylistOptions.releaseDate) {
+      _sortedDisplaySongs.sort(
+        (a, b) => b.releaseDate.compareTo(a.releaseDate),
+      );
+    } else if (_sortOption == SortPlaylistOptions.title) {
+      _sortedDisplaySongs.sort((a, b) => a.title.compareTo(b.title));
+    } else if (_sortOption == SortPlaylistOptions.artist) {
+      _sortedDisplaySongs.sort(
+        (a, b) => a.artistsNames.compareTo(b.artistsNames),
+      );
+    }
+
+    return GeneratableSliverList(
+      initialPageIdx: 0,
+      asyncGenFunction: (index) async {
+        if (index >= _sortedDisplaySongs.length) return null;
+
+        final song = _sortedDisplaySongs[index];
+        return [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+            child: Row(
+              children: [
+                Flexible(
+                  child: SongCard(
+                    variant: 1,
+                    song: song,
+                    songList: _displaySongs,
+                    playlist: widget.playlist,
+                  ),
+                ),
+                SizedBox(width: 8),
+                IconButton(
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: Colors.grey[400],
+                    size: 20,
+                  ),
+                  onPressed: () {
+                    // Hiển thị menu tùy chọn cho bài hát
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.grey[900],
+                      builder: (context) => SongOptionsSheet(song: song),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ];
+      },
     );
   }
 
@@ -351,13 +345,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                 showModalBottomSheet(
                   context: context,
                   backgroundColor: Colors.grey[900],
-                  builder:
-                      (context) => _SortOptionsSheet(
-                        onSortByDuration: _sortSongsByDuration,
-                        onSortByReleaseDate: _sortSongsByReleaseDate,
-                        onSortByTitle: _sortSongsByTitle,
-                        onSortByArtist: _sortSongsByArtist,
-                      ),
+                  builder: (_) => _sortOptionsSheet(),
                 );
               },
               icon: Icon(Icons.sort, color: Colors.grey[400], size: 20),
@@ -388,6 +376,61 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                   .toList();
         });
       },
+    );
+  }
+
+  Widget _sortOptionsSheet() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.access_time, color: Colors.white),
+            title: const Text(
+              'Sắp xếp theo thời lượng',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              setState(() => _sortOption = SortPlaylistOptions.duration);
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.calendar_today, color: Colors.white),
+            title: const Text(
+              'Sắp xếp theo ngày phát hành',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              setState(() => _sortOption = SortPlaylistOptions.releaseDate);
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.title, color: Colors.white),
+            title: const Text(
+              'Sắp xếp theo tên bài hát',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              setState(() => _sortOption = SortPlaylistOptions.title);
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person, color: Colors.white),
+            title: const Text(
+              'Sắp xếp theo nghệ sĩ',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              setState(() => _sortOption = SortPlaylistOptions.artist);
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -438,76 +481,6 @@ class SongOptionsSheet extends StatelessWidget {
               style: TextStyle(color: Colors.white),
             ),
             onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SortOptionsSheet extends StatelessWidget {
-  final VoidCallback onSortByDuration;
-  final VoidCallback onSortByReleaseDate;
-  final VoidCallback onSortByTitle;
-  final VoidCallback onSortByArtist;
-
-  const _SortOptionsSheet({
-    required this.onSortByDuration,
-    required this.onSortByReleaseDate,
-    required this.onSortByTitle,
-    required this.onSortByArtist,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.access_time, color: Colors.white),
-            title: const Text(
-              'Sắp xếp theo thời lượng',
-              style: TextStyle(color: Colors.white),
-            ),
-            onTap: () {
-              onSortByDuration();
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.calendar_today, color: Colors.white),
-            title: const Text(
-              'Sắp xếp theo ngày phát hành',
-              style: TextStyle(color: Colors.white),
-            ),
-            onTap: () {
-              onSortByReleaseDate();
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.title, color: Colors.white),
-            title: const Text(
-              'Sắp xếp theo tên bài hát',
-              style: TextStyle(color: Colors.white),
-            ),
-            onTap: () {
-              onSortByTitle();
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.person, color: Colors.white),
-            title: const Text(
-              'Sắp xếp theo nghệ sĩ',
-              style: TextStyle(color: Colors.white),
-            ),
-            onTap: () {
-              onSortByArtist();
               Navigator.pop(context);
             },
           ),
