@@ -463,23 +463,47 @@ class ApiKit {
   ---------------------- */
 
   Future<WeekChartModel> getVpopWeekChart() async {
-    return WeekChartModel.fromJson<ZingMp3Api>(
-      "Việt Nam",
-      await zingMp3.fetchVpopWeekChart(),
+    String api = '/vpop_week_chart';
+    final int lazyTime = 24 * 60 * 60; // 1 day
+    return _getOrFetch(
+      api,
+      lazyTime: lazyTime,
+      fetchFunc: zingMp3.fetchVpopWeekChart,
+      outputFixer: (data) {
+        return WeekChartModel.fromJson<ZingMp3Api>("Việt Nam", data);
+      },
     );
   }
 
   Future<WeekChartModel> getUsukWeekChart() async {
-    return WeekChartModel.fromJson<ZingMp3Api>(
-      "Âu Mĩ",
-      await zingMp3.fetchUsukWeekChart(),
+    String api = '/usuk_week_chart';
+    final int lazyTime = 24 * 60 * 60; // 1 ngày
+    return _getOrFetch(
+      api,
+      lazyTime: lazyTime,
+      fetchFunc: zingMp3.fetchUsukWeekChart,
+      outputFixer: (data) {
+        return WeekChartModel.fromJson<ZingMp3Api>(
+          "Âu Mĩ",
+          data,
+        );
+      },
     );
   }
 
   Future<WeekChartModel> getKpopWeekChart() async {
-    return WeekChartModel.fromJson<ZingMp3Api>(
-      "Hàn Quốc",
-      await zingMp3.fetchKpopWeekChart(),
+    String api = '/kpop_week_chart';
+    final int lazyTime = 24 * 60 * 60; // 1 ngày
+    return _getOrFetch(
+      api,
+      lazyTime: lazyTime,
+      fetchFunc: zingMp3.fetchKpopWeekChart,
+      outputFixer: (data) {
+        return WeekChartModel.fromJson<ZingMp3Api>(
+          "Hàn Quốc",
+          data,
+        );
+      },
     );
   }
 

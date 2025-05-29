@@ -58,7 +58,7 @@ class ZingMp3Api {
     }
   }
 
-  Future<Map<String, dynamic>?> fetchPlaylistInfo(playlistId) async {
+  Future<Map<String, dynamic>?> fetchPlaylistInfo(String playlistId) async {
     try {
       _connectivity.ensure();
       final resp = await _requester.getDetailPlaylist(playlistId);
