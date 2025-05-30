@@ -33,6 +33,9 @@ AppBar defaultAppBar(
       child: icon,
     ),
     actions: [
+      IconButton(onPressed: () {
+
+      }, icon: Icon(Icons.flag)),
       IconButton(
         color: Colors.white,
         onPressed: () {},
