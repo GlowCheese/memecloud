@@ -181,12 +181,24 @@ class SupabaseUserPlaylistApi {
     }
   }
 
-  Future<void> addSongToPlaylist({
+  Future<String> addSongToPlaylist({
     required String playlistId,
     required String songId,
   }) async {
     try {
       _connectivity.ensure();
+      final existingEntry =
+          await _client
+              .from(userPlaylistSongsTable)
+              .select('*')
+              .eq('playlist_id', playlistId)
+              .eq('song_id', songId)
+              .maybeSingle();
+
+      if (existingEntry != null) {
+        log('Song already in playlist, skipping insert.');
+        return "Bài hát đã có trong playlist";
+      }
       final position =
           await _client
               .from(userPlaylistSongsTable)
@@ -194,12 +206,14 @@ class SupabaseUserPlaylistApi {
               .eq('playlist_id', playlistId)
               .order('position', ascending: false)
               .limit(1)
-              .single();
+              .maybeSingle();
+      log('position: ${position?['position']}');
       await _client.from(userPlaylistSongsTable).insert({
         'playlist_id': playlistId,
         'song_id': songId,
-        'position': (position['position'] ?? 0) + 1,
+        'position': (position?['position'] ?? 0) + 1,
       });
+      return "Thêm thành công";
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
@@ -207,7 +221,7 @@ class SupabaseUserPlaylistApi {
         stackTrace: stackTrace,
         level: 1000,
       );
-      rethrow;
+      return "Thêm thất bại";
     }
   }
 

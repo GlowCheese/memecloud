@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/components/song/like_button.dart';
@@ -9,10 +10,24 @@ import 'package:memecloud/components/song/show_song_actions.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
 
+/// variant:
+/// 1: play or pause button,
+/// 2: add to playlist button, and require playlistId.
+///
+///
 class SongListTile extends StatelessWidget {
   final SongModel song;
+  final int? variant;
+  final String? playlistId;
+  final void Function(bool added)? onSongAdded;
 
-  const SongListTile({super.key, required this.song});
+  const SongListTile({
+    super.key,
+    required this.song,
+    this.variant = 1,
+    this.playlistId,
+    this.onSongAdded,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -170,13 +185,33 @@ class SongListTile extends StatelessWidget {
                             ),
                           ),
                           SongLikeButton(song: song),
-                          PlayOrPauseButton(
-                            song: song,
-                            color:
-                                isPlaying
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Colors.white,
-                          ),
+                          if (variant == 1)
+                            PlayOrPauseButton(
+                              song: song,
+                              color:
+                                  isPlaying
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Colors.white,
+                            )
+                          else if (variant == 2)
+                            IconButton(
+                              onPressed: () async {
+                                final res = await getIt<ApiKit>()
+                                    .supabase
+                                    .userPlaylist
+                                    .addSongToPlaylist(
+                                      playlistId: playlistId!,
+                                      songId: song.id,
+                                    );
+                                onSongAdded?.call(res == "Thêm thành công");
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).showSnackBar(SnackBar(content: Text(res)));
+                                }
+                              },
+                              icon: Icon(Icons.add),
+                            ),
                         ],
                       ),
                     ),

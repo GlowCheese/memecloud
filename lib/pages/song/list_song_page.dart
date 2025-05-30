@@ -9,8 +9,9 @@ import 'package:memecloud/models/song_model.dart';
 
 class ListSongPage extends StatefulWidget {
   final List<SongModel> songs;
+  final String? playlistId;
 
-  const ListSongPage({super.key, required this.songs});
+  const ListSongPage({super.key, required this.songs, this.playlistId});
 
   @override
   State<ListSongPage> createState() => _ListSongPageState();
@@ -21,6 +22,7 @@ class _ListSongPageState extends State<ListSongPage> {
   bool _showBackToTopButton = false;
   final TextEditingController _searchController = TextEditingController();
   List<SongModel> _filteredSongs = [];
+  bool anySongAdded = false;
 
   @override
   void initState() {
@@ -96,7 +98,15 @@ class _ListSongPageState extends State<ListSongPage> {
           parent: AlwaysScrollableScrollPhysics(),
         ),
         slivers: [
-          const SliverAppBar(title: Text("Các bài hát")),
+          SliverAppBar(
+            title: Text("Các bài hát"),
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context, anySongAdded);
+              },
+            ),
+          ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -114,7 +124,16 @@ class _ListSongPageState extends State<ListSongPage> {
                 final song = _filteredSongs[index];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: SongListTile(song: song),
+                  child: SongListTile(
+                    song: song,
+                    variant: 2,
+                    playlistId: widget.playlistId,
+                    onSongAdded: (added) {
+                      if (added) {
+                        anySongAdded = true;
+                      }
+                    },
+                  ),
                 );
               }, childCount: _filteredSongs.length),
             ),

@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/components/common/confirmation_dialog.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/playlist_model.dart';
@@ -24,6 +27,13 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
     _suggestedPlaylistFuture =
         getIt<ApiKit>().supabase.playlists.getSuggestedPlaylists;
     super.initState();
+  }
+
+  void refreshMyPlaylist() {
+    setState(() {
+      _myPlaylistFuture =
+          getIt<ApiKit>().supabase.userPlaylist.getUserPlaylists;
+    });
   }
 
   @override
@@ -174,6 +184,57 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
       ),
       child: GestureDetector(
         onTap: () => context.push('/playlist_page', extra: playlist),
+        onLongPress: () {
+          // chỉnh sửa/ xóa
+          showModalBottomSheet(
+            context: context,
+            builder:
+                (context) => Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        playlist.title,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Divider(),
+                      ListTile(
+                        leading: Icon(Icons.edit),
+                        title: Text('Chỉnh sửa'),
+                        onTap: () async {
+                          Navigator.pop(context);
+                          final hasBeenEdited = await Navigator.of(
+                            context,
+                          ).push(
+                            MaterialPageRoute(
+                              builder:
+                                  (context) =>
+                                      CreateNewPlaylist(playlist: playlist),
+                            ),
+                          );
+                          if (hasBeenEdited) {
+                            refreshMyPlaylist();
+                          }
+                        },
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.delete),
+                        title: Text('Xóa'),
+                        onTap: () async {
+                          Navigator.pop(context);
+                          _showDeletePlaylistDialog(context, playlist);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+          );
+        },
+
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -203,7 +264,7 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.onSecondary,
+          color: Theme.of(context).colorScheme.onTertiary,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: color.withOpacity(0.2)),
         ),
@@ -235,6 +296,8 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
             subtitle: Text(
               playlist.description ?? '',
               style: TextStyle(fontSize: 12, color: Colors.white70),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
             ),
             trailing: IconButton(
               icon: const Icon(Icons.add, color: Colors.white),
@@ -248,11 +311,13 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
 
   Widget _addPlaylistCard() {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        final hasBeenAdded = await Navigator.of(
           context,
-          MaterialPageRoute(builder: (_) => const CreateNewPlaylist()),
-        );
+        ).push(MaterialPageRoute(builder: (_) => const CreateNewPlaylist()));
+        if (hasBeenAdded) {
+          refreshMyPlaylist();
+        }
       },
       child: Container(
         decoration: BoxDecoration(
@@ -272,5 +337,39 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
         ),
       ),
     );
+  }
+
+  void _showDeletePlaylistDialog(
+    BuildContext context,
+    PlaylistModel playlist,
+  ) async {
+    final submitUnfollow = await ConfirmationDialog.show(
+      context: context,
+      title: 'Xóa playlist',
+      message: 'Bạn có chắc chắn muốn xóa playlist ${playlist.title} không?',
+      confirmText: 'Xóa',
+      cancelText: 'Không',
+    );
+
+    if (submitUnfollow == true) {
+      try {
+        await getIt<ApiKit>().supabase.userPlaylist.deletePlaylist(
+          playlistId: playlist.id,
+        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Xóa playlist thành công')));
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Xóa playlist thất bại. Lỗi: ${e.toString()}'),
+            ),
+          );
+        }
+      }
+    }
   }
 }

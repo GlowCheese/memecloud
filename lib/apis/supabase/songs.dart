@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class SupabaseSongsApi {
   final SupabaseClient _client;
   final _connectivity = getIt<ConnectivityStatus>();
+  List<SongModel>? _allSongs;
   SupabaseSongsApi(this._client);
 
   Future<void> saveSongInfo(SongModel song) async {
@@ -247,6 +248,22 @@ class SupabaseSongsApi {
         stackTrace: stackTrace,
         level: 1000,
       );
+      rethrow;
+    }
+  }
+
+  Future<List<SongModel>> getAllSongs() async {
+    try {
+      _connectivity.ensure();
+      if (_allSongs == null || _allSongs!.isEmpty) {
+        final response = await _client.from('songs').select('*');
+        _allSongs =
+            response.map((e) => SongModel.fromJson<SupabaseApi>(e)).toList();
+      }
+      return _allSongs ?? [];
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log('Failed to get all songs: $e', stackTrace: stackTrace, level: 1000);
       rethrow;
     }
   }

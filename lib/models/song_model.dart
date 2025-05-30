@@ -49,7 +49,7 @@ class SongModel extends MusicModel {
         title: json['title'],
         duration: Duration(seconds: json['duration'] as int),
         artistsNames: json['artists_names'],
-        artists: ArtistModel.fromListJson<T>(json['song_artists']),
+        artists: ArtistModel.fromListJson<T>(json['song_artists'] ?? []),
         thumbnailUrl: json['thumbnail_url'],
         releaseDate: DateTime.parse(json['release_date']),
       );
@@ -75,7 +75,10 @@ class SongModel extends MusicModel {
     return res;
   }
 
-  static List<SongModel> fromListJson<T>(List list, {bool includeBlacklisted = false}) {
+  static List<SongModel> fromListJson<T>(
+    List list, {
+    bool includeBlacklisted = false,
+  }) {
     final tmp = list.map((json) => SongModel.fromJson<T>(json));
 
     try {
@@ -92,6 +95,7 @@ class SongModel extends MusicModel {
   bool get isLiked {
     return getIt<ApiKit>().isSongLiked(id);
   }
+
   set isLiked(bool isLiked) {
     getIt<ApiKit>().setIsSongLiked(this, isLiked);
     getIt<LikedSongsStream>().setIsLiked(this, isLiked);

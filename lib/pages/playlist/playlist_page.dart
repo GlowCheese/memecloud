@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/pages/song/list_song_page.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:memecloud/utils/images.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,6 +16,7 @@ import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/playlist/playlist_follow_button.dart';
 import 'package:memecloud/components/miscs/generatable_list/sliver_list.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum SortPlaylistOptions { duration, releaseDate, title, artist }
 
@@ -98,6 +101,20 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
       res.sort((a, b) => a.artistsNames.compareTo(b.artistsNames));
     }
     return res;
+  }
+
+  /// Only for user playlist.
+  /// Use for refresh playlist after add song to playlist.
+  Future<void> refreshPlaylist() async {
+    final updatedPlaylist = await getIt<SupabaseApi>().userPlaylist
+        .getPlaylistInfo(widget.playlist.id);
+    if (updatedPlaylist != null) {
+      setState(() {
+        widget.playlist.songs?.clear();
+        widget.playlist.songs?.addAll(updatedPlaylist.songs ?? []);
+        _displaySongs = updatedPlaylist.songs ?? [];
+      });
+    }
   }
 
   @override
@@ -207,6 +224,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                   borderRadius: BorderRadius.circular(8),
                   child: getImage(widget.playlist.thumbnailUrl, 120),
                 ),
+
                 if (widget.playlist.type == PlaylistType.zing)
                   PlaylistFollowButton(
                     playlist: widget.playlist,
@@ -246,6 +264,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                           shape: BoxShape.circle,
                           color: Colors.grey[800],
                         ),
+
                         child: const Icon(
                           Icons.music_note,
                           color: Colors.white,
@@ -297,6 +316,26 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
           constraints: BoxConstraints(minWidth: 35, minHeight: 35),
           padding: const EdgeInsets.all(4),
         ),
+        if (widget.playlist.type == PlaylistType.user)
+          IconButton(
+            onPressed: () async {
+              final songs = await getIt<ApiKit>().supabase.songs.getAllSongs();
+              if (!mounted) return;
+              final res = await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder:
+                      (context) => ListSongPage(
+                        songs: songs,
+                        playlistId: widget.playlist.id,
+                      ),
+                ),
+              );
+              if (res == true) {
+                await refreshPlaylist();
+              }
+            },
+            icon: Icon(Icons.add),
+          ),
         IconButton(
           icon: Icon(Icons.more_vert, color: Colors.grey[400], size: 20),
           onPressed: () {
