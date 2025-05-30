@@ -67,7 +67,12 @@ class PlaylistDownloadButton extends StatelessWidget {
                 child: Text(quality),
                 onPressed: () {
                   Navigator.pop(context, true);
-                  getIt<ApiKit>().downloadPlaylist(playlist.id, songs, quality);
+                  getIt<ApiKit>().downloadPlaylist(
+                    playlist.id,
+                    playlist.title,
+                    songs,
+                    quality,
+                  );
                 },
               ),
           ],

@@ -140,6 +140,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
         final song = _sortedDisplaySongs[index];
         return [
           Padding(
+            key: ValueKey(song.id),
             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
             child: SongCard(
               variant: 1,

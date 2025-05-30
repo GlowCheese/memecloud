@@ -15,6 +15,7 @@ import 'package:memecloud/apis/others/storage.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/apis/zingmp3/endpoints.dart';
+import 'package:memecloud/utils/noti.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:memecloud/models/week_chart_model.dart';
 import 'package:memecloud/apis/others/connectivity.dart';
@@ -264,6 +265,7 @@ class ApiKit {
   Future<bool> downloadSong(
     SongModel song,
     String songUrl, {
+    bool sendNoti = true,
     CancelToken? cancelToken,
     void Function(int received, int total)? onProgress,
   }) async {
@@ -273,22 +275,50 @@ class ApiKit {
     void actualOnProgress(int received, int total) {
       getIt<SongDlStatusManager>().updateProgress(song.id, received / total);
       onProgress?.call(received, total);
+      if (sendNoti) {
+        sendProgressNoti(
+          id: song.id.hashCode,
+          progress: ((received / total) * 100).round(),
+          title: 'Đang tải xuống bài hát: ${song.title}',
+        );
+      }
     }
 
     final downloadTask = CancelableOperation.fromFuture(
       _downloadFile(
-        songUrl,
-        filePath,
-        onProgress: actualOnProgress,
-        cancelToken: cancelToken,
-      ).then((success) async {
-        if (success) {
-          _markSongAsDownloaded(song);
-        } else {
-          _markSongAsNotDownloaded(song.id);
-        }
-        return success;
-      }),
+            songUrl,
+            filePath,
+            onProgress: actualOnProgress,
+            cancelToken: cancelToken,
+          )
+          .then((success) async {
+            if (sendNoti) cancelNoti(song.id.hashCode);
+            if (success) {
+              _markSongAsDownloaded(song);
+              if (sendNoti) {
+                sendCompleteNoti(
+                  id: song.id.hashCode + 1,
+                  body: 'Bài hát: ${song.title}',
+                  title: 'Tải xuống bài hát thành công!',
+                );
+              }
+            } else {
+              _markSongAsNotDownloaded(song.id);
+            }
+            return success;
+          })
+          .catchError((e) {
+            if (sendNoti) {
+              cancelNoti(song.id.hashCode);
+              sendErrorNoti(
+                id: song.id.hashCode + 1,
+                title: 'Lỗi khi tải bài hát!',
+                error: e,
+              );
+            }
+            _markSongAsNotDownloaded(song.id);
+            return false;
+          }),
       onCancel: () => cancelToken!.cancel(),
     );
     getIt<SongDlStatusManager>().updateState(
@@ -342,6 +372,7 @@ class ApiKit {
 
   Future<bool> downloadPlaylist(
     String playlistId,
+    String playlistTitle,
     List<SongModel> songs,
     String quality,
   ) async {
@@ -373,12 +404,19 @@ class ApiKit {
           final success = await downloadSong(
             song,
             songUrl,
+            sendNoti: false,
             cancelToken: cancelToken,
             onProgress: (received, total) {
               final songProgress = received / total;
+              final playlistProgress = (songIds.length + songProgress) / songs.length;
               getIt<PlaylistDlStatusManager>().updateProgress(
                 playlistId,
-                (songIds.length + songProgress) / songs.length,
+                playlistProgress
+              );
+              sendProgressNoti(
+                id: playlistId.hashCode,
+                title: 'Đang tải xuống danh sách phát: $playlistTitle',
+                progress: ((playlistProgress) * 100).round()
               );
             },
           );
@@ -401,11 +439,26 @@ class ApiKit {
     final downloadTask = CancelableOperation.fromFuture(
       downloadProcess().then((success) {
         if (success) {
+          cancelNoti(playlistId.hashCode);
+          sendCompleteNoti(
+            id: playlistId.hashCode + 1,
+            body: 'Danh sách phát: $playlistTitle',
+            title: 'Tải xuống danh sách phát thành công!',
+          );
           _markPlaylistAsDownloaded(playlistId);
         } else {
           _markPlaylistAsNotDownloaded(playlistId);
         }
         return success;
+      }).catchError((e) {
+        cancelNoti(playlistId.hashCode);
+        sendErrorNoti(
+          id: playlistId.hashCode + 1,
+          title: 'Lỗi khi tải danh sách phát!',
+          error: e,
+        );
+        _markPlaylistAsNotDownloaded(playlistId);
+        return false;
       }),
       onCancel: () => cancelToken.cancel(),
     );

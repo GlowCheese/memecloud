@@ -101,7 +101,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
 
           lazySongPopulateRunning = true;
           songsPopulateTask = CancelableOperation.fromFuture(
-            lazySongPopulate(remainingSongs).catchError((e, stackTrace) {
+            lazySongPopulate(remainingSongs).onError((e, stackTrace) {
               log(
                 'Failed to populate songs: $e',
                 stackTrace: stackTrace,
