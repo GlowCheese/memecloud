@@ -1,9 +1,10 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -39,7 +40,7 @@ class _SignInPageState extends State<SignInPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 60),
-      
+
                 // Sign In header
                 const Center(
                   child: Text(
@@ -55,7 +56,7 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                 ),
                 const SizedBox(height: 40),
-      
+
                 // Email Field
                 const Text(
                   'Email',
@@ -81,7 +82,7 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-      
+
                 // Password Field
                 const Text(
                   'Mật Khẩu',
@@ -106,7 +107,9 @@ class _SignInPageState extends State<SignInPage> {
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         color: Colors.grey,
                       ),
                       onPressed: () {
@@ -117,7 +120,7 @@ class _SignInPageState extends State<SignInPage> {
                     ),
                   ),
                 ),
-      
+
                 // Forgot Password
                 Align(
                   alignment: Alignment.centerRight,
@@ -138,7 +141,7 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-      
+
                 /// Sign In Button
                 SizedBox(
                   width: double.infinity,
@@ -147,19 +150,36 @@ class _SignInPageState extends State<SignInPage> {
                       showDialog(
                         context: context,
                         barrierDismissible: false,
-                        builder: (context) => const Center(child: CircularProgressIndicator()),
+                        builder:
+                            (context) => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
                       );
-      
+
                       try {
-                        await getIt<ApiKit>().signIn(email: emailController.text, password: passwordController.text);
+                        await getIt<ApiKit>().signIn(
+                          email: emailController.text,
+                          password: passwordController.text,
+                        );
                         if (context.mounted) {
                           context.go('/dashboard');
                         }
-                      } catch(e) {
+                      } on AuthApiException catch (e) {
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Đăng nhập thất bại: $e')),
-                          );
+                          ScaffoldMessenger.of(context)
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(
+                              SnackBar(
+                                elevation: 0,
+                                behavior: SnackBarBehavior.floating,
+                                backgroundColor: Colors.transparent,
+                                content: AwesomeSnackbarContent(
+                                  title: 'Đăng nhập thất bại!',
+                                  message: e.message,
+                                  contentType: ContentType.warning,
+                                ),
+                              ),
+                            );
                         }
                       } finally {
                         if (context.mounted) {
@@ -187,7 +207,7 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                 ),
                 const SizedBox(height: 32),
-      
+
                 // Divider
                 Row(
                   children: [
@@ -203,7 +223,7 @@ class _SignInPageState extends State<SignInPage> {
                   ],
                 ),
                 const SizedBox(height: 24),
-      
+
                 // Social login options
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -214,7 +234,7 @@ class _SignInPageState extends State<SignInPage> {
                   ],
                 ),
                 const SizedBox(height: 36),
-      
+
                 // Sign Up link
                 Center(
                   child: Row(

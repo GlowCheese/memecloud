@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:memecloud/blocs/dl_status/dl_status_manager.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/playlist_model.dart';
@@ -309,26 +310,10 @@ class LibraryPage extends StatelessWidget {
   }
 
   Widget downloadedSongsTab(BuildContext context) {
-    // final likedSongsPlaylist = PlaylistModel.likedPlaylist();
-    // final followedPlaylists = getIt<ApiKit>().getFollowedPlaylists();
-
-    // return Padding(
-    //   padding: const EdgeInsets.only(left: horzPad, right: horzPad, top: 18),
-    //   child: ListView.separated(
-    //     itemBuilder: (context, index) {
-    //       if (index == 0) {
-    //         return PlaylistCard(variant: 2, playlist: likedSongsPlaylist);
-    //       }
-    //       final playlist = followedPlaylists[index - 1];
-    //       return PlaylistCard(variant: 3, playlist: playlist);
-    //     },
-    //     separatorBuilder: (context, index) => SizedBox(height: 18),
-    //     itemCount: followedPlaylists.length + 1,
-    //   ),
-    // );
-
     final downloadedSongsPlaylist = PlaylistModel.downloadedPlaylist();
     final downloadedPlaylists = getIt<ApiKit>().getDownloadedPlaylists();
+    final downloadingPlaylists =
+        getIt<PlaylistDlStatusManager>().getDownloadingPlaylists();
 
     return Padding(
       padding: const EdgeInsets.only(left: horzPad, right: horzPad, top: 18),
@@ -337,11 +322,18 @@ class LibraryPage extends StatelessWidget {
           if (index == 0) {
             return PlaylistCard(variant: 2, playlist: downloadedSongsPlaylist);
           }
-          final playlist = downloadedPlaylists[index-1];
-          return PlaylistCard(variant: 2, playlist: playlist);
+          late final PlaylistModel playlist;
+
+          if (index <= downloadingPlaylists.length) {
+            playlist = downloadingPlaylists[index - 1];
+          } else {
+            playlist =
+                downloadedPlaylists[index - downloadingPlaylists.length - 1];
+          }
+          return PlaylistCard(variant: 3, playlist: playlist);
         },
         separatorBuilder: (context, index) => SizedBox(height: 18),
-        itemCount: downloadedPlaylists.length + 1,
+        itemCount: downloadedPlaylists.length + downloadingPlaylists.length + 1,
       ),
     );
   }

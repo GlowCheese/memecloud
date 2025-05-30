@@ -34,7 +34,25 @@ class SongDownloadButton extends StatelessWidget {
             state is DownloadingState ? state.downloadProgress : null;
 
         void onPressed() {
-          if (!dimmed) {
+          bool isBusy =
+              getIt<PlaylistDlStatusManager>().hasPlaylistInDownload();
+          if (dimmed && isBusy) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: Colors.transparent,
+                  content: AwesomeSnackbarContent(
+                    title: 'Lưu ý',
+                    message:
+                        'Không thể thực hiện thao tác này ngay bây giờ. '
+                        'Vui lòng chờ trong giây lát!',
+                    contentType: ContentType.warning,
+                  ),
+                ),
+              );
+          } else {
             switch (state.status) {
               case DlStatus.notDownloaded:
                 fetchDownloadUrls(context);
@@ -98,24 +116,6 @@ class SongDownloadButton extends StatelessWidget {
   }
 
   void confirmUndownload(BuildContext context) {
-    // TODO: should have a better approach for this
-    if (getIt<PlaylistDlStatusManager>().hasPlaylistInDownload()) {
-      final snackBar = SnackBar(
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Colors.transparent,
-        content: AwesomeSnackbarContent(
-          title: 'Lưu ý',
-          message:
-              'Không thể thực hiện thao tác này ngay bây giờ. '
-              'Vui lòng chờ trong giây lát!',
-          contentType: ContentType.warning,
-        ),
-      );
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(snackBar);
-      return;
-    }
     showDialog(
       context: context,
       builder: (context) {

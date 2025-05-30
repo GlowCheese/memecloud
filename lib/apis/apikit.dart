@@ -248,6 +248,11 @@ class ApiKit {
     String songId, {
     String quality = "320",
   }) async {
+    if (quality == "320") {
+      final uri = await getSongUri(songId);
+      return uri.toString();
+    }
+
     final urls = await getSongUrlsForDownload(songId);
     if (urls == null) return null;
 

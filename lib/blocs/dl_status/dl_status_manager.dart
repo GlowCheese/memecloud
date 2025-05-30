@@ -3,6 +3,7 @@ import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/blocs/dl_status/dl_status_cubit.dart';
 import 'package:memecloud/blocs/dl_status/dl_status_state.dart';
+import 'package:memecloud/models/playlist_model.dart';
 
 class DlStatusManager {
   bool Function(String id) isDownloadedCheck;
@@ -55,5 +56,13 @@ class PlaylistDlStatusManager extends DlStatusManager {
     return dlStatusCubitMap.values.any(
       (cubit) => cubit.state is DownloadingState,
     );
+  }
+
+  List<PlaylistModel> getDownloadingPlaylists() {
+    return [
+      for (var entry in dlStatusCubitMap.entries)
+        if (entry.value.state is DownloadingState)
+          getIt<ApiKit>().storage.getCachedPlaylist(entry.key)!,
+    ];
   }
 }
