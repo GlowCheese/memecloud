@@ -15,7 +15,7 @@ class DlStatusManager {
     );
   }
 
-  void update(
+  void updateSong(
     String songId, {
     bool isFetching = false,
     bool isCompleted = false,
@@ -32,11 +32,11 @@ class DlStatusManager {
     }
   }
 
-  void updateProgress(String songId, double downloadProgress) {
+  void updateSongProgress(String songId, double downloadProgress) {
     songDlStatusCubitMap[songId]?.updateProgress(downloadProgress);
   }
 
-  Future<void> updateCancel(String songId) async {
+  Future<void> cancelSongDownload(String songId) async {
     songDlStatusCubitMap[songId]?.updateCancel();
   }
 }

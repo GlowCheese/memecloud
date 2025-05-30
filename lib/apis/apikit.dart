@@ -4,11 +4,11 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
-import 'package:memecloud/blocs/recent_played/recent_played_stream.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/user_model.dart';
+import 'package:memecloud/apis/others/events.dart';
 import 'package:memecloud/apis/firebase/main.dart';
 import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/apis/others/storage.dart';
@@ -22,6 +22,7 @@ import 'package:memecloud/models/song_lyrics_model.dart';
 import 'package:memecloud/models/search_result_model.dart';
 import 'package:memecloud/models/search_suggestion_model.dart';
 import 'package:memecloud/blocs/dl_status/dl_status_manager.dart';
+import 'package:memecloud/blocs/recent_played/recent_played_stream.dart';
 
 class ApiKit {
   final dio = getIt<Dio>();
@@ -37,8 +38,12 @@ class ApiKit {
 
   User? currentUser() => supabase.auth.currentUser();
   Session? currentSession() => supabase.auth.currentSession();
-  Future<User> signIn({required String email, required String password}) =>
-      supabase.auth.signIn(email, password);
+  Future<User> signIn({required String email, required String password}) async {
+    final user = await supabase.auth.signIn(email, password);
+    await getIt<SupabaseEvents>().loadUserData();
+    return user;
+  }
+
   Future<User> signUp({
     required String email,
     required String password,
@@ -127,10 +132,13 @@ class ApiKit {
   ---------------- */
 
   Future<void> saveSongInfo(SongModel song) async {
-    if (storage.isInfoSaved(song.id, 'song')) return;
-    await supabase.songs.saveSongInfo(song);
-    await supabase.artists.saveSongArtists(song.id, song.artists);
-    unawaited(storage.markInfoAsSaved(song.id, 'song'));
+    if (storage.getCachedSong(song.id) == null) {
+      await supabase.songs.saveSongInfo(song);
+      await supabase.artists.saveSongArtists(song.id, song.artists);
+
+      String api = '/infosong?id=${song.id}';
+      await storage.updateCached(api, song.toJson());
+    }
   }
 
   Future<void> newSongStream(SongModel song) {
@@ -151,13 +159,10 @@ class ApiKit {
   -------------------- */
 
   Future<void> savePlaylistInfo(PlaylistModel playlist) async {
-    if (storage.isInfoSaved(playlist.id, 'playlist')) return;
     await supabase.playlists.savePlaylistInfo(playlist);
-    unawaited(storage.markInfoAsSaved(playlist.id, 'playlist'));
   }
 
-  Future<PlaylistModel?> getPlaylistInfo <T>(String playlistId)  async {
-    if (T == ZingMp3Api) {
+  Future<PlaylistModel?> getPlaylistInfo(String playlistId)  async {
     final String api = '/infoplaylist?id=$playlistId';
     return await _getOrFetch<Map<String, dynamic>?, PlaylistModel?>(
       api,
@@ -174,9 +179,6 @@ class ApiKit {
         return res;
       },
     );
-    } else if (T == SupabaseApi) {
-      
-    }
   }
 
   /* ---------------------
@@ -233,11 +235,11 @@ class ApiKit {
   }
 
   Future<Map<String, String>?> getSongUrlsForDownload(String songId) async {
-    getIt<DlStatusManager>().update(songId, isFetching: true);
+    getIt<DlStatusManager>().updateSong(songId, isFetching: true);
     try {
       return await zingMp3.fetchSongUrls(songId);
     } catch (_) {
-      await getIt<DlStatusManager>().updateCancel(songId);
+      await getIt<DlStatusManager>().cancelSongDownload(songId);
       return null;
     }
   }
@@ -258,7 +260,7 @@ class ApiKit {
 
     final cancelToken = CancelToken();
     void onProgress(int received, int total) {
-      getIt<DlStatusManager>().updateProgress(song.id, received / total);
+      getIt<DlStatusManager>().updateSongProgress(song.id, received / total);
     }
 
     final downloadTask = CancelableOperation.fromFuture(
@@ -277,19 +279,17 @@ class ApiKit {
       }),
       onCancel: () => cancelToken.cancel(),
     );
-    getIt<DlStatusManager>().update(song.id, downloadTask: downloadTask);
+    getIt<DlStatusManager>().updateSong(song.id, downloadTask: downloadTask);
 
     return await downloadTask.valueOrCancellation() == true;
   }
 
   Future<void> undownloadSong(String songId) async {
-    final filePath = '${storage.userDir.path}/$songId.mp3';
-    try {
+    if (!storage.isSongDownloaded(songId, checkDeps: true)) {
+      final filePath = '${storage.userDir.path}/$songId.mp3';
       await File(filePath).delete();
-    } catch (_) {
-    } finally {
-      markSongAsNotDownloaded(songId);
     }
+    markSongAsNotDownloaded(songId);
   }
 
   bool isSongDownloaded(String songId) {
@@ -302,12 +302,12 @@ class ApiKit {
 
   Future<void> markSongAsNotDownloaded(String songId) async {
     await storage.markSongAsNotDownloaded(songId);
-    await getIt<DlStatusManager>().updateCancel(songId);
+    await getIt<DlStatusManager>().cancelSongDownload(songId);
   }
 
   Future<void> markSongAsDownloaded(SongModel song) async {
     await storage.markSongAsDownloaded(song);
-    getIt<DlStatusManager>().update(song.id, isCompleted: true);
+    getIt<DlStatusManager>().updateSong(song.id, isCompleted: true);
   }
 
   /* ---------------------
@@ -487,10 +487,7 @@ class ApiKit {
       lazyTime: lazyTime,
       fetchFunc: zingMp3.fetchUsukWeekChart,
       outputFixer: (data) {
-        return WeekChartModel.fromJson<ZingMp3Api>(
-          "Âu Mĩ",
-          data,
-        );
+        return WeekChartModel.fromJson<ZingMp3Api>("Âu Mĩ", data);
       },
     );
   }
@@ -503,10 +500,7 @@ class ApiKit {
       lazyTime: lazyTime,
       fetchFunc: zingMp3.fetchKpopWeekChart,
       outputFixer: (data) {
-        return WeekChartModel.fromJson<ZingMp3Api>(
-          "Hàn Quốc",
-          data,
-        );
+        return WeekChartModel.fromJson<ZingMp3Api>("Hàn Quốc", data);
       },
     );
   }

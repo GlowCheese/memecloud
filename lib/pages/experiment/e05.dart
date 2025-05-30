@@ -21,7 +21,6 @@ class _E05State extends State<E05> {
 
     final Map<String, Box> filterMap = {
       'likedSongs': hiveBoxes.likedSongs,
-      'savedInfo': hiveBoxes.savedInfo,
       'apiCache': hiveBoxes.apiCache,
       'blacklistedSongs': hiveBoxes.blacklistedSongs,
     };

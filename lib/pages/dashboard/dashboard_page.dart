@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:memecloud/pages/dashboard/home_page.dart';
 import 'package:memecloud/pages/library/library_page.dart';
 import 'package:memecloud/pages/dashboard/search_page.dart';
@@ -8,6 +7,7 @@ import 'package:memecloud/pages/dashboard/top_chart_page.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/pages/experiment/experiment_page.dart';
+import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});

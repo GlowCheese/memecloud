@@ -10,7 +10,6 @@ import 'package:memecloud/apis/supabase/main.dart';
 class HiveBoxes {
   static Future<HiveBoxes> initialize() async {
     await Future.wait([
-      Hive.openBox<bool>('savedInfo'),
       Hive.openBox<Map>('apiCache'),
       Hive.openBox<String>('recentSearches'),
       Hive.openBox<String>('likedSongs'),
@@ -26,7 +25,6 @@ class HiveBoxes {
     return HiveBoxes();
   }
 
-  Box<bool> get savedInfo => Hive.box('savedInfo');
   Box<Map> get apiCache => Hive.box('apiCache');
   Box<String> get recentSearches => Hive.box('recentSearches');
   Box<String> get likedSongs => Hive.box('likedSongs');
@@ -107,6 +105,21 @@ class PersistentStorage {
     });
   }
 
+  // TODO: should leverge this function more
+  SongModel? getCachedSong(String songId) {
+    String api = '/infosong?id=$songId';
+    return getCached<Map<String, dynamic>>(
+      api,
+    ).fold((data) => SongModel.fromJson<SupabaseApi>(data), (fallback) => null);
+  }
+
+  PlaylistModel? getCachedPlaylist(String playlistId) {
+    String api = '/infoplaylist?id=$playlistId';
+    return getCached<Map<String, dynamic>>(api).fold((data) {
+      return PlaylistModel.fromJson<SupabaseApi>(data['data']);
+    }, (fallback) => null);
+  }
+
   /* --------------------
   |    ZingMp3 Cookie   |
   -------------------- */
@@ -135,18 +148,6 @@ class PersistentStorage {
     final box = hiveBoxes.appConfig;
     await box.put('zing_cookie', cookieStr);
     return cookieStr;
-  }
-
-  /* ----------------
-  |    SAVED INFO   |
-  ---------------- */
-
-  Future<void> markInfoAsSaved(String id, String category) {
-    return hiveBoxes.savedInfo.put('$category=$id', true);
-  }
-
-  bool isInfoSaved(String id, String category) {
-    return hiveBoxes.savedInfo.containsKey('$category=$id');
   }
 
   /* ---------------------
@@ -296,7 +297,7 @@ class PersistentStorage {
     final box = hiveBoxes.blacklistedSongs;
     return SongModel.fromListJson<SupabaseApi>(
       box.values.map((e) => jsonDecode(e)).toList(),
-      includeBlacklisted: true
+      includeBlacklisted: true,
     );
   }
 
@@ -340,14 +341,19 @@ class PersistentStorage {
     return hiveBoxes.songDownloadDeps.put(songId, deps + (inc ? 1 : -1));
   }
 
-  bool isSongDownloaded(String songId) {
+  bool isSongDownloaded(String songId, {bool checkDeps = false}) {
+    if (checkDeps) {
+      final deps = _songDownloadDeps(songId);
+      return deps != null && deps > 0;
+    }
     return hiveBoxes.downloadedSongs.containsKey(songId);
   }
 
   List<SongModel> getDownloadedSongs() {
-    return hiveBoxes.downloadedSongs.values
-        .map((e) => SongModel.fromJson<SupabaseApi>(jsonDecode(e)))
-        .toList();
+    return [
+      for (var json in hiveBoxes.downloadedSongs.values)
+        SongModel.fromJson<SupabaseApi>(jsonDecode(json)),
+    ];
   }
 
   Future<void> markSongAsDownloaded(SongModel song) {
@@ -358,12 +364,10 @@ class PersistentStorage {
   }
 
   Future<void> markSongAsNotDownloaded(String songId) async {
-    if (hiveBoxes.downloadedSongs.containsKey(songId)) {
-      await Future.wait([
-        hiveBoxes.downloadedSongs.delete(songId),
-        _updateSongDownloadDeps(songId, inc: false),
-      ]);
-    }
+    await Future.wait([
+      hiveBoxes.downloadedSongs.delete(songId),
+      _updateSongDownloadDeps(songId, inc: false),
+    ]);
   }
 
   List<PlaylistModel> getDownloadedPlaylists() {
