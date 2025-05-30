@@ -12,7 +12,7 @@ import 'package:memecloud/components/miscs/search_bar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
-import 'package:memecloud/components/playlist/PlaylistFollowButton.dart';
+import 'package:memecloud/components/playlist/playlist_follow_button.dart';
 import 'package:memecloud/components/miscs/generatable_list/sliver_list.dart';
 
 enum SortPlaylistOptions { duration, releaseDate, title, artist }
@@ -86,6 +86,20 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
   SortPlaylistOptions? _sortOption;
   late List<SongModel> _displaySongs = widget.playlist.songs ?? [];
 
+  List<SongModel> get _sortedDisplaySongs {
+    var res = List<SongModel>.from(_displaySongs);
+    if (_sortOption == SortPlaylistOptions.duration) {
+      res.sort((a, b) => a.duration.compareTo(b.duration));
+    } else if (_sortOption == SortPlaylistOptions.releaseDate) {
+      res.sort((a, b) => b.releaseDate.compareTo(a.releaseDate));
+    } else if (_sortOption == SortPlaylistOptions.title) {
+      res.sort((a, b) => a.title.compareTo(b.title));
+    } else if (_sortOption == SortPlaylistOptions.artist) {
+      res.sort((a, b) => a.artistsNames.compareTo(b.artistsNames));
+    }
+    return res;
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
@@ -105,21 +119,6 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
   }
 
   GeneratableSliverList _songsSliverList(BuildContext context) {
-    final _sortedDisplaySongs = List<SongModel>.from(_displaySongs);
-    if (_sortOption == SortPlaylistOptions.duration) {
-      _sortedDisplaySongs.sort((a, b) => a.duration.compareTo(b.duration));
-    } else if (_sortOption == SortPlaylistOptions.releaseDate) {
-      _sortedDisplaySongs.sort(
-        (a, b) => b.releaseDate.compareTo(a.releaseDate),
-      );
-    } else if (_sortOption == SortPlaylistOptions.title) {
-      _sortedDisplaySongs.sort((a, b) => a.title.compareTo(b.title));
-    } else if (_sortOption == SortPlaylistOptions.artist) {
-      _sortedDisplaySongs.sort(
-        (a, b) => a.artistsNames.compareTo(b.artistsNames),
-      );
-    }
-
     return GeneratableSliverList(
       initialPageIdx: 0,
       asyncGenFunction: (index) async {

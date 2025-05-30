@@ -37,10 +37,8 @@ class SongCard extends StatelessWidget {
         return _variant1(context);
       case 2:
         return _variant2(context);
-      case 3:
-        return _variant3(context);
       default:
-        return _variant4(context);
+        return _variant3(context);
     }
   }
 
@@ -65,11 +63,36 @@ class SongCard extends StatelessWidget {
   Widget _variant1(BuildContext context) {
     return gestureDectectorWrapper(
       context,
-      child: MusicCard(
-        variant: 1,
-        thumbnailUrl: song!.thumbnailUrl,
-        title: song!.title,
-        subTitle: song!.artistsNames,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Flexible(
+            child: MusicCard(
+              variant: 1,
+              thumbnailUrl: song!.thumbnailUrl,
+              title: song!.title,
+              subTitle: song!.artistsNames,
+            ),
+          ),
+          BlocBuilder(
+            bloc: playerCubit,
+            builder: (context, state) {
+              return Offstage(
+                offstage:
+                    state is! SongPlayerLoaded ||
+                    state.currentSong.id != song!.id,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: GifView.asset(
+                    'assets/gifs/eq_accent.gif',
+                    height: 30,
+                    width: 30,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -171,44 +194,6 @@ class SongCard extends StatelessWidget {
 
   /// same as _variant1, but with eq_accent.gif
   Widget _variant3(BuildContext context) {
-    return gestureDectectorWrapper(
-      context,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: MusicCard(
-              variant: 1,
-              thumbnailUrl: song!.thumbnailUrl,
-              title: song!.title,
-              subTitle: song!.artistsNames,
-            ),
-          ),
-          BlocBuilder(
-            bloc: playerCubit,
-            builder: (context, state) {
-              return Offstage(
-                offstage:
-                    state is! SongPlayerLoaded ||
-                    state.currentSong.id != song!.id,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: GifView.asset(
-                    'assets/gifs/eq_accent.gif',
-                    height: 30,
-                    width: 30,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// used in blacklisted songs page
-  Widget _variant4(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

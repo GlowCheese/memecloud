@@ -148,7 +148,7 @@ class LibraryPage extends StatelessWidget {
                     vertical: 6,
                   ),
                   child: SongCard(
-                    variant: 4,
+                    variant: 3,
                     song: song,
                     onUnblacklistButtonPressed: () {
                       onUnblacklistButtonPressed(context, song).then((result) {
@@ -184,7 +184,7 @@ class LibraryPage extends StatelessWidget {
                       for (var song in recentlyPlayedSongs)
                         SongCard(
                           key: ValueKey(song.id),
-                          variant: 3,
+                          variant: 1,
                           song: song,
                           songList: recentlyPlayedSongs,
                         ),
@@ -248,7 +248,7 @@ class LibraryPage extends StatelessWidget {
                         vertical: 6,
                       ),
                       child: SongCard(
-                        variant: 3,
+                        variant: 1,
                         song: recentlyPlayedSongs[i],
                         songList: recentlyPlayedSongs,
                       ),
