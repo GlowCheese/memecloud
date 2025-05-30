@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -9,6 +10,7 @@ import 'package:memecloud/components/musics/playlist_card.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/miscs/page_with_tabs/single.dart';
 import 'package:memecloud/blocs/recent_played/recent_played_stream.dart';
+import 'package:memecloud/models/song_model.dart';
 
 Map getLibraryPage(BuildContext context) {
   return {
@@ -58,23 +60,105 @@ class LibraryPage extends StatelessWidget {
     );
   }
 
+  Future<bool?> onUnblacklistButtonPressed(
+    BuildContext context,
+    SongModel song,
+  ) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context2) {
+        return AlertDialog(
+          title: const Text('Xác nhận'),
+          content: Text('Bạn có chắc chắn muốn bỏ chặn bài hát: ${song.title}?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context2, false),
+              child: const Text('Hủy'),
+            ),
+            TextButton(
+              onPressed: () {
+                getIt<ApiKit>()
+                    .setIsBlacklisted(song, false)
+                    .then((_) {
+                      if (context.mounted) {
+                        final snackBar = SnackBar(
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor: Colors.transparent,
+                          content: AwesomeSnackbarContent(
+                            title: 'Done!',
+                            message: 'Đã bỏ chặn 1 bài hát',
+                            contentType: ContentType.success,
+                          ),
+                        );
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(snackBar);
+                      }
+                      if (context2.mounted) {
+                        Navigator.pop(context2, true);
+                      }
+                    })
+                    .catchError((e) {
+                      if (context2.mounted) {
+                        Navigator.pop(context2, false);
+                      }
+                      if (context.mounted) {
+                        final snackBar = SnackBar(
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor: Colors.transparent,
+                          content: AwesomeSnackbarContent(
+                            title: 'Lỗi!',
+                            message: 'Không thể bỏ chặn bài hát: $e',
+                            contentType: ContentType.failure,
+                          ),
+                        );
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(snackBar);
+                      }
+                    });
+              },
+              child: const Text('Bỏ chặn'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget blacklistTab(BuildContext context) {
     final blacklistedSongs = getIt<ApiKit>().getBlacklistedSongs();
 
     return Padding(
       padding: const EdgeInsets.only(top: 8),
-      child: COLUMN_THAT_IS_USED_TO_DISPLAY_MUSIC_CARDS(
-        title: 'Bài hát bị chặn',
-        children: <Widget>[
-          for (var song in blacklistedSongs)
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: horzPad,
-                vertical: 6,
-              ),
-              child: SongCard(variant: 4, song: song),
-            ),
-        ],
+      child: StatefulBuilder(
+        builder: (context, setState) {
+          return COLUMN_THAT_IS_USED_TO_DISPLAY_MUSIC_CARDS(
+            title: 'Bài hát bị chặn',
+            children: <Widget>[
+              for (var song in blacklistedSongs)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: horzPad,
+                    vertical: 6,
+                  ),
+                  child: SongCard(
+                    variant: 4,
+                    song: song,
+                    onUnblacklistButtonPressed: () {
+                      onUnblacklistButtonPressed(context, song).then((result) {
+                        if (result == true) {
+                          setState(() {
+                            blacklistedSongs.remove(song);
+                          });
+                        }
+                      });
+                    },
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -231,6 +315,7 @@ class LibraryPage extends StatelessWidget {
   }
 }
 
+// Again, stupid name asf
 class COLUMN_THAT_IS_USED_TO_DISPLAY_MUSIC_CARDS extends StatelessWidget {
   final String title;
   final Widget? showAllButton;

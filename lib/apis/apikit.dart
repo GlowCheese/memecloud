@@ -389,7 +389,7 @@ class ApiKit {
     return storage.isSongBlacklisted(songId);
   }
 
-  Future setIsBlacklisted(SongModel song, bool isBlacklisted) {
+  Future<void> setIsBlacklisted(SongModel song, bool isBlacklisted) {
     unawaited(supabase.songs.setIsBlacklisted(song.id, isBlacklisted));
     return storage.setIsBlacklisted(song, isBlacklisted);
   }

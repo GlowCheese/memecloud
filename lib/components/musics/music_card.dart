@@ -8,6 +8,7 @@ class MusicCard extends StatelessWidget {
   final String title;
   final String? subTitle;
   final String thumbnailUrl;
+  final bool dimmed;
 
   const MusicCard({
     super.key,
@@ -15,18 +16,28 @@ class MusicCard extends StatelessWidget {
     required this.thumbnailUrl,
     required this.title,
     this.subTitle,
+    this.dimmed = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    Widget content;
     switch (variant) {
       case 1:
-        return _variant1(context);
+        content = _variant1(context);
+        break;
       case 2:
-        return _variant2(context);
+        content = _variant2(context);
+        break;
       default:
-        return _variant3(context);
+        content = _variant3(context);
+        break;
     }
+
+    return Opacity(
+      opacity: dimmed ? 0.6 : 1.0, // Tối hơn nếu dimmed
+      child: content,
+    );
   }
 
   /// with subTitle
@@ -94,9 +105,7 @@ class MusicCard extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        ClipRRect(
-          child: getImage(thumbnailUrl, 62),
-        ),
+        ClipRRect(child: getImage(thumbnailUrl, 62)),
         SizedBox(width: 14),
         Flexible(
           child: Column(
@@ -104,10 +113,7 @@ class MusicCard extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),

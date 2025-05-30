@@ -304,7 +304,7 @@ class PersistentStorage {
     return hiveBoxes.blacklistedSongs.containsKey(songId);
   }
 
-  Future setIsBlacklisted(SongModel song, bool isBlacklisted) {
+  Future<void> setIsBlacklisted(SongModel song, bool isBlacklisted) {
     final box = hiveBoxes.blacklistedSongs;
     if (isBlacklisted) {
       return box.put(song.id, jsonEncode(song.toJson()));

@@ -18,6 +18,7 @@ class SongCard extends StatelessWidget {
   final PlaylistModel? playlist;
   final List<SongModel>? songList;
   final playerCubit = getIt<SongPlayerCubit>();
+  final Function()? onUnblacklistButtonPressed;
 
   SongCard({
     super.key,
@@ -26,6 +27,7 @@ class SongCard extends StatelessWidget {
     this.chartSong,
     this.songList,
     this.playlist,
+    this.onUnblacklistButtonPressed,
   });
 
   @override
@@ -193,7 +195,8 @@ class SongCard extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 10),
                   child: GifView.asset(
                     'assets/gifs/eq_accent.gif',
-                    height: 30, width: 30,
+                    height: 30,
+                    width: 30,
                   ),
                 ),
               );
@@ -206,14 +209,26 @@ class SongCard extends StatelessWidget {
 
   /// used in blacklisted songs page
   Widget _variant4(BuildContext context) {
-    return gestureDectectorWrapper(
-      context,
-      child: MusicCard(
-        variant: 1,
-        thumbnailUrl: song!.thumbnailUrl,
-        title: song!.title,
-        subTitle: song!.artistsNames,
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: onUnblacklistButtonPressed,
+            child: MusicCard(
+              variant: 1,
+              dimmed: true,
+              thumbnailUrl: song!.thumbnailUrl,
+              title: song!.title,
+              subTitle: song!.artistsNames,
+            ),
+          ),
+        ),
+        IconButton(
+          icon: Icon(Icons.block, color: Colors.red),
+          onPressed: onUnblacklistButtonPressed,
+        ),
+      ],
     );
   }
 }
