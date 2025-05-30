@@ -199,13 +199,13 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
     required PlaylistModel playlist,
     required Color color,
   }) {
-    return 
-    
-      Container(
-        padding: const EdgeInsets.only(bottom: 12.0),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Container(
         decoration: BoxDecoration(
-          color: Colors.grey[900],
+          color: Theme.of(context).colorScheme.onSecondary,
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.2)),
         ),
         child: GestureDetector(
           onTap: () => context.push('/playlist_page', extra: playlist),
@@ -214,7 +214,7 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
               horizontal: 16,
               vertical: 8,
             ),
-            
+
             leading: Container(
               width: 50,
               height: 50,
@@ -222,7 +222,7 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
                 color: color.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(Icons.playlist_play, color: color),
+              child: CachedNetworkImage(imageUrl: playlist.thumbnailUrl),
             ),
             title: Text(
               playlist.title,
@@ -242,6 +242,7 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
             ),
           ),
         ),
+      ),
     );
   }
 

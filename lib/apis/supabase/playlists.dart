@@ -98,10 +98,16 @@ class SupabasePlaylistsApi {
     try {
       _connectivity.ensure();
       final response = await _client.from('playlists').select('*').limit(10);
-      return response.map((e) => PlaylistModel.fromJson(e)).toList();
+      return response
+          .map((e) => PlaylistModel.fromJson<SupabaseApi>(e))
+          .toList();
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
-      log("Failed to get suggested playlists: $e", stackTrace: stackTrace, level: 1000);
+      log(
+        "Failed to get suggested playlists: $e",
+        stackTrace: stackTrace,
+        level: 1000,
+      );
       rethrow;
     }
   }

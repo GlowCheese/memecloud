@@ -34,6 +34,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
   late Future<ArtistModel?> _artistFuture;
   late List<SongModel> songs;
   late List<PlaylistModel> albums;
+  late List<PlaylistModel> playlists;
 
   @override
   void initState() {
@@ -52,7 +53,9 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
         onData: (context, artist) {
           songs = artist!.sections![0].items.cast<SongModel>().toList();
 
-          albums = artist.sections![1].items.cast<PlaylistModel>().toList();
+          playlists = artist.sections![1].items.cast<PlaylistModel>().toList();
+
+          albums = artist.sections![2].items.cast<PlaylistModel>().toList();
 
           return Stack(
             fit: StackFit.expand,
@@ -94,12 +97,26 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                               thickness: 0.5,
                             ),
 
+                            if (playlists.isEmpty)
+                              const SizedBox.shrink(
+                                child: Text('Chưa có album nào.'),
+                              )
+                            else
+                              _AlbumsOfArtist(
+                                title: 'Playlist',
+                                albums: playlists,
+                              ),
+                            Divider(
+                              color: Theme.of(context).dividerColor,
+                              thickness: 0.5,
+                            ),
+
                             if (albums.isEmpty)
                               const SizedBox.shrink(
                                 child: Text('Chưa có album nào.'),
                               )
                             else
-                              _AlbumsOfArtist(albums: albums),
+                              _AlbumsOfArtist(title: 'Albums', albums: albums),
                           ],
                         ),
                       ),
@@ -279,6 +296,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
     if (playerCubit.shuffleMode) {
       await playerCubit.toggleShuffleMode();
     }
+    if (!mounted) return;
     await playerCubit.loadAndPlay(
       context,
       songs[0],
@@ -336,12 +354,12 @@ class _FollowButtonState extends State<_FollowButton> {
           log('toggle follow ${widget.artistId}');
           if (!isFollowing!) {
             unawaited(getIt<ApiKit>().toggleFollowArtist(widget.artistId));
+            setState(() {
+              isFollowing = !isFollowing!;
+            });
           } else {
             _showSubmitUnfollowDialog(context);
           }
-          setState(() {
-            isFollowing = !isFollowing!;
-          });
         },
       ),
     );
@@ -358,6 +376,9 @@ class _FollowButtonState extends State<_FollowButton> {
 
     if (submitUnfollow == true) {
       unawaited(getIt<ApiKit>().toggleFollowArtist(widget.artistId));
+      setState(() {
+        isFollowing = !isFollowing!;
+      });
     }
   }
 }
@@ -426,7 +447,7 @@ class _SongsOfArtist extends StatelessWidget {
           ],
         ),
         SizedBox(
-          height: 85 * math.min(songs.length.toDouble(), 5),
+          height: 100 * math.min(songs.length.toDouble(), 5),
           child: ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
@@ -456,9 +477,10 @@ class _SongsOfArtist extends StatelessWidget {
 }
 
 class _AlbumsOfArtist extends StatelessWidget {
+  final String title;
   final List<PlaylistModel> albums;
 
-  const _AlbumsOfArtist({required this.albums});
+  const _AlbumsOfArtist({required this.title, required this.albums});
 
   @override
   Widget build(BuildContext context) {
@@ -468,7 +490,7 @@ class _AlbumsOfArtist extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'Album',
+                title,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -477,7 +499,7 @@ class _AlbumsOfArtist extends StatelessWidget {
           ],
         ),
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.only(left: 16, right: 16),
           child: SizedBox(
             child: GridView.builder(
               shrinkWrap: true,
@@ -510,7 +532,6 @@ class _AlbumsOfArtist extends StatelessWidget {
             label: Text("Xem thêm"),
             icon: Icon(Icons.arrow_right),
           ),
-        const SizedBox(height: 80),
       ],
     );
   }

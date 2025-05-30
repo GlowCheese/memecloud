@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:memecloud/models/playlist_model.dart';
 
 class AlbumListTile extends StatelessWidget {
@@ -15,9 +16,9 @@ class AlbumListTile extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         clipBehavior: Clip.antiAlias,
         color: Theme.of(context).colorScheme.onSecondary,
-        child: InkWell(
+        child: GestureDetector(
           onTap: () {
-            //TO DO: play album
+            context.push('/playlist_page', extra: album);
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

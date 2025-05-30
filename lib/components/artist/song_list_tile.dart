@@ -28,7 +28,7 @@ class SongListTile extends StatelessWidget {
           builder: (context, snapshot) {
             final isPlaying = isCurrentSong;
             return SizedBox(
-              height: 80,
+              height: 90,
               child: Card(
                 color: Theme.of(context).colorScheme.onPrimary,
                 elevation: isPlaying ? 8 : 2,
@@ -150,16 +150,21 @@ class SongListTile extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
+
                                 const SizedBox(height: 4),
-                                Text(
-                                  song.artistsNames,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
+                                Expanded(
+                                  child: Text(
+                                    song.artistsNames,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
