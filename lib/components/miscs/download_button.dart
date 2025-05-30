@@ -33,6 +33,7 @@ class DownloadButton extends StatelessWidget {
           child: IconButton(
             iconSize: iconSize,
             onPressed: onPressed,
+            color: Colors.white,
             icon: Icon(Icons.download_for_offline_outlined),
           ),
         ),

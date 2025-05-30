@@ -1,3 +1,4 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -10,11 +11,17 @@ import 'package:memecloud/components/miscs/download_button.dart';
 import 'package:memecloud/blocs/dl_status/dl_status_manager.dart';
 
 class SongDownloadButton extends StatelessWidget {
+  final bool dimmed;
   final SongModel song;
   final double? iconSize;
   late final DlStatusCubit cubit;
 
-  SongDownloadButton({super.key, required this.song, this.iconSize}) {
+  SongDownloadButton({
+    super.key,
+    required this.song,
+    this.iconSize,
+    this.dimmed = false,
+  }) {
     cubit = getIt<SongDlStatusManager>().getCubit(song.id);
   }
 
@@ -27,26 +34,31 @@ class SongDownloadButton extends StatelessWidget {
             state is DownloadingState ? state.downloadProgress : null;
 
         void onPressed() {
-          switch (state.status) {
-            case DlStatus.notDownloaded:
-              fetchDownloadUrls(context);
-              break;
-            case DlStatus.downloading:
-              cubit.updateCancel();
-              break;
-            case DlStatus.downloaded:
-              confirmUndownload(context);
-              break;
-            default:
-              break;
+          if (!dimmed) {
+            switch (state.status) {
+              case DlStatus.notDownloaded:
+                fetchDownloadUrls(context);
+                break;
+              case DlStatus.downloading:
+                cubit.updateCancel();
+                break;
+              case DlStatus.downloaded:
+                confirmUndownload(context);
+                break;
+              default:
+                break;
+            }
           }
         }
 
-        return DownloadButton(
-          status: state.status,
-          iconSize: iconSize,
-          downloadProgress: downloadProgress,
-          onPressed: onPressed,
+        return Offstage(
+          offstage: dimmed && state is NotDownloadedState,
+          child: DownloadButton(
+            status: state.status,
+            iconSize: iconSize,
+            downloadProgress: downloadProgress,
+            onPressed: onPressed,
+          ),
         );
       },
     );
@@ -66,7 +78,7 @@ class SongDownloadButton extends StatelessWidget {
       builder: (context) {
         return AlertDialog(
           title: Text("Confirm"),
-          content: Text("Chọn chất lượng nhac mà bạn muốn tải xuống"),
+          content: Text("Chọn chất lượng nhạc mà bạn muốn tải xuống"),
           actions:
               urls!.entries.map((e) {
                 return TextButton(
@@ -86,6 +98,24 @@ class SongDownloadButton extends StatelessWidget {
   }
 
   void confirmUndownload(BuildContext context) {
+    // TODO: should have a better approach for this
+    if (getIt<PlaylistDlStatusManager>().hasPlaylistInDownload()) {
+      final snackBar = SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.transparent,
+        content: AwesomeSnackbarContent(
+          title: 'Lưu ý',
+          message:
+              'Không thể thực hiện thao tác này ngay bây giờ. '
+              'Vui lòng chờ trong giây lát!',
+          contentType: ContentType.warning,
+        ),
+      );
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(snackBar);
+      return;
+    }
     showDialog(
       context: context,
       builder: (context) {

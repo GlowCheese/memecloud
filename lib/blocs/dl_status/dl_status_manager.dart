@@ -50,4 +50,10 @@ class SongDlStatusManager extends DlStatusManager {
 class PlaylistDlStatusManager extends DlStatusManager {
   PlaylistDlStatusManager()
     : super(isDownloadedCheck: getIt<ApiKit>().isPlaylistDownloaded);
+
+  bool hasPlaylistInDownload() {
+    return dlStatusCubitMap.values.any(
+      (cubit) => cubit.state is DownloadingState,
+    );
+  }
 }

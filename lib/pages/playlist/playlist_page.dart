@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/pages/song/list_song_page.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:memecloud/utils/images.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/models/playlist_model.dart';
+import 'package:memecloud/pages/song/list_song_page.dart';
 import 'package:memecloud/components/song/mini_player.dart';
 import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/components/miscs/search_bar.dart';
@@ -15,8 +15,8 @@ import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/playlist/playlist_follow_button.dart';
+import 'package:memecloud/components/playlist/playlist_download_button.dart';
 import 'package:memecloud/components/miscs/generatable_list/sliver_list.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum SortPlaylistOptions { duration, releaseDate, title, artist }
 
@@ -123,12 +123,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
       slivers: [
         _appBar(context),
         _generalDetails(),
-
-        widget.playlist.description != null &&
-                widget.playlist.description!.isNotEmpty
-            ? (_playlistDescription())
-            : (SliverToBoxAdapter(child: SizedBox(height: 18))),
-
+        _playlistDescription(),
         _songsSliverList(context),
         SliverToBoxAdapter(child: const SizedBox(height: 72)),
       ],
@@ -145,33 +140,11 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
         return [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
-            child: Row(
-              children: [
-                Flexible(
-                  child: SongCard(
-                    variant: 1,
-                    song: song,
-                    songList: _displaySongs,
-                    playlist: widget.playlist,
-                  ),
-                ),
-                SizedBox(width: 8),
-                IconButton(
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: Colors.grey[400],
-                    size: 20,
-                  ),
-                  onPressed: () {
-                    // Hiển thị menu tùy chọn cho bài hát
-                    showModalBottomSheet(
-                      context: context,
-                      backgroundColor: Colors.grey[900],
-                      builder: (context) => SongOptionsSheet(song: song),
-                    );
-                  },
-                ),
-              ],
+            child: SongCard(
+              variant: 1,
+              song: song,
+              songList: _displaySongs,
+              playlist: widget.playlist,
             ),
           ),
         ];
@@ -180,6 +153,10 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
   }
 
   SliverToBoxAdapter _playlistDescription() {
+    if (widget.playlist.description == null ||
+        widget.playlist.description!.isEmpty) {
+      return SliverToBoxAdapter(child: SizedBox(height: 18));
+    }
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
@@ -300,6 +277,8 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
+        PlaylistDownloadButton(playlist: widget.playlist, iconSize: 26),
+        SizedBox(width: 5),
         IconButton(
           onPressed: () {
             getIt<SongPlayerCubit>().loadAndPlay(
@@ -343,9 +322,9 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
             showModalBottomSheet(
               context: context,
               backgroundColor: Colors.grey[900],
-              builder:
-                  (context) =>
-                      SongOptionsSheet(song: widget.playlist.songs![0]),
+              builder: (context) {
+                return SongOptionsSheet(song: widget.playlist.songs![0]);
+              },
             );
           },
         ),

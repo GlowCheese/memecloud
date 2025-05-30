@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gif_view/gif_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
+import 'package:memecloud/components/song/song_download_button.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
@@ -77,16 +78,26 @@ class SongCard extends StatelessWidget {
           BlocBuilder(
             bloc: playerCubit,
             builder: (context, state) {
-              return Offstage(
-                offstage:
-                    state is! SongPlayerLoaded ||
-                    state.currentSong.id != song!.id,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: GifView.asset(
-                    'assets/gifs/eq_accent.gif',
-                    height: 30,
-                    width: 30,
+              return Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: IndexedStack(
+                    index:
+                        (state is SongPlayerLoaded &&
+                                state.currentSong.id == song!.id)
+                            ? 1
+                            : 0,
+                    alignment: Alignment.center,
+                    children: [
+                      SongDownloadButton(song: song!, dimmed: true),
+                      GifView.asset(
+                        'assets/gifs/eq_accent.gif',
+                        width: 30,
+                        height: 30,
+                      ),
+                    ],
                   ),
                 ),
               );

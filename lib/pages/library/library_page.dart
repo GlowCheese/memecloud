@@ -309,16 +309,39 @@ class LibraryPage extends StatelessWidget {
   }
 
   Widget downloadedSongsTab(BuildContext context) {
+    // final likedSongsPlaylist = PlaylistModel.likedPlaylist();
+    // final followedPlaylists = getIt<ApiKit>().getFollowedPlaylists();
+
+    // return Padding(
+    //   padding: const EdgeInsets.only(left: horzPad, right: horzPad, top: 18),
+    //   child: ListView.separated(
+    //     itemBuilder: (context, index) {
+    //       if (index == 0) {
+    //         return PlaylistCard(variant: 2, playlist: likedSongsPlaylist);
+    //       }
+    //       final playlist = followedPlaylists[index - 1];
+    //       return PlaylistCard(variant: 3, playlist: playlist);
+    //     },
+    //     separatorBuilder: (context, index) => SizedBox(height: 18),
+    //     itemCount: followedPlaylists.length + 1,
+    //   ),
+    // );
+
     final downloadedSongsPlaylist = PlaylistModel.downloadedPlaylist();
+    final downloadedPlaylists = getIt<ApiKit>().getDownloadedPlaylists();
 
     return Padding(
       padding: const EdgeInsets.only(left: horzPad, right: horzPad, top: 18),
       child: ListView.separated(
         itemBuilder: (context, index) {
-          return PlaylistCard(variant: 2, playlist: downloadedSongsPlaylist);
+          if (index == 0) {
+            return PlaylistCard(variant: 2, playlist: downloadedSongsPlaylist);
+          }
+          final playlist = downloadedPlaylists[index-1];
+          return PlaylistCard(variant: 2, playlist: playlist);
         },
         separatorBuilder: (context, index) => SizedBox(height: 18),
-        itemCount: 10,
+        itemCount: downloadedPlaylists.length + 1,
       ),
     );
   }

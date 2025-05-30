@@ -162,7 +162,7 @@ class ApiKit {
     await supabase.playlists.savePlaylistInfo(playlist);
   }
 
-  Future<PlaylistModel?> getPlaylistInfo(String playlistId)  async {
+  Future<PlaylistModel?> getPlaylistInfo(String playlistId) async {
     final String api = '/infoplaylist?id=$playlistId';
     return await _getOrFetch<Map<String, dynamic>?, PlaylistModel?>(
       api,
@@ -255,19 +255,25 @@ class ApiKit {
     return urls.values.last; // TODO: random one?
   }
 
-  Future<bool> downloadSong(SongModel song, String songUrl) async {
+  Future<bool> downloadSong(
+    SongModel song,
+    String songUrl, {
+    CancelToken? cancelToken,
+    void Function(int received, int total)? onProgress,
+  }) async {
     final filePath = '${storage.userDir.path}/${song.id}.mp3';
 
-    final cancelToken = CancelToken();
-    void onProgress(int received, int total) {
+    cancelToken ??= CancelToken();
+    void actualOnProgress(int received, int total) {
       getIt<SongDlStatusManager>().updateProgress(song.id, received / total);
+      onProgress?.call(received, total);
     }
 
     final downloadTask = CancelableOperation.fromFuture(
       _downloadFile(
         songUrl,
         filePath,
-        onProgress: onProgress,
+        onProgress: actualOnProgress,
         cancelToken: cancelToken,
       ).then((success) async {
         if (success) {
@@ -277,19 +283,22 @@ class ApiKit {
         }
         return success;
       }),
-      onCancel: () => cancelToken.cancel(),
+      onCancel: () => cancelToken!.cancel(),
     );
-    getIt<SongDlStatusManager>().updateState(song.id, downloadTask: downloadTask);
+    getIt<SongDlStatusManager>().updateState(
+      song.id,
+      downloadTask: downloadTask,
+    );
 
     return await downloadTask.valueOrCancellation() == true;
   }
 
   Future<void> undownloadSong(String songId) async {
-    if (!storage.isSongDownloaded(songId)) {
+    if (storage.isSongDownloaded(songId)) {
       final filePath = '${storage.userDir.path}/$songId.mp3';
       await File(filePath).delete();
+      _markSongAsNotDownloaded(songId);
     }
-    _markSongAsNotDownloaded(songId);
   }
 
   bool isSongDownloaded(String songId) {
@@ -321,19 +330,105 @@ class ApiKit {
   }
 
   List<SongModel> getUndownloadedSongsInPlaylist(PlaylistModel playlist) {
-    return playlist.songs!.where((song) {
-      return isSongDownloaded(song.id);
-    }).toList();
+    getIt<PlaylistDlStatusManager>().updateState(playlist.id, isFetching: true);
+    return playlist.songs!.where((song) => !isSongDownloaded(song.id)).toList();
+  }
+
+  Future<bool> downloadPlaylist(
+    String playlistId,
+    List<SongModel> songs,
+    String quality,
+  ) async {
+    final cancelToken = CancelToken();
+
+    Future<bool> downloadProcess() async {
+      final songDlManager = getIt<SongDlStatusManager>();
+
+      List<String> songIds = [];
+      for (var song in songs) {
+        songDlManager.updateState(song.id, isFetching: true);
+        songIds.add(song.id);
+        if (cancelToken.isCancelled) {
+          for (var songId in songIds) {
+            songDlManager.cancelDownload(songId);
+          }
+          return false;
+        }
+      }
+      songIds.clear();
+
+      for (var song in songs) {
+        if (cancelToken.isCancelled) {
+          songDlManager.cancelDownload(song.id);
+          continue;
+        }
+        final songUrl = await getSongUrlForDownload(song.id, quality: quality);
+        if (songUrl != null) {
+          final success = await downloadSong(
+            song,
+            songUrl,
+            cancelToken: cancelToken,
+            onProgress: (received, total) {
+              final songProgress = received / total;
+              getIt<PlaylistDlStatusManager>().updateProgress(
+                playlistId,
+                (songIds.length + songProgress) / songs.length,
+              );
+            },
+          );
+          if (!success) {
+            if (!cancelToken.isCancelled) cancelToken.cancel();
+            continue;
+          }
+          songIds.add(song.id);
+        }
+      }
+
+      if (!cancelToken.isCancelled) return true;
+
+      for (var songId in songIds) {
+        undownloadSong(songId);
+      }
+      return false;
+    }
+
+    final downloadTask = CancelableOperation.fromFuture(
+      downloadProcess().then((success) {
+        if (success) {
+          _markPlaylistAsDownloaded(playlistId);
+        } else {
+          _markPlaylistAsNotDownloaded(playlistId);
+        }
+        return success;
+      }),
+      onCancel: () => cancelToken.cancel(),
+    );
+    getIt<PlaylistDlStatusManager>().updateState(
+      playlistId,
+      downloadTask: downloadTask,
+    );
+
+    return await downloadTask.valueOrCancellation() == true;
+  }
+
+  Future<void> undownloadPlaylist(String playlistId) async {
+    if (storage.isPlaylistDownloaded(playlistId)) {
+      final playlist = storage.getCachedPlaylist(playlistId)!;
+      await Future.wait([
+        for (var song in playlist.songs!) undownloadSong(song.id),
+      ]);
+      await _markPlaylistAsNotDownloaded(playlistId);
+    }
   }
 
   Future<void> _markPlaylistAsNotDownloaded(String playlistId) async {
     await storage.markPlaylistAsNotDownloaded(playlistId);
-    // await getIt<DlStatusManager>().cancelSongDownload(songId);
+    await getIt<PlaylistDlStatusManager>().cancelDownload(playlistId);
   }
 
-  Future<void> _markPlaylistAsDownloaded(PlaylistModel playlist) async {
-    await storage.markPlaylistAsDownloaded(playlist);
-    // getIt<DlStatusManager>().updateSong(song.id, isCompleted: true);
+  Future<void> _markPlaylistAsDownloaded(String playlistId) async {
+    await storage.markPlaylistAsDownloaded(playlistId);
+    getIt<PlaylistDlStatusManager>().updateState(playlistId, isCompleted: true);
   }
 
   /* -------------------

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:hive_flutter/adapters.dart';
+import 'package:memecloud/apis/zingmp3/endpoints.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/utils/cookie.dart';
 import 'package:path_provider/path_provider.dart';
@@ -114,7 +115,7 @@ class PersistentStorage {
   PlaylistModel? getCachedPlaylist(String playlistId) {
     String api = '/infoplaylist?id=$playlistId';
     return getCached<Map<String, dynamic>>(api).fold((data) {
-      return PlaylistModel.fromJson<SupabaseApi>(data['data']);
+      return PlaylistModel.fromJson<ZingMp3Api>(data['data']);
     }, (fallback) => null);
   }
 
@@ -353,25 +354,15 @@ class PersistentStorage {
   List<PlaylistModel> getDownloadedPlaylists() {
     return [
       for (String playlistId in hiveBoxes.downloadedPlaylists.keys)
-        getCachedPlaylist(playlistId)!
+        getCachedPlaylist(playlistId)!,
     ];
   }
 
-  Future<void> markPlaylistAsDownloaded(PlaylistModel playlist) {
-    return Future.wait([
-      hiveBoxes.downloadedPlaylists.put(playlist.id, true),
-      ...playlist.songs!.map((e) => markSongAsDownloaded(e)),
-    ]);
+  Future<void> markPlaylistAsDownloaded(String playlistId) async {
+    await hiveBoxes.downloadedPlaylists.put(playlistId, true);
   }
 
   Future<void> markPlaylistAsNotDownloaded(String playlistId) async {
-    if (hiveBoxes.downloadedPlaylists.containsKey(playlistId)) {
-      final playlist = getCachedPlaylist(playlistId)!;
-      final songIds = playlist.songs!.map((e) => e.id).toList();
-      await Future.wait([
-        hiveBoxes.downloadedPlaylists.delete(playlistId),
-        ...songIds.map((songId) => markSongAsNotDownloaded(songId)),
-      ]);
-    }
+    await hiveBoxes.downloadedPlaylists.delete(playlistId);
   }
 }
