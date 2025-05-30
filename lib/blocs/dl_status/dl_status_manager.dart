@@ -5,23 +5,24 @@ import 'package:memecloud/blocs/dl_status/dl_status_cubit.dart';
 import 'package:memecloud/blocs/dl_status/dl_status_state.dart';
 
 class DlStatusManager {
-  Map<String, DlStatusCubit> songDlStatusCubitMap = {};
+  bool Function(String id) isDownloadedCheck;
+  Map<String, DlStatusCubit> dlStatusCubitMap = {};
 
-  DlStatusCubit getCubit(String songId) {
-    return songDlStatusCubitMap[songId] ??= DlStatusCubit(
-      getIt<ApiKit>().isSongDownloaded(songId)
-          ? DownloadedState()
-          : NotDownloadedState(),
+  DlStatusManager({required this.isDownloadedCheck});
+
+  DlStatusCubit getCubit(String id) {
+    return dlStatusCubitMap[id] ??= DlStatusCubit(
+      isDownloadedCheck(id) ? DownloadedState() : NotDownloadedState(),
     );
   }
 
-  void updateSong(
-    String songId, {
+  void updateState(
+    String id, {
     bool isFetching = false,
     bool isCompleted = false,
     CancelableOperation<bool>? downloadTask,
   }) {
-    final cubit = songDlStatusCubitMap[songId];
+    final cubit = dlStatusCubitMap[id];
 
     if (isCompleted) {
       cubit?.update(DownloadedState());
@@ -32,11 +33,21 @@ class DlStatusManager {
     }
   }
 
-  void updateSongProgress(String songId, double downloadProgress) {
-    songDlStatusCubitMap[songId]?.updateProgress(downloadProgress);
+  void updateProgress(String id, double downloadProgress) {
+    dlStatusCubitMap[id]?.updateProgress(downloadProgress);
   }
 
-  Future<void> cancelSongDownload(String songId) async {
-    songDlStatusCubitMap[songId]?.updateCancel();
+  Future<void> cancelDownload(String id) async {
+    dlStatusCubitMap[id]?.updateCancel();
   }
+}
+
+class SongDlStatusManager extends DlStatusManager {
+  SongDlStatusManager()
+    : super(isDownloadedCheck: getIt<ApiKit>().isSongDownloaded);
+}
+
+class PlaylistDlStatusManager extends DlStatusManager {
+  PlaylistDlStatusManager()
+    : super(isDownloadedCheck: getIt<ApiKit>().isPlaylistDownloaded);
 }

@@ -16,10 +16,9 @@ class HiveBoxes {
       Hive.openBox<String>('blacklistedSongs'),
       Hive.openBox<String>('followedPlaylists'),
       Hive.openBox<String>('downloadedSongs'),
-      Hive.openBox<String>('downloadedPlaylists'),
+      Hive.openBox<bool>('downloadedPlaylists'),
       Hive.openBox<String>('recentlyPlayedSongs'),
       Hive.openBox<String>('recentlyPlayedPlaylists'),
-      Hive.openBox<int>('songDownloadDeps'),
       Hive.openBox<String>('appConfig'),
     ]);
     return HiveBoxes();
@@ -31,11 +30,10 @@ class HiveBoxes {
   Box<String> get blacklistedSongs => Hive.box('blacklistedSongs');
   Box<String> get followedPlaylists => Hive.box('followedPlaylists');
   Box<String> get downloadedSongs => Hive.box('downloadedSongs');
-  Box<String> get downloadedPlaylists => Hive.box('downloadedPlaylists');
+  Box<bool> get downloadedPlaylists => Hive.box('downloadedPlaylists');
   Box<String> get recentlyPlayedSongs => Hive.box('recentlyPlayedSongs');
   Box<String> get recentlyPlayedPlaylists =>
       Hive.box('recentlyPlayedPlaylists');
-  Box<int> get songDownloadDeps => Hive.box('songDownloadDeps');
   Box<String> get appConfig => Hive.box('appConfig');
 }
 
@@ -329,23 +327,7 @@ class PersistentStorage {
   |    SONG DOWNLOADS   |
   -------------------- */
 
-  int? _songDownloadDeps(String songId) {
-    return hiveBoxes.songDownloadDeps.get(songId);
-  }
-
-  Future<void> _updateSongDownloadDeps(
-    String songId, {
-    required bool inc,
-  }) async {
-    int deps = _songDownloadDeps(songId) ?? 0;
-    return hiveBoxes.songDownloadDeps.put(songId, deps + (inc ? 1 : -1));
-  }
-
-  bool isSongDownloaded(String songId, {bool checkDeps = false}) {
-    if (checkDeps) {
-      final deps = _songDownloadDeps(songId);
-      return deps != null && deps > 0;
-    }
+  bool isSongDownloaded(String songId) {
     return hiveBoxes.downloadedSongs.containsKey(songId);
   }
 
@@ -357,44 +339,38 @@ class PersistentStorage {
   }
 
   Future<void> markSongAsDownloaded(SongModel song) {
-    return Future.wait([
-      hiveBoxes.downloadedSongs.put(song.id, jsonEncode(song.toJson())),
-      _updateSongDownloadDeps(song.id, inc: true),
-    ]);
+    return hiveBoxes.downloadedSongs.put(song.id, jsonEncode(song.toJson()));
   }
 
-  Future<void> markSongAsNotDownloaded(String songId) async {
-    await Future.wait([
-      hiveBoxes.downloadedSongs.delete(songId),
-      _updateSongDownloadDeps(songId, inc: false),
-    ]);
+  Future<void> markSongAsNotDownloaded(String songId) {
+    return hiveBoxes.downloadedSongs.delete(songId);
+  }
+
+  bool isPlaylistDownloaded(String playlistId) {
+    return hiveBoxes.downloadedPlaylists.containsKey(playlistId);
   }
 
   List<PlaylistModel> getDownloadedPlaylists() {
-    return hiveBoxes.downloadedPlaylists.values
-        .map((e) => PlaylistModel.fromJson<SupabaseApi>(jsonDecode(e)))
-        .toList();
+    return [
+      for (String playlistId in hiveBoxes.downloadedPlaylists.keys)
+        getCachedPlaylist(playlistId)!
+    ];
   }
 
   Future<void> markPlaylistAsDownloaded(PlaylistModel playlist) {
     return Future.wait([
-      hiveBoxes.downloadedPlaylists.put(
-        playlist.id,
-        jsonEncode(playlist.toJson()),
-      ),
-      ...playlist.songs!.map((e) => _updateSongDownloadDeps(e.id, inc: true)),
+      hiveBoxes.downloadedPlaylists.put(playlist.id, true),
+      ...playlist.songs!.map((e) => markSongAsDownloaded(e)),
     ]);
   }
 
   Future<void> markPlaylistAsNotDownloaded(String playlistId) async {
     if (hiveBoxes.downloadedPlaylists.containsKey(playlistId)) {
-      final playlist = PlaylistModel.fromJson<SupabaseApi>(
-        jsonDecode(hiveBoxes.downloadedPlaylists.get(playlistId)!),
-      );
+      final playlist = getCachedPlaylist(playlistId)!;
       final songIds = playlist.songs!.map((e) => e.id).toList();
       await Future.wait([
         hiveBoxes.downloadedPlaylists.delete(playlistId),
-        ...songIds.map((songId) => _updateSongDownloadDeps(songId, inc: false)),
+        ...songIds.map((songId) => markSongAsNotDownloaded(songId)),
       ]);
     }
   }

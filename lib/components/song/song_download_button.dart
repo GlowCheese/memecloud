@@ -15,7 +15,7 @@ class SongDownloadButton extends StatelessWidget {
   late final DlStatusCubit cubit;
 
   SongDownloadButton({super.key, required this.song, this.iconSize}) {
-    cubit = getIt<DlStatusManager>().getCubit(song.id);
+    cubit = getIt<SongDlStatusManager>().getCubit(song.id);
   }
 
   @override

@@ -199,9 +199,9 @@ class ApiKit {
     await storage.saveRecentlyPlayedPlaylist(playlist);
   }
 
-  /* --------------------
-  |    DOWNLOAD APIs    |
-  -------------------- */
+  /* -------------------------
+  |    SONG DOWNLOAD APIs    |
+  ------------------------- */
 
   Future<bool> _downloadFile(
     String url,
@@ -235,11 +235,11 @@ class ApiKit {
   }
 
   Future<Map<String, String>?> getSongUrlsForDownload(String songId) async {
-    getIt<DlStatusManager>().updateSong(songId, isFetching: true);
+    getIt<SongDlStatusManager>().updateState(songId, isFetching: true);
     try {
       return await zingMp3.fetchSongUrls(songId);
     } catch (_) {
-      await getIt<DlStatusManager>().cancelSongDownload(songId);
+      await getIt<SongDlStatusManager>().cancelDownload(songId);
       return null;
     }
   }
@@ -260,7 +260,7 @@ class ApiKit {
 
     final cancelToken = CancelToken();
     void onProgress(int received, int total) {
-      getIt<DlStatusManager>().updateSongProgress(song.id, received / total);
+      getIt<SongDlStatusManager>().updateProgress(song.id, received / total);
     }
 
     final downloadTask = CancelableOperation.fromFuture(
@@ -271,48 +271,74 @@ class ApiKit {
         cancelToken: cancelToken,
       ).then((success) async {
         if (success) {
-          markSongAsDownloaded(song);
+          _markSongAsDownloaded(song);
         } else {
-          markSongAsNotDownloaded(song.id);
+          _markSongAsNotDownloaded(song.id);
         }
         return success;
       }),
       onCancel: () => cancelToken.cancel(),
     );
-    getIt<DlStatusManager>().updateSong(song.id, downloadTask: downloadTask);
+    getIt<SongDlStatusManager>().updateState(song.id, downloadTask: downloadTask);
 
     return await downloadTask.valueOrCancellation() == true;
   }
 
   Future<void> undownloadSong(String songId) async {
-    if (!storage.isSongDownloaded(songId, checkDeps: true)) {
+    if (!storage.isSongDownloaded(songId)) {
       final filePath = '${storage.userDir.path}/$songId.mp3';
       await File(filePath).delete();
     }
-    markSongAsNotDownloaded(songId);
+    _markSongAsNotDownloaded(songId);
   }
 
   bool isSongDownloaded(String songId) {
     return storage.isSongDownloaded(songId);
   }
 
-  List<SongModel> getDownloadedSongs() {
-    return storage.getDownloadedSongs();
-  }
+  List<SongModel> getDownloadedSongs() => storage.getDownloadedSongs();
 
-  Future<void> markSongAsNotDownloaded(String songId) async {
+  Future<void> _markSongAsNotDownloaded(String songId) async {
     await storage.markSongAsNotDownloaded(songId);
-    await getIt<DlStatusManager>().cancelSongDownload(songId);
+    await getIt<SongDlStatusManager>().cancelDownload(songId);
   }
 
-  Future<void> markSongAsDownloaded(SongModel song) async {
+  Future<void> _markSongAsDownloaded(SongModel song) async {
     await storage.markSongAsDownloaded(song);
-    getIt<DlStatusManager>().updateSong(song.id, isCompleted: true);
+    getIt<SongDlStatusManager>().updateState(song.id, isCompleted: true);
   }
 
-  /* ---------------------
+  /* -----------------------------
+  |    PLAYLIST DOWNLOAD APIs    |
+  ----------------------------- */
+
+  bool isPlaylistDownloaded(String playlistId) {
+    return storage.isPlaylistDownloaded(playlistId);
+  }
+
+  List<PlaylistModel> getDownloadedPlaylists() {
+    return storage.getDownloadedPlaylists();
+  }
+
+  List<SongModel> getUndownloadedSongsInPlaylist(PlaylistModel playlist) {
+    return playlist.songs!.where((song) {
+      return isSongDownloaded(song.id);
+    }).toList();
+  }
+
+  Future<void> _markPlaylistAsNotDownloaded(String playlistId) async {
+    await storage.markPlaylistAsNotDownloaded(playlistId);
+    // await getIt<DlStatusManager>().cancelSongDownload(songId);
+  }
+
+  Future<void> _markPlaylistAsDownloaded(PlaylistModel playlist) async {
+    await storage.markPlaylistAsDownloaded(playlist);
+    // getIt<DlStatusManager>().updateSong(song.id, isCompleted: true);
+  }
+
+  /* -------------------
   |    ARTISTS APIs    |
-  -------------------- */
+  ------------------- */
 
   Future<ArtistModel?> getArtistInfo(String artistAlias) async {
     final String api = '/infoartist?alias=$artistAlias';

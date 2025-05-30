@@ -37,14 +37,19 @@ Future<void> setupLocator() async {
   getIt.registerSingleton<PersistentStorage>(storage);
   final apiKit = getIt.registerSingleton<ApiKit>(ApiKit());
   getIt.registerSingleton<SupabaseEvents>(await SupabaseEvents.initialize());
-  
+
   // miscellaneous
-  getIt.registerSingleton<DlStatusManager>(DlStatusManager());
+  getIt.registerSingleton<SongDlStatusManager>(SongDlStatusManager());
+  getIt.registerSingleton<PlaylistDlStatusManager>(PlaylistDlStatusManager());
   getIt.registerSingleton<LikedSongsStream>(LikedSongsStream());
   getIt.registerSingleton<RecentPlayedStream>(RecentPlayedStream());
 
   // custom cookie for vip songs
-  dioInterceptorSetCustomCookie(dio, cookieJar, (await supabase.config.getZingCookie())!);
+  dioInterceptorSetCustomCookie(
+    dio,
+    cookieJar,
+    (await supabase.config.getZingCookie())!,
+  );
   dioInterceptorUpdateCookieOnSet(dio, apiKit);
 
   // song player
