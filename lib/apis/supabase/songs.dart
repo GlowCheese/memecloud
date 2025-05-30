@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:developer';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
@@ -251,8 +252,12 @@ class SupabaseSongsApi {
     }
   }
 
-  Future<List<SongModel>> getSongsPage({required int page,required int limit}) async {
+  Future<List<SongModel>> getSongsPage({
+    required int page,
+    required int limit,
+  }) async {
     try {
+      sleep(const Duration(milliseconds: 1500));
       final response = await _client
           .from('songs')
           .select('*')
