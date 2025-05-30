@@ -44,6 +44,7 @@ class _CreateNewPlaylistState extends State<CreateNewPlaylist> {
       if (_formKey.currentState!.validate()) {
         final title = _titleController.text.trim();
         final description = _descriptionController.text.trim();
+        // TODO: select image for playlist
         final image = _selectedImage;
 
         if (widget.playlist == null) {

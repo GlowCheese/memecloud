@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+
+import 'package:memecloud/pages/song/list_song_paginate_page.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:memecloud/utils/images.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/models/playlist_model.dart';
-import 'package:memecloud/pages/song/list_song_page.dart';
 import 'package:memecloud/components/song/mini_player.dart';
 import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/components/miscs/search_bar.dart';
@@ -298,15 +299,11 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
         if (widget.playlist.type == PlaylistType.user)
           IconButton(
             onPressed: () async {
-              final songs = await getIt<ApiKit>().supabase.songs.getAllSongs();
-              if (!mounted) return;
               final res = await Navigator.of(context).push(
                 MaterialPageRoute(
                   builder:
-                      (context) => ListSongPage(
-                        songs: songs,
-                        playlistId: widget.playlist.id,
-                      ),
+                      (context) =>
+                          ListSongPaginatePage(playlistId: widget.playlist.id),
                 ),
               );
               if (res == true) {
