@@ -16,10 +16,13 @@ class MyPlaylistPage extends StatefulWidget {
 
 class _MyPlaylistPageState extends State<MyPlaylistPage> {
   late Future<List<PlaylistModel>> Function() _myPlaylistFuture;
+  late Future<List<PlaylistModel>> Function() _suggestedPlaylistFuture;
 
   @override
   void initState() {
     _myPlaylistFuture = getIt<ApiKit>().supabase.userPlaylist.getUserPlaylists;
+    _suggestedPlaylistFuture =
+        getIt<ApiKit>().supabase.playlists.getSuggestedPlaylists;
     super.initState();
   }
 
@@ -122,18 +125,37 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
           ),
 
           // Suggested Playlists List
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _buildSuggestedPlaylistItem(
-                  'Suggested Playlist ${index + 1}',
-                  '${(index + 1) * 10} songs',
-                  Colors.primaries[(index + 6) % Colors.primaries.length],
+          FutureBuilder<List<PlaylistModel>>(
+            future: _suggestedPlaylistFuture(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return SliverToBoxAdapter(
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+              if (snapshot.hasError) {
+                return SliverToBoxAdapter(
+                  child: Text('Lỗi: ${snapshot.error}'),
+                );
+              }
+
+              final playlists = snapshot.data ?? [];
+
+              return SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => _buildSuggestedPlaylistItem(
+                      playlist: playlists[index],
+                      color:
+                          Colors.primaries[(index + 6) %
+                              Colors.primaries.length],
+                    ),
+                    childCount: playlists.length,
+                  ),
                 ),
-                childCount: 5,
-              ),
-            ),
+              );
+            },
           ),
         ],
       ),
@@ -173,50 +195,53 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
     );
   }
 
-  Widget _buildSuggestedPlaylistItem(
-    String title,
-    String subtitle,
-    Color color,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Container(
+  Widget _buildSuggestedPlaylistItem({
+    required PlaylistModel playlist,
+    required Color color,
+  }) {
+    return 
+    
+      Container(
+        padding: const EdgeInsets.only(bottom: 12.0),
         decoration: BoxDecoration(
           color: Colors.grey[900],
           borderRadius: BorderRadius.circular(12),
         ),
-        child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 8,
-          ),
-          leading: Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8),
+        child: GestureDetector(
+          onTap: () => context.push('/playlist_page', extra: playlist),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
             ),
-            child: Icon(Icons.playlist_play, color: color),
-          ),
-          title: Text(
-            title,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
+            
+            leading: Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.playlist_play, color: color),
             ),
-          ),
-          subtitle: Text(
-            subtitle,
-            style: TextStyle(fontSize: 12, color: Colors.white70),
-          ),
-          trailing: IconButton(
-            icon: const Icon(Icons.add, color: Colors.white),
-            onPressed: () {},
+            title: Text(
+              playlist.title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            subtitle: Text(
+              playlist.description ?? '',
+              style: TextStyle(fontSize: 12, color: Colors.white70),
+            ),
+            trailing: IconButton(
+              icon: const Icon(Icons.add, color: Colors.white),
+              onPressed: () {},
+            ),
           ),
         ),
-      ),
     );
   }
 
