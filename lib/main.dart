@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/core/noti_init.dart';
 import 'package:memecloud/core/theme.dart';
 import 'package:memecloud/routes/main.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -12,6 +13,7 @@ import 'package:memecloud/blocs/song_player/justaudio_init.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await notiInit();
   await dotenv.load();
   await setupLocator();
   await justAudioInit();

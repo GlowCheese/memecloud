@@ -248,6 +248,7 @@ class ApiKit {
     String songId, {
     String quality = "320",
   }) async {
+    // doing this because firebase store 320kbps songs by default
     if (quality == "320") {
       final uri = await getSongUri(songId);
       return uri.toString();
