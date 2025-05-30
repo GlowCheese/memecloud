@@ -7,16 +7,16 @@ import 'package:memecloud/components/miscs/search_bar.dart';
 
 import 'package:memecloud/models/song_model.dart';
 
-class SongArtistPage extends StatefulWidget {
+class ListSongPage extends StatefulWidget {
   final List<SongModel> songs;
 
-  const SongArtistPage({super.key, required this.songs});
+  const ListSongPage({super.key, required this.songs});
 
   @override
-  State<SongArtistPage> createState() => _SongArtistPageState();
+  State<ListSongPage> createState() => _ListSongPageState();
 }
 
-class _SongArtistPageState extends State<SongArtistPage> {
+class _ListSongPageState extends State<ListSongPage> {
   final ScrollController _scrollController = ScrollController();
   bool _showBackToTopButton = false;
   final TextEditingController _searchController = TextEditingController();

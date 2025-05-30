@@ -6,6 +6,7 @@ import 'package:memecloud/apis/supabase/config.dart';
 import 'package:memecloud/apis/supabase/playlists.dart';
 import 'package:memecloud/apis/supabase/profile.dart';
 import 'package:memecloud/apis/supabase/songs.dart';
+import 'package:memecloud/apis/supabase/user_playlist.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 
@@ -17,6 +18,7 @@ class SupabaseApi {
   late final SupabaseSongsApi songs;
   late final SupabaseArtistsApi artists;
   late final SupabasePlaylistsApi playlists;
+  late final SupabaseUserPlaylistApi userPlaylist;
   late final SupabaseConfigApi config;
 
   SupabaseApi._() {
@@ -27,6 +29,7 @@ class SupabaseApi {
     songs = SupabaseSongsApi(client);
     artists = SupabaseArtistsApi(client);
     playlists = SupabasePlaylistsApi(client);
+    userPlaylist = SupabaseUserPlaylistApi(client);
     config = SupabaseConfigApi(client);
   }
 

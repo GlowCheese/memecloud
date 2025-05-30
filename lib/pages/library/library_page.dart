@@ -11,6 +11,7 @@ import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/miscs/page_with_tabs/single.dart';
 import 'package:memecloud/blocs/recent_played/recent_played_stream.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/pages/library/my_playlist/my_playlist.dart';
 
 Map getLibraryPage(BuildContext context) {
   return {
@@ -36,6 +37,7 @@ class LibraryPage extends StatelessWidget {
       tabNames: const [
         '🕒 Gần đây',
         '❤️ Theo dõi',
+        '🎵 Playlist',
         '📥 Tải xuống',
         '👎 Danh sách đen',
       ],
@@ -54,6 +56,7 @@ class LibraryPage extends StatelessWidget {
       tabBodies: [
         recentlyPlayedTab(context),
         favoriteTab(context),
+        myPlaylistTab(context),
         downloadedSongsTab(context),
         blacklistTab(context),
       ],
@@ -69,7 +72,9 @@ class LibraryPage extends StatelessWidget {
       builder: (context2) {
         return AlertDialog(
           title: const Text('Xác nhận'),
-          content: Text('Bạn có chắc chắn muốn bỏ chặn bài hát: ${song.title}?'),
+          content: Text(
+            'Bạn có chắc chắn muốn bỏ chặn bài hát: ${song.title}?',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context2, false),
@@ -297,6 +302,10 @@ class LibraryPage extends StatelessWidget {
         itemCount: followedPlaylists.length + 1,
       ),
     );
+  }
+
+  Widget myPlaylistTab(BuildContext context) {
+    return MyPlaylistPage();
   }
 
   Widget downloadedSongsTab(BuildContext context) {

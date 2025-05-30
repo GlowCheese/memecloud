@@ -16,7 +16,7 @@ import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
 
-import 'package:memecloud/pages/artist/song_artist_page.dart';
+import 'package:memecloud/pages/song/list_song_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/components/miscs/expandable/html.dart';
 import 'package:memecloud/pages/artist/album_artist_page.dart';
@@ -443,7 +443,7 @@ class _SongsOfArtist extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => SongArtistPage(songs: songs),
+                      builder: (context) => ListSongPage(songs: songs),
                     ),
                   ),
                 },

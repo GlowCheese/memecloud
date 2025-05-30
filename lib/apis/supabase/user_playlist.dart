@@ -1,7 +1,11 @@
 import 'dart:developer';
 
+import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/others/connectivity.dart';
+import 'package:memecloud/models/playlist_model.dart';
+import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/models/user_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseUserPlaylistApi {
@@ -9,12 +13,123 @@ class SupabaseUserPlaylistApi {
   final String userPlaylistTable = 'user_playlists';
   final String userPlaylistSongsTable = 'user_playlist_songs';
 
+  final String sampleImageLink =
+      "https://img.icons8.com/ios-filled/100/music.png";
+
   final _connectivity = getIt<ConnectivityStatus>();
 
   SupabaseUserPlaylistApi(this._client);
 
+  //GET: getUserPlaylists
+  Future<List<PlaylistModel>> getUserPlaylists() async {
+    try {
+      _connectivity.ensure();
+      final user = _client.auth.currentUser;
+      if (user == null) throw Exception('User not found');
+      final response = await _client
+          .from(userPlaylistTable)
+          .select('''
+    id,
+    title,
+    description,
+    thumbnail_url,
+    users ( *), 
+    $userPlaylistSongsTable (
+      songs (
+        *
+      )
+    )
+  ''')
+          .eq('user_id', user.id);
+
+      final playlists =
+          response
+              .map(
+                (e) => PlaylistModel.userPlaylist(
+                  user: UserModel.fromJson(e['users']),
+                  id: e['id'].toString(),
+                  title: e['title'],
+                  description: e['description'],
+                  thumbnailUrl: e['thumbnail_url'] ?? sampleImageLink,
+                  songs:
+                      (e['user_playlist_songs'] as List<dynamic>?)
+                          ?.map(
+                            (e) => SongModel.fromJson<SupabaseApi>(e['songs']),
+                          )
+                          .toList() ??
+                      [],
+                ),
+              )
+              .toList();
+      log('${playlists.length}');
+      return playlists;
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        "Failed to get user playlists: $e",
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
+  Future<PlaylistModel> getPlaylistInfo(String playlistId) async {
+    try {
+      _connectivity.ensure();
+      final user = _client.auth.currentUser;
+      if (user == null) throw Exception('User not found');
+      final response = await _client
+          .from(userPlaylistTable)
+          .select('''
+    id,
+    title,
+    description,
+    thumbnail_url,
+    users ( *), 
+    $userPlaylistSongsTable (
+      songs (
+        *
+      )
+    )
+  ''')
+          .eq('id', playlistId)
+          .eq('user_id', user.id);
+
+      final playlist =
+          response
+              .map(
+                (e) => PlaylistModel.userPlaylist(
+                  user: UserModel.fromJson(e['users']),
+                  id: e['id'].toString(),
+                  title: e['title'],
+                  description: e['description'],
+                  thumbnailUrl: e['thumbnail_url'] ?? sampleImageLink,
+                  songs:
+                      (e['user_playlist_songs'] as List<dynamic>?)
+                          ?.map(
+                            (e) => SongModel.fromJson<SupabaseApi>(e['songs']),
+                          )
+                          .toList() ??
+                      [],
+                ),
+              )
+              .toList();
+      return playlist[0];
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        "Failed to get user playlists: $e",
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
+  //PUT: createNewPlaylist
   Future<void> createNewPlaylist({
-    required String playlistName,
+    required String title,
     required String description,
   }) async {
     try {
@@ -22,7 +137,7 @@ class SupabaseUserPlaylistApi {
       final user = _client.auth.currentUser;
       if (user == null) throw Exception('User not found');
       await _client.from(userPlaylistTable).insert({
-        'playlist_name': playlistName,
+        'title': title,
         'user_id': user.id,
         'description': description,
       });
@@ -39,14 +154,14 @@ class SupabaseUserPlaylistApi {
 
   Future<void> updatePlaylist({
     required String playlistId,
-    required String playlistName,
+    required String title,
     required String description,
   }) async {
     try {
       _connectivity.ensure();
       await _client
           .from(userPlaylistTable)
-          .update({'playlist_name': playlistName, 'description': description})
+          .update({'title': title, 'description': description})
           .eq('id', playlistId);
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);

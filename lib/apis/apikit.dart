@@ -156,7 +156,8 @@ class ApiKit {
     unawaited(storage.markInfoAsSaved(playlist.id, 'playlist'));
   }
 
-  Future<PlaylistModel?> getPlaylistInfo(String playlistId) async {
+  Future<PlaylistModel?> getPlaylistInfo <T>(String playlistId)  async {
+    if (T == ZingMp3Api) {
     final String api = '/infoplaylist?id=$playlistId';
     return await _getOrFetch<Map<String, dynamic>?, PlaylistModel?>(
       api,
@@ -173,6 +174,9 @@ class ApiKit {
         return res;
       },
     );
+    } else if (T == SupabaseApi) {
+      
+    }
   }
 
   /* ---------------------
