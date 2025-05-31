@@ -128,7 +128,7 @@ class SupabaseUserPlaylistApi {
   }
 
   //PUT: createNewPlaylist
-  Future<void> createNewPlaylist({
+  Future<PlaylistModel> createNewPlaylist({
     required String title,
     required String description,
   }) async {
@@ -136,11 +136,17 @@ class SupabaseUserPlaylistApi {
       _connectivity.ensure();
       final user = _client.auth.currentUser;
       if (user == null) throw Exception('User not found');
-      await _client.from(userPlaylistTable).insert({
-        'title': title,
-        'user_id': user.id,
-        'description': description,
-      });
+      final newPlaylist =
+          await _client
+              .from(userPlaylistTable)
+              .insert({
+                'title': title,
+                'user_id': user.id,
+                'description': description,
+              })
+              .select()
+              .single();
+      return PlaylistModel.createNewPlaylistAtBottomSheet(newPlaylist);
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(

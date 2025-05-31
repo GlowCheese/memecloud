@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:memecloud/components/playlist/show_add_to_playlist_sheet.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/song_model.dart';
@@ -77,7 +78,7 @@ Future showSongBottomSheetActions(BuildContext context, SongModel song) async {
                   leading: const Icon(Icons.playlist_add),
                   title: const Text('Thêm vào danh sách phát'),
                   onTap: () {
-                    
+                    showAddToPlaylistSheet(context, song);
                   },
                 ),
                 ListTile(

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/components/common/confirmation_dialog.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
+import 'package:memecloud/components/success.dialog.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/pages/library/my_playlist/create_new_playlist.dart';
@@ -356,10 +357,13 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
         await getIt<ApiKit>().supabase.userPlaylist.deletePlaylist(
           playlistId: playlist.id,
         );
+        refreshMyPlaylist();
         if (context.mounted) {
-          ScaffoldMessenger.of(
+          showSuccessDialog(
             context,
-          ).showSnackBar(SnackBar(content: Text('Xóa playlist thành công')));
+            text: 'Xóa playlist thành công',
+            numOfPopContext: 1,
+          );
         }
       } catch (e) {
         if (context.mounted) {

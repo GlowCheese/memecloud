@@ -120,13 +120,27 @@ class PlaylistModel extends MusicModel {
     List<SongModel>? songs,
   }) {
     return PlaylistModel._(
-      id: id,
+      id: id.toString(),
       title: title,
       type: PlaylistType.user,
       thumbnailUrl: thumbnailUrl,
       artistsNames: user.displayName,
       description: description,
       songs: songs ?? [],
+    );
+  }
+
+  factory PlaylistModel.createNewPlaylistAtBottomSheet(
+    Map<String, dynamic> json,
+  ) {
+    return PlaylistModel._(
+      id: json['id'].toString(),
+      title: json['title'],
+      type: PlaylistType.user,
+      thumbnailUrl: json['thumbnailUrl'] ?? 'assets/icons/user_playlist.png',
+      artistsNames: getIt<ApiKit>().myProfile().displayName,
+      description: json['description'],
+      songs: [],
     );
   }
 
