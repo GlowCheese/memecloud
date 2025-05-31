@@ -1,7 +1,7 @@
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/utils/snackbar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/blocs/dl_status/dl_status_enum.dart';
@@ -35,21 +35,10 @@ class SongDownloadButton extends StatelessWidget {
 
         void onPressed() {
           if (getIt<PlaylistDlStatusManager>().hasPlaylistInDownload()) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                SnackBar(
-                  behavior: SnackBarBehavior.floating,
-                  backgroundColor: Colors.transparent,
-                  content: AwesomeSnackbarContent(
-                    title: 'Lưu ý',
-                    message:
-                        'Không thể thực hiện thao tác này ngay bây giờ. '
-                        'Vui lòng chờ trong giây lát!',
-                    contentType: ContentType.warning,
-                  ),
-                ),
-              );
+            showWarningSnackbar(
+              context,
+              message: 'Không thể thực hiện thao tác này ngay bây giờ!'
+            );
           } else {
             switch (state.status) {
               case DlStatus.notDownloaded:

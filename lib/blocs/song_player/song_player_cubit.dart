@@ -10,10 +10,12 @@ import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
+import 'package:memecloud/utils/snackbar.dart';
 
 class SongPlayerCubit extends Cubit<SongPlayerState> {
   final audioPlayer = AudioPlayer();
 
+  String? currentPlaylistId;
   double currentSongSpeed = 1.0;
   List<SongModel> currentSongList = [];
 
@@ -41,14 +43,14 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   }
 
   bool onSongFailedToLoad(BuildContext context, String errMsg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Rất tiếc, không thể phát bài hát này!'),
-        duration: Duration(seconds: 3),
-        backgroundColor: Colors.red,
-        behavior: SnackBarBehavior.floating,
-      ),
+    currentSongList.clear();
+    currentPlaylistId = null;
+
+    showErrorSnackbar(
+      context,
+      message: 'Rất tiếc, không thể phát bài hát này!',
     );
+
     log(errMsg, level: 900);
     emit(SongPlayerInitial());
     return false;
@@ -68,11 +70,16 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     }
   }
 
+  int? getSongIndex(String songId) {
+    return currentSongList.indexWhere((song) => song.id == songId);
+  }
+
   CancelableOperation<void>? songsPopulateTask;
 
   Future<bool> _loadSong(
     BuildContext context,
     SongModel song, {
+    String? playlistId,
     List<SongModel>? songList,
   }) async {
     try {
@@ -86,6 +93,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
             onSongFailedToLoad(context, 'audioSource is null');
       } else {
         currentSongList = [song];
+        currentPlaylistId = playlistId;
         if (songList == null) {
           await audioPlayer.setAudioSource(audioSource);
           await audioPlayer.setLoopMode(LoopMode.off);
@@ -93,7 +101,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
           await audioPlayer.setAudioSources([audioSource]);
           await audioPlayer.setLoopMode(LoopMode.all);
 
-          int songIdx = songList.indexOf(song);
+          int songIdx = getSongIndex(song.id)!;
           final remainingSongs = [
             ...songList.sublist(songIdx + 1),
             ...songList.sublist(0, songIdx),
@@ -153,25 +161,31 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     List<SongModel>? songList,
   }) async {
     if (state is SongPlayerLoading) return;
-    if (songsPopulateTask?.isCompleted == false) {
-      await songsPopulateTask!.cancel();
-    }
-
-    songList ??= playlist?.songs;
-    if (context.mounted && await _loadSong(context, song, songList: songList)) {
-      if (playlist?.type == PlaylistType.zing || playlist?.type == PlaylistType.user) {
-        unawaited(getIt<ApiKit>().saveRecentlyPlayedPlaylist(playlist!));
+    if (currentPlaylistId != null && currentPlaylistId == playlist?.id) {
+      seekTo(Duration.zero, index: getSongIndex(song.id));
+      audioPlayer.play();
+    } else {
+      songList ??= playlist?.songs;
+      if (await _loadSong(
+        context,
+        song,
+        playlistId: playlist?.id,
+        songList: songList,
+      )) {
+        if (playlist?.type == PlaylistType.zing ||
+            playlist?.type == PlaylistType.user) {
+          unawaited(getIt<ApiKit>().saveRecentlyPlayedPlaylist(playlist!));
+        }
+        audioPlayer.play();
       }
-      playOrPause();
     }
   }
 
   bool get isPlaying => audioPlayer.playing;
 
-  Future<void> seekTo(Duration position) async {
+  Future<void> seekTo(Duration position, {int? index}) async {
     if (state is! SongPlayerLoaded) return;
-    await audioPlayer.seek(position);
-    emit(state);
+    await audioPlayer.seek(position, index: index);
   }
 
   Future<void> toggleSongSpeed() async {

@@ -1,9 +1,9 @@
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:memecloud/utils/snackbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignInPage extends StatefulWidget {
@@ -166,20 +166,7 @@ class _SignInPageState extends State<SignInPage> {
                         }
                       } on AuthApiException catch (e) {
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context)
-                            ..hideCurrentSnackBar()
-                            ..showSnackBar(
-                              SnackBar(
-                                elevation: 0,
-                                behavior: SnackBarBehavior.floating,
-                                backgroundColor: Colors.transparent,
-                                content: AwesomeSnackbarContent(
-                                  title: 'Đăng nhập thất bại!',
-                                  message: e.message,
-                                  contentType: ContentType.warning,
-                                ),
-                              ),
-                            );
+                          showWarningSnackbar(context, message: e.message);
                         }
                       } finally {
                         if (context.mounted) {

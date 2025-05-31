@@ -1,18 +1,18 @@
 import 'dart:math';
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
-import 'package:memecloud/blocs/dl_status/dl_status_manager.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/utils/snackbar.dart';
+import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/musics/playlist_card.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
+import 'package:memecloud/blocs/dl_status/dl_status_manager.dart';
+import 'package:memecloud/pages/library/my_playlist/my_playlist.dart';
 import 'package:memecloud/components/miscs/page_with_tabs/single.dart';
 import 'package:memecloud/blocs/recent_played/recent_played_stream.dart';
-import 'package:memecloud/models/song_model.dart';
-import 'package:memecloud/pages/library/my_playlist/my_playlist.dart';
 
 Map getLibraryPage(BuildContext context) {
   return {
@@ -88,18 +88,11 @@ class LibraryPage extends StatelessWidget {
                     .setIsBlacklisted(song, false)
                     .then((_) {
                       if (context.mounted) {
-                        final snackBar = SnackBar(
-                          behavior: SnackBarBehavior.floating,
-                          backgroundColor: Colors.transparent,
-                          content: AwesomeSnackbarContent(
-                            title: 'Done!',
-                            message: 'Đã bỏ chặn 1 bài hát',
-                            contentType: ContentType.success,
-                          ),
+                        showSuccessSnackbar(
+                          context,
+                          title: 'Done!',
+                          message: 'Đã bỏ chặn 1 bài hát',
                         );
-                        ScaffoldMessenger.of(context)
-                          ..hideCurrentSnackBar()
-                          ..showSnackBar(snackBar);
                       }
                       if (context2.mounted) {
                         Navigator.pop(context2, true);
@@ -110,18 +103,7 @@ class LibraryPage extends StatelessWidget {
                         Navigator.pop(context2, false);
                       }
                       if (context.mounted) {
-                        final snackBar = SnackBar(
-                          behavior: SnackBarBehavior.floating,
-                          backgroundColor: Colors.transparent,
-                          content: AwesomeSnackbarContent(
-                            title: 'Lỗi!',
-                            message: 'Không thể bỏ chặn bài hát: $e',
-                            contentType: ContentType.failure,
-                          ),
-                        );
-                        ScaffoldMessenger.of(context)
-                          ..hideCurrentSnackBar()
-                          ..showSnackBar(snackBar);
+                        showErrorSnackbar(context, message: e.toString());
                       }
                     });
               },
