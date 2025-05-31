@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/utils/images.dart';
 
 class MusicCard extends StatelessWidget {
-  /// must be between 1 and 3.
+  /// must be between 1 and 4.
   final int variant;
   final String title;
   final Widget? icon;
@@ -31,15 +31,18 @@ class MusicCard extends StatelessWidget {
       case 2:
         content = _variant2(context);
         break;
+      case 3:
+        content = _variant3(context);
+        break;
+      case 4:
+        content = _variant4Album(context); // New album variant
+        break;
       default:
         content = _variant3(context);
         break;
     }
 
-    return Opacity(
-      opacity: dimmed ? 0.6 : 1.0, // Tối hơn nếu dimmed
-      child: content,
-    );
+    return Opacity(opacity: dimmed ? 0.6 : 1.0, child: content);
   }
 
   /// with subTitle
@@ -139,6 +142,74 @@ class MusicCard extends StatelessWidget {
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  /// Album/Playlist vertical card layout
+  Widget _variant4Album(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Album cover with aspect ratio
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              width: double.infinity,
+              child: CachedNetworkImage(
+                imageUrl: thumbnailUrl,
+                fit: BoxFit.cover,
+                placeholder:
+                    (context, url) => Container(
+                      color: Colors.grey[800],
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                errorWidget:
+                    (context, url, error) => Container(
+                      color: Colors.grey[800],
+                      child: Icon(
+                        Icons.music_note,
+                        color: Colors.white54,
+                        size: 40,
+                      ),
+                    ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: 8),
+        // Album title
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        if (subTitle != null) ...[
+          SizedBox(height: 4),
+          // Album subtitle (artist name, release date, etc.)
+          Text(
+            subTitle!,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.white.withOpacity(0.7),
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ],
     );
   }
