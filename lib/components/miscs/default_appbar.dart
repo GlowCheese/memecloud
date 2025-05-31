@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/pages/report/rating_app_page.dart';
 
 AppBar defaultAppBar(
   BuildContext context, {
@@ -33,9 +34,44 @@ AppBar defaultAppBar(
       child: icon,
     ),
     actions: [
-      IconButton(onPressed: () {
-
-      }, icon: Icon(Icons.flag)),
+      IconButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            builder: (context) {
+              return Column(
+                children: [
+                  Divider(),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const RatingPage(),
+                        ),
+                      );
+                    },
+                    child: const Text("Đánh giá"),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const RatingPage(),
+                        ),
+                      );
+                    },
+                    child: const Text("Báo lỗi"),
+                  )
+                ],
+              );
+            },
+          );
+        },
+        icon: Icon(Icons.flag),
+      ),
       IconButton(
         color: Colors.white,
         onPressed: () {},

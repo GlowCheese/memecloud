@@ -1,14 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/core/getit.dart';
 
-class RatingPopupDemo extends StatefulWidget {
-  const RatingPopupDemo({super.key});
+class RatingPage extends StatefulWidget {
+  const RatingPage({super.key});
 
   @override
-  State<RatingPopupDemo> createState() => _RatingPopupDemoState();
+  State<RatingPage> createState() => _RatingPageState();
 }
 
-class _RatingPopupDemoState extends State<RatingPopupDemo> {
+class _RatingPageState extends State<RatingPage> {
+  final _formKey = GlobalKey<FormState>();
   double musicRating = 0;
   double uiRating = 0;
   double uxRating = 0;
@@ -42,10 +47,14 @@ class _RatingPopupDemoState extends State<RatingPopupDemo> {
           actions: [
             TextButton(
               onPressed: () {
-                // Bạn có thể xử lý lưu đánh giá ở đây
-                print("Âm nhạc: $musicRating");
-                print("Giao diện: $uiRating");
-                print("Trải nghiệm: $uxRating");
+                if (!_formKey.currentState!.validate()) return;
+                unawaited(
+                  getIt<ApiKit>().supabase.ratingApi.sendRatings(
+                    musicRating: musicRating,
+                    uiRating: uiRating,
+                    uxRating: uxRating,
+                  ),
+                );
                 Navigator.of(context).pop();
               },
               child: Text('Gửi'),
@@ -86,15 +95,10 @@ class _RatingPopupDemoState extends State<RatingPopupDemo> {
       appBar: AppBar(
         title: Text("App Nghe Nhạc"),
         actions: [
-          IconButton(
-            icon: Icon(Icons.flag),
-            onPressed: showRatingDialog,
-          ),
+          IconButton(icon: Icon(Icons.flag), onPressed: showRatingDialog),
         ],
       ),
-      body: Center(
-        child: Text("Nội dung app nghe nhạc ở đây"),
-      ),
+      body: Center(child: Text("Nội dung app nghe nhạc ở đây")),
     );
   }
 }

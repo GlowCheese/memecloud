@@ -3,12 +3,13 @@ import 'package:memecloud/apis/supabase/artists.dart';
 import 'package:memecloud/apis/supabase/auth.dart';
 import 'package:memecloud/apis/supabase/cache.dart';
 import 'package:memecloud/apis/supabase/config.dart';
+import 'package:memecloud/apis/supabase/issues.api.dart';
 import 'package:memecloud/apis/supabase/playlists.dart';
 import 'package:memecloud/apis/supabase/profile.dart';
+import 'package:memecloud/apis/supabase/ratings.api.dart';
 import 'package:memecloud/apis/supabase/songs.dart';
 import 'package:memecloud/apis/supabase/user_playlist.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 
 class SupabaseApi {
   late final SupabaseClient client;
@@ -20,6 +21,8 @@ class SupabaseApi {
   late final SupabasePlaylistsApi playlists;
   late final SupabaseUserPlaylistApi userPlaylist;
   late final SupabaseConfigApi config;
+  late final SupabaseRatingApi ratingApi;
+  late final SupabaseIssueApi issueApi;
 
   SupabaseApi._() {
     client = Supabase.instance.client;
@@ -31,6 +34,8 @@ class SupabaseApi {
     playlists = SupabasePlaylistsApi(client);
     userPlaylist = SupabaseUserPlaylistApi(client);
     config = SupabaseConfigApi(client);
+    ratingApi = SupabaseRatingApi(client);
+    issueApi = SupabaseIssueApi(client);
   }
 
   static Future<SupabaseApi> initialize() async {

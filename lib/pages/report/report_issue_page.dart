@@ -1,29 +1,35 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/models/issue.model.dart';
 
 class ReportIssueScreen extends StatefulWidget {
+  const ReportIssueScreen({super.key});
+
   @override
-  _ReportIssueScreenState createState() => _ReportIssueScreenState();
+  State<ReportIssueScreen> createState() => _ReportIssueScreenState();
 }
 
 class _ReportIssueScreenState extends State<ReportIssueScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _contentController = TextEditingController();
 
-  String _selectedType = 'Lỗi';
-  final List<String> _reportTypes = ['Lỗi', 'Đóng góp', 'Khác'];
+  IssueType _selectedType = IssueType.bug;
 
   void _submitReport() {
     if (_formKey.currentState!.validate()) {
-      final String type = _selectedType;
-      final String content = _contentController.text;
-
-      // Thực hiện gửi report (ví dụ: gửi lên Supabase, Firebase, hoặc server)
-      print('Loại: $type');
-      print('Nội dung: $content');
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Cảm ơn bạn đã gửi phản hồi!')),
+      unawaited(
+        getIt<ApiKit>().supabase.issueApi.sendIssue(
+          type: _selectedType,
+          description: _contentController.text,
+        ),
       );
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Cảm ơn bạn đã gửi phản hồi!')));
 
       _contentController.clear();
     }
@@ -40,13 +46,20 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Loại báo cáo', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Loại báo cáo',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               SizedBox(height: 8),
-              DropdownButtonFormField<String>(
+              DropdownButtonFormField<IssueType>(
                 value: _selectedType,
-                items: _reportTypes.map((type) {
-                  return DropdownMenuItem(value: type, child: Text(type));
-                }).toList(),
+                items:
+                    IssueType.values.map((type) {
+                      return DropdownMenuItem(
+                        value: type,
+                        child: Text(type.text),
+                      );
+                    }).toList(),
                 onChanged: (value) {
                   if (value != null) {
                     setState(() {
