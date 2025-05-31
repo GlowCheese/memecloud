@@ -210,17 +210,30 @@ class ApiKit {
     CancelToken? cancelToken,
     void Function(int received, int total)? onProgress,
   }) async {
+    // throttle progress updates
+    var lastProgressTime = DateTime.now();
+
+    void realOnProgress(int received, int total) {
+      final now = DateTime.now();
+      if (now.difference(lastProgressTime).inMilliseconds >= 800) {
+        lastProgressTime = now;
+        onProgress?.call(received, total);
+      }
+    }
+
     try {
       _connectivity.ensure();
       await dio.download(
         url,
         savePath,
         cancelToken: cancelToken,
-        onReceiveProgress: onProgress,
+        onReceiveProgress: realOnProgress,
       );
       return true;
     } on DioException catch (e, stackTrace) {
       if (e.type == DioExceptionType.cancel) {
+        // TODO: Download was cancelled, but onProgress might still be running...
+        await Future.delayed(const Duration(milliseconds: 100));
         log('Download cancelled.', stackTrace: stackTrace);
         return false;
       } else {
@@ -269,10 +282,10 @@ class ApiKit {
     CancelToken? cancelToken,
     void Function(int received, int total)? onProgress,
   }) async {
-    final filePath = '${storage.userDir.path}/${song.id}.mp3';
+    final filePath = '${storage.downloadDir.path}/${song.id}.mp3';
 
     cancelToken ??= CancelToken();
-    void actualOnProgress(int received, int total) {
+    void realOnProgress(int received, int total) {
       getIt<SongDlStatusManager>().updateProgress(song.id, received / total);
       onProgress?.call(received, total);
       if (sendNoti) {
@@ -288,16 +301,15 @@ class ApiKit {
       _downloadFile(
             songUrl,
             filePath,
-            onProgress: actualOnProgress,
+            onProgress: realOnProgress,
             cancelToken: cancelToken,
           )
           .then((success) async {
-            if (sendNoti) cancelNoti(song.id.hashCode);
             if (success) {
               _markSongAsDownloaded(song);
               if (sendNoti) {
                 sendCompleteNoti(
-                  id: song.id.hashCode + 1,
+                  id: song.id.hashCode,
                   body: 'Bài hát: ${song.title}',
                   title: 'Tải xuống bài hát thành công!',
                 );
@@ -308,14 +320,11 @@ class ApiKit {
             return success;
           })
           .catchError((e) {
-            if (sendNoti) {
-              cancelNoti(song.id.hashCode);
-              sendErrorNoti(
-                id: song.id.hashCode + 1,
-                title: 'Lỗi khi tải bài hát!',
-                error: e,
-              );
-            }
+            sendErrorNoti(
+              id: song.id.hashCode,
+              title: 'Lỗi khi tải bài hát!',
+              error: e,
+            );
             _markSongAsNotDownloaded(song.id);
             return false;
           }),
@@ -331,7 +340,7 @@ class ApiKit {
 
   Future<void> undownloadSong(String songId) async {
     if (storage.isSongDownloaded(songId)) {
-      final filePath = '${storage.userDir.path}/$songId.mp3';
+      final filePath = '${storage.downloadDir.path}/$songId.mp3';
       await File(filePath).delete();
       _markSongAsNotDownloaded(songId);
     }
@@ -367,7 +376,9 @@ class ApiKit {
 
   List<SongModel> getUndownloadedSongsInPlaylist(PlaylistModel playlist) {
     getIt<PlaylistDlStatusManager>().updateState(playlist.id, isFetching: true);
-    return playlist.songs!.where((song) => !isSongDownloaded(song.id)).toList();
+    final res =
+        playlist.songs!.where((song) => !isSongDownloaded(song.id)).toList();
+    return res;
   }
 
   Future<bool> downloadPlaylist(
@@ -401,24 +412,27 @@ class ApiKit {
         }
         final songUrl = await getSongUrlForDownload(song.id, quality: quality);
         if (songUrl != null) {
+          void onProgress(int received, int total) {
+            final songProgress = received / total;
+            final playlistProgress =
+                (songIds.length + songProgress) / songs.length;
+            getIt<PlaylistDlStatusManager>().updateProgress(
+              playlistId,
+              playlistProgress,
+            );
+            sendProgressNoti(
+              id: playlistId.hashCode,
+              title: 'Đang tải xuống danh sách phát: $playlistTitle',
+              progress: ((playlistProgress) * 100).round(),
+            );
+          }
+
           final success = await downloadSong(
             song,
             songUrl,
             sendNoti: false,
             cancelToken: cancelToken,
-            onProgress: (received, total) {
-              final songProgress = received / total;
-              final playlistProgress = (songIds.length + songProgress) / songs.length;
-              getIt<PlaylistDlStatusManager>().updateProgress(
-                playlistId,
-                playlistProgress
-              );
-              sendProgressNoti(
-                id: playlistId.hashCode,
-                title: 'Đang tải xuống danh sách phát: $playlistTitle',
-                progress: ((playlistProgress) * 100).round()
-              );
-            },
+            onProgress: onProgress,
           );
           if (!success) {
             if (!cancelToken.isCancelled) cancelToken.cancel();
@@ -437,29 +451,29 @@ class ApiKit {
     }
 
     final downloadTask = CancelableOperation.fromFuture(
-      downloadProcess().then((success) {
-        if (success) {
-          cancelNoti(playlistId.hashCode);
-          sendCompleteNoti(
-            id: playlistId.hashCode + 1,
-            body: 'Danh sách phát: $playlistTitle',
-            title: 'Tải xuống danh sách phát thành công!',
-          );
-          _markPlaylistAsDownloaded(playlistId);
-        } else {
-          _markPlaylistAsNotDownloaded(playlistId);
-        }
-        return success;
-      }).catchError((e) {
-        cancelNoti(playlistId.hashCode);
-        sendErrorNoti(
-          id: playlistId.hashCode + 1,
-          title: 'Lỗi khi tải danh sách phát!',
-          error: e,
-        );
-        _markPlaylistAsNotDownloaded(playlistId);
-        return false;
-      }),
+      downloadProcess()
+          .then((success) {
+            if (success) {
+              sendCompleteNoti(
+                id: playlistId.hashCode,
+                body: 'Danh sách phát: $playlistTitle',
+                title: 'Tải xuống danh sách phát thành công!',
+              );
+              _markPlaylistAsDownloaded(playlistId);
+            } else {
+              _markPlaylistAsNotDownloaded(playlistId);
+            }
+            return success;
+          })
+          .catchError((e) {
+            sendErrorNoti(
+              id: playlistId.hashCode,
+              title: 'Lỗi khi tải danh sách phát!',
+              error: e,
+            );
+            _markPlaylistAsNotDownloaded(playlistId);
+            return false;
+          }),
       onCancel: () => cancelToken.cancel(),
     );
     getIt<PlaylistDlStatusManager>().updateState(
@@ -691,7 +705,7 @@ class ApiKit {
 
   Future<Uri> getSongUri(String songId) async {
     final fileName = '$songId.mp3';
-    final dir = storage.userDir;
+    final dir = storage.downloadDir;
     final filePath = '${dir.path}/$fileName';
     final file = File(filePath);
 

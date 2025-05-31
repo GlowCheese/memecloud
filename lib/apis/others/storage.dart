@@ -57,6 +57,7 @@ class PersistentStorage {
   final Directory cacheDir;
   final Directory userDir;
   final Directory supportDir;
+  final Directory downloadDir;
   final HiveBoxes hiveBoxes;
 
   PersistentStorage._({
@@ -64,6 +65,7 @@ class PersistentStorage {
     required this.cacheDir,
     required this.userDir,
     required this.supportDir,
+    required this.downloadDir,
     required this.hiveBoxes,
   });
 
@@ -75,6 +77,7 @@ class PersistentStorage {
       cacheDir: await getApplicationCacheDirectory(),
       userDir: await getApplicationDocumentsDirectory(),
       supportDir: await getApplicationSupportDirectory(),
+      downloadDir: (await getDownloadsDirectory())!,
       hiveBoxes: await HiveBoxes.initialize(),
     );
   }

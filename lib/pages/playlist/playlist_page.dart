@@ -109,13 +109,11 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
   Future<void> refreshPlaylist() async {
     final updatedPlaylist = await getIt<SupabaseApi>().userPlaylist
         .getPlaylistInfo(widget.playlist.id);
-    if (updatedPlaylist != null) {
-      setState(() {
-        widget.playlist.songs?.clear();
-        widget.playlist.songs?.addAll(updatedPlaylist.songs ?? []);
-        _displaySongs = updatedPlaylist.songs ?? [];
-      });
-    }
+    setState(() {
+      widget.playlist.songs?.clear();
+      widget.playlist.songs?.addAll(updatedPlaylist.songs ?? []);
+      _displaySongs = updatedPlaylist.songs ?? [];
+    });
   }
 
   @override
@@ -355,17 +353,28 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
               ),
             ),
             Expanded(child: SizedBox(height: 40, child: _searchBar())),
-            IconButton(
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  backgroundColor: Colors.grey[900],
-                  builder: (_) => _sortOptionsSheet(),
-                );
-              },
-              icon: Icon(Icons.sort, color: Colors.grey[400], size: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: IconButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: Colors.grey[900],
+                    builder: (_) => _sortOptionsSheet(),
+                  );
+                },
+                icon: Icon(
+                  Icons.swap_vert,
+                  size: 20,
+                  color: Colors.grey.shade900,
+                ),
+                padding: EdgeInsets.all(4),
+                constraints: BoxConstraints(minWidth: 32, minHeight: 32),
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.white),
+                ),
+              ),
             ),
-            SizedBox(width: 15),
           ],
         ),
       ),

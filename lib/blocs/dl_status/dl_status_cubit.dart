@@ -13,9 +13,7 @@ class DlStatusCubit extends Cubit<DlStatusState> {
   }
 
   void updateProgress(double downloadProgress) {
-    if (state is DownloadingState) {
-      emit(DownloadingState(downloadProgress));
-    }
+    emit(DownloadingState(downloadProgress));
   }
 
   Future<void> updateCancel() async {

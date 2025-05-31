@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:memecloud/blocs/dl_status/dl_status_enum.dart';
 
 class DownloadButton extends StatelessWidget {
@@ -25,6 +26,7 @@ class DownloadButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
+      alignment: Alignment.center,
       children: [
         AnimatedOpacity(
           opacity: isNotDownloaded ? 1 : 0,
@@ -38,7 +40,17 @@ class DownloadButton extends StatelessWidget {
           ),
         ),
         AnimatedOpacity(
-          opacity: isDownloading || isFetching ? 1 : 0,
+          opacity: isFetching ? 1 : 0,
+          curve: Curves.ease,
+          duration: transitionDuration,
+          child: SpinKitDoubleBounce(
+            size: iconSize ?? 24,
+            color: Colors.white,
+            duration: const Duration(seconds: 3),
+          ),
+        ),
+        AnimatedOpacity(
+          opacity: isDownloading ? 1 : 0,
           curve: Curves.ease,
           duration: transitionDuration,
           child: Stack(
@@ -57,8 +69,7 @@ class DownloadButton extends StatelessWidget {
                   ),
                 ),
               ),
-              if (isDownloading)
-                Icon(Icons.stop, size: 16, color: Colors.blue.shade300),
+              Icon(Icons.stop, size: 16, color: Colors.blue.shade300),
             ],
           ),
         ),
