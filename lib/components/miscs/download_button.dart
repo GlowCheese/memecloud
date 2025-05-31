@@ -79,7 +79,7 @@ class DownloadButton extends StatelessWidget {
           curve: Curves.ease,
           child: IconButton(
             onPressed: onPressed,
-            color: Colors.green,
+            color: Colors.green.shade400,
             icon: Icon(Icons.check_circle_rounded),
             iconSize: iconSize,
           ),

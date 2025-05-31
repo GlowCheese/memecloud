@@ -78,17 +78,16 @@ class SongCard extends StatelessWidget {
           BlocBuilder(
             bloc: playerCubit,
             builder: (context, state) {
+              bool isPlaying =
+                  state is SongPlayerLoaded && state.currentSong.id == song!.id;
+
               return Padding(
                 padding: const EdgeInsets.only(left: 10),
                 child: SizedBox(
                   width: 40,
                   height: 40,
                   child: IndexedStack(
-                    index:
-                        (state is SongPlayerLoaded &&
-                                state.currentSong.id == song!.id)
-                            ? 1
-                            : 0,
+                    index: isPlaying ? 1 : 0,
                     alignment: Alignment.center,
                     children: [
                       SongDownloadButton(song: song!, dimmed: true),
@@ -197,13 +196,27 @@ class SongCard extends StatelessWidget {
               subTitle: song.artistsNames,
             ),
           ),
-          SizedBox(width: 8),
+          BlocBuilder(
+            bloc: playerCubit,
+            builder: (context, state) {
+              return Offstage(
+                offstage:
+                    state is! SongPlayerLoaded ||
+                    state.currentSong.id != song.id,
+                child: GifView.asset(
+                  'assets/gifs/eq_accent.gif',
+                  width: 30,
+                  height: 30,
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
   }
 
-  /// same as _variant1, but with eq_accent.gif
+  /// used in blacklisted songs page
   Widget _variant3(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

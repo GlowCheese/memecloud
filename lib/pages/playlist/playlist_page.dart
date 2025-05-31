@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
-
-import 'package:memecloud/pages/song/list_song_paginate_page.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:memecloud/utils/images.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,11 +11,11 @@ import 'package:memecloud/components/song/mini_player.dart';
 import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/components/miscs/search_bar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
+import 'package:memecloud/pages/song/list_song_paginate_page.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/playlist/playlist_follow_button.dart';
 import 'package:memecloud/components/playlist/playlist_download_button.dart';
-import 'package:memecloud/components/miscs/generatable_list/sliver_list.dart';
 
 enum SortPlaylistOptions { duration, releaseDate, title, artist }
 
@@ -129,15 +127,12 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
     );
   }
 
-  GeneratableSliverList _songsSliverList(BuildContext context) {
-    return GeneratableSliverList(
-      initialPageIdx: 0,
-      asyncGenFunction: (index) async {
-        if (index >= _sortedDisplaySongs.length) return null;
-
-        final song = _sortedDisplaySongs[index];
-        return [
-          Padding(
+  SliverList _songsSliverList(BuildContext context) {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          final song = _sortedDisplaySongs[index];
+          return Padding(
             key: ValueKey(song.id),
             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
             child: SongCard(
@@ -146,9 +141,10 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
               songList: _displaySongs,
               playlist: widget.playlist,
             ),
-          ),
-        ];
-      },
+          );
+        },
+        childCount: _sortedDisplaySongs.length,
+      ),
     );
   }
 

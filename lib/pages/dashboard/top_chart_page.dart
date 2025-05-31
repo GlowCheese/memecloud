@@ -7,7 +7,6 @@ import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/song/show_song_actions.dart';
-import 'package:memecloud/components/song/play_or_pause_button.dart';
 import 'package:memecloud/components/miscs/page_with_tabs/single.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/miscs/generatable_list/list_view.dart';
@@ -32,7 +31,7 @@ class TopChartPage extends StatelessWidget {
           final chartSongs = chart.chartSongs;
           return GeneratableListView(
             initialPageIdx: 0,
-            loadDelay: Duration(milliseconds: 800),
+            loadDelay: Duration(milliseconds: 300),
             asyncGenFunction: (int page) async {
               const int len = 8;
               return chartSongs
@@ -41,25 +40,16 @@ class TopChartPage extends StatelessWidget {
                     min(len * (page + 1), chartSongs.length),
                   )
                   .map(
-                    (e) => GestureDetector(
-                      onLongPress:
-                          () => showSongBottomSheetActions(context, e.song),
-                      child: Row(
-                        children: [
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: SongCard(
-                              variant: 2,
-                              chartSong: e,
-                              songList: chart.songs,
-                            ),
-                          ),
-                          PlayOrPauseButton(
-                            song: e.song,
-                            songList: chart.songs,
-                          ),
-                          SizedBox(width: 12),
-                        ],
+                    (e) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: GestureDetector(
+                        onLongPress:
+                            () => showSongBottomSheetActions(context, e.song),
+                        child: SongCard(
+                          variant: 2,
+                          chartSong: e,
+                          songList: chart.songs,
+                        ),
                       ),
                     ),
                   )
