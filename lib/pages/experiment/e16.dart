@@ -636,9 +636,9 @@ class _AlbumsSection extends StatelessWidget {
             mainAxisSpacing: 16,
           ),
           itemCount: displayAlbums.length,
-          itemBuilder:
-              (_, index) =>
-                  PlaylistCard(variant: 2, playlist: displayAlbums[index]),
+          itemBuilder: (_, index) {
+            return PlaylistCard(variant: 4, playlist: displayAlbums[index]);
+          },
         ),
       ],
     );

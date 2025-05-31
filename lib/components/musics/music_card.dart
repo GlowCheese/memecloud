@@ -34,11 +34,8 @@ class MusicCard extends StatelessWidget {
       case 3:
         content = _variant3(context);
         break;
-      case 4:
-        content = _variant4Album(context); // New album variant
-        break;
       default:
-        content = _variant3(context);
+        content = _variant4Album(context); // New album variant
         break;
     }
 
@@ -155,32 +152,12 @@ class MusicCard extends StatelessWidget {
         Expanded(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Container(
+            child: SizedBox(
+              height: 100,
               width: double.infinity,
               child: CachedNetworkImage(
                 imageUrl: thumbnailUrl,
                 fit: BoxFit.cover,
-                placeholder:
-                    (context, url) => Container(
-                      color: Colors.grey[800],
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Theme.of(context).primaryColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                errorWidget:
-                    (context, url, error) => Container(
-                      color: Colors.grey[800],
-                      child: Icon(
-                        Icons.music_note,
-                        color: Colors.white54,
-                        size: 40,
-                      ),
-                    ),
               ),
             ),
           ),
@@ -202,10 +179,7 @@ class MusicCard extends StatelessWidget {
           // Album subtitle (artist name, release date, etc.)
           Text(
             subTitle!,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.white.withOpacity(0.7),
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.white.withAlpha(180)),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

@@ -162,7 +162,7 @@ class _ArtistPageState extends State<ArtistPage> {
         gradient: LinearGradient(
           colors: [
             Colors.transparent,
-            Theme.of(context).dividerColor.withOpacity(0.3),
+            Theme.of(context).dividerColor.withAlpha(160),
             Colors.transparent,
           ],
         ),
@@ -636,9 +636,9 @@ class _AlbumsSection extends StatelessWidget {
             mainAxisSpacing: 16,
           ),
           itemCount: displayAlbums.length,
-          itemBuilder:
-              (_, index) =>
-                  PlaylistCard(variant: 2, playlist: displayAlbums[index]),
+          itemBuilder: (_, index) {
+            return PlaylistCard(variant: 4, playlist: displayAlbums[index]);
+          },
         ),
       ],
     );

@@ -21,9 +21,11 @@ class PlaylistCard extends StatelessWidget {
       case 1:
         return _variant1(context);
       case 2:
-        return _variant2Album(context); // Album card using music_card variant 4
-      default:
+        return _variant2(context);
+      case 3:
         return _variant3(context);
+      default:
+        return _variant4(context);
     }
   }
 
@@ -48,15 +50,15 @@ class PlaylistCard extends StatelessWidget {
     );
   }
 
-  /// Album card using MusicCard variant 4
-  Widget _variant2Album(BuildContext context) {
+  Widget _variant2(BuildContext context) {
     return GestureDetector(
       onTap: () => context.push('/playlist_page', extra: playlist),
       child: MusicCard(
-        variant: 4, // Using the new album variant
+        variant: 3,
+        icon: anotIcon(),
         thumbnailUrl: playlist.thumbnailUrl,
         title: playlist.title,
-        subTitle: playlist.artistsNames,
+        subTitle: 'Playlist • ${playlist.artistsNames}',
       ),
     );
   }
@@ -70,6 +72,19 @@ class PlaylistCard extends StatelessWidget {
         thumbnailUrl: playlist.thumbnailUrl,
         title: playlist.title,
         subTitle: 'Playlist • ${playlist.artistsNames}',
+      ),
+    );
+  }
+
+  /// Album card using MusicCard variant 4
+  Widget _variant4(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/playlist_page', extra: playlist),
+      child: MusicCard(
+        variant: 4, // Using the new album variant
+        thumbnailUrl: playlist.thumbnailUrl,
+        title: playlist.title,
+        subTitle: playlist.artistsNames,
       ),
     );
   }

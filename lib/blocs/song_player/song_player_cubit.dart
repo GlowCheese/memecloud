@@ -20,6 +20,8 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   List<SongModel> currentSongList = [];
 
   late StreamSubscription _indexSub;
+  late StreamSubscription _sequenceSub;
+  late StreamSubscription _sequenceStateSub;
 
   SongPlayerCubit() : super(SongPlayerInitial()) {
     _indexSub = audioPlayer.currentIndexStream.listen((index) {
@@ -33,11 +35,19 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
         }
       }
     });
+    _sequenceSub = audioPlayer.sequenceStream.listen((data) {
+      debugPrint(data.toString());
+    });
+    _sequenceStateSub = audioPlayer.sequenceStateStream.listen((data) {
+      debugPrint(data.toString());
+    });
   }
 
   @override
   Future<void> close() {
     _indexSub.cancel();
+    _sequenceSub.cancel();
+    _sequenceStateSub.cancel();
     audioPlayer.dispose();
     return super.close();
   }
