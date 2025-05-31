@@ -45,7 +45,7 @@ class SongListTile extends StatelessWidget {
             return SizedBox(
               height: 90,
               child: Card(
-                color: Theme.of(context).colorScheme.onPrimary,
+                color: Colors.white10,
                 elevation: isPlaying ? 8 : 2,
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 shape: RoundedRectangleBorder(
@@ -53,7 +53,7 @@ class SongListTile extends StatelessWidget {
                   side:
                       isPlaying
                           ? BorderSide(
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.tertiary,
                             width: 2,
                           )
                           : BorderSide.none,

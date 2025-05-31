@@ -56,7 +56,7 @@ class AlbumListTile extends StatelessWidget {
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: () {
-                            // TO DO: play album
+                            
                           },
                           child: Center(
                             child: Container(

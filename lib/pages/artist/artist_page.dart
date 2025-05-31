@@ -8,6 +8,7 @@ import 'package:memecloud/components/artist/album_list_tile.dart';
 import 'package:memecloud/components/artist/song_list_tile.dart';
 import 'package:memecloud/components/common/confirmation_dialog.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
+import 'package:memecloud/components/musics/playlist_card.dart';
 import 'package:memecloud/components/song/mini_player.dart';
 
 import 'package:memecloud/core/getit.dart';
@@ -63,16 +64,54 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
               CustomScrollView(
                 slivers: [
                   SliverAppBar(
-                    expandedHeight: 270,
-                    collapsedHeight: 90,
-                    floating: false,
-                    snap: false,
+                    expandedHeight: 320,
+                    pinned: true,
+                    backgroundColor: Colors.black87,
                     automaticallyImplyLeading: false,
-                    flexibleSpace: FlexibleSpaceBar(
-                      collapseMode: CollapseMode.parallax,
-                      background: _artistHeader(artist),
+                    flexibleSpace: LayoutBuilder(
+                      builder: (
+                        BuildContext context,
+                        BoxConstraints constraints,
+                      ) {
+                        final bool collapsed =
+                            constraints.biggest.height <= kToolbarHeight + 24;
+                        return FlexibleSpaceBar(
+                          collapseMode: CollapseMode.parallax,
+                          background: _artistHeader(artist),
+                          title:
+                              collapsed
+                                  ? Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.arrow_back),
+                                        onPressed: () => Navigator.pop(context),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          artist.name,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                  : null,
+                          titlePadding: const EdgeInsetsDirectional.only(
+                            start: 16,
+                            bottom: 8,
+                          ),
+                        );
+                      },
                     ),
                   ),
+
                   SliverList(
                     delegate: SliverChildListDelegate([
                       Padding(
@@ -512,7 +551,7 @@ class _AlbumsOfArtist extends StatelessWidget {
               ),
               itemBuilder: (context, index) {
                 final album = albums[index];
-                return AlbumListTile(album: album);
+                return PlaylistCard(variant: 2, playlist: album);
               },
               itemCount: albums.length > 4 ? 4 : albums.length,
             ),
