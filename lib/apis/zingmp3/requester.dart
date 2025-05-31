@@ -13,7 +13,7 @@ class ZingMp3Requester {
   final _acBaseUrl = "https://ac.zingmp3.vn";
   final _apiKey = dotenv.env['ZINGMP3_API_KEY'].toString();
   final _secretKey = dotenv.env['ZINGMP3_SECRET_KEY'].toString();
-  String get _cTime => (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
+  String get _cTime => (DateTime.now().millisecondsSinceEpoch / 1000).ceil().toString();
 
   String _getHash256(String str) {
     return sha256.convert(utf8.encode(str)).toString();

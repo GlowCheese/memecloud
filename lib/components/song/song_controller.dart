@@ -85,7 +85,8 @@ class SongControllerView extends StatelessWidget {
   IconButton _seekNextButton() {
     return IconButton(
       onPressed: () async => await playerCubit.seekToNext(),
-      icon: Icon(Icons.skip_next, color: Colors.white),
+      color: Colors.white,
+      icon: Icon(Icons.skip_next),
       iconSize: 35,
     );
   }
@@ -99,22 +100,32 @@ class SongControllerView extends StatelessWidget {
       child: PlayOrPauseButton(
         song: song,
         iconSize: 30,
-        padding: const EdgeInsets.all(16.0)
-      )
+        padding: const EdgeInsets.all(16.0),
+      ),
     );
   }
 
-  IconButton _seekPreviousButton() {
-    return IconButton(
-      onPressed: () async => await playerCubit.seekToPrevious(),
-      iconSize: 35,
-      icon: Icon(Icons.skip_previous, color: Colors.white),
+  Widget _seekPreviousButton() {
+    return StreamBuilder<bool>(
+      stream: playerCubit.canSeekToPreviousStream.stream,
+      builder: (context, snapshot) {
+        return IconButton(
+          onPressed:
+              snapshot.data == true
+                  ? () async => await playerCubit.seekToPrevious()
+                  : null,
+          iconSize: 35,
+          color: Colors.white,
+          icon: Icon(Icons.skip_previous),
+        );
+      },
     );
   }
 
   StreamBuilder<bool> _shuffleButton() {
     return StreamBuilder<bool>(
       stream: playerCubit.audioPlayer.shuffleModeEnabledStream,
+      initialData: playerCubit.shuffleMode,
       builder: (context, snapshot) {
         late final Color shuffleIconColor;
         if (snapshot.data == true) {
@@ -141,7 +152,10 @@ class SongControllerView extends StatelessWidget {
           child: Center(
             child: GestureDetector(
               onTap: () async => await playerCubit.toggleSongSpeed(),
-              child: Text('${currentSpeed}x', style: TextStyle(fontSize: 16)),
+              child: Text(
+                '${currentSpeed}x',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
             ),
           ),
         );

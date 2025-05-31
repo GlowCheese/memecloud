@@ -17,42 +17,50 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
 
   String? currentPlaylistId;
   double currentSongSpeed = 1.0;
+  List<SongModel> listenHistory = [];
   List<SongModel> currentSongList = [];
+  late final StreamSubscription _currentIndexSub;
 
-  late StreamSubscription _indexSub;
-  late StreamSubscription _sequenceSub;
-  late StreamSubscription _sequenceStateSub;
+  bool get canSeekToPrevious => listenHistory.isNotEmpty;
+  late final StreamController<bool> canSeekToPreviousStream;
 
   SongPlayerCubit() : super(SongPlayerInitial()) {
-    _indexSub = audioPlayer.currentIndexStream.listen((index) {
+    canSeekToPreviousStream = StreamController<bool>.broadcast();
+    _currentIndexSub = audioPlayer.currentIndexStream.listen((index) {
       if (index == null) {
         emit(SongPlayerInitial());
       } else {
         final newState = SongPlayerLoaded(currentSongList[index]);
         if (newState != state) {
           unawaited(getIt<ApiKit>().newSongStream(newState.currentSong));
+
+          // Update listen history
+          if (newState.currentSong == listenHistory.lastOrNull) {
+            listenHistory.removeLast();
+          } else {
+            listenHistory.remove(newState.currentSong);
+            if (state is SongPlayerLoaded) {
+              listenHistory.add((state as SongPlayerLoaded).currentSong);
+            }
+          }
+
+          canSeekToPreviousStream.add(canSeekToPrevious);
           emit(newState);
         }
       }
-    });
-    _sequenceSub = audioPlayer.sequenceStream.listen((data) {
-      debugPrint(data.toString());
-    });
-    _sequenceStateSub = audioPlayer.sequenceStateStream.listen((data) {
-      debugPrint(data.toString());
     });
   }
 
   @override
   Future<void> close() {
-    _indexSub.cancel();
-    _sequenceSub.cancel();
-    _sequenceStateSub.cancel();
+    _currentIndexSub.cancel();
+    canSeekToPreviousStream.close();
     audioPlayer.dispose();
     return super.close();
   }
 
   bool onSongFailedToLoad(BuildContext context, String errMsg) {
+    listenHistory.clear();
     currentSongList.clear();
     currentPlaylistId = null;
 
@@ -80,7 +88,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     }
   }
 
-  int? getSongIndex(String songId) {
+  int getSongIndex(String songId) {
     return currentSongList.indexWhere((song) => song.id == songId);
   }
 
@@ -111,7 +119,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
           await audioPlayer.setAudioSources([audioSource]);
           await audioPlayer.setLoopMode(LoopMode.all);
 
-          int songIdx = getSongIndex(song.id)!;
+          int songIdx = getSongIndex(song.id);
           final remainingSongs = [
             ...songList.sublist(songIdx + 1),
             ...songList.sublist(0, songIdx),
@@ -211,19 +219,22 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   Future<void> seekToNext() async {
     if (state is! SongPlayerLoaded) return;
     await audioPlayer.seekToNext();
-    if (audioPlayer.currentIndex == null) {
-      return;
-    }
   }
 
-  Future<void> seekToPrevious() async {
-    if (state is! SongPlayerLoaded) return;
-    await audioPlayer.seekToPrevious();
-    if (audioPlayer.currentIndex == null) {
-      return;
-    }
+  Future<bool> seekToPrevious() async {
+    if (state is! SongPlayerLoaded) return false;
+
+    // this one is different.
+    // we want to seek to the previous song
+    // according to our listenHistory list.
+
+    if (!canSeekToPrevious) return false;
+    int index = getSongIndex(listenHistory.last.id);
+    await seekTo(Duration.zero, index: index);
+    return true;
   }
 
-  Future<void> toggleShuffleMode() =>
-      audioPlayer.setShuffleModeEnabled(!shuffleMode);
+  Future<void> toggleShuffleMode() async {
+    await audioPlayer.setShuffleModeEnabled(!shuffleMode);
+  }
 }

@@ -273,8 +273,11 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        PlaylistDownloadButton(playlist: widget.playlist, iconSize: 26),
-        SizedBox(width: 5),
+        if (widget.playlist.type != PlaylistType.downloaded)
+          Padding(
+            padding: const EdgeInsets.only(right: 5),
+            child: PlaylistDownloadButton(playlist: widget.playlist, iconSize: 26),
+          ),
         IconButton(
           onPressed: () {
             getIt<SongPlayerCubit>().loadAndPlay(
