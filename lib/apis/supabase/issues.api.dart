@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 final class SupabaseIssueApi {
   final SupabaseClient _client;
   final _connectivity = getIt<ConnectivityStatus>();
+  
 
   SupabaseIssueApi(this._client);
 

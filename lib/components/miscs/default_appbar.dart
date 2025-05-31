@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/pages/report/rating_app_page.dart';
+import 'package:memecloud/components/rating/rating_dialog.dart';
+import 'package:memecloud/pages/report/report_issue_page.dart';
 
 AppBar defaultAppBar(
   BuildContext context, {
@@ -11,6 +15,7 @@ AppBar defaultAppBar(
   Object iconUri = 'assets/icons/listen.png',
 }) {
   late final Widget icon;
+
   if (iconUri is String) {
     icon = Image.asset(iconUri, width: 30, height: 30);
   } else if (iconUri is IconData) {
@@ -36,41 +41,9 @@ AppBar defaultAppBar(
     actions: [
       IconButton(
         onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            builder: (context) {
-              return Column(
-                children: [
-                  Divider(),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const RatingPage(),
-                        ),
-                      );
-                    },
-                    child: const Text("Đánh giá"),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const RatingPage(),
-                        ),
-                      );
-                    },
-                    child: const Text("Báo lỗi"),
-                  )
-                ],
-              );
-            },
-          );
+          _showBottomSheet(context);
         },
-        icon: Icon(Icons.flag),
+        icon: Icon(Icons.flag, color: Colors.white,),
       ),
       IconButton(
         color: Colors.white,
@@ -89,5 +62,47 @@ AppBar defaultAppBar(
       ),
       SizedBox(width: 20),
     ],
+  );
+}
+
+void _showBottomSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: Icon(Icons.star_rate, color: Colors.amber),
+              title: Text('Đánh giá'),
+              onTap: () {
+                Navigator.pop(context);
+                showDialog(
+                  context: context,
+                  builder: (context) => const RatingDialog(),
+                );
+              },
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.report_problem, color: Colors.red),
+              title: Text('Báo lỗi'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const ReportIssuePage(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      );
+    },
   );
 }

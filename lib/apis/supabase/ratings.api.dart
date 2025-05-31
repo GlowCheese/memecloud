@@ -28,7 +28,7 @@ final class SupabaseRatingApi {
       await _client.from('ratings').insert(rating.toJson());
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
-      log('Failed to report issue!', stackTrace: stackTrace, level: 1000);
+      log('Failed to rate app!', stackTrace: stackTrace, level: 1000);
       rethrow;
     }
   }

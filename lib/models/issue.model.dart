@@ -41,9 +41,9 @@ class IssueModel {
   Map<String, dynamic> toJson() {
     return {
       'user_id': userId,
-      'type': type,
+      'type': type.text,
       'description': description,
-      'createdAt': createdAt.toIso8601String(),
+      'created_at': createdAt.toIso8601String(),
     };
   }
 }

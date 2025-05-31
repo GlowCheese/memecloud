@@ -16,9 +16,9 @@ class RatingModel {
   factory RatingModel.fromJson(Map<String, dynamic> json) {
     return RatingModel(
       userId: json['user_id'],
-      musicRating: (json['musicRating'] ?? 0).toDouble(),
-      uiRating: (json['uiRating'] ?? 0).toDouble(),
-      uxRating: (json['uxRating'] ?? 0).toDouble(),
+      musicRating: (json['music'] ?? 0).toDouble(),
+      uiRating: (json['ui'] ?? 0).toDouble(),
+      uxRating: (json['ux'] ?? 0).toDouble(),
       createdAt: DateTime.parse(json['createdAt']),
     );
   }
@@ -26,10 +26,10 @@ class RatingModel {
   Map<String, dynamic> toJson() {
     return {
       'user_id': userId,
-      'musicRating': musicRating,
-      'uiRating': uiRating,
-      'uxRating': uxRating,
-      'createdAt': createdAt.toIso8601String(),
+      'music': musicRating,
+      'ui': uiRating,
+      'ux': uxRating,
+      'created_at': createdAt.toIso8601String(),
     };
   }
 }

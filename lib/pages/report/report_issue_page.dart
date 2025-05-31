@@ -5,14 +5,14 @@ import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/issue.model.dart';
 
-class ReportIssueScreen extends StatefulWidget {
-  const ReportIssueScreen({super.key});
+class ReportIssuePage extends StatefulWidget {
+  const ReportIssuePage({super.key});
 
   @override
-  State<ReportIssueScreen> createState() => _ReportIssueScreenState();
+  State<ReportIssuePage> createState() => _ReportIssuePageState();
 }
 
-class _ReportIssueScreenState extends State<ReportIssueScreen> {
+class _ReportIssuePageState extends State<ReportIssuePage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _contentController = TextEditingController();
 
@@ -32,6 +32,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
       ).showSnackBar(SnackBar(content: Text('Cảm ơn bạn đã gửi phản hồi!')));
 
       _contentController.clear();
+      Navigator.of(context).pop();
     }
   }
 

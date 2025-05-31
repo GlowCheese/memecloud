@@ -20,9 +20,9 @@ Future showSongBottomSheetActions(BuildContext context, SongModel song) async {
 
       return DraggableScrollableSheet(
         expand: false,
-        initialChildSize: 0.5,
-        minChildSize: 0.4,
-        maxChildSize: 0.9,
+        initialChildSize: 0.38,
+        minChildSize: 0.2,
+        maxChildSize: 0.5,
         builder: (BuildContext context, ScrollController scrollController) {
           return SingleChildScrollView(
             controller: scrollController,
@@ -76,6 +76,9 @@ Future showSongBottomSheetActions(BuildContext context, SongModel song) async {
                 ListTile(
                   leading: const Icon(Icons.playlist_add),
                   title: const Text('Thêm vào danh sách phát'),
+                  onTap: () {
+                    
+                  },
                 ),
                 ListTile(
                   leading: const Icon(Icons.share_rounded),
@@ -103,7 +106,6 @@ Future showSongBottomSheetActions(BuildContext context, SongModel song) async {
                       getIt<ApiKit>().setIsBlacklisted(song, true);
                     },
                   ),
-                const SizedBox(height: 100),
               ],
             ),
           );
