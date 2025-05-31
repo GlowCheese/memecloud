@@ -40,12 +40,13 @@ class LibraryPage extends StatelessWidget {
         '❤️ Theo dõi',
         '🎵 Playlist',
         '📥 Tải xuống',
-        '👎 Danh sách đen',
+        '📓 Danh sách đen',
       ],
       widgetBuilder: (tabsNavigator, tabContent) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: tabsNavigator,

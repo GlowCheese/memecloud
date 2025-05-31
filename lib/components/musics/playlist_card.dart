@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/components/musics/music_card.dart';
@@ -26,14 +27,23 @@ class PlaylistCard extends StatelessWidget {
     }
   }
 
+  Widget anotIcon() {
+    return FaIcon(
+      FontAwesomeIcons.barsStaggered,
+      size: 16,
+      color: Colors.amber.shade100,
+    );
+  }
+
   Widget _variant1(BuildContext context) {
     return GestureDetector(
       onTap: () => context.push('/playlist_page', extra: playlist.id),
       child: MusicCard(
         variant: 1,
+        icon: anotIcon(),
         thumbnailUrl: playlist.thumbnailUrl,
         title: playlist.title,
-        subTitle: 'Danh sách phát • ${playlist.artistsNames}',
+        subTitle: 'Playlist • ${playlist.artistsNames}',
       ),
     );
   }
@@ -43,9 +53,10 @@ class PlaylistCard extends StatelessWidget {
       onTap: () => context.push('/playlist_page', extra: playlist),
       child: MusicCard(
         variant: 3,
+        icon: anotIcon(),
         thumbnailUrl: playlist.thumbnailUrl,
         title: playlist.title,
-        subTitle: 'Danh sách phát • ${playlist.artistsNames}',
+        subTitle: 'Playlist • ${playlist.artistsNames}',
       ),
     );
   }
@@ -55,9 +66,10 @@ class PlaylistCard extends StatelessWidget {
       onTap: () => context.push('/playlist_page', extra: playlist.id),
       child: MusicCard(
         variant: 3,
+        icon: anotIcon(),
         thumbnailUrl: playlist.thumbnailUrl,
         title: playlist.title,
-        subTitle: 'Danh sách phát • ${playlist.artistsNames}',
+        subTitle: 'Playlist • ${playlist.artistsNames}',
       ),
     );
   }

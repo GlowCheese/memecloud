@@ -6,6 +6,7 @@ class MusicCard extends StatelessWidget {
   /// must be between 1 and 3.
   final int variant;
   final String title;
+  final Widget? icon;
   final String? subTitle;
   final String thumbnailUrl;
   final bool dimmed;
@@ -16,6 +17,7 @@ class MusicCard extends StatelessWidget {
     required this.thumbnailUrl,
     required this.title,
     this.subTitle,
+    this.icon,
     this.dimmed = false,
   });
 
@@ -60,14 +62,22 @@ class MusicCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              Text(
-                subTitle!,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white.withAlpha(180),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              Row(
+                spacing: 8,
+                children: [
+                  if (icon != null) icon!,
+                  Flexible(
+                    child: Text(
+                      subTitle!,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withAlpha(180),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

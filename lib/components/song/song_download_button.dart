@@ -34,9 +34,7 @@ class SongDownloadButton extends StatelessWidget {
             state is DownloadingState ? state.downloadProgress : null;
 
         void onPressed() {
-          bool isBusy =
-              getIt<PlaylistDlStatusManager>().hasPlaylistInDownload();
-          if (dimmed && isBusy) {
+          if (getIt<PlaylistDlStatusManager>().hasPlaylistInDownload()) {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
               ..showSnackBar(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gif_view/gif_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
@@ -43,6 +44,14 @@ class SongCard extends StatelessWidget {
     }
   }
 
+  Widget anotIcon() {
+    return FaIcon(
+      size: 16,
+      color: Colors.lightBlue.shade100,
+      FontAwesomeIcons.music,
+    );
+  }
+
   Widget gestureDectectorWrapper(
     BuildContext context, {
     required Widget child,
@@ -72,6 +81,7 @@ class SongCard extends StatelessWidget {
               variant: 1,
               thumbnailUrl: song!.thumbnailUrl,
               title: song!.title,
+              icon: anotIcon(),
               subTitle: song!.artistsNames,
             ),
           ),
@@ -193,6 +203,7 @@ class SongCard extends StatelessWidget {
               variant: 1,
               thumbnailUrl: song.thumbnailUrl,
               title: song.title,
+              icon: anotIcon(),
               subTitle: song.artistsNames,
             ),
           ),
@@ -227,6 +238,7 @@ class SongCard extends StatelessWidget {
             child: MusicCard(
               variant: 1,
               dimmed: true,
+              icon: anotIcon(),
               thumbnailUrl: song!.thumbnailUrl,
               title: song!.title,
               subTitle: song!.artistsNames,
