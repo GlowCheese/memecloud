@@ -135,7 +135,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
           key: ValueKey(song.id),
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
           child: SongCard(
-            variant: 1,
+            variant: 4,
             song: song,
             songList: _displaySongs,
             playlist: widget.playlist,

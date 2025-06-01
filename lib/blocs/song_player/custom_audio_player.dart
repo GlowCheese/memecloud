@@ -1,8 +1,7 @@
 import 'dart:async';
-
+import 'package:rxdart/rxdart.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/models/song_model.dart';
-import 'package:rxdart/rxdart.dart';
 
 class CustomAudioPlayer extends AudioPlayer {
   /// `null` if no song is playing, `SongModel` otherwise.
@@ -85,11 +84,11 @@ class CustomAudioPlayer extends AudioPlayer {
 
   Future<void> addSong(SongModel song, AudioSource audioSource) async {
     songList.add(song);
-    _refreshUpcomingSongs();
     await super.addAudioSource(audioSource);
+    _refreshUpcomingSongs();
   }
 
-  int? _getRelativeIndex(int offset) {
+  int _getRelativeIndex(int offset) {
     offset = (offset + listenHistory.length - 1) % songList.length;
     if (offset < listenHistory.length) return listenHistory[offset];
     return upcomingSongs[offset - listenHistory.length];

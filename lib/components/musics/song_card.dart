@@ -11,7 +11,7 @@ import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/song/song_download_button.dart';
 
 class SongCard extends StatelessWidget {
-  /// must be between 1 and 3.
+  /// must be between 1 and 4.
   final int variant;
   final bool dimmed;
   final SongModel? song;
@@ -40,8 +40,10 @@ class SongCard extends StatelessWidget {
         return _variant1(context);
       case 2:
         return _variant2(context);
-      default:
+      case 3:
         return _variant3(context);
+      default:
+        return _variant4(context);
     }
   }
 
@@ -101,22 +103,6 @@ class SongCard extends StatelessWidget {
                   ),
                 ),
               );
-
-              // return Padding(
-              //   padding: const EdgeInsets.only(left: 10),
-              //   child: SizedBox(
-              //     width: 40,
-              //     height: 40,
-              //     child: IndexedStack(
-              //       index: isPlaying ? 1 : 0,
-              //       alignment: Alignment.center,
-              //       children: [
-              //         SongDownloadButton(song: song!, dimmed: true),
-              //         ,
-              //       ],
-              //     ),
-              //   ),
-              // );
             },
           ),
         ],
@@ -258,6 +244,7 @@ class SongCard extends StatelessWidget {
     );
   }
 
+  // used in playlist page for synchronous download
   Widget _variant4(BuildContext context) {
     return gestureDectectorWrapper(
       context,
@@ -273,31 +260,9 @@ class SongCard extends StatelessWidget {
               subTitle: song!.artistsNames,
             ),
           ),
-          StreamBuilder(
-            stream: audioPlayer.currentSongStream,
-            builder: (context, snapshot) {
-              bool isPlaying = snapshot.data?.id == song!.id;
-
-              return Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: IndexedStack(
-                    index: isPlaying ? 1 : 0,
-                    alignment: Alignment.center,
-                    children: [
-                      SongDownloadButton(song: song!, dimmed: true),
-                      GifView.asset(
-                        'assets/gifs/eq_accent.gif',
-                        width: 30,
-                        height: 30,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+          Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: SongDownloadButton(song: song!, dimmed: true),
           ),
         ],
       ),
