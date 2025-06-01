@@ -49,7 +49,7 @@ class SongControllerView extends StatelessWidget {
                 min: 0,
                 max: song.duration.inSeconds.toDouble(),
                 onChanged: (value) async {
-                  await playerCubit.seekTo(Duration(seconds: value.toInt()));
+                  await playerCubit.seek(Duration(seconds: value.toInt()));
                 },
               ),
             ),
@@ -84,7 +84,7 @@ class SongControllerView extends StatelessWidget {
 
   IconButton _seekNextButton() {
     return IconButton(
-      onPressed: () async => await playerCubit.seekToNext(),
+      onPressed: playerCubit.seekToNext,
       color: Colors.white,
       icon: Icon(Icons.skip_next),
       iconSize: 35,
@@ -106,19 +106,11 @@ class SongControllerView extends StatelessWidget {
   }
 
   Widget _seekPreviousButton() {
-    return StreamBuilder<bool>(
-      stream: playerCubit.canSeekToPreviousStream.stream,
-      builder: (context, snapshot) {
-        return IconButton(
-          onPressed:
-              snapshot.data == true
-                  ? () async => await playerCubit.seekToPrevious()
-                  : null,
-          iconSize: 35,
-          color: Colors.white,
-          icon: Icon(Icons.skip_previous),
-        );
-      },
+    return IconButton(
+      onPressed: playerCubit.seekToPrevious,
+      iconSize: 35,
+      color: Colors.white,
+      icon: Icon(Icons.skip_previous),
     );
   }
 
@@ -134,7 +126,7 @@ class SongControllerView extends StatelessWidget {
           shuffleIconColor = Colors.white;
         }
         return IconButton(
-          onPressed: () async => await playerCubit.toggleShuffleMode(),
+          onPressed: playerCubit.toggleShuffleMode,
           iconSize: 25,
           icon: Icon(Icons.shuffle_rounded, color: shuffleIconColor),
         );

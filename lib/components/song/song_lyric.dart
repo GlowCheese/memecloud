@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/components/song/song_controller.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memecloud/models/song_lyrics_model.dart';
-import 'package:memecloud/components/miscs/default_future_builder.dart';
+import 'package:memecloud/components/song/song_controller.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
+import 'package:memecloud/blocs/song_player/custom_audio_player.dart';
+import 'package:memecloud/components/miscs/default_future_builder.dart';
 
 class SongLyricPage extends StatelessWidget {
   const SongLyricPage({super.key});
@@ -113,7 +113,7 @@ class _SongLyricWidgetState extends State<SongLyricWidget> {
     final playerCubit = getIt<SongPlayerCubit>();
 
     return StreamBuilder<Duration>(
-      stream: getIt<AudioPlayer>().positionStream,
+      stream: getIt<CustomAudioPlayer>().positionStream,
       builder: (context, snapshot) {
         final currentPosition = snapshot.data ?? Duration.zero;
 
@@ -155,7 +155,7 @@ class _SongLyricWidgetState extends State<SongLyricWidget> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: GestureDetector(
-                  onTap: () => playerCubit.seekTo(lyricLines[index].time),
+                  onTap: () => playerCubit.seek(lyricLines[index].time),
                   child: Text(
                     lyricLines[index].text,
                     textAlign: TextAlign.center,

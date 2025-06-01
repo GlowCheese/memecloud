@@ -40,6 +40,7 @@ dependencies:
   dartz: ^0.10.1
   get_it: ^8.0.3
   crypto: ^3.0.6
+  rxdart: ^0.28.0
   provider: ^6.1.4
   gif_view: ^1.0.2
   equatable: ^2.0.7
