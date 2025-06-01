@@ -3,6 +3,7 @@ import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/pages/404/404.dart';
+import 'package:memecloud/pages/song/song_history_page.dart';
 import 'package:memecloud/pages/song/song_page.dart';
 import 'package:memecloud/pages/auth/signin_page.dart';
 import 'package:memecloud/pages/auth/signup_page.dart';
@@ -34,7 +35,6 @@ GoRouter getRouter() {
       GoRoute(path: '/signup', builder: (context, state) => SignUpPage()),
       GoRoute(path: '/signin', builder: (context, state) => SignInPage()),
       GoRoute(path: '/profile', builder: (context, state) => ProfilePage()),
-      GoRoute(path: '/song_page', builder: (context, state) => SongPage()),
       GoRoute(
         path: '/song_lyric',
         builder: (context, state) => SongLyricPage(),
@@ -49,8 +49,7 @@ GoRouter getRouter() {
               child: PlaylistPage(playlistId: playlistId),
               transitionsBuilder: PageTransitions.fadeTransition,
             );
-          }
-          else {
+          } else {
             final playlist = state.extra as PlaylistModel;
             return CustomTransitionPage(
               key: state.pageKey,
@@ -71,6 +70,30 @@ GoRouter getRouter() {
           );
         },
       ),
+      // ShellRoute(
+      //   pageBuilder: materialPageBuilder,
+      //   routes: [
+      GoRoute(
+        path: '/song_page',
+        pageBuilder:
+            (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: SongPage(),
+              transitionsBuilder: PageTransitions.fadeTransition,
+            ),
+      ),
+      GoRoute(
+        path: '/song_history_page',
+        pageBuilder: (context, state) {
+          final playlist = state.extra as PlaylistModel?;
+          return CustomTransitionPage(
+            child: ScrollableSongHistoryPage(playlist: playlist),
+            transitionsBuilder: PageTransitions.fadeTransition,
+          );
+        },
+      ),
+      //   ],
+      // ),
     ],
   );
   return router!;

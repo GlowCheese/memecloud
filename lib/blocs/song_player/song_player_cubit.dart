@@ -16,7 +16,7 @@ import 'package:memecloud/utils/snackbar.dart';
 class SongPlayerCubit extends Cubit<SongPlayerState> {
   final audioPlayer = CustomAudioPlayer();
 
-  String? currentPlaylistId;
+  PlaylistModel? currentPlaylist;
   late final StreamSubscription _currentSongSub;
 
   SongPlayerCubit() : super(SongPlayerInitial()) {
@@ -38,7 +38,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
 
   Future<bool> onSongFailedToLoad(BuildContext context, String errMsg) async {
     await audioPlayer.reset();
-    currentPlaylistId = null;
+    currentPlaylist = null;
 
     if (context.mounted) {
       showErrorSnackbar(
@@ -72,7 +72,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   Future<bool> _loadSong(
     BuildContext context,
     SongModel song, {
-    String? playlistId,
+    PlaylistModel? playlist,
     List<SongModel>? songList,
   }) async {
     try {
@@ -85,7 +85,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
         return !context.mounted ||
             await onSongFailedToLoad(context, 'audioSource is null');
       }
-      currentPlaylistId = playlistId;
+      currentPlaylist = playlist;
 
       if (songList == null) {
         await audioPlayer.ready(song, audioSource, isPlaylist: false);
@@ -124,7 +124,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   Future<void> lazySongPopulate(List<SongModel> songList) async {
     for (SongModel song in songList) {
       if (!lazySongPopulateRunning) break;
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(Duration(milliseconds: 500));
       final audioSource = await _getAudioSource(song);
       if (audioSource != null) {
         await audioPlayer.addSong(song, audioSource);
@@ -140,7 +140,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     List<SongModel>? songList,
   }) async {
     if (state is SongPlayerLoading) return;
-    if (currentPlaylistId != null && currentPlaylistId == playlist?.id) {
+    if (currentPlaylist != null && currentPlaylist!.id == playlist?.id) {
       seek(Duration.zero, songId: song.id);
       await audioPlayer.play();
     } else {
@@ -148,7 +148,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       if (await _loadSong(
         context,
         song,
-        playlistId: playlist?.id,
+        playlist: playlist,
         songList: songList,
       )) {
         if (playlist?.type == PlaylistType.zing ||

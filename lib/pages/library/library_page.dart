@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -6,8 +5,10 @@ import 'package:memecloud/utils/snackbar.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/components/musics/song_card.dart';
+import 'package:memecloud/components/miscs/simple_section.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/musics/playlist_card.dart';
+import 'package:memecloud/pages/ssp/simple_scrollable_page.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/blocs/dl_status/dl_status_manager.dart';
 import 'package:memecloud/pages/library/my_playlist/my_playlist.dart';
@@ -122,7 +123,7 @@ class LibraryPage extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8),
       child: StatefulBuilder(
         builder: (context, setState) {
-          return COLUMN_THAT_IS_USED_TO_DISPLAY_MUSIC_CARDS(
+          return SimpleSection(
             title: 'Bài hát bị chặn',
             children: <Widget>[
               for (var song in blacklistedSongs)
@@ -162,8 +163,10 @@ class LibraryPage extends StatelessWidget {
             builder: (context) {
               return RecentPlayedStreamBuilder(
                 builder: (context, recentlyPlayedSongs, _) {
-                  return _ItemsScrollView(
+                  return SimpleScrollablePage(
                     title: 'Phát gần đây',
+                    bgColor: Colors.lightBlue,
+                    spacing: 6,
                     items: [
                       for (var song in recentlyPlayedSongs)
                         SongCard(
@@ -193,8 +196,10 @@ class LibraryPage extends StatelessWidget {
             builder: (context) {
               return RecentPlayedStreamBuilder(
                 builder: (context, _, recentlyPlayedPlaylists) {
-                  return _ItemsScrollView(
+                  return SimpleScrollablePage(
                     title: 'Danh sách phát gần đây',
+                    bgColor: Colors.lightBlue,
+                    spacing: 6,
                     items: [
                       for (var playlist in recentlyPlayedPlaylists)
                         PlaylistCard(
@@ -221,11 +226,11 @@ class LibraryPage extends StatelessWidget {
           physics: BouncingScrollPhysics(),
           children: <Widget>[
             if (recentlyPlayedSongs.isNotEmpty)
-              COLUMN_THAT_IS_USED_TO_DISPLAY_MUSIC_CARDS(
+              SimpleSection(
                 title: 'Phát gần đây',
                 showAllButton: _showAllRecentlyPlayedSongsButton(context),
                 children: <Widget>[
-                  for (var i = 0; i < min(5, recentlyPlayedSongs.length); i++)
+                  for (var song in recentlyPlayedSongs.take(5))
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: horzPad,
@@ -233,7 +238,7 @@ class LibraryPage extends StatelessWidget {
                       ),
                       child: SongCard(
                         variant: 1,
-                        song: recentlyPlayedSongs[i],
+                        song: song,
                         songList: recentlyPlayedSongs,
                       ),
                     ),
@@ -241,24 +246,17 @@ class LibraryPage extends StatelessWidget {
               ),
 
             if (recentlyPlayedPlaylists.isNotEmpty)
-              COLUMN_THAT_IS_USED_TO_DISPLAY_MUSIC_CARDS(
+              SimpleSection(
                 title: 'Danh sách phát',
                 showAllButton: _showAllRecentlyPlayedPlaylistsButton(context),
                 children: [
-                  for (
-                    var i = 0;
-                    i < min(5, recentlyPlayedPlaylists.length);
-                    i++
-                  )
+                  for (var playlist in recentlyPlayedPlaylists.take(5))
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: horzPad,
                         vertical: 6,
                       ),
-                      child: PlaylistCard(
-                        variant: 1,
-                        playlist: recentlyPlayedPlaylists[i],
-                      ),
+                      child: PlaylistCard(variant: 1, playlist: playlist),
                     ),
                 ],
               ),
@@ -317,77 +315,6 @@ class LibraryPage extends StatelessWidget {
         },
         separatorBuilder: (context, index) => SizedBox(height: 18),
         itemCount: downloadedPlaylists.length + downloadingPlaylists.length + 1,
-      ),
-    );
-  }
-}
-
-// Again, stupid name asf
-class COLUMN_THAT_IS_USED_TO_DISPLAY_MUSIC_CARDS extends StatelessWidget {
-  final String title;
-  final Widget? showAllButton;
-  final List<Widget> children;
-
-  const COLUMN_THAT_IS_USED_TO_DISPLAY_MUSIC_CARDS({
-    required this.title,
-    this.showAllButton,
-    required this.children,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(
-            left: horzPad,
-            right: horzPad,
-            top: 18,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              if (showAllButton != null) showAllButton!,
-            ],
-          ),
-        ),
-        ...children,
-      ],
-    );
-  }
-}
-
-// TODO: this is a stupid name, change it later
-class _ItemsScrollView extends StatelessWidget {
-  final String title;
-  final List<Widget> items;
-
-  const _ItemsScrollView({required this.title, required this.items});
-
-  @override
-  Widget build(BuildContext context) {
-    return GradBackground(
-      color: MyColorSet.lightBlue,
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(title: Text(title), backgroundColor: Colors.transparent),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: horzPad),
-          child: ListView.builder(
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: items[index],
-              );
-            },
-          ),
-        ),
       ),
     );
   }

@@ -13,6 +13,7 @@ import 'package:memecloud/components/song/song_download_button.dart';
 class SongCard extends StatelessWidget {
   /// must be between 1 and 3.
   final int variant;
+  final bool dimmed;
   final SongModel? song;
   final ChartSong? chartSong;
   final PlaylistModel? playlist;
@@ -28,6 +29,7 @@ class SongCard extends StatelessWidget {
     this.chartSong,
     this.songList,
     this.playlist,
+    this.dimmed = false,
     this.onUnblacklistButtonPressed,
   });
 
@@ -78,6 +80,7 @@ class SongCard extends StatelessWidget {
           Flexible(
             child: MusicCard(
               variant: 1,
+              dimmed: dimmed,
               thumbnailUrl: song!.thumbnailUrl,
               title: song!.title,
               icon: anotIcon(),
@@ -87,27 +90,33 @@ class SongCard extends StatelessWidget {
           StreamBuilder(
             stream: audioPlayer.currentSongStream,
             builder: (context, snapshot) {
-              bool isPlaying = snapshot.data?.id == song!.id;
-
-              return Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: IndexedStack(
-                    index: isPlaying ? 1 : 0,
-                    alignment: Alignment.center,
-                    children: [
-                      SongDownloadButton(song: song!, dimmed: true),
-                      GifView.asset(
-                        'assets/gifs/eq_accent.gif',
-                        width: 30,
-                        height: 30,
-                      ),
-                    ],
+              return Offstage(
+                offstage: snapshot.data?.id != song!.id,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: GifView.asset(
+                    'assets/gifs/eq_accent.gif',
+                    width: 30,
+                    height: 30,
                   ),
                 ),
               );
+
+              // return Padding(
+              //   padding: const EdgeInsets.only(left: 10),
+              //   child: SizedBox(
+              //     width: 40,
+              //     height: 40,
+              //     child: IndexedStack(
+              //       index: isPlaying ? 1 : 0,
+              //       alignment: Alignment.center,
+              //       children: [
+              //         SongDownloadButton(song: song!, dimmed: true),
+              //         ,
+              //       ],
+              //     ),
+              //   ),
+              // );
             },
           ),
         ],
@@ -246,6 +255,52 @@ class SongCard extends StatelessWidget {
           onPressed: onUnblacklistButtonPressed,
         ),
       ],
+    );
+  }
+
+  Widget _variant4(BuildContext context) {
+    return gestureDectectorWrapper(
+      context,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Flexible(
+            child: MusicCard(
+              variant: 1,
+              thumbnailUrl: song!.thumbnailUrl,
+              title: song!.title,
+              icon: anotIcon(),
+              subTitle: song!.artistsNames,
+            ),
+          ),
+          StreamBuilder(
+            stream: audioPlayer.currentSongStream,
+            builder: (context, snapshot) {
+              bool isPlaying = snapshot.data?.id == song!.id;
+
+              return Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: IndexedStack(
+                    index: isPlaying ? 1 : 0,
+                    alignment: Alignment.center,
+                    children: [
+                      SongDownloadButton(song: song!, dimmed: true),
+                      GifView.asset(
+                        'assets/gifs/eq_accent.gif',
+                        width: 30,
+                        height: 30,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }

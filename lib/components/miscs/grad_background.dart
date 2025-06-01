@@ -4,10 +4,10 @@ import 'package:memecloud/utils/common.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 
 class MyColorSet {
-  static final cyan = Colors.cyan.shade900;
+  static final cyan = Colors.cyan.shade800;
   static final purple = Colors.deepPurple.shade300;
   static final grey = Colors.blueGrey;
-  static final redAccent = Colors.redAccent.shade200;
+  static final redAccent = Colors.redAccent.shade700;
   static final teal = const Color.fromRGBO(0, 137, 123, 1);
   static final indigo = Colors.indigo.shade400;
   static final orange = Colors.deepOrange.shade400;

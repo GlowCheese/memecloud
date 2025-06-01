@@ -27,26 +27,26 @@ void dioInterceptorSetCustomCookie(
   );
 }
 
-void dioInterceptorUpdateCookieOnSet(Dio dio, CookieJar cookieJar, ApiKit apiKit) {
-  dio.interceptors.insert(
-    0,
-    InterceptorsWrapper(
-      onResponse: (response, handler) async {
-        final setCookieHeaders = response.headers['set-cookie'];
-        if (setCookieHeaders != null && setCookieHeaders.isNotEmpty) {
-          final uri = response.requestOptions.uri;
-          final cookies = setCookieHeaders
-              .map((str) => Cookie.fromSetCookieValue(str))
-              .toList();
+// void dioInterceptorUpdateCookieOnSet(Dio dio, CookieJar cookieJar, ApiKit apiKit) {
+//   dio.interceptors.insert(
+//     0,
+//     InterceptorsWrapper(
+//       onResponse: (response, handler) async {
+//         final setCookieHeaders = response.headers['set-cookie'];
+//         if (setCookieHeaders != null && setCookieHeaders.isNotEmpty) {
+//           final uri = response.requestOptions.uri;
+//           final cookies = setCookieHeaders
+//               .map((str) => Cookie.fromSetCookieValue(str))
+//               .toList();
           
-          await cookieJar.saveFromResponse(uri, cookies);
-          unawaited(apiKit.updateZingCookie(setCookieHeaders));
-        }
-        return handler.next(response);
-      },
-    ),
-  );
-}
+//           await cookieJar.saveFromResponse(uri, cookies);
+//           unawaited(apiKit.updateZingCookie(setCookieHeaders));
+//         }
+//         return handler.next(response);
+//       },
+//     ),
+//   );
+// }
 
 Future<(Dio, CookieJar)> createDioWithPersistentCookies() async {
   final appDocDir = await getApplicationDocumentsDirectory();

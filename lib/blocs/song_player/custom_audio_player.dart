@@ -103,10 +103,8 @@ class CustomAudioPlayer extends AudioPlayer {
       upcomingSongs.insertAll(0, listenHistory.sublist(k + 1));
       listenHistory = listenHistory.sublist(0, k + 1);
     } else {
-      k = upcomingSongs.indexOf(index);
-      assert(k != -1);
-      listenHistory.addAll(upcomingSongs.sublist(0, k + 1));
-      upcomingSongs = upcomingSongs.sublist(k + 1);
+      assert(upcomingSongs.remove(index));
+      listenHistory.add(index);
     }
     _listenHistorySubject.add(listenHistory);
     _upcomingSongsSubject.add(upcomingSongs);

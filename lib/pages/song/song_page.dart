@@ -309,26 +309,48 @@ class SongPageInner extends StatelessWidget {
     return AppBar(
       backgroundColor: Colors.transparent,
       centerTitle: true,
-      title: StreamBuilder<bool>(
-        stream: playerCubit.audioPlayer.playingStream,
-        builder: (context, snapshot) {
-          final isPlaying = snapshot.data == true;
-          final transitionDuration = Duration(milliseconds: 500);
-          return Stack(
-            children: [
-              AnimatedOpacity(
-                opacity: isPlaying ? 1 : 0,
-                duration: transitionDuration,
-                child: Text('Playing', style: TextStyle(fontSize: 20)),
-              ),
-              AnimatedOpacity(
-                opacity: isPlaying ? 0 : 1,
-                duration: transitionDuration,
-                child: Text('Paused', style: TextStyle(fontSize: 20)),
-              ),
-            ],
+      title: TextButton(
+        onPressed: () {
+          context.push(
+            '/song_history_page',
+            extra: playerCubit.currentPlaylist,
           );
         },
+        style: ButtonStyle(
+          foregroundColor: WidgetStatePropertyAll(Colors.white),
+        ),
+        child: Column(
+          children: [
+            StreamBuilder<bool>(
+              stream: playerCubit.audioPlayer.playingStream,
+              builder: (context, snapshot) {
+                final isPlaying = snapshot.data == true;
+                final transitionDuration = Duration(milliseconds: 500);
+                return Stack(
+                  children: [
+                    AnimatedOpacity(
+                      opacity: isPlaying ? 1 : 0,
+                      duration: transitionDuration,
+                      child: Text('Playing', style: TextStyle(fontSize: 20)),
+                    ),
+                    AnimatedOpacity(
+                      opacity: isPlaying ? 0 : 1,
+                      duration: transitionDuration,
+                      child: Text('Paused', style: TextStyle(fontSize: 20)),
+                    ),
+                  ],
+                );
+              },
+            ),
+            Text(
+              'Xem danh sách phát',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.white.withAlpha(180),
+              ),
+            ),
+          ],
+        ),
       ),
       leading: BackButton(
         style: ButtonStyle(

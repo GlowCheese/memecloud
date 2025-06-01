@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
@@ -12,9 +11,7 @@ class PlayOrPauseButton extends StatelessWidget {
   final SongModel song;
   final Color color;
   final double? iconSize;
-  final PlaylistModel? playlist;
   final EdgeInsetsGeometry? padding;
-  final List<SongModel>? songList;
   final playerCubit = getIt<SongPlayerCubit>();
   late final audioPlayer = playerCubit.audioPlayer;
 
@@ -24,20 +21,11 @@ class PlayOrPauseButton extends StatelessWidget {
     this.color = Colors.white,
     this.padding,
     this.iconSize,
-    this.playlist,
-    this.songList,
   });
 
   void onPressed(BuildContext context, bool load) {
     if (load) {
-      unawaited(
-        playerCubit.loadAndPlay(
-          context,
-          song,
-          playlist: playlist,
-          songList: songList,
-        ),
-      );
+      unawaited(playerCubit.loadAndPlay(context, song));
     } else {
       playerCubit.playOrPause();
     }
