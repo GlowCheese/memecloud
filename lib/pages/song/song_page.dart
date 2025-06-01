@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:memecloud/components/song/song_lyric.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -74,6 +75,8 @@ class SongPageInner extends StatelessWidget {
                         SizedBox(height: 20),
                         SongControllerView(song: song),
                         SizedBox(height: 50),
+                        _songLyric(),
+                        SizedBox(height: 30),
                         if (song.artists.isNotEmpty)
                           _artistCard(context, song.artists[0]),
                         SizedBox(height: 12),
@@ -84,6 +87,60 @@ class SongPageInner extends StatelessWidget {
               ),
             ),
           ),
+    );
+  }
+
+  Widget _songLyric() {
+    return Container(
+      height: 300,
+      decoration: BoxDecoration(
+        color: Colors.brown.shade700,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: defaultFutureBuilder(
+        future: getIt<ApiKit>().getSongLyric(song.id),
+        onNull: (context) {
+          return Center(child: Text('This song currently has no lyric!'));
+        },
+        onData: (context, data) {
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 12.0),
+                      child: Text(
+                        'Lời bài hát',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        context.push('/song_lyric');
+                      },
+                      iconSize: 20,
+                      icon: Icon(Icons.open_in_full),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: SongLyricWidget(lyric: data!, largeText: false),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 

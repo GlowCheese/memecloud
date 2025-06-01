@@ -27,15 +27,20 @@ void dioInterceptorSetCustomCookie(
   );
 }
 
-void dioInterceptorUpdateCookieOnSet(Dio dio, ApiKit apiKit) {
+void dioInterceptorUpdateCookieOnSet(Dio dio, CookieJar cookieJar, ApiKit apiKit) {
   dio.interceptors.insert(
     0,
     InterceptorsWrapper(
-      onResponse: (response, handler) {
-        final setCookieHeader = response.headers['set-cookie'];
-        if (setCookieHeader != null && setCookieHeader.isNotEmpty) {
-          final cookies = setCookieHeader;
-          unawaited(apiKit.updateZingCookie(cookies));
+      onResponse: (response, handler) async {
+        final setCookieHeaders = response.headers['set-cookie'];
+        if (setCookieHeaders != null && setCookieHeaders.isNotEmpty) {
+          final uri = response.requestOptions.uri;
+          final cookies = setCookieHeaders
+              .map((str) => Cookie.fromSetCookieValue(str))
+              .toList();
+          
+          await cookieJar.saveFromResponse(uri, cookies);
+          unawaited(apiKit.updateZingCookie(setCookieHeaders));
         }
         return handler.next(response);
       },

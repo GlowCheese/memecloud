@@ -30,7 +30,10 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       if (index == null) {
         emit(SongPlayerInitial());
       } else {
-        final newState = SongPlayerLoaded(currentSongList[index]);
+        final newState = SongPlayerLoaded(
+          currentSongList[index],
+          playlistId: currentPlaylistId,
+        );
         if (newState != state) {
           unawaited(getIt<ApiKit>().newSongStream(newState.currentSong));
 
@@ -152,13 +155,11 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   Future<void> lazySongPopulate(List<SongModel> songList) async {
     for (SongModel song in songList) {
       if (!lazySongPopulateRunning) break;
+      await Future.delayed(Duration(seconds: 1));
       final audioSource = await _getAudioSource(song);
       if (audioSource != null) {
         currentSongList.add(song);
         await audioPlayer.addAudioSource(audioSource);
-      }
-      if (currentSongList.length >= 5) {
-        await Future.delayed(Duration(seconds: 10));
       }
     }
   }

@@ -316,7 +316,7 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
         final hasBeenAdded = await Navigator.of(
           context,
         ).push(MaterialPageRoute(builder: (_) => const CreateNewPlaylist()));
-        if (hasBeenAdded) {
+        if (hasBeenAdded == true) {
           refreshMyPlaylist();
         }
       },

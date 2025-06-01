@@ -50,11 +50,6 @@ Future showSongBottomSheetActions(BuildContext context, SongModel song) async {
                     showSongArtists(context, song.artists);
                   },
                 ),
-                ListTile(
-                  leading: const Icon(Icons.lyrics),
-                  title: const Text('Xem lời bài hát'),
-                  onTap: () => context.push('/song_lyric'),
-                ),
                 if (isLiked)
                   ListTile(
                     leading: const Icon(Icons.favorite_rounded),

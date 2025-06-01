@@ -50,7 +50,7 @@ Future<void> setupLocator() async {
     cookieJar,
     (await supabase.config.getZingCookie())!,
   );
-  dioInterceptorUpdateCookieOnSet(dio, apiKit);
+  dioInterceptorUpdateCookieOnSet(dio, cookieJar, apiKit);
 
   // song player
   final playerCubit = SongPlayerCubit();

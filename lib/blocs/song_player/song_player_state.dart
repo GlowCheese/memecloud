@@ -14,11 +14,12 @@ class SongPlayerLoading extends SongPlayerState with EquatableMixin {
 }
 
 class SongPlayerLoaded extends SongPlayerState with EquatableMixin {
+  final String? playlistId;
   final SongModel currentSong;
-  SongPlayerLoaded(this.currentSong);
+  SongPlayerLoaded(this.currentSong, {this.playlistId});
 
   @override
-  List<Object?> get props => [currentSong];
+  List<Object?> get props => [currentSong, playlistId];
 }
 
 class SongPlayerFailure extends SongPlayerState {}

@@ -129,22 +129,19 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
 
   SliverList _songsSliverList(BuildContext context) {
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final song = _sortedDisplaySongs[index];
-          return Padding(
-            key: ValueKey(song.id),
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
-            child: SongCard(
-              variant: 1,
-              song: song,
-              songList: _displaySongs,
-              playlist: widget.playlist,
-            ),
-          );
-        },
-        childCount: _sortedDisplaySongs.length,
-      ),
+      delegate: SliverChildBuilderDelegate((context, index) {
+        final song = _sortedDisplaySongs[index];
+        return Padding(
+          key: ValueKey(song.id),
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+          child: SongCard(
+            variant: 1,
+            song: song,
+            songList: _displaySongs,
+            playlist: widget.playlist,
+          ),
+        );
+      }, childCount: _sortedDisplaySongs.length),
     );
   }
 
@@ -270,28 +267,35 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
   }
 
   Row _playlistControlButtons() {
+    final playerCubit = getIt<SongPlayerCubit>();
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         if (widget.playlist.type != PlaylistType.downloaded)
           Padding(
             padding: const EdgeInsets.only(right: 5),
-            child: PlaylistDownloadButton(playlist: widget.playlist, iconSize: 26),
-          ),
-        IconButton(
-          onPressed: () {
-            getIt<SongPlayerCubit>().loadAndPlay(
-              context,
-              _displaySongs[0],
-              songList: _displaySongs,
+            child: PlaylistDownloadButton(
               playlist: widget.playlist,
-            );
-          },
+              iconSize: 26,
+            ),
+          ),
+
+        IconButton(
+          onPressed:
+              _displaySongs.isEmpty
+                  ? null
+                  : () => playerCubit.loadAndPlay(
+                    context,
+                    _displaySongs[0],
+                    songList: _displaySongs,
+                    playlist: widget.playlist,
+                  ),
           icon: const Icon(Icons.play_arrow, color: Colors.black),
-          style: ButtonStyle(
+          style: const ButtonStyle(
             backgroundColor: WidgetStatePropertyAll(Colors.white),
           ),
-          constraints: BoxConstraints(minWidth: 35, minHeight: 35),
+          constraints: const BoxConstraints(minWidth: 35, minHeight: 35),
           padding: const EdgeInsets.all(4),
         ),
         if (widget.playlist.type == PlaylistType.user)
