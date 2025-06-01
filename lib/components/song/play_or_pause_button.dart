@@ -16,6 +16,7 @@ class PlayOrPauseButton extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final List<SongModel>? songList;
   final playerCubit = getIt<SongPlayerCubit>();
+  late final audioPlayer = playerCubit.audioPlayer;
 
   PlayOrPauseButton({
     super.key,
@@ -65,20 +66,16 @@ class PlayOrPauseButton extends StatelessWidget {
     return BlocBuilder<SongPlayerCubit, SongPlayerState>(
       bloc: playerCubit,
       builder: (context, state) {
-        if (state is SongPlayerLoading && state.currentSong.id == song.id) {
-          return CircularProgressIndicator();
-        }
         if (state is! SongPlayerLoaded) {
           return _playButton(context, true);
         }
 
-        if (state.currentSong.id != song.id) {
-          return _playButton(context, true);
-        }
-
-        return StreamBuilder<bool>(
-          stream: playerCubit.audioPlayer.playingStream,
+        return StreamBuilder(
+          stream: audioPlayer.playingStream,
           builder: (context, snapshot) {
+            if (audioPlayer.currentSong?.id != song.id) {
+              return _playButton(context, true);
+            }
             if (snapshot.data == true) {
               return _pauseButton(context, false);
             }

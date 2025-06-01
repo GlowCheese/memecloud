@@ -20,14 +20,20 @@ class CustomAudioPlayer extends AudioPlayer {
   Stream<List<int>> get listenHistoryStream => _listenHistorySubject.stream;
   Stream<List<int>> get upcomingSongsStream => _upcomingSongsSubject.stream;
 
-  CustomAudioPlayer(): super() {
+  late final StreamSubscription<int?> _currentIndexSubscription;
+
+  CustomAudioPlayer() : super() {
     _currentSongSubject = BehaviorSubject.seeded(null);
     _listenHistorySubject = BehaviorSubject.seeded([]);
     _upcomingSongsSubject = BehaviorSubject.seeded([]);
+    _currentIndexSubscription = currentIndexStream.listen((index) {
+      if (index != null) _updateHistory(index);
+    });
   }
 
   @override
   Future<void> dispose() async {
+    await _currentIndexSubscription.cancel();
     await Future.wait([
       _currentSongSubject.close(),
       _listenHistorySubject.close(),
@@ -90,7 +96,7 @@ class CustomAudioPlayer extends AudioPlayer {
   }
 
   void _updateHistory(int index) {
-    if (index == currentIndex!) return;
+    if (index == getIndexOf(currentSong!.id)) return;
 
     int k = listenHistory.indexOf(index);
     if (k != -1) {
@@ -105,12 +111,6 @@ class CustomAudioPlayer extends AudioPlayer {
     _listenHistorySubject.add(listenHistory);
     _upcomingSongsSubject.add(upcomingSongs);
     _currentSongSubject.add(currentSong = songList[index]);
-  }
-
-  @override
-  Future<void> seek(Duration? position, {int? index}) async {
-    if (index != null) _updateHistory(index);
-    await super.seek(position, index: index);
   }
 
   @override

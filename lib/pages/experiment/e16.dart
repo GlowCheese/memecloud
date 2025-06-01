@@ -112,7 +112,7 @@ class _ArtistPageState extends State<ArtistPage> {
             const SliverToBoxAdapter(child: SizedBox(height: 100)),
           ],
         ),
-        const MiniPlayer(floating: true),
+        MiniPlayer(floating: true),
       ],
     );
   }

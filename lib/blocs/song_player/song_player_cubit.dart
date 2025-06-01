@@ -17,28 +17,21 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   final audioPlayer = CustomAudioPlayer();
 
   String? currentPlaylistId;
-  late final StreamSubscription _currentIndexSub;
+  late final StreamSubscription _currentSongSub;
 
   SongPlayerCubit() : super(SongPlayerInitial()) {
-    _currentIndexSub = audioPlayer.currentIndexStream.listen((index) {
-      if (index == null) {
+    _currentSongSub = audioPlayer.currentSongStream.listen((song) {
+      if (song == null) {
         emit(SongPlayerInitial());
       } else {
-        final newState = SongPlayerLoaded(
-          audioPlayer.currentSong!,
-          playlistId: currentPlaylistId,
-        );
-
-        if (newState == state) return;
-        unawaited(getIt<ApiKit>().newSongStream(newState.currentSong));
-        emit(newState);
+        unawaited(getIt<ApiKit>().newSongStream(song));
       }
     });
   }
 
   @override
   Future<void> close() {
-    _currentIndexSub.cancel();
+    _currentSongSub.cancel();
     audioPlayer.dispose();
     return super.close();
   }
@@ -91,35 +84,35 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       if (audioSource == null) {
         return !context.mounted ||
             await onSongFailedToLoad(context, 'audioSource is null');
-      } else {
-        currentPlaylistId = playlistId;
-
-        if (songList == null) {
-          await audioPlayer.ready(song, audioSource, isPlaylist: false);
-        } else {
-          await audioPlayer.ready(song, audioSource, isPlaylist: true);
-
-          int songIdx = songList.indexOf(song);
-          final remainingSongs = [
-            ...songList.sublist(songIdx + 1),
-            ...songList.sublist(0, songIdx),
-          ];
-
-          lazySongPopulateRunning = true;
-          songsPopulateTask = CancelableOperation.fromFuture(
-            lazySongPopulate(remainingSongs).onError((e, stackTrace) {
-              log(
-                'Failed to populate songs: $e',
-                stackTrace: stackTrace,
-                level: 1000,
-              );
-            }),
-            onCancel: () => lazySongPopulateRunning = false,
-          );
-        }
-        audioPlayer.setSpeed(1.0);
-        return true;
       }
+      currentPlaylistId = playlistId;
+
+      if (songList == null) {
+        await audioPlayer.ready(song, audioSource, isPlaylist: false);
+      } else {
+        await audioPlayer.ready(song, audioSource, isPlaylist: true);
+
+        int songIdx = songList.indexOf(song);
+        final remainingSongs = [
+          ...songList.sublist(songIdx + 1),
+          ...songList.sublist(0, songIdx),
+        ];
+
+        lazySongPopulateRunning = true;
+        songsPopulateTask = CancelableOperation.fromFuture(
+          lazySongPopulate(remainingSongs).onError((e, stackTrace) {
+            log(
+              'Failed to populate songs: $e',
+              stackTrace: stackTrace,
+              level: 1000,
+            );
+          }),
+          onCancel: () => lazySongPopulateRunning = false,
+        );
+      }
+      audioPlayer.setSpeed(1.0);
+      emit(SongPlayerLoaded());
+      return true;
     } catch (e, stackTrace) {
       log('Failed to load song: $e', stackTrace: stackTrace, level: 1000);
       emit(SongPlayerFailure());

@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memecloud/models/song_lyrics_model.dart';
 import 'package:memecloud/components/song/song_controller.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
-import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/blocs/song_player/custom_audio_player.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 
@@ -15,23 +13,23 @@ class SongLyricPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final playerCubit = getIt<SongPlayerCubit>();
+    final audioPlayer = getIt<CustomAudioPlayer>();
 
-    return BlocBuilder<SongPlayerCubit, SongPlayerState>(
-      bloc: playerCubit,
-      builder: (context, state) {
-        if (state is! SongPlayerLoaded) {
-          return SizedBox();
-        }
+    return StreamBuilder(
+      stream: audioPlayer.currentSongStream,
+      builder: (context, snapshot) {
+        final song = snapshot.data;
+        if (song == null) return SizedBox();
+
         return Scaffold(
-          appBar: _appBar(context, state.currentSong.title),
+          appBar: _appBar(context, song.title),
           backgroundColor: Colors.brown.shade600,
           body: Column(
             children: [
               SizedBox(height: 30),
               Expanded(
                 child: defaultFutureBuilder(
-                  future: getIt<ApiKit>().getSongLyric(state.currentSong.id),
+                  future: getIt<ApiKit>().getSongLyric(song.id),
                   onNull: (context) {
                     return Center(
                       child: Text(
@@ -59,10 +57,7 @@ class SongLyricPage extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 30, right: 30, bottom: 20),
-                child: SongControllerView(
-                  song: state.currentSong,
-                  hasSlider: false,
-                ),
+                child: SongControllerView(song: song, hasSlider: false),
               ),
             ],
           ),

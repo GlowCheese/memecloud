@@ -15,23 +15,35 @@ import 'package:memecloud/components/song/play_or_pause_button.dart';
 
 class MiniPlayer extends StatelessWidget {
   final bool floating;
+  final playerCubit = getIt<SongPlayerCubit>();
+  late final audioPlayer = playerCubit.audioPlayer;
 
-  const MiniPlayer({super.key, this.floating = false});
+  MiniPlayer({super.key, this.floating = false});
 
   @override
   Widget build(BuildContext context) {
-    final playerCubit = getIt<SongPlayerCubit>();
-    return BlocBuilder<SongPlayerCubit, SongPlayerState>(
+    return BlocBuilder(
       bloc: playerCubit,
       builder: (context, state) {
-        if (state is SongPlayerLoaded || state is SongPlayerLoading) {
-          final w = _MiniPlayerInner(playerCubit, (state as dynamic).currentSong);
-          return floating
-              ? Positioned(left: 0, right: 0, bottom: 12, child: w)
-              : w;
+        late final Widget w;
+
+        if (state is SongPlayerLoading) {
+          w = _MiniPlayerInner(playerCubit, state.currentSong);
+        } else if (state is SongPlayerLoaded) {
+          w = StreamBuilder(
+            stream: audioPlayer.currentSongStream,
+            builder: (context, snapshot) {
+              final song = snapshot.data;
+              if (song == null) return SizedBox();
+              return _MiniPlayerInner(playerCubit, song);
+            },
+          );
         } else {
-          return SizedBox(height: 1);
+          return SizedBox();
         }
+
+        if (!floating) return w;
+        return Positioned(left: 0, right: 0, bottom: 12, child: w);
       },
     );
   }

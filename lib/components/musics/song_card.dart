@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gif_view/gif_view.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:memecloud/blocs/song_player/song_player_state.dart';
-import 'package:memecloud/components/song/song_download_button.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/models/playlist_model.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/week_chart_model.dart';
 import 'package:memecloud/components/musics/music_card.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
+import 'package:memecloud/components/song/song_download_button.dart';
 
 class SongCard extends StatelessWidget {
   /// must be between 1 and 3.
@@ -21,6 +19,7 @@ class SongCard extends StatelessWidget {
   final List<SongModel>? songList;
   final playerCubit = getIt<SongPlayerCubit>();
   final Function()? onUnblacklistButtonPressed;
+  late final audioPlayer = playerCubit.audioPlayer;
 
   SongCard({
     super.key,
@@ -85,11 +84,10 @@ class SongCard extends StatelessWidget {
               subTitle: song!.artistsNames,
             ),
           ),
-          BlocBuilder(
-            bloc: playerCubit,
-            builder: (context, state) {
-              bool isPlaying =
-                  state is SongPlayerLoaded && state.currentSong.id == song!.id;
+          StreamBuilder(
+            stream: audioPlayer.currentSongStream,
+            builder: (context, snapshot) {
+              bool isPlaying = snapshot.data?.id == song!.id;
 
               return Padding(
                 padding: const EdgeInsets.only(left: 10),
@@ -207,13 +205,11 @@ class SongCard extends StatelessWidget {
               subTitle: song.artistsNames,
             ),
           ),
-          BlocBuilder(
-            bloc: playerCubit,
-            builder: (context, state) {
+          StreamBuilder(
+            stream: audioPlayer.currentSongStream,
+            builder: (context, snapshot) {
               return Offstage(
-                offstage:
-                    state is! SongPlayerLoaded ||
-                    state.currentSong.id != song.id,
+                offstage: snapshot.data?.id == song.id,
                 child: GifView.asset(
                   'assets/gifs/eq_accent.gif',
                   width: 30,

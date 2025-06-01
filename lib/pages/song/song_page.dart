@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/components/song/song_lyric.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/artist_model.dart';
+import 'package:memecloud/components/song/song_lyric.dart';
 import 'package:memecloud/components/song/like_button.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/components/song/song_controller.dart';
@@ -14,26 +13,24 @@ import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/miscs/expandable/text.dart';
 import 'package:memecloud/components/song/show_song_actions.dart';
 import 'package:memecloud/components/song/rotating_song_disc.dart';
-import 'package:memecloud/blocs/song_player/song_player_state.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/song/song_download_button.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 
 class SongPage extends StatelessWidget {
   final playerCubit = getIt<SongPlayerCubit>();
+  late final audioPlayer = playerCubit.audioPlayer;
 
   SongPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SongPlayerCubit, SongPlayerState>(
-      bloc: playerCubit,
-      builder: (context, state) {
-        if (state is! SongPlayerLoaded) {
-          return SizedBox();
-        }
-
-        return SongPageInner(playerCubit, song: state.currentSong);
+    return StreamBuilder(
+      stream: audioPlayer.currentSongStream,
+      builder: (context, snapshot) {
+        final song = snapshot.data;
+        if (song == null) return SizedBox();
+        return SongPageInner(playerCubit, song);
       },
     );
   }
@@ -42,7 +39,7 @@ class SongPage extends StatelessWidget {
 class SongPageInner extends StatelessWidget {
   final SongModel song;
   final SongPlayerCubit playerCubit;
-  const SongPageInner(this.playerCubit, {super.key, required this.song});
+  const SongPageInner(this.playerCubit, this.song, {super.key});
 
   @override
   Widget build(BuildContext context) {
