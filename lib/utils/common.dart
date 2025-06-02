@@ -9,6 +9,16 @@ import 'package:go_router/go_router.dart';
 import 'package:memecloud/utils/images.dart';
 import 'package:palette_generator/palette_generator.dart';
 
+Future<Color?> getDominantColor(String imageUrl) async {
+  final PaletteGenerator paletteGenerator =
+      await PaletteGenerator.fromImageProvider(
+        getImageProvider(imageUrl),
+        size: Size(200, 200),
+        maximumColorCount: 20,
+      );
+  return paletteGenerator.dominantColor?.color;
+}
+
 Future<List<Color>> getPaletteColors(String imageUrl) async {
   final PaletteGenerator paletteGenerator =
       await PaletteGenerator.fromImageProvider(

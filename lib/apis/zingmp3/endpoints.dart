@@ -174,23 +174,13 @@ class ZingMp3Api {
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchHome({int page = 1}) async {
+  Future<Map<String, dynamic>> fetchHome({int page = 1}) async {
     try {
       _connectivity.ensure();
       final resp = await _requester.getHome(page: page);
 
-      List data = resp['data']['items'];
-      List<Map<String, dynamic>> resItems = [];
-
-      for (var item in data) {
-        if (item['sectionType'] == 'new-release') {
-          item['items'] = item['items']['all'];
-          resItems.add(item);
-        } else if (item['sectionType'] == 'newReleaseChart') {
-          resItems.add(item);
-        }
-      }
-      return resItems;
+      Map<String, dynamic> data = resp['data'];
+      return data;
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(

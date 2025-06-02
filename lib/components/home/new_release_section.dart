@@ -30,10 +30,11 @@ class NewReleasesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return defaultFutureBuilder(
-      future: getIt<ApiKit>().getSongsForHome(),
-      onData: (context, data) => _SongListDisplay(data),
-    );
+    return Placeholder();
+    // return defaultFutureBuilder(
+    //   future: getIt<ApiKit>().getHomeJson(),
+    //   onData: (context, data) => _SongListDisplay(data),
+    // );
   }
 }
 

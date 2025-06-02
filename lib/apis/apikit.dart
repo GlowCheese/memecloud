@@ -78,7 +78,7 @@ class ApiKit {
   Future<void> _updateCached(String api, Map data) {
     return Future.wait([
       storage.updateCached(api, data),
-      supabase.cache.updateCached(api, data)
+      supabase.cache.updateCached(api, data),
     ]);
   }
 
@@ -771,21 +771,15 @@ class ApiKit {
     unawaited(supabase.config.setCookie(newCookieStr));
   }
 
-  Future<List<Map<String, dynamic>>> getSongsForHome() async {
-    final String api = '/home';
-    final int lazyTime = 12 * 60 * 60; // 12 hours
+  Future<Map<String, dynamic>> getHomeJson() async {
+    // TODO: bro, who on earth would name api /home2
+    final String api = '/home2';
+    final int lazyTime = 6 * 60 * 60; // 6 hours
 
-    return await _getOrFetch<
-      List<Map<String, dynamic>>,
-      List<Map<String, dynamic>>
-    >(
+    return await _getOrFetch<Map<String, dynamic>, Map<String, dynamic>>(
       api,
       lazyTime: lazyTime,
       fetchFunc: zingMp3.fetchHome,
-      cacheDecode:
-          (json) => List.castFrom<dynamic, Map<String, dynamic>>(json['items']),
-      cacheEncode: (data) => {'items': data},
-      outputFixer: (data) => _getSongsForHomeOutputFixer(data),
     );
   }
 }

@@ -23,9 +23,7 @@ class E04 extends StatelessWidget {
 
             return ListTile(
               title: Text('Alias: $alias'),
-              subtitle: DataInspector(
-                value: artist,
-              ), // Xem chi tiết object nếu cần
+              subtitle: DataInspector(artist), // Xem chi tiết object nếu cần
             );
           },
         );

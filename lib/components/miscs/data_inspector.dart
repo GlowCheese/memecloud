@@ -4,7 +4,7 @@ class DataInspector extends StatelessWidget {
   final dynamic value;
   final String? name;
 
-  const DataInspector({super.key, required this.value, this.name});
+  const DataInspector(this.value, {super.key, this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class DataInspector extends StatelessWidget {
             (value as Map<String, dynamic>).entries.map((e) {
               return Padding(
                 padding: const EdgeInsets.only(left: 16.0),
-                child: DataInspector(value: e.value, name: e.key),
+                child: DataInspector(e.value, name: e.key),
               );
             }).toList(),
       );
@@ -41,7 +41,7 @@ class DataInspector extends StatelessWidget {
             (value as List).asMap().entries.map((e) {
               return Padding(
                 padding: const EdgeInsets.only(left: 16.0),
-                child: DataInspector(value: e.value, name: '[${e.key}]'),
+                child: DataInspector(e.value, name: '[${e.key}]'),
               );
             }).toList(),
       );
