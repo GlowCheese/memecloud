@@ -29,6 +29,7 @@ class SupabaseConfigApi {
       return await _client.from('app_config').upsert({
         'name': 'zing_cookie',
         'value': cookie,
+        'last_update': DateTime.now().toIso8601String()
       });
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, stackTrace);

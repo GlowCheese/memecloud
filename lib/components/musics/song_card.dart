@@ -204,7 +204,7 @@ class SongCard extends StatelessWidget {
             stream: audioPlayer.currentSongStream,
             builder: (context, snapshot) {
               return Offstage(
-                offstage: snapshot.data?.id == song.id,
+                offstage: snapshot.data?.id != song.id,
                 child: GifView.asset(
                   'assets/gifs/eq_accent.gif',
                   width: 30,

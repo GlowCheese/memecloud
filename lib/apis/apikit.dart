@@ -78,11 +78,7 @@ class ApiKit {
   Future<void> _updateCached(String api, Map data) {
     return Future.wait([
       storage.updateCached(api, data),
-      client.from('api_cache').upsert({
-        'api': api,
-        'data': data,
-        'created_at': DateTime.now().toIso8601String(),
-      }),
+      supabase.cache.updateCached(api, data)
     ]);
   }
 

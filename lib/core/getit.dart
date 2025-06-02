@@ -45,12 +45,11 @@ Future<void> setupLocator() async {
   getIt.registerSingleton<RecentPlayedStream>(RecentPlayedStream());
 
   // custom cookie for vip songs
-  dioInterceptorSetCustomCookie(
-    dio,
+  await saveInitialZingCookie(
     cookieJar,
     (await supabase.config.getZingCookie())!,
   );
-  // dioInterceptorUpdateCookieOnSet(dio, cookieJar, apiKit);
+  dioInterceptorUpdateCookieOnSet(dio, cookieJar, apiKit);
 
   // song player
   final playerCubit = SongPlayerCubit();

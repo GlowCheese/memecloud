@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 Map<String, String> convertCookieToMap(String cookieStr) {
   final parts = cookieStr.split('; ');
@@ -36,4 +37,21 @@ List<String>? cookieGetFirstKv(String cookieStr) {
     return null;
   }
   return [kv[0], kv[1]];
+}
+
+List<Cookie> parseCookies(String cookieStr, String domain) {
+  final cookies = <Cookie>[];
+  final parts = cookieStr.split(';');
+  for (var part in parts) {
+    final kv = part.trim().split('=');
+    if (kv.length == 2) {
+      final name = kv[0];
+      final value = kv[1];
+      final cookie = Cookie(name, value)
+        ..domain = domain
+        ..path = '/';
+      cookies.add(cookie);
+    }
+  }
+  return cookies;
 }

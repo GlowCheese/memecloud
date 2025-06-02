@@ -44,6 +44,20 @@ class SupabaseCacheApi {
     }
   }
 
+  Future<void> updateCached(String api, Map data) async {
+    try {
+      await _client.from('api_cache').upsert({
+        'api': api,
+        'data': data,
+        'created_at': DateTime.now().toIso8601String(),
+      });
+    } catch(e, stackTrace) {
+      _connectivity.reportCrash(e, stackTrace);
+      log('Failed to update supabase api cache: $e', stackTrace: stackTrace, level: 1000);
+      rethrow;
+    }
+  }
+
   Future<Uint8List?> getFile(String bucket, String fileName) async {
     try {
       _connectivity.ensure();
