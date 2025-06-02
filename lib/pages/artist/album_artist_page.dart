@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:memecloud/components/artist/album_list_tile.dart';
 import 'package:memecloud/components/miscs/search_bar.dart';
+import 'package:memecloud/components/musics/playlist_card.dart';
 import 'package:memecloud/models/playlist_model.dart';
 
 class AlbumArtistPage extends StatefulWidget {
@@ -111,7 +112,7 @@ class _AlbumArtistPageState extends State<AlbumArtistPage> {
                 final album = _filteredAlbums[index];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: AlbumListTile(album: album),
+                  child: PlaylistCard(variant: 2, playlist: album),
                 );
               }, childCount: _filteredAlbums.length),
             ),

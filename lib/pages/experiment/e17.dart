@@ -553,8 +553,7 @@ class _AlbumsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayAlbums =
-        albums.take(10).toList();
+    final displayAlbums = albums.take(10).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -562,7 +561,7 @@ class _AlbumsSection extends StatelessWidget {
         _buildHeader(context),
         const SizedBox(height: 16),
         SizedBox(
-          height: 220, 
+          height: 220,
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             scrollDirection: Axis.horizontal,
@@ -582,9 +581,7 @@ class _AlbumsSection extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-      ), 
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
