@@ -88,7 +88,7 @@ class _ListSongPageState extends State<ListSongPage> {
                   _scrollToTop();
                 },
                 tooltip: "Về đầu trang",
-                child: Icon(Icons.arrow_upward),
+                child: const Icon(Icons.arrow_upward),
               )
               : null,
       body: CustomScrollView(
@@ -99,9 +99,9 @@ class _ListSongPageState extends State<ListSongPage> {
         ),
         slivers: [
           SliverAppBar(
-            title: Text("Các bài hát"),
+            title: const Text("Các bài hát"),
             leading: IconButton(
-              icon: Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back),
               onPressed: () {
                 Navigator.pop(context, anySongAdded);
               },

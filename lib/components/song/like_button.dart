@@ -44,7 +44,7 @@ class _SongLikeButtonState extends State<SongLikeButton> {
           icon:
               widget.song.isLiked == true
                   ? Icon(Icons.favorite_rounded, color: Colors.red.shade400)
-                  : Icon(
+                  : const Icon(
                     Icons.favorite_outline_rounded,
                     color: Colors.white,
                   ),

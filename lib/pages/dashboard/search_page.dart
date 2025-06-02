@@ -97,9 +97,9 @@ class _SearchPageState extends State<SearchPage> {
     if (searchBarIsFocused == false) {
       body = ListView(
         children: [
-          SizedBox(height: 23),
+          const SizedBox(height: 23),
           _genreGrid('Your Top Genres', widget.topGenres, widget.themeData),
-          SizedBox(height: 35),
+          const SizedBox(height: 35),
           _genreGrid('Browse All', widget.allGenres, widget.themeData),
         ],
       );
@@ -137,7 +137,7 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ),
         Padding(
-          padding: EdgeInsets.only(left: 25, right: 25, top: 15),
+          padding: const EdgeInsets.only(left: 25, right: 25, top: 15),
           child: Column(
             spacing: 15,
             children: [
@@ -150,7 +150,7 @@ class _SearchPageState extends State<SearchPage> {
                         ? Expanded(
                           child: AlbumCardWidget(album: albumCards[i + 1]),
                         )
-                        : SizedBox(),
+                        : const SizedBox(),
                   ],
                 ),
             ],

@@ -29,7 +29,7 @@ class SongPage extends StatelessWidget {
       stream: audioPlayer.currentSongStream,
       builder: (context, snapshot) {
         final song = snapshot.data;
-        if (song == null) return SizedBox();
+        if (song == null) return const SizedBox();
         return SongPageInner(playerCubit, song);
       },
     );
@@ -58,25 +58,25 @@ class SongPageInner extends StatelessWidget {
               appBar: _appBar(context),
               backgroundColor: Colors.transparent,
               body: SingleChildScrollView(
-                physics: BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 32),
                   child: Center(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 72),
+                        const SizedBox(height: 72),
                         Center(child: _songCover(bgColor)),
-                        SizedBox(height: 72),
+                        const SizedBox(height: 72),
                         _songDetails(),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         SongControllerView(song: song),
-                        SizedBox(height: 50),
+                        const SizedBox(height: 50),
                         _songLyric(),
-                        SizedBox(height: 30),
+                        const SizedBox(height: 30),
                         if (song.artists.isNotEmpty)
                           _artistCard(context, song.artists[0]),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
                       ],
                     ),
                   ),
@@ -97,7 +97,7 @@ class SongPageInner extends StatelessWidget {
       child: defaultFutureBuilder(
         future: getIt<ApiKit>().getSongLyric(song.id),
         onNull: (context) {
-          return Center(child: Text('This song currently has no lyric!'));
+          return const Center(child: Text('This song currently has no lyric!'));
         },
         onData: (context, data) {
           return Column(
@@ -108,8 +108,8 @@ class SongPageInner extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 12.0),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 12.0),
                       child: Text(
                         'Lời bài hát',
                         style: TextStyle(
@@ -123,7 +123,7 @@ class SongPageInner extends StatelessWidget {
                         context.push('/song_lyric');
                       },
                       iconSize: 20,
-                      icon: Icon(Icons.open_in_full),
+                      icon: const Icon(Icons.open_in_full),
                     ),
                   ],
                 ),
@@ -148,7 +148,7 @@ class SongPageInner extends StatelessWidget {
         GestureDetector(
           onTap: () => context.push('/artist_page', extra: artist.alias),
           child: ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
             child: SizedBox(
               height: 200,
               width: double.infinity,
@@ -164,7 +164,7 @@ class SongPageInner extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           decoration: BoxDecoration(
             color: Colors.grey.shade800,
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,7 +177,7 @@ class SongPageInner extends StatelessWidget {
                     children: [
                       Text(
                         artist.name,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -208,7 +208,7 @@ class SongPageInner extends StatelessWidget {
                   ),
                   OutlinedButton(
                     onPressed: () {},
-                    child: Text(
+                    child: const Text(
                       'Theo dõi',
                       style: TextStyle(
                         color: Colors.white,
@@ -222,7 +222,7 @@ class SongPageInner extends StatelessWidget {
                 future: getIt<ApiKit>().getArtistInfo(artist.alias),
                 onData: (context, data) {
                   final bio = data?.shortBiography;
-                  if (bio == null || bio.isEmpty) return SizedBox();
+                  if (bio == null || bio.isEmpty) return const SizedBox();
                   return Padding(
                     padding: const EdgeInsets.only(top: 14),
                     child: ExpandableText(
@@ -232,7 +232,7 @@ class SongPageInner extends StatelessWidget {
                         fontSize: 16,
                         color: Colors.white.withAlpha(196),
                       ),
-                      expandTextStyle: TextStyle(
+                      expandTextStyle: const TextStyle(
                         fontSize: 16,
                         color: Colors.white,
                         fontWeight: FontWeight.w500,
@@ -297,9 +297,9 @@ class SongPageInner extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         SongDownloadButton(song: song, iconSize: 30),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         SongLikeButton(song: song, iconSize: 30),
       ],
     );
@@ -316,7 +316,7 @@ class SongPageInner extends StatelessWidget {
             extra: playerCubit.currentPlaylist,
           );
         },
-        style: ButtonStyle(
+        style: const ButtonStyle(
           foregroundColor: WidgetStatePropertyAll(Colors.white),
         ),
         child: Column(
@@ -325,18 +325,18 @@ class SongPageInner extends StatelessWidget {
               stream: playerCubit.audioPlayer.playingStream,
               builder: (context, snapshot) {
                 final isPlaying = snapshot.data == true;
-                final transitionDuration = Duration(milliseconds: 500);
+                final transitionDuration = const Duration(milliseconds: 500);
                 return Stack(
                   children: [
                     AnimatedOpacity(
                       opacity: isPlaying ? 1 : 0,
                       duration: transitionDuration,
-                      child: Text('Playing', style: TextStyle(fontSize: 20)),
+                      child: const Text('Playing', style: TextStyle(fontSize: 20)),
                     ),
                     AnimatedOpacity(
                       opacity: isPlaying ? 0 : 1,
                       duration: transitionDuration,
-                      child: Text('Paused', style: TextStyle(fontSize: 20)),
+                      child: const Text('Paused', style: TextStyle(fontSize: 20)),
                     ),
                   ],
                 );
@@ -353,9 +353,9 @@ class SongPageInner extends StatelessWidget {
         ),
       ),
       leading: BackButton(
-        style: ButtonStyle(
+        style: const ButtonStyle(
           iconSize: WidgetStatePropertyAll(22),
-          padding: WidgetStatePropertyAll(const EdgeInsets.only(left: 12)),
+          padding: WidgetStatePropertyAll(EdgeInsets.only(left: 12)),
         ),
         onPressed: () {
           try {
@@ -369,7 +369,7 @@ class SongPageInner extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(right: 12),
           child: IconButton(
-            icon: Icon(Icons.more_vert),
+            icon: const Icon(Icons.more_vert),
             iconSize: 22,
             onPressed: () => showSongBottomSheetActions(context, song),
           ),

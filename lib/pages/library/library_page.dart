@@ -23,7 +23,7 @@ Map getLibraryPage(BuildContext context) {
       iconUri: 'assets/icons/library2.png',
     ),
     'bgColor': MyColorSet.lightBlue,
-    'body': LibraryPage(),
+    'body': const LibraryPage(),
   };
 }
 
@@ -47,7 +47,7 @@ class LibraryPage extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: tabsNavigator,
@@ -125,7 +125,7 @@ class LibraryPage extends StatelessWidget {
         builder: (context, setState) {
           return SectionCard.variant1(
             title: 'Bài hát bị chặn',
-            titlePadding: EdgeInsets.only(
+            titlePadding: const EdgeInsets.only(
               left: horzPad,
               right: horzPad,
               top: 18,
@@ -235,12 +235,12 @@ class LibraryPage extends StatelessWidget {
       builder: (context, recentlyPlayedSongs, recentlyPlayedPlaylists) {
         return ListView(
           shrinkWrap: true,
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           children: <Widget>[
             if (recentlyPlayedSongs.isNotEmpty)
               SectionCard.variant1(
                 title: 'Phát gần đây',
-                titlePadding: EdgeInsets.only(
+                titlePadding: const EdgeInsets.only(
                   left: horzPad,
                   right: horzPad,
                   top: 18,
@@ -265,7 +265,7 @@ class LibraryPage extends StatelessWidget {
             if (recentlyPlayedPlaylists.isNotEmpty)
               SectionCard.variant1(
                 title: 'Danh sách phát',
-                titlePadding: EdgeInsets.only(
+                titlePadding: const EdgeInsets.only(
                   left: horzPad,
                   right: horzPad,
                   top: 18,
@@ -302,14 +302,14 @@ class LibraryPage extends StatelessWidget {
           final playlist = followedPlaylists[index - 1];
           return PlaylistCard(variant: 3, playlist: playlist);
         },
-        separatorBuilder: (context, index) => SizedBox(height: 18),
+        separatorBuilder: (context, index) => const SizedBox(height: 18),
         itemCount: followedPlaylists.length + 1,
       ),
     );
   }
 
   Widget myPlaylistTab(BuildContext context) {
-    return MyPlaylistPage();
+    return const MyPlaylistPage();
   }
 
   Widget downloadedSongsTab(BuildContext context) {
@@ -335,7 +335,7 @@ class LibraryPage extends StatelessWidget {
           }
           return PlaylistCard(variant: 3, playlist: playlist);
         },
-        separatorBuilder: (context, index) => SizedBox(height: 18),
+        separatorBuilder: (context, index) => const SizedBox(height: 18),
         itemCount: downloadedPlaylists.length + downloadingPlaylists.length + 1,
       ),
     );

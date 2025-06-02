@@ -43,7 +43,7 @@ class _DashboardPageState extends State<DashboardPage> {
         scaffElems = {
           'appBar': defaultAppBar(context, title: 'null'),
           'bgColor': MyColorSet.grey,
-          'body': Placeholder(),
+          'body': const Placeholder(),
         };
     }
 
@@ -75,7 +75,7 @@ class _DashboardPageState extends State<DashboardPage> {
           showUnselectedLabels: false,
           currentIndex: currentPageIndex,
           onTap: (index) => setState(() => currentPageIndex = index),
-          items: [
+          items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
             BottomNavigationBarItem(icon: Icon(Icons.search), label: ''),
             BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: ''),

@@ -5,19 +5,14 @@ import 'package:memecloud/components/miscs/data_inspector.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
-import 'package:memecloud/components/home/top_artist.dart';
-import 'package:memecloud/components/home/featured_section.dart';
-import 'package:memecloud/components/home/new_release_section.dart';
 import 'package:memecloud/components/sections/section_item_card.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/utils/common.dart';
-import 'package:memecloud/utils/images.dart';
 
 Map getHomePage(BuildContext context) {
   return {
     'appBar': defaultAppBar(context, title: 'Welcome!'),
     'bgColor': MyColorSet.purple,
-    'body': _HomePage(),
+    'body': const _HomePage(),
   };
 }
 
@@ -30,7 +25,7 @@ class _HomePage extends StatelessWidget {
       future: getIt<ApiKit>().getHomeJson(),
       onData: (context, json) {
         return ListView(
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           children: [
             Builder(
               builder: (context) {

@@ -18,7 +18,7 @@ class AlbumCard {
     albumCards.add(
       AlbumCard(
         name: 'KPop',
-        boxColor: Color(0xFF75C922),
+        boxColor: const Color(0xFF75C922),
         coverPath: 'assets/album_covers/kpop.png',
       ),
     );
@@ -26,7 +26,7 @@ class AlbumCard {
     albumCards.add(
       AlbumCard(
         name: 'Indie',
-        boxColor: Color(0xFFCF25A0),
+        boxColor: const Color(0xFFCF25A0),
         coverPath: 'assets/album_covers/indie.jpeg',
       ),
     );
@@ -34,7 +34,7 @@ class AlbumCard {
     albumCards.add(
       AlbumCard(
         name: 'R&B',
-        boxColor: Color(0xFF4A558F),
+        boxColor: const Color(0xFF4A558F),
         coverPath: 'assets/album_covers/rnb.png',
       ),
     );
@@ -42,7 +42,7 @@ class AlbumCard {
     albumCards.add(
       AlbumCard(
         name: 'Pop',
-        boxColor: Color(0xFFBD6220),
+        boxColor: const Color(0xFFBD6220),
         coverPath: 'assets/album_covers/pop.png',
       ),
     );
@@ -56,7 +56,7 @@ class AlbumCard {
     albumCards.add(
       AlbumCard(
         name: 'Made\nfor You',
-        boxColor: Color(0xFF1E82AC),
+        boxColor: const Color(0xFF1E82AC),
         coverPath: 'assets/album_covers/4you.png',
       ),
     );
@@ -64,7 +64,7 @@ class AlbumCard {
     albumCards.add(
       AlbumCard(
         name: 'RELEASED',
-        boxColor: Color(0xFF76259C),
+        boxColor: const Color(0xFF76259C),
         coverPath: 'assets/album_covers/released.png',
       ),
     );
@@ -72,7 +72,7 @@ class AlbumCard {
     albumCards.add(
       AlbumCard(
         name: 'Music\nCharts',
-        boxColor: Color(0xFF25319C),
+        boxColor: const Color(0xFF25319C),
         coverPath: 'assets/album_covers/music-chart.png',
       ),
     );
@@ -80,7 +80,7 @@ class AlbumCard {
     albumCards.add(
       AlbumCard(
         name: 'Podcasts',
-        boxColor: Color(0xFF92233E),
+        boxColor: const Color(0xFF92233E),
         coverPath: 'assets/album_covers/podcasts.png',
       ),
     );
@@ -88,7 +88,7 @@ class AlbumCard {
     albumCards.add(
       AlbumCard(
         name: 'Bollywood',
-        boxColor: Color(0xFFC48E1C),
+        boxColor: const Color(0xFFC48E1C),
         coverPath: 'assets/album_covers/bollywood.png',
       ),
     );
@@ -96,7 +96,7 @@ class AlbumCard {
     albumCards.add(
       AlbumCard(
         name: 'Pop\nFusion',
-        boxColor: Color(0xFF318C65),
+        boxColor: const Color(0xFF318C65),
         coverPath: 'assets/album_covers/pop-fusion.jpeg',
       ),
     );

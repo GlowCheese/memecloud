@@ -4,7 +4,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
-import 'package:memecloud/components/artist/album_list_tile.dart';
 import 'package:memecloud/components/artist/song_list_tile.dart';
 import 'package:memecloud/components/common/confirmation_dialog.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
@@ -161,7 +160,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                       ),
                     ]),
                   ),
-                  SliverToBoxAdapter(child: const SizedBox(height: 72)),
+                  const SliverToBoxAdapter(child: SizedBox(height: 72)),
                 ],
               ),
               MiniPlayer(floating: true),
@@ -507,8 +506,8 @@ class _SongsOfArtist extends StatelessWidget {
                     ),
                   ),
                 },
-            label: Text("Xem thêm"),
-            icon: Icon(Icons.arrow_right),
+            label: const Text("Xem thêm"),
+            icon: const Icon(Icons.arrow_right),
           ),
       ],
     );
@@ -568,8 +567,8 @@ class _AlbumsOfArtist extends StatelessWidget {
                     ),
                   ),
                 },
-            label: Text("Xem thêm"),
-            icon: Icon(Icons.arrow_right),
+            label: const Text("Xem thêm"),
+            icon: const Icon(Icons.arrow_right),
           ),
       ],
     );

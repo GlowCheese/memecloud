@@ -58,7 +58,7 @@ class PlaylistPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text("Playlist with id $playlistId doesn't exist!"),
-                  ElevatedButton(onPressed: context.pop, child: Text('Go back')),
+                  ElevatedButton(onPressed: context.pop, child: const Text('Go back')),
                 ],
               ),
             );
@@ -129,7 +129,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
         _generalDetails(),
         _playlistDescription(),
         _songsSliverList(context),
-        SliverToBoxAdapter(child: const SizedBox(height: 72)),
+        const SliverToBoxAdapter(child: SizedBox(height: 72)),
       ],
     );
   }
@@ -155,7 +155,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
   SliverToBoxAdapter _playlistDescription() {
     if (widget.playlist.description == null ||
         widget.playlist.description!.isEmpty) {
-      return SliverToBoxAdapter(child: SizedBox(height: 18));
+      return const SliverToBoxAdapter(child: SizedBox(height: 18));
     }
     return SliverToBoxAdapter(
       child: Padding(
@@ -260,7 +260,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                           ),
                         ),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                     ],
                   ),
                   _playlistControlButtons(),
@@ -319,7 +319,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                 await refreshPlaylist();
               }
             },
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
           ),
         IconButton(
           icon: Icon(Icons.more_vert, color: Colors.grey[400], size: 20),
@@ -355,9 +355,9 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                   size: 20,
                   color: Colors.grey.shade900,
                 ),
-                padding: EdgeInsets.all(4),
-                constraints: BoxConstraints(minWidth: 32, minHeight: 32),
-                style: ButtonStyle(
+                padding: const EdgeInsets.all(4),
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                style: const ButtonStyle(
                   backgroundColor: WidgetStatePropertyAll(Colors.white),
                 ),
               ),
@@ -378,9 +378,9 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
                   size: 20,
                   color: Colors.grey.shade900,
                 ),
-                padding: EdgeInsets.all(4),
-                constraints: BoxConstraints(minWidth: 32, minHeight: 32),
-                style: ButtonStyle(
+                padding: const EdgeInsets.all(4),
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                style: const ButtonStyle(
                   backgroundColor: WidgetStatePropertyAll(Colors.white),
                 ),
               ),

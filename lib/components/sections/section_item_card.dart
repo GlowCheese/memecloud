@@ -111,30 +111,30 @@ class _SectionItemCardVariation1State
                       color: Colors.white.withAlpha(60),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                     child: Text(
                       widget.tag,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 10,
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                  SizedBox(height: 14),
+                  const SizedBox(height: 14),
                   Text(
                     widget.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                       height: 1.2,
                     ),
                   ),
-                  SizedBox(height: 6),
+                  const SizedBox(height: 6),
                   Text(
                     widget.description,
                     maxLines: 1,

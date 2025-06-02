@@ -21,20 +21,20 @@ class E11 extends StatelessWidget {
   Widget build(BuildContext context) {
     return PageWithSingleTab(
       variant: 1,
-      tabNames: ['tab_1', 'tab_2', 'tab_3'],
+      tabNames: const ['tab_1', 'tab_2', 'tab_3'],
       tabBodies: [
-        SliverToBoxAdapter(child: Text('1')),
+        const SliverToBoxAdapter(child: Text('1')),
         GeneratableSliverList(
           initialPageIdx: 0,
           asyncGenFunction: (page) => genFunc(page, 0),
         ),
-        SliverToBoxAdapter(child: Text('3')),
+        const SliverToBoxAdapter(child: Text('3')),
       ],
       widgetBuilder: (tabsNavigator, tabContent) {
         return CustomScrollView(
           slivers: [
             SliverToBoxAdapter(child: tabsNavigator),
-            SliverToBoxAdapter(child: SectionDivider()),
+            const SliverToBoxAdapter(child: SectionDivider()),
             tabContent,
           ],
         );

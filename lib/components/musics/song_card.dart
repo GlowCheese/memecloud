@@ -149,21 +149,21 @@ class SongCard extends StatelessWidget {
     } else {
       late final Icon icon;
       if (status > 0) {
-        icon = Icon(Icons.arrow_drop_up, color: Colors.green);
+        icon = const Icon(Icons.arrow_drop_up, color: Colors.green);
       } else {
-        icon = Icon(Icons.arrow_drop_down, color: Colors.red);
+        icon = const Icon(Icons.arrow_drop_down, color: Colors.red);
       }
       statusWidget = Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Transform.translate(offset: Offset(0, 2), child: icon),
+          Transform.translate(offset: const Offset(0, 2), child: icon),
           Transform.translate(
-            offset: Offset(0, -2),
+            offset: const Offset(0, -2),
             child: Text(
               status.abs().toString(),
-              style: TextStyle(fontSize: 12),
+              style: const TextStyle(fontSize: 12),
             ),
           ),
         ],
@@ -237,7 +237,7 @@ class SongCard extends StatelessWidget {
           ),
         ),
         IconButton(
-          icon: Icon(Icons.block, color: Colors.red),
+          icon: const Icon(Icons.block, color: Colors.red),
           onPressed: onUnblacklistButtonPressed,
         ),
       ],

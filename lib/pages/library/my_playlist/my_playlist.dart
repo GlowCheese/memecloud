@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/components/common/confirmation_dialog.dart';
-import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/success.dialog.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/playlist_model.dart';
@@ -46,7 +45,7 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
           SliverAppBar(
             floating: true,
             backgroundColor: Colors.transparent,
-            title: Text(
+            title: const Text(
               'Your Playlists',
               style: TextStyle(
                 fontSize: 24,
@@ -63,9 +62,9 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
           ),
 
           // Your Playlists Section
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(16.0),
               child: Text(
                 'Của bạn',
                 style: TextStyle(
@@ -82,7 +81,7 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
             future: _myPlaylistFuture(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return SliverToBoxAdapter(
+                return const SliverToBoxAdapter(
                   child: Center(child: CircularProgressIndicator()),
                 );
               }
@@ -121,9 +120,9 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
           ),
 
           // Suggested Playlists Section
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(16.0),
               child: Text(
                 'Có thể bạn thích?',
                 style: TextStyle(
@@ -140,7 +139,7 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
             future: _suggestedPlaylistFuture(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return SliverToBoxAdapter(
+                return const SliverToBoxAdapter(
                   child: Center(child: CircularProgressIndicator()),
                 );
               }
@@ -197,15 +196,15 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
                     children: [
                       Text(
                         playlist.title,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const Divider(),
                       ListTile(
-                        leading: Icon(Icons.edit),
-                        title: Text('Chỉnh sửa'),
+                        leading: const Icon(Icons.edit),
+                        title: const Text('Chỉnh sửa'),
                         onTap: () async {
                           Navigator.pop(context);
                           final hasBeenEdited = await Navigator.of(
@@ -223,8 +222,8 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
                         },
                       ),
                       ListTile(
-                        leading: Icon(Icons.delete),
-                        title: Text('Xóa'),
+                        leading: const Icon(Icons.delete),
+                        title: const Text('Xóa'),
                         onTap: () async {
                           Navigator.pop(context);
                           _showDeletePlaylistDialog(context, playlist);
@@ -248,9 +247,9 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
             const SizedBox(height: 8),
             Text(
               playlist.title,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
-            Text(playlist.description ?? '', style: TextStyle(fontSize: 12)),
+            Text(playlist.description ?? '', style: const TextStyle(fontSize: 12)),
           ],
         ),
       ),
@@ -288,7 +287,7 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
             ),
             title: Text(
               playlist.title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
@@ -296,7 +295,7 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
             ),
             subtitle: Text(
               playlist.description ?? '',
-              style: TextStyle(fontSize: 12, color: Colors.white70),
+              style: const TextStyle(fontSize: 12, color: Colors.white70),
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
             ),
@@ -326,10 +325,10 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.white24),
         ),
-        child: Center(
+        child: const Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: const [
+            children: [
               Icon(Icons.add, color: Colors.white, size: 40),
               SizedBox(height: 8),
               Text('Tạo playlist', style: TextStyle(color: Colors.white)),

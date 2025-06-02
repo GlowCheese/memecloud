@@ -29,7 +29,7 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Cảm ơn bạn đã gửi phản hồi!')));
+      ).showSnackBar(const SnackBar(content: Text('Cảm ơn bạn đã gửi phản hồi!')));
 
       _contentController.clear();
       Navigator.of(context).pop();
@@ -39,7 +39,7 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Báo cáo sự cố')),
+      appBar: AppBar(title: const Text('Báo cáo sự cố')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -47,11 +47,11 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Loại báo cáo',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               DropdownButtonFormField<IssueType>(
                 value: _selectedType,
                 items:
@@ -69,13 +69,13 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
                   }
                 },
               ),
-              SizedBox(height: 20),
-              Text('Nội dung', style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
+              const SizedBox(height: 20),
+              const Text('Nội dung', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _contentController,
                 maxLines: 5,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Mô tả chi tiết về lỗi hoặc góp ý...',
                   border: OutlineInputBorder(),
                 ),
@@ -86,13 +86,13 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
                   return null;
                 },
               ),
-              Spacer(),
+              const Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: _submitReport,
-                  icon: Icon(Icons.send),
-                  label: Text('Gửi báo cáo'),
+                  icon: const Icon(Icons.send),
+                  label: const Text('Gửi báo cáo'),
                 ),
               ),
             ],

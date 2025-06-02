@@ -13,14 +13,14 @@ import 'package:memecloud/pages/experiment/e15.dart';
 // import 'package:memecloud/pages/artist/artist_page.dart';
 
 final allPages = {
-  'E01': () => E01(),
-  'E04': () => E04(),
-  'E05': () => E05(),
-  'E11': () => E11(),
-  'E12': () => E12(),
-  'E13': () => E13(),
-  'E14': () => E14(),
-  'E15': () => ArtistPage(artistAlias: 'Son-Tung-M-TP'),
+  'E01': () => const E01(),
+  'E04': () => const E04(),
+  'E05': () => const E05(),
+  'E11': () => const E11(),
+  'E12': () => const E12(),
+  'E13': () => const E13(),
+  'E14': () => const E14(),
+  'E15': () => const ArtistPage(artistAlias: 'Son-Tung-M-TP'),
 };
 
 final pageController = ExperimentPageController();

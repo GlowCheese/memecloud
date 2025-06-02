@@ -48,17 +48,17 @@ class MusicCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
           child: getImage(thumbnailUrl, 40),
         ),
-        SizedBox(width: 14),
+        const SizedBox(width: 14),
         Flexible(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: TextStyle(fontSize: 18),
+                style: const TextStyle(fontSize: 18),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -92,17 +92,17 @@ class MusicCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(25)),
+          borderRadius: const BorderRadius.all(Radius.circular(25)),
           child: CachedNetworkImage(
             imageUrl: thumbnailUrl,
             width: 50,
             height: 50,
           ),
         ),
-        SizedBox(width: 14),
+        const SizedBox(width: 14),
         Text(
           title,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -116,14 +116,14 @@ class MusicCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ClipRRect(child: getImage(thumbnailUrl, 62)),
-        SizedBox(width: 14),
+        const SizedBox(width: 14),
         Flexible(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -162,11 +162,11 @@ class MusicCard extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         // Album title
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: Colors.white,
@@ -175,7 +175,7 @@ class MusicCard extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         if (subTitle != null) ...[
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           // Album subtitle (artist name, release date, etc.)
           Text(
             subTitle!,

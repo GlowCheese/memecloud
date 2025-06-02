@@ -29,15 +29,15 @@ GoRouter getRouter() {
     routes: [
       GoRoute(
         path: '/404',
-        builder: (context, state) => PageNotFound(routePath: '/404'),
+        builder: (context, state) => const PageNotFound(routePath: '/404'),
       ),
-      GoRoute(path: '/dashboard', builder: (context, state) => DashboardPage()),
-      GoRoute(path: '/signup', builder: (context, state) => SignUpPage()),
-      GoRoute(path: '/signin', builder: (context, state) => SignInPage()),
-      GoRoute(path: '/profile', builder: (context, state) => ProfilePage()),
+      GoRoute(path: '/dashboard', builder: (context, state) => const DashboardPage()),
+      GoRoute(path: '/signup', builder: (context, state) => const SignUpPage()),
+      GoRoute(path: '/signin', builder: (context, state) => const SignInPage()),
+      GoRoute(path: '/profile', builder: (context, state) => const ProfilePage()),
       GoRoute(
         path: '/song_lyric',
-        builder: (context, state) => SongLyricPage(),
+        builder: (context, state) => const SongLyricPage(),
       ),
       GoRoute(
         path: '/playlist_page',

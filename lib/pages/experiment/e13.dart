@@ -9,13 +9,13 @@ class E13 extends StatelessWidget {
   Widget build(BuildContext context) {
     return PageWithMultiTab(
       variant: 1,
-      tabNames: ['tab 1', 'tab 2', 'tab 3'],
-      nullTab: Center(child: Text('No tab is selected!')),
+      tabNames: const ['tab 1', 'tab 2', 'tab 3'],
+      nullTab: const Center(child: Text('No tab is selected!')),
       widgetBuilder:(tabsNavigator, tabContent) {
         return Column(
           children: [
             tabsNavigator,
-            SectionDivider(),
+            const SectionDivider(),
             Expanded(child: tabContent)
           ],
         );

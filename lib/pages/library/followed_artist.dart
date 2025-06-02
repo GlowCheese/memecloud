@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:memecloud/components/artist/followed_artist_tile.dart';
-import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/miscs/search_bar.dart';
 import 'package:memecloud/models/artist_model.dart';
 
@@ -98,7 +97,7 @@ class _FollowedArtistPageState extends State<FollowedArtistPage> {
                   _scrollToTop();
                 },
                 tooltip: "Về đầu trang",
-                child: Icon(Icons.arrow_upward),
+                child: const Icon(Icons.arrow_upward),
               )
               : null,
       appBar: AppBar(title: const Text("Nghệ sĩ đã theo dõi")),

@@ -12,7 +12,7 @@ class CodeBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeData = AdaptiveTheme.of(context).theme;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: Colors.black12,
         border: Border.all(color: themeData.colorScheme.onSurface),

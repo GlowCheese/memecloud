@@ -25,12 +25,12 @@ Widget _artistView(List<ArtistModel> artists) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 5),
+      const Padding(
+        padding: EdgeInsets.only(left: 16, right: 16, bottom: 5),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Nghệ sĩ nổi bật',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),

@@ -24,7 +24,7 @@ void showSongArtists(BuildContext context, List<ArtistModel> artists) {
 
   showModalBottomSheet(
     context: context,
-    shape: RoundedRectangleBorder(
+    shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
     builder: (BuildContext context) {
@@ -32,15 +32,15 @@ void showSongArtists(BuildContext context, List<ArtistModel> artists) {
         child: Column(
           children: [
             const BottomSheetDragger(),
-            SizedBox(height: 16),
-            Center(
+            const SizedBox(height: 16),
+            const Center(
               child: Text(
                 'Nghệ sĩ',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
               ),
             ),
             ...artistCards,
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
           ],
         ),
       );

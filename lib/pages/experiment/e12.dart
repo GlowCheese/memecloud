@@ -21,16 +21,16 @@ class E12 extends StatelessWidget {
   Widget build(BuildContext context) {
     return PageWithSingleTab(
       variant: 1,
-      tabNames: ['tab_1', 'tab_2', 'tab_3'],
+      tabNames: const ['tab_1', 'tab_2', 'tab_3'],
       tabBodies: [
-        Text('1'),
+        const Text('1'),
         GeneratableListView(
-          key: ValueKey('genlist1'),
+          key: const ValueKey('genlist1'),
           initialPageIdx: 0,
           asyncGenFunction: (page) => genFunc(page, 0),
         ),
         GeneratableListView(
-          key: ValueKey('genlist2'),
+          key: const ValueKey('genlist2'),
           initialPageIdx: 0,
           asyncGenFunction: (page) => genFunc(page, 1),
         ),
@@ -39,7 +39,7 @@ class E12 extends StatelessWidget {
         return Column(
           children: [
             tabsNavigator,
-            SectionDivider(),
+            const SectionDivider(),
             Expanded(child: tabContent),
           ],
         );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-showSuccessDialog(
+void showSuccessDialog(
   BuildContext context, {
   required String text,
   required int numOfPopContext,

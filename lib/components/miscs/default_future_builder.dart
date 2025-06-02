@@ -12,7 +12,7 @@ Widget defaultFutureBuilder<T>({
   Widget Function(BuildContext context, dynamic error)? onError,
   T? initialData,
 }) {
-  onWaiting ??= Center(
+  onWaiting ??= const Center(
     child: SpinKitThreeBounce(color: Colors.white, size: 36),
   );
 
@@ -36,12 +36,12 @@ Widget defaultFutureBuilder<T>({
       };
 
       onNull ??= (BuildContext context) {
-        return Text('Snapshot has no data!');
+        return const Text('Snapshot has no data!');
       };
 
       if (snapshot.hasError) return onError!(context, snapshot.error);
       if (!snapshot.hasData) return onNull!(context);
-      return onData(context, snapshot.data!);
+      return onData(context, snapshot.data as T);
     },
   );
 }

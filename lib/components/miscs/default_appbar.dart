@@ -27,12 +27,12 @@ AppBar defaultAppBar(
     backgroundColor: Colors.transparent,
     title: Text(
       title,
-      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
     ),
     leadingWidth: 60,
     leading: Container(
       alignment: Alignment.center,
-      margin: EdgeInsets.only(left: 30),
+      margin: const EdgeInsets.only(left: 30),
       child: icon,
     ),
     actions: [
@@ -40,14 +40,14 @@ AppBar defaultAppBar(
         onPressed: () {
           _showBottomSheet(context);
         },
-        icon: Icon(Icons.flag, color: Colors.white,),
+        icon: const Icon(Icons.flag, color: Colors.white,),
       ),
       IconButton(
         color: Colors.white,
         onPressed: () {},
         icon: const Icon(Icons.notifications),
       ),
-      SizedBox(width: 8),
+      const SizedBox(width: 8),
       GestureDetector(
         onTap: () => context.push('/profile'),
         child: CircleAvatar(
@@ -57,7 +57,7 @@ AppBar defaultAppBar(
           ),
         ),
       ),
-      SizedBox(width: 20),
+      const SizedBox(width: 20),
     ],
   );
 }
@@ -65,7 +65,7 @@ AppBar defaultAppBar(
 void _showBottomSheet(BuildContext context) {
   showModalBottomSheet(
     context: context,
-    shape: RoundedRectangleBorder(
+    shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
     builder: (context) {
@@ -74,8 +74,8 @@ void _showBottomSheet(BuildContext context) {
         child: Wrap(
           children: [
             ListTile(
-              leading: Icon(Icons.star_rate, color: Colors.amber),
-              title: Text('Đánh giá'),
+              leading: const Icon(Icons.star_rate, color: Colors.amber),
+              title: const Text('Đánh giá'),
               onTap: () {
                 Navigator.pop(context);
                 showDialog(
@@ -84,10 +84,10 @@ void _showBottomSheet(BuildContext context) {
                 );
               },
             ),
-            Divider(),
+            const Divider(),
             ListTile(
-              leading: Icon(Icons.report_problem, color: Colors.red),
-              title: Text('Báo lỗi'),
+              leading: const Icon(Icons.report_problem, color: Colors.red),
+              title: const Text('Báo lỗi'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context).push(

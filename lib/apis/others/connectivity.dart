@@ -17,7 +17,7 @@ class ConnectivityStatus {
   /// if connectivity is unstable.
   void ensure() {
     if (DateTime.now().difference(_lastConnectivityCrash).inSeconds < 5) {
-      throw AuthException(
+      throw const AuthException(
         'SocketException: Lost connection',
         statusCode: ignoreStatusCode,
       );

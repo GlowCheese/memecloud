@@ -19,19 +19,19 @@ class SongLyricPage extends StatelessWidget {
       stream: audioPlayer.currentSongStream,
       builder: (context, snapshot) {
         final song = snapshot.data;
-        if (song == null) return SizedBox();
+        if (song == null) return const SizedBox();
 
         return Scaffold(
           appBar: _appBar(context, song.title),
           backgroundColor: Colors.brown.shade600,
           body: Column(
             children: [
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               Expanded(
                 child: defaultFutureBuilder(
                   future: getIt<ApiKit>().getSongLyric(song.id),
                   onNull: (context) {
-                    return Center(
+                    return const Center(
                       child: Text(
                         'This song currently has no lyric!',
                         style: TextStyle(fontSize: 16),
@@ -46,8 +46,8 @@ class SongLyricPage extends StatelessWidget {
                   },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 15),
                 child: Divider(
                   color: Colors.white,
                   thickness: 1.0,
@@ -130,7 +130,7 @@ class _SongLyricWidgetState extends State<SongLyricWidget> {
               if (context != null) {
                 Scrollable.ensureVisible(
                   context,
-                  duration: Duration(milliseconds: 300),
+                  duration: const Duration(milliseconds: 300),
                   alignment: 0.5,
                   curve: Curves.easeInOut,
                 );

@@ -15,7 +15,7 @@ Map getTopChartPage(BuildContext context) {
   return {
     'appBar': defaultAppBar(context, title: 'Top Charts'),
     'bgColor': MyColorSet.indigo,
-    'body': TopChartPage(),
+    'body': const TopChartPage(),
   };
 }
 
@@ -31,7 +31,7 @@ class TopChartPage extends StatelessWidget {
           final chartSongs = chart.chartSongs;
           return GeneratableListView(
             initialPageIdx: 0,
-            loadDelay: Duration(milliseconds: 300),
+            loadDelay: const Duration(milliseconds: 300),
             asyncGenFunction: (int page) async {
               const int len = 8;
               return chartSongs
@@ -55,7 +55,7 @@ class TopChartPage extends StatelessWidget {
                   )
                   .toList();
             },
-            separatorBuilder: (context, index) => SizedBox(height: 16),
+            separatorBuilder: (context, index) => const SizedBox(height: 16),
           );
         },
       ),
@@ -66,7 +66,7 @@ class TopChartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return PageWithSingleTab(
       variant: 2,
-      tabNames: ['V-Pop', 'US-UK', 'K-Pop'],
+      tabNames: const ['V-Pop', 'US-UK', 'K-Pop'],
       widgetBuilder: (tabsNavigator, tabContent) {
         return Column(children: [tabsNavigator, Expanded(child: tabContent)]);
       },

@@ -84,7 +84,7 @@ class _AlbumArtistPageState extends State<AlbumArtistPage> {
                   _scrollToTop();
                 },
                 tooltip: "Về đầu trang",
-                child: Icon(Icons.arrow_upward),
+                child: const Icon(Icons.arrow_upward),
               )
               : null,
       body: CustomScrollView(

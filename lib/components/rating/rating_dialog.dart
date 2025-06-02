@@ -28,11 +28,11 @@ class _RatingDialogState extends State<RatingDialog> {
           direction: Axis.horizontal,
           allowHalfRating: false,
           itemCount: 5,
-          itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-          itemBuilder: (context, _) => Icon(Icons.star, color: Colors.amber),
+          itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+          itemBuilder: (context, _) => const Icon(Icons.star, color: Colors.amber),
           onRatingUpdate: onRatingUpdate,
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
       ],
     );
   }
@@ -40,7 +40,7 @@ class _RatingDialogState extends State<RatingDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Đánh giá ứng dụng'),
+      title: const Text('Đánh giá ứng dụng'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -64,7 +64,7 @@ class _RatingDialogState extends State<RatingDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text('Hủy'),
+          child: const Text('Hủy'),
         ),
         _sendButton(context, musicRating, uiRating, uxRating),
       ],
@@ -91,10 +91,10 @@ Widget _sendButton(
         Navigator.of(context).pop();
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Cảm ơn đã đánh giá')));
+        ).showSnackBar(const SnackBar(content: Text('Cảm ơn đã đánh giá')));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text(
               'Vui lòng đánh giá đầy đủ cả Âm nhạc, Giao diện và Trải nghiệm trước khi gửi.',
             ),
@@ -103,8 +103,8 @@ Widget _sendButton(
         );
       }
     },
-    label: Text('Gửi'),
-    icon: Icon(Icons.send),
+    label: const Text('Gửi'),
+    icon: const Icon(Icons.send),
     style: OutlinedButton.styleFrom(
       foregroundColor:
           (musicRating > 0 && uiRating > 0 && uxRating > 0)

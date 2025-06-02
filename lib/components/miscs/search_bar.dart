@@ -33,7 +33,7 @@ class _MySearchBarState extends State<MySearchBar> {
     } else if (widget.variant == 2) {
       return _variant2(context);
     } else {
-      return Placeholder();
+      return const Placeholder();
     }
   }
 
@@ -41,10 +41,10 @@ class _MySearchBarState extends State<MySearchBar> {
     return SearchBar(
       controller: searchQueryController,
       hintText: 'Songs, Artists, Podcasts & More',
-      hintStyle: WidgetStatePropertyAll(
+      hintStyle: const WidgetStatePropertyAll(
         TextStyle(fontSize: 14, color: Colors.grey),
       ),
-      textStyle: WidgetStatePropertyAll(
+      textStyle: const WidgetStatePropertyAll(
         TextStyle(fontSize: 15, color: Colors.black),
       ),
       onTap: widget.onTap,
@@ -61,7 +61,7 @@ class _MySearchBarState extends State<MySearchBar> {
       trailing: [
         if (searchQueryController.text.isNotEmpty)
           IconButton(
-            icon: Icon(Icons.clear),
+            icon: const Icon(Icons.clear),
             onPressed: () {
               searchQueryController.clear();
               widget.onChanged?.call(
@@ -74,7 +74,7 @@ class _MySearchBarState extends State<MySearchBar> {
       shape: WidgetStateProperty.all(
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
       ),
-      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 8)),
+      padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 8)),
     );
   }
 
@@ -82,15 +82,15 @@ class _MySearchBarState extends State<MySearchBar> {
     return SearchBar(
       controller: searchQueryController,
       hintText: 'Tìm kiếm bài hát',
-      hintStyle: WidgetStatePropertyAll(
+      hintStyle: const WidgetStatePropertyAll(
         TextStyle(fontSize: 14, color: Colors.grey),
       ),
-      textStyle: WidgetStatePropertyAll(
+      textStyle: const WidgetStatePropertyAll(
         TextStyle(fontSize: 15, color: Colors.black),
       ),
       trailing: [
         SvgPicture.asset('assets/icons/Search.svg', width: 18, height: 18),
-        SizedBox(width: 5),
+        const SizedBox(width: 5),
       ],
       onTap: widget.onTap,
       onChanged: widget.onChanged,
@@ -99,7 +99,7 @@ class _MySearchBarState extends State<MySearchBar> {
       shape: WidgetStateProperty.all(
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
-      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 10)),
+      padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 10)),
     );
   }
 }

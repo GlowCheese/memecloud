@@ -8,7 +8,7 @@ class BottomSheetDragger extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 12),
+      margin: const EdgeInsets.symmetric(vertical: 12),
       width: 40,
       height: 4,
       decoration: BoxDecoration(

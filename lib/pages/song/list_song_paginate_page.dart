@@ -8,7 +8,6 @@ import 'package:memecloud/components/miscs/search_bar.dart';
 import 'package:memecloud/core/getit.dart';
 
 import 'package:memecloud/models/song_model.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ListSongPaginatePage extends StatefulWidget {
   final String? playlistId;
@@ -155,7 +154,7 @@ class _ListSongPaginatePageState extends State<ListSongPaginatePage> {
           ? FloatingActionButton(
               onPressed: _scrollToTop,
               tooltip: "Về đầu trang",
-              child: Icon(Icons.arrow_upward),
+              child: const Icon(Icons.arrow_upward),
             )
           : null,
       body: CustomScrollView(
@@ -165,9 +164,9 @@ class _ListSongPaginatePageState extends State<ListSongPaginatePage> {
         ),
         slivers: [
           SliverAppBar(
-            title: Text("Các bài hát"),
+            title: const Text("Các bài hát"),
             leading: IconButton(
-              icon: Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back),
               onPressed: () {
                 Navigator.pop(context, anySongAdded);
               },
@@ -185,10 +184,10 @@ class _ListSongPaginatePageState extends State<ListSongPaginatePage> {
           ),
           // Hiển thị loading indicator ở đầu khi load initial
           if (_isLoading && _filteredSongs.isEmpty)
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: EdgeInsets.all(20.0),
                   child: CircularProgressIndicator(),
                 ),
               ),
@@ -219,19 +218,19 @@ class _ListSongPaginatePageState extends State<ListSongPaginatePage> {
             ),
           ),
           if (_isLoading && _filteredSongs.isNotEmpty)
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: EdgeInsets.all(20.0),
                   child: CircularProgressIndicator(),
                 ),
               ),
             ),
           if (!_hasMoreData && _filteredSongs.isNotEmpty && _currentSearchQuery.isEmpty)
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: EdgeInsets.all(20.0),
                   child: Text(
                     "Đã hiển thị tất cả bài hát",
                     style: TextStyle(

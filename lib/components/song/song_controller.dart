@@ -18,7 +18,7 @@ class SongControllerView extends StatelessWidget {
     return Column(
       children: [
         _progressSlider(context),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         _songControllerButtons(),
       ],
     );
@@ -38,11 +38,11 @@ class SongControllerView extends StatelessWidget {
                 trackHeight: 4.0,
 
                 thumbColor: Colors.white,
-                thumbShape: RoundSliderThumbShape(enabledThumbRadius: 7.0),
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7.0),
                 overlayColor: Colors.blue.withAlpha(32),
-                overlayShape: RoundSliderOverlayShape(overlayRadius: 16.0),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 16.0),
 
-                trackShape: RoundedRectSliderTrackShape(),
+                trackShape: const RoundedRectSliderTrackShape(),
               ),
               child: Slider(
                 value: position.inSeconds.toDouble(),
@@ -86,7 +86,7 @@ class SongControllerView extends StatelessWidget {
     return IconButton(
       onPressed: playerCubit.seekToNext,
       color: Colors.white,
-      icon: Icon(Icons.skip_next),
+      icon: const Icon(Icons.skip_next),
       iconSize: 35,
     );
   }
@@ -110,7 +110,7 @@ class SongControllerView extends StatelessWidget {
       onPressed: playerCubit.seekToPrevious,
       iconSize: 35,
       color: Colors.white,
-      icon: Icon(Icons.skip_previous),
+      icon: const Icon(Icons.skip_previous),
     );
   }
 
@@ -146,7 +146,7 @@ class SongControllerView extends StatelessWidget {
               onTap: () async => await playerCubit.toggleSongSpeed(),
               child: Text(
                 '${currentSpeed}x',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ),

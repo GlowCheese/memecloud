@@ -36,7 +36,7 @@ class DownloadButton extends StatelessWidget {
             iconSize: iconSize,
             onPressed: onPressed,
             color: Colors.white,
-            icon: Icon(Icons.download_for_offline_outlined),
+            icon: const Icon(Icons.download_for_offline_outlined),
           ),
         ),
         AnimatedOpacity(
@@ -80,7 +80,7 @@ class DownloadButton extends StatelessWidget {
           child: IconButton(
             onPressed: onPressed,
             color: Colors.green.shade400,
-            icon: Icon(Icons.check_circle_rounded),
+            icon: const Icon(Icons.check_circle_rounded),
             iconSize: iconSize,
           ),
         ),

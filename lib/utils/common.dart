@@ -13,7 +13,7 @@ Future<Color?> getDominantColor(String imageUrl) async {
   final PaletteGenerator paletteGenerator =
       await PaletteGenerator.fromImageProvider(
         getImageProvider(imageUrl),
-        size: Size(200, 200),
+        size: const Size(200, 200),
         maximumColorCount: 20,
       );
   return paletteGenerator.dominantColor?.color;
@@ -23,7 +23,7 @@ Future<List<Color>> getPaletteColors(String imageUrl) async {
   final PaletteGenerator paletteGenerator =
       await PaletteGenerator.fromImageProvider(
         getImageProvider(imageUrl),
-        size: Size(200, 200),
+        size: const Size(200, 200),
         maximumColorCount: 20,
       );
 
@@ -79,7 +79,7 @@ Map<K, V> ignoreNullValuesOfMap<K, V>(Map<K, V> map) {
 }
 
 String prettyJson(Map json) {
-  var encoder = JsonEncoder.withIndent('  ');
+  var encoder = const JsonEncoder.withIndent('  ');
   return encoder.convert(json);
 }
 

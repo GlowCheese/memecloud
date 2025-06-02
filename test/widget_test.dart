@@ -28,7 +28,7 @@ class _SimpleCounterState extends State<SimpleCounter> {
                 () => setState(() {
                   number = number + 1;
                 }),
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
           ),
           Text(number.toString()),
         ],

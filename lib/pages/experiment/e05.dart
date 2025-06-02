@@ -32,7 +32,7 @@ class _E05State extends State<E05> {
         return Column(
           children: [
             tabsNavigator,
-            SectionDivider(),
+            const SectionDivider(),
             Expanded(child: tabContent),
           ],
         );
@@ -65,14 +65,14 @@ class _BoxDisplayState extends State<BoxDisplay> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text("Confirm"),
+            title: const Text("Confirm"),
             content: Text("U sure u want to delete $key?"),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text("No"),
+                child: const Text("No"),
               ),
               TextButton(
                 onPressed: () {
@@ -81,7 +81,7 @@ class _BoxDisplayState extends State<BoxDisplay> {
                     widget.box.delete(key);
                   });
                 },
-                child: Text("Sure man"),
+                child: const Text("Sure man"),
               ),
             ],
           ),
@@ -103,7 +103,7 @@ class _BoxDisplayState extends State<BoxDisplay> {
                   Center(
                     child: IconButton(
                       onPressed: () => _deleteConfirm(key),
-                      icon: Icon(Icons.close),
+                      icon: const Icon(Icons.close),
                     ),
                   ),
                   Center(
@@ -113,15 +113,15 @@ class _BoxDisplayState extends State<BoxDisplay> {
                         key,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 18),
+                        style: const TextStyle(fontSize: 18),
                       ),
                     ),
                   ),
-                  Center(child: SizedBox(width: 30)),
+                  const Center(child: SizedBox(width: 30)),
                   Center(
                     child: Text(
                       widget.box.get(key).toString(),
-                      style: TextStyle(fontSize: 16),
+                      style: const TextStyle(fontSize: 16),
                     ),
                   ),
                 ],

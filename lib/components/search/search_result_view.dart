@@ -33,7 +33,7 @@ class _SearchResultViewState extends State<SearchResultView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             bestMatchWidget(searchResult),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
             Expanded(child: SearchNavigation(widget.keyword, searchResult)),
           ],
         );
@@ -43,7 +43,7 @@ class _SearchResultViewState extends State<SearchResultView> {
 
   Widget bestMatchWidget(SearchResultModel searchResult) {
     if (searchResult.bestMatch == null) {
-      return SizedBox();
+      return const SizedBox();
     } else {
       final Widget item = simpleWingetDecode(context, searchResult.bestMatch!);
 
@@ -51,11 +51,11 @@ class _SearchResultViewState extends State<SearchResultView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionDivider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 30),
             child: Text('Best match:', style: TextStyle(fontSize: 20)),
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           item,
         ],
       );
@@ -101,7 +101,7 @@ class _SearchNavigationState extends State<SearchNavigation> {
                   )
                   .toList();
             },
-            separatorBuilder: (context, index) => SizedBox(height: 16),
+            separatorBuilder: (context, index) => const SizedBox(height: 16),
           );
         }).toList();
 
@@ -150,7 +150,7 @@ class _SearchNavigationState extends State<SearchNavigation> {
         );
       },
       itemCount: filterData.length,
-      separatorBuilder: (context, index) => SizedBox(height: 16),
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
     );
   }
 }

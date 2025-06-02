@@ -34,12 +34,12 @@ class MiniPlayer extends StatelessWidget {
             stream: audioPlayer.currentSongStream,
             builder: (context, snapshot) {
               final song = snapshot.data;
-              if (song == null) return SizedBox();
+              if (song == null) return const SizedBox();
               return _MiniPlayerInner(playerCubit, song);
             },
           );
         } else {
-          return SizedBox();
+          return const SizedBox();
         }
 
         if (!floating) return w;
@@ -82,7 +82,7 @@ class _MiniPlayerInnerState extends State<_MiniPlayerInner> {
 
   @override
   Widget build(BuildContext context) {
-    if (paletteColors == null) return SizedBox();
+    if (paletteColors == null) return const SizedBox();
 
     late final Color domBg, subDomBg;
     if (AdaptiveTheme.of(context).mode.isDark) {
@@ -103,11 +103,11 @@ class _MiniPlayerInnerState extends State<_MiniPlayerInner> {
   Widget miniPlayerSongDetails(Color domBg, Color subDomBg, Color onBgColor) {
     return Container(
       height: 60,
-      margin: EdgeInsets.symmetric(horizontal: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [domBg, subDomBg],
-          stops: [0.0, 0.8],
+          stops: const [0.0, 0.8],
           begin: Alignment.topCenter,
           end: Alignment.bottomRight,
         ),
@@ -117,7 +117,7 @@ class _MiniPlayerInnerState extends State<_MiniPlayerInner> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           miniThumbnail(),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -149,7 +149,7 @@ class _MiniPlayerInnerState extends State<_MiniPlayerInner> {
                     ],
                   ),
                 ),
-                SizedBox(width: 20),
+                const SizedBox(width: 20),
                 Row(
                   children: [
                     PlayOrPauseButton(song: widget.song, color: onBgColor),
@@ -160,7 +160,7 @@ class _MiniPlayerInnerState extends State<_MiniPlayerInner> {
               ],
             ),
           ),
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
         ],
       ),
     );
@@ -169,7 +169,7 @@ class _MiniPlayerInnerState extends State<_MiniPlayerInner> {
   IconButton _seekNextButton(Color onBgColor) {
     return IconButton(
       color: onBgColor,
-      icon: Icon(Icons.skip_next),
+      icon: const Icon(Icons.skip_next),
       onPressed: () {
         widget.playerCubit.seekToNext();
       },
@@ -178,7 +178,7 @@ class _MiniPlayerInnerState extends State<_MiniPlayerInner> {
 
   ClipRRect miniThumbnail() {
     return ClipRRect(
-      borderRadius: BorderRadius.horizontal(left: Radius.circular(20)),
+      borderRadius: const BorderRadius.horizontal(left: Radius.circular(20)),
       child: CachedNetworkImage(
         imageUrl: widget.song.thumbnailUrl,
         width: 60,

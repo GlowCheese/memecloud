@@ -78,7 +78,7 @@ class _GeneratableSliverListState extends State<GeneratableSliverList> {
         if (idx < items.length) return items[idx];
         return defaultFutureBuilder(
           future: loadMorePage(),
-          onData: (context, data) => SizedBox(),
+          onData: (context, data) => const SizedBox(),
         );
       }, childCount: itemCount),
     );

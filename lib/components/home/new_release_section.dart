@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:memecloud/components/song/show_song_actions.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:scroll_snap_list/scroll_snap_list.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 
 Padding _header(String title) {
@@ -17,7 +15,7 @@ Padding _header(String title) {
       children: [
         Text(
           title,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         TextButton(onPressed: () {}, child: const Text('Xem tất cả')),
       ],
@@ -30,7 +28,7 @@ class NewReleasesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Placeholder();
+    return const Placeholder();
     // return defaultFutureBuilder(
     //   future: getIt<ApiKit>().getHomeJson(),
     //   onData: (context, data) => _SongListDisplay(data),
@@ -65,7 +63,7 @@ class _SongListDisplayState extends State<_SongListDisplay> {
       children: [
         _header(title),
         ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 220),
+          constraints: const BoxConstraints(maxHeight: 220),
           child: ScrollSnapList(
             initialIndex: 1,
             scrollDirection: Axis.horizontal,
@@ -107,7 +105,7 @@ class _SongListDisplayState extends State<_SongListDisplay> {
               child: CachedNetworkImage(
                 imageUrl: song.thumbnailUrl,
                 fit: BoxFit.cover,
-                placeholder: (context, url) => CircularProgressIndicator(),
+                placeholder: (context, url) => const CircularProgressIndicator(),
                 errorWidget: (context, url, err) => const Icon(Icons.error),
               ),
             ),

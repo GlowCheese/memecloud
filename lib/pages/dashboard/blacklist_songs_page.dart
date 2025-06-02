@@ -10,7 +10,7 @@ Map getBlacklistSongPage(BuildContext context) {
   return {
     'appBar': defaultAppBar(context, title: 'Blacklist Songs'),
     'bgColor': MyColorSet.redAccent,
-    'body': BlacklistSongPage(key: ValueKey("blacklist song page")),
+    'body': const BlacklistSongPage(key: ValueKey("blacklist song page")),
   };
 }
 

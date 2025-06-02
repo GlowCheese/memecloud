@@ -46,7 +46,7 @@ class _PlaylistFollowButtonState extends State<PlaylistFollowButton> {
       icon:
           _isFollowing
               ? Icon(Icons.favorite_rounded, color: Colors.red.shade400)
-              : Icon(Icons.favorite_outline_rounded, color: Colors.white),
+              : const Icon(Icons.favorite_outline_rounded, color: Colors.white),
       onPressed: () {
         setState(() {
           _isFollowing = !_isFollowing;
@@ -69,7 +69,7 @@ class _PlaylistFollowButtonState extends State<PlaylistFollowButton> {
           if (_followerCount != null)
             Text(
               '$_followerCount likes',
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
@@ -79,7 +79,7 @@ class _PlaylistFollowButtonState extends State<PlaylistFollowButton> {
             Skeletonizer(
               child: Text(
                 BoneMock.words(1),
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,

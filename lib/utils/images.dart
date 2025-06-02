@@ -13,9 +13,9 @@ Widget getImage(String url, double size, {BoxFit fit = BoxFit.cover}) {
       placeholder: (_, _) => SizedBox(
         width: size,
         height: size,
-        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
       ),
-      errorWidget: (_, _, _) => Icon(Icons.error),
+      errorWidget: (_, _, _) => const Icon(Icons.error),
     );
   } else {
     return Image.asset(

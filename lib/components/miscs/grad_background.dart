@@ -40,7 +40,7 @@ class GradBackground extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [color, subColor ?? colorScheme.surfaceDim],
-              stops: [0.0, 0.4],
+              stops: const [0.0, 0.4],
               begin: Alignment.topLeft,
               end: Alignment.bottomLeft,
             ),

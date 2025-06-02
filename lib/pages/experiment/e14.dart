@@ -47,7 +47,7 @@ class _E14State extends State<E14> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return TabBar(
       controller: _tabController,
-      indicator: CustomTabIndicator(color: Colors.blue),
+      indicator: const CustomTabIndicator(color: Colors.blue),
       tabs: const [Tab(text: "Home"), Tab(text: "Settings")],
     );
   }

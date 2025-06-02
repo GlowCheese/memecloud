@@ -42,7 +42,7 @@ class SupabaseApi {
     await Supabase.initialize(
       url: dotenv.env['SUPABASE_URL'].toString(),
       anonKey: dotenv.env['SUPABASE_ANON_KEY'].toString(),
-      authOptions: FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
+      authOptions: const FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
     );
     return SupabaseApi._();
   }

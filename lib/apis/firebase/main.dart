@@ -30,11 +30,11 @@ class FirebaseApi {
       while (true) {
         if (_isCancelled) break;
         if (uploadQueue.isEmpty) {
-          await Future.delayed(Duration(seconds: 5));
+          await Future.delayed(const Duration(seconds: 5));
           continue;
         }
         await uploadQueue.removeFirst()();
-        await Future.delayed(Duration(minutes: 1));
+        await Future.delayed(const Duration(minutes: 1));
       }
     }(), onCancel: () => _isCancelled = true);
   }

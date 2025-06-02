@@ -17,7 +17,7 @@ class PageNotFound extends StatelessWidget {
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text('Go Back', style: TextStyle(color: Colors.white)),
+        title: const Text('Go Back', style: TextStyle(color: Colors.white)),
         leading: BackButton(
           onPressed: () {
             try {
@@ -36,7 +36,7 @@ class PageNotFound extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             child: GifView.asset('assets/gifs/rick.gif', frameRate: 15),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Center(
             child: SelectableText.rich(
               TextSpan(
@@ -45,12 +45,12 @@ class PageNotFound extends StatelessWidget {
                   color: AdaptiveTheme.of(context).theme.colorScheme.onSurface,
                 ),
                 children: [
-                  TextSpan(text: 'Page '),
+                  const TextSpan(text: 'Page '),
                   WidgetSpan(
                     alignment: PlaceholderAlignment.middle,
                     child: CodeBlock(routePath),
                   ),
-                  TextSpan(text: ' not found! 🙄'),
+                  const TextSpan(text: ' not found! 🙄'),
                 ],
               ),
             ),

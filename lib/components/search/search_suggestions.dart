@@ -39,7 +39,7 @@ class _SearchSuggestionsState extends State<SearchSuggestions> {
     return Padding(
       padding: const EdgeInsets.only(left: 30, right: 22, top: 30),
       child: ListView.separated(
-        separatorBuilder: (context, index) => SizedBox(height: 20),
+        separatorBuilder: (context, index) => const SizedBox(height: 20),
         itemCount: items.length,
         itemBuilder: (context, index) {
           return _suggestionItem(items[index], deletable: deletable);
@@ -72,7 +72,7 @@ class _SearchSuggestionsState extends State<SearchSuggestions> {
           Flexible(
             child: Text(
               item,
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -96,7 +96,7 @@ class _SearchSuggestionsState extends State<SearchSuggestions> {
                 data.remove(item);
               });
             },
-            icon: Icon(size: 22, Icons.close),
+            icon: const Icon(size: 22, Icons.close),
           ),
         ),
       ],

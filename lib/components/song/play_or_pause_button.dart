@@ -42,11 +42,11 @@ class PlayOrPauseButton extends StatelessWidget {
   }
 
   Widget _playButton(BuildContext context, bool load) {
-    return _button(context, load, Icon(Icons.play_arrow));
+    return _button(context, load, const Icon(Icons.play_arrow));
   }
 
   Widget _pauseButton(BuildContext context, bool load) {
-    return _button(context, load, Icon(Icons.pause));
+    return _button(context, load, const Icon(Icons.pause));
   }
 
   @override

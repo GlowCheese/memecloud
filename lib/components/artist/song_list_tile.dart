@@ -201,7 +201,7 @@ class SongListTile extends StatelessWidget {
                               ).showSnackBar(SnackBar(content: Text(res)));
                             }
                           },
-                          icon: Icon(Icons.add),
+                          icon: const Icon(Icons.add),
                         ),
                     ],
                   ),

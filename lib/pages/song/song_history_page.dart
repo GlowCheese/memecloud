@@ -22,7 +22,7 @@ class ScrollableSongHistoryPage extends StatelessWidget {
       stream: audioPlayer.upcomingSongsStream,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return SpinKitPumpingHeart(color: Colors.blue);
+          return const SpinKitPumpingHeart(color: Colors.blue);
         }
 
         final listenHistory = audioPlayer.listenHistory.sublist(
@@ -35,7 +35,7 @@ class ScrollableSongHistoryPage extends StatelessWidget {
           bgColor: MyColorSet.cyan,
           spacing: 12,
           items: [
-            SizedBox(),
+            const SizedBox(),
 
             for (int i in listenHistory)
               Padding(
@@ -51,7 +51,7 @@ class ScrollableSongHistoryPage extends StatelessWidget {
 
             SectionCard.variant1(
               title: 'Bài tiếp theo',
-              titlePadding: EdgeInsets.only(
+              titlePadding: const EdgeInsets.only(
                 left: 24,
                 right: 24,
                 top: 18,
@@ -65,7 +65,7 @@ class ScrollableSongHistoryPage extends StatelessWidget {
                         snapshot.data == true
                             ? Colors.greenAccent.shade400
                             : Colors.white,
-                    icon: FaIcon(size: 24, FontAwesomeIcons.shuffle),
+                    icon: const FaIcon(size: 24, FontAwesomeIcons.shuffle),
                   );
                 },
               ),

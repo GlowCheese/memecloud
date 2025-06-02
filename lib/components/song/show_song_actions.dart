@@ -34,13 +34,13 @@ Future showSongBottomSheetActions(BuildContext context, SongModel song) async {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: SongCard(variant: 1, song: song),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: const Divider(),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5),
+                  child: Divider(),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.download),
-                  title: const Text('Tải về'),
+                const ListTile(
+                  leading: Icon(Icons.download),
+                  title: Text('Tải về'),
                 ),
                 ListTile(
                   leading: const Icon(Icons.person_rounded),

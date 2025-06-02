@@ -39,7 +39,7 @@ class _ExpandableHtmlState extends State<ExpandableHtml> {
             },
             child: Text(
               _expanded ? "See less" : "... See more",
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.blueAccent,
                 fontWeight: FontWeight.w500,
               ),

@@ -6,7 +6,7 @@ Future<void> notiInit() async {
   const initializationSettingsAndroid = AndroidInitializationSettings(
     '@mipmap/ic_launcher',
   );
-  final initializationSettings = InitializationSettings(
+  final initializationSettings = const InitializationSettings(
     android: initializationSettingsAndroid,
   );
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);

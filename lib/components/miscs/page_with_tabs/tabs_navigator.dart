@@ -39,7 +39,7 @@ class TabsNavigator extends StatelessWidget {
         button = FilledButton(
           onPressed: () => onTabSelect?.call(i),
           style: ButtonStyle(
-            padding: WidgetStatePropertyAll(
+            padding: const WidgetStatePropertyAll(
               EdgeInsets.symmetric(horizontal: 15),
             ),
             backgroundColor: WidgetStatePropertyAll(
@@ -52,14 +52,14 @@ class TabsNavigator extends StatelessWidget {
         button = ElevatedButton(
           onPressed: () => onTabSelect?.call(i),
           style: ButtonStyle(
-            padding: WidgetStatePropertyAll(
+            padding: const WidgetStatePropertyAll(
               EdgeInsets.symmetric(horizontal: 15),
             ),
             backgroundColor: WidgetStatePropertyAll(
               Colors.blueGrey.shade300.withAlpha(108),
             ),
           ),
-          child: Text(tabName, style: TextStyle(color: Colors.white)),
+          child: Text(tabName, style: const TextStyle(color: Colors.white)),
         );
       }
 
@@ -71,9 +71,9 @@ class TabsNavigator extends StatelessWidget {
       child: ListView.separated(
         shrinkWrap: true,
         scrollDirection: Axis.horizontal,
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         itemCount: buttons.length,
-        separatorBuilder: (context, index) => SizedBox(width: 10),
+        separatorBuilder: (context, index) => const SizedBox(width: 10),
         itemBuilder: (context, index) => buttons[index],
       ),
     );

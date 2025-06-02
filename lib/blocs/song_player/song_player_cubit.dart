@@ -124,7 +124,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   Future<void> lazySongPopulate(List<SongModel> songList) async {
     for (SongModel song in songList) {
       if (!lazySongPopulateRunning) break;
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 500));
       final audioSource = await _getAudioSource(song);
       if (audioSource != null) {
         await audioPlayer.addSong(song, audioSource);

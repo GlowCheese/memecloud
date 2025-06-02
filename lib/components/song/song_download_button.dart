@@ -82,8 +82,8 @@ class SongDownloadButton extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Confirm"),
-          content: Text("Chọn chất lượng nhạc mà bạn muốn tải xuống"),
+          title: const Text("Confirm"),
+          content: const Text("Chọn chất lượng nhạc mà bạn muốn tải xuống"),
           actions:
               urls!.entries.map((e) {
                 return TextButton(
@@ -107,14 +107,14 @@ class SongDownloadButton extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Confirm"),
-          content: Text(
+          title: const Text("Confirm"),
+          content: const Text(
             "Bạn có muốn xóa bài hát này khỏi danh sách tải xuống không?",
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text("No"),
+              child: const Text("No"),
             ),
             TextButton(
               onPressed: () {
@@ -122,7 +122,7 @@ class SongDownloadButton extends StatelessWidget {
                   if (context.mounted) Navigator.pop(context);
                 });
               },
-              child: Text("Yes"),
+              child: const Text("Yes"),
             ),
           ],
         );

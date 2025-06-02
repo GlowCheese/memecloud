@@ -37,7 +37,7 @@ Future<void> sendCompleteNoti({
     id,
     title,
     body,
-    NotificationDetails(
+    const NotificationDetails(
       android: AndroidNotificationDetails(
         'download_channel',
         'Downloads',
@@ -59,7 +59,7 @@ Future<void> sendErrorNoti({
     id,
     title,
     'Download failed: $error',
-    NotificationDetails(
+    const NotificationDetails(
       android: AndroidNotificationDetails(
         'download_channel',
         'Downloads',

@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
-import 'package:memecloud/components/artist/album_list_tile.dart';
-import 'package:memecloud/components/artist/song_list_tile.dart';
 import 'package:memecloud/components/musics/playlist_card.dart';
 import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/components/common/confirmation_dialog.dart';
