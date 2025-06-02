@@ -13,7 +13,8 @@ class ZingMp3Requester {
   final _acBaseUrl = "https://ac.zingmp3.vn";
   final _apiKey = dotenv.env['ZINGMP3_API_KEY'].toString();
   final _secretKey = dotenv.env['ZINGMP3_SECRET_KEY'].toString();
-  String get _cTime => (DateTime.now().millisecondsSinceEpoch / 1000).ceil().toString();
+  String get _cTime =>
+      (DateTime.now().millisecondsSinceEpoch / 1000).ceil().toString();
 
   String _getHash256(String str) {
     return sha256.convert(utf8.encode(str)).toString();
@@ -142,19 +143,6 @@ class ZingMp3Requester {
     return _sendRequest(path, id: playlistId, allowedErrorCodes: [-1031]);
   }
 
-  Future<Map> getHome({int page = 1}) {
-    if (page <= 0) {
-      throw ArgumentError.value(page, "page", "page must be at least 1");
-    }
-    final path = "/api/v2/page/get/home";
-    return _sendRequest(
-      path,
-      page: page,
-      count: 30,
-      extra: {'segmentId': '-1'},
-    );
-  }
-
   Future<Map> getTop100({int page = 1}) {
     final path = "/api/v2/page/get/top-100";
     return _sendRequest(path);
@@ -257,5 +245,24 @@ class ZingMp3Requester {
       id: artistId,
       extra: {'page': page, 'count': count},
     );
+  }
+
+  // home sections
+  Future<Map> getHome({int page = 1}) {
+    if (page <= 0) {
+      throw ArgumentError.value(page, "page", "page must be at least 1");
+    }
+    final path = "/api/v2/page/get/home";
+    return _sendRequest(
+      path,
+      page: page,
+      count: 30,
+      extra: {'segmentId': '-1'},
+    );
+  }
+
+  Future<Map> sectionSongStation() {
+    final path = "/api/v2/song/get/section-song-station";
+    return _sendRequest(path, count: 20);
   }
 }

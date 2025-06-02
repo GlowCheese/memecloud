@@ -62,11 +62,13 @@ class _SectionItemCardVariation1State
 
   Future<void> loadDominateColor() {
     return getDominantColor(widget.thumbnailUrl).then((data) {
-      setState(() {
-        domColor = data!;
-        tlColor = adjustColor(domColor, l: 0.6);
-        brColor = adjustColor(domColor, l: 0.2);
-      });
+      if (mounted) {
+        setState(() {
+          domColor = data!;
+          tlColor = adjustColor(domColor, l: 0.6);
+          brColor = adjustColor(domColor, l: 0.2);
+        });
+      }
     });
   }
 
@@ -111,7 +113,10 @@ class _SectionItemCardVariation1State
                       color: Colors.white.withAlpha(60),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 5,
+                      horizontal: 10,
+                    ),
                     child: Text(
                       widget.tag,
                       maxLines: 1,
@@ -135,13 +140,15 @@ class _SectionItemCardVariation1State
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Text(
-                    widget.description,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white.withAlpha(180),
+                  Flexible(
+                    child: Text(
+                      widget.description,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white.withAlpha(180),
+                      ),
                     ),
                   ),
                 ],

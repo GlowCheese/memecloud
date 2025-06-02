@@ -8,7 +8,7 @@ class ZingMp3Api {
   final ZingMp3Requester _requester = getIt<ZingMp3Requester>();
   final ConnectivityStatus _connectivity = getIt<ConnectivityStatus>();
 
-    Future<Map<String, String>> fetchSongUrls(String songId) async {
+  Future<Map<String, String>> fetchSongUrls(String songId) async {
     try {
       _connectivity.ensure();
       final resp = await _requester.getSong(songId);
@@ -35,7 +35,7 @@ class ZingMp3Api {
     }
   }
 
-  Future<String> fetchSongUrl(String songId, [String quality="320"]) async {
+  Future<String> fetchSongUrl(String songId, [String quality = "320"]) async {
     final urls = await fetchSongUrls(songId);
     return urls[quality] ?? urls['320'] ?? urls['128']!;
   }
@@ -110,11 +110,15 @@ class ZingMp3Api {
     }
   }
 
-  Future<List<Map<String, dynamic>>?> fetchSearchSuggestions(String keyword) async {
+  Future<List<Map<String, dynamic>>?> fetchSearchSuggestions(
+    String keyword,
+  ) async {
     try {
       _connectivity.ensure();
       final resp = await _requester.getSearchSuggestions(keyword);
-      return List.castFrom<dynamic, Map<String, dynamic>>(resp['data']['items']);
+      return List.castFrom<dynamic, Map<String, dynamic>>(
+        resp['data']['items'],
+      );
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
@@ -174,24 +178,6 @@ class ZingMp3Api {
     }
   }
 
-  Future<Map<String, dynamic>> fetchHome({int page = 1}) async {
-    try {
-      _connectivity.ensure();
-      final resp = await _requester.getHome(page: page);
-
-      Map<String, dynamic> data = resp['data'];
-      return data;
-    } catch (e, stackTrace) {
-      _connectivity.reportCrash(e, StackTrace.current);
-      log(
-        'ZingMp3Api failed to fetch home: $e',
-        stackTrace: stackTrace,
-        level: 1000,
-      );
-      rethrow;
-    }
-  }
-
   Future<Map> fetchLyric(String songId) async {
     try {
       _connectivity.ensure();
@@ -227,6 +213,7 @@ class ZingMp3Api {
     }
   }
 
+  // week charts
   Future<Map<String, dynamic>> fetchVpopWeekChart() {
     return _fetchWeekChart('IWZ9Z08I');
   }
@@ -237,5 +224,43 @@ class ZingMp3Api {
 
   Future<Map<String, dynamic>> fetchKpopWeekChart() {
     return _fetchWeekChart('IWZ9Z0BO');
+  }
+
+  // home page
+  Future<Map<String, dynamic>> fetchHome() async {
+    try {
+      _connectivity.ensure();
+      final resp = await _requester.getHome(page: 1);
+
+      Map<String, dynamic> data = resp['data'];
+      return data;
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        'ZingMp3Api failed to fetch home: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
+  // section song station
+  Future<List<Map<String, dynamic>>> sectionSongStation() async {
+    try {
+      _connectivity.ensure();
+      final resp = await _requester.sectionSongStation();
+      return List.castFrom<dynamic, Map<String, dynamic>>(
+        resp['data']['items'],
+      );
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        'ZingMp3Api failed to fetch song station section: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
   }
 }

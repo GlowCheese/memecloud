@@ -773,6 +773,10 @@ class ApiKit {
     unawaited(supabase.config.setCookie(newCookieStr));
   }
 
+  /* ------------------------
+  |    HOME SECTIONS APIs   |
+  ------------------------ */
+
   Future<Map<String, dynamic>> getHomeJson() async {
     // TODO: bro, who on earth would name api /home2
     final String api = '/home2';
@@ -782,6 +786,27 @@ class ApiKit {
       api,
       lazyTime: lazyTime,
       fetchFunc: zingMp3.fetchHome,
+    );
+  }
+
+  Future<List<SongModel>> sectionSongStation({bool force = false}) async {
+    final f = zingMp3.sectionSongStation;
+    final api = '/sectionSongStation';
+
+    if (force) {
+      final data = await f();
+      _updateCached(api, {'data': data});
+      return SongModel.fromListJson<ZingMp3Api>(data);
+    }
+
+    return await _getOrFetch<List<Map<String, dynamic>>, List<SongModel>>(
+      api,
+      fetchFunc: f,
+      cacheEncode: (data) => {'data': data},
+      cacheDecode: (json) {
+        return List.castFrom<dynamic, Map<String, dynamic>>(json['data']);
+      },
+      outputFixer: (data) => SongModel.fromListJson<ZingMp3Api>(data),
     );
   }
 }

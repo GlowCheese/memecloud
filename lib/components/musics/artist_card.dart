@@ -17,7 +17,10 @@ class ArtistCard extends StatelessWidget {
     this.pushReplacement = false,
   });
 
-  Widget gestureDectectorWrapper(BuildContext context, Widget child) {
+  Widget gestureDectectorWrapper(
+    BuildContext context, {
+    required Widget child,
+  }) {
     return GestureDetector(
       onTap: () {
         if (pushReplacement) {
@@ -44,27 +47,33 @@ class ArtistCard extends StatelessWidget {
     return FaIcon(
       size: 16,
       color: Colors.green.shade200,
-      FontAwesomeIcons.microphoneLines
+      FontAwesomeIcons.microphoneLines,
     );
   }
 
   // with subtitle 'Nghệ sĩ'
   Widget _variation1(BuildContext context) {
-    return MusicCard(
-      variant: 1,
-      icon: anotIcon(),
-      thumbnailUrl: artist.thumbnailUrl,
-      title: artist.name,
-      subTitle: 'Nghệ sĩ',
+    return gestureDectectorWrapper(
+      context,
+      child: MusicCard(
+        variant: 1,
+        icon: anotIcon(),
+        thumbnailUrl: artist.thumbnailUrl,
+        title: artist.name,
+        subTitle: 'Nghệ sĩ',
+      ),
     );
   }
 
   // without subtitle
   Widget _variation2(BuildContext context) {
-    return MusicCard(
-      variant: 2,
-      thumbnailUrl: artist.thumbnailUrl,
-      title: artist.name,
+    return gestureDectectorWrapper(
+      context,
+      child: MusicCard(
+        variant: 2,
+        thumbnailUrl: artist.thumbnailUrl,
+        title: artist.name,
+      ),
     );
   }
 }
