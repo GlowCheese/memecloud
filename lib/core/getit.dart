@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/core/dio_init.dart';
+import 'package:memecloud/apis/firebase/main.dart';
 import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/apis/others/events.dart';
 import 'package:memecloud/apis/others/storage.dart';
@@ -18,6 +19,9 @@ import 'package:memecloud/blocs/recent_played/recent_played_stream.dart';
 final getIt = GetIt.instance;
 
 Future<void> setupLocator() async {
+  // Firebase storage
+  getIt.registerSingleton<FirebaseApi>(FirebaseApi());
+
   // oh, you're approaching me?
   final (dio, cookieJar) = await createDioWithPersistentCookies();
   getIt.registerSingleton<Dio>(dio);

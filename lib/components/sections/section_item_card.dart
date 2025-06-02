@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:memecloud/utils/images.dart';
 
 class SectionItemCard {
   static Widget variation1({
     Key? key,
+    required String playlistId,
     required String title,
     required String description,
     required String tag,
@@ -15,6 +17,7 @@ class SectionItemCard {
     double height = 152,
   }) {
     return _SectionItemCardVariation1(
+      playlistId,
       title,
       description,
       tag,
@@ -27,6 +30,7 @@ class SectionItemCard {
 }
 
 class _SectionItemCardVariation1 extends StatefulWidget {
+  final String playlistId;
   final String title;
   final String description;
   final String tag;
@@ -35,6 +39,7 @@ class _SectionItemCardVariation1 extends StatefulWidget {
   final double height;
 
   const _SectionItemCardVariation1(
+    this.playlistId,
     this.title,
     this.description,
     this.tag,
@@ -79,68 +84,71 @@ class _SectionItemCardVariation1State
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: widget.height,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [tlColor, brColor],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return GestureDetector(
+      onTap: () => context.push('/playlist_page', extra: widget.playlistId),
+      child: Container(
+        width: double.infinity,
+        height: widget.height,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [tlColor, brColor],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
         ),
-      ),
-      padding: EdgeInsets.all(widget.gap),
-      alignment: Alignment.center,
-      child: Row(
-        spacing: widget.gap,
-        children: [
-          getImage(widget.thumbnailUrl, widget.height - 2*widget.gap),
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(60),
-                    borderRadius: BorderRadius.circular(16),
+        padding: EdgeInsets.all(widget.gap),
+        alignment: Alignment.center,
+        child: Row(
+          spacing: widget.gap,
+          children: [
+            getImage(widget.thumbnailUrl, widget.height - 2 * widget.gap),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(60),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    child: Text(
+                      widget.tag,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  child: Text(
-                    widget.tag,
+                  SizedBox(height: 14),
+                  Text(
+                    widget.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      height: 1.2,
+                    ),
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    widget.description,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 10,
-                      fontStyle: FontStyle.italic,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                      color: Colors.white.withAlpha(180),
                     ),
                   ),
-                ),
-                SizedBox(height: 14),
-                Text(
-                  widget.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    height: 1.2,
-                  ),
-                ),
-                SizedBox(height: 6),
-                Text(
-                  widget.description,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white.withAlpha(180),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

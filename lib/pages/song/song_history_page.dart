@@ -38,12 +38,15 @@ class ScrollableSongHistoryPage extends StatelessWidget {
             SizedBox(),
 
             for (int i in listenHistory)
-              SongCard(
-                key: ValueKey('previous_$i'),
-                variant: 1,
-                song: audioPlayer.songList[i],
-                playlist: playlist,
-                dimmed: i != listenHistory.last,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: SongCard(
+                  key: ValueKey('previous_$i'),
+                  variant: 1,
+                  song: audioPlayer.songList[i],
+                  playlist: playlist,
+                  dimmed: i != listenHistory.last,
+                ),
               ),
 
             SectionCard.variant1(
@@ -71,10 +74,13 @@ class ScrollableSongHistoryPage extends StatelessWidget {
                   Padding(
                     key: ValueKey('upcoming_$i'),
                     padding: const EdgeInsets.only(top: 12),
-                    child: SongCard(
-                      variant: 1,
-                      song: audioPlayer.songList[i],
-                      playlist: playlist,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: SongCard(
+                        variant: 1,
+                        song: audioPlayer.songList[i],
+                        playlist: playlist,
+                      ),
                     ),
                   ),
               ],

@@ -16,7 +16,7 @@ Widget defaultFutureBuilder<T>({
     child: SpinKitThreeBounce(color: Colors.white, size: 36),
   );
 
-  return FutureBuilder(
+  return FutureBuilder<T>(
     future: future,
     initialData: initialData,
     builder: (context, snapshot) {
@@ -39,9 +39,9 @@ Widget defaultFutureBuilder<T>({
         return Text('Snapshot has no data!');
       };
 
-      if (snapshot.hasError) onError!(context, snapshot.error);
-      if (!snapshot.hasData) onNull!(context);
-      return onData(context, snapshot.data as T);
+      if (snapshot.hasError) return onError!(context, snapshot.error);
+      if (!snapshot.hasData) return onNull!(context);
+      return onData(context, snapshot.data!);
     },
   );
 }

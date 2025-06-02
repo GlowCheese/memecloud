@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/utils/common.dart';
@@ -53,7 +54,13 @@ class PlaylistPage extends StatelessWidget {
           future: getIt<ApiKit>().getPlaylistInfo(playlistId!),
           onNull: (context) {
             return Center(
-              child: Text("Playlist with id $playlistId doesn't exist!"),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Playlist with id $playlistId doesn't exist!"),
+                  ElevatedButton(onPressed: context.pop, child: Text('Go back')),
+                ],
+              ),
             );
           },
           onData: (context, data) {

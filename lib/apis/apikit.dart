@@ -29,6 +29,7 @@ class ApiKit {
   final dio = getIt<Dio>();
   final zingMp3 = getIt<ZingMp3Api>();
   final supabase = getIt<SupabaseApi>();
+  final firebaseApi = getIt<FirebaseApi>();
   final storage = getIt<PersistentStorage>();
   final _connectivity = getIt<ConnectivityStatus>();
   late final SupabaseClient client = supabase.client;
@@ -708,18 +709,19 @@ class ApiKit {
     if (await file.exists()) return Uri.file(filePath);
 
     final api = '/song_url?id=$songId';
-    return storage.getCached<String>(api).fold<Future<Uri>>(
-      (url) async => Uri.parse(url),
-      (_) async {
-        String? url = await FirebaseApi.getSongUrl(songId);
-        if (url == null) {
-          url = await zingMp3.fetchSongUrl(songId);
-          unawaited(FirebaseApi.uploadSongFromUrl(url, songId));
-        }
-        unawaited(storage.updateCached(api, url));
-        return Uri.parse(url);
-      },
-    );
+
+    Future<Uri> fetchF() async {
+      String? url = await firebaseApi.getSongUrl(songId);
+      url ??= await zingMp3.fetchSongUrl(songId);
+      unawaited(storage.updateCached(api, url));
+      firebaseApi.uploadSongFromUrl(url, songId);
+      return Uri.parse(url);
+    }
+
+    return await storage.getCached<String>(api).fold<Future<Uri>>((url) async {
+      final uri = Uri.parse(url);
+      return isSongUriActive(uri) ? uri : await fetchF();
+    }, (_) => fetchF());
   }
 
   Future<SongLyricsModel?> getSongLyric(String songId) async {
@@ -782,6 +784,20 @@ class ApiKit {
       fetchFunc: zingMp3.fetchHome,
     );
   }
+}
+
+bool isSongUriActive(Uri uri) {
+  final authen = uri.queryParameters['authen'];
+  final expStr = authen
+      ?.split('~')
+      .firstWhere((e) => e.startsWith('exp='), orElse: () => '')
+      .split('=')
+      .elementAtOrNull(1);
+
+  if (expStr == null) return true;
+  final exp = int.tryParse(expStr) ?? 0;
+  final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+  return exp > now + 600;
 }
 
 List<Map<String, dynamic>> _getSongsForHomeOutputFixer(

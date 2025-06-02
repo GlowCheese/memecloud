@@ -1,10 +1,14 @@
-import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
+import 'dart:async';
+import 'dart:collection';
+import 'package:async/async.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 // Helper function to read the response stream
-Future<Uint8List> _consolidateHttpClientResponseBytes(HttpClientResponse response) {
+Future<Uint8List> _consolidateHttpClientResponseBytes(
+  HttpClientResponse response,
+) {
   final completer = Completer<Uint8List>();
   final contents = <int>[];
   response.listen(
@@ -17,26 +21,53 @@ Future<Uint8List> _consolidateHttpClientResponseBytes(HttpClientResponse respons
 }
 
 class FirebaseApi {
-  static Future<void> uploadSongFromUrl(String url, String songId) async {
-    final uri = Uri.parse(url);
-    final request = await HttpClient().getUrl(uri);
-    final response = await request.close();
+  bool _isCancelled = false;
+  final uploadQueue = Queue<Future Function()>();
+  late final CancelableOperation uploadTask;
 
-    if (response.statusCode != 200) {
-      throw Exception('Tải thất bại từ $url (status: ${response.statusCode})');
-    }
-
-    // Read the response stream into bytes
-    final bytes = await _consolidateHttpClientResponseBytes(response);
-
-    final ref = FirebaseStorage.instance.ref().child('musics/$songId.mp3');
-    final metadata = SettableMetadata(contentType: 'audio/mpeg');
-    final uploadTask = ref.putData(bytes, metadata);
-
-    await uploadTask;
+  FirebaseApi() {
+    uploadTask = CancelableOperation.fromFuture(() async {
+      while (true) {
+        if (_isCancelled) break;
+        if (uploadQueue.isEmpty) {
+          await Future.delayed(Duration(seconds: 5));
+          continue;
+        }
+        await uploadQueue.removeFirst()();
+        await Future.delayed(Duration(minutes: 1));
+      }
+    }(), onCancel: () => _isCancelled = true);
   }
 
-  static Future<String?> getSongUrl(String songId) async {
+  void cancel() {
+    uploadTask.cancel();
+  }
+
+  void uploadSongFromUrl(String url, String songId) {
+    uploadQueue.add(() async {
+      final uri = Uri.parse(url);
+      debugPrint('⬆️ Uploading $url');
+      
+      final request = await HttpClient().getUrl(uri);
+      final response = await request.close();
+
+      if (response.statusCode != 200) {
+        throw Exception(
+          'Tải thất bại từ $url (status: ${response.statusCode})',
+        );
+      }
+
+      // Read the response stream into bytes
+      final bytes = await _consolidateHttpClientResponseBytes(response);
+
+      final ref = FirebaseStorage.instance.ref().child('musics/$songId.mp3');
+      final metadata = SettableMetadata(contentType: 'audio/mpeg');
+      await ref.putData(bytes, metadata);
+      debugPrint('✅ Upload success!');
+    });
+  }
+
+  Future<String?> getSongUrl(String songId) async {
     final ref = FirebaseStorage.instance.ref().child('musics/$songId.mp3');
     try {
       return await ref.getDownloadURL();

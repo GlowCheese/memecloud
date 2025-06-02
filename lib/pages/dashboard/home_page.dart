@@ -42,6 +42,7 @@ class _HomePage extends StatelessWidget {
                       items: [
                         for (var sectionItem in section['items'])
                           SectionItemCard.variation1(
+                            playlistId: sectionItem['id'],
                             key: ValueKey(sectionItem),
                             title: sectionItem['title'],
                             description: sectionItem['description'],
@@ -53,8 +54,6 @@ class _HomePage extends StatelessWidget {
                       options: CarouselOptions(
                         height: 152,
                         enlargeCenterPage: true,
-                        autoPlay: true,
-                        autoPlayInterval: const Duration(seconds: 5),
                       ),
                     ),
                     DataInspector(section, name: section['sectionId']),
