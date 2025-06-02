@@ -126,7 +126,7 @@ class _ListSongPageState extends State<ListSongPage> {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: SongListTile(
                     song: song,
-                    variant: 2,
+                    variant: 1,
                     playlistId: widget.playlistId,
                     onSongAdded: (added) {
                       if (added) {
