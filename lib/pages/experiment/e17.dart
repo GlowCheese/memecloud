@@ -455,27 +455,30 @@ class _ArtistInfo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          'Về ${artist.name}',
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
         if (artist.realname != null) ...[
-          Text(
-            'Tên thật',
-            style: Theme.of(
-              context,
-            ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          Text(
-            '${artist.realname}',
-            style: Theme.of(context).textTheme.bodyLarge,
+          RichText(
+            text: TextSpan(
+              style: Theme.of(context).textTheme.bodyLarge,
+              children: [
+                const TextSpan(text: 'Tên thật: '),
+                TextSpan(
+                  text: artist.realname,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ),
         ],
         if (artist.biography != null) ...[
-          _buildDivider(context),
-          const SizedBox(height: 4),
-          Text(
-            'Tiểu sử',
-            style: Theme.of(
-              context,
-            ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          const SizedBox(height: 8),
+          const Text('Tiểu sử:'),
           ExpandableHtml(
             htmlText:
                 artist.biography != null && artist.biography!.isNotEmpty

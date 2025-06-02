@@ -31,10 +31,16 @@ GoRouter getRouter() {
         path: '/404',
         builder: (context, state) => const PageNotFound(routePath: '/404'),
       ),
-      GoRoute(path: '/dashboard', builder: (context, state) => const DashboardPage()),
+      GoRoute(
+        path: '/dashboard',
+        builder: (context, state) => const DashboardPage(),
+      ),
       GoRoute(path: '/signup', builder: (context, state) => const SignUpPage()),
       GoRoute(path: '/signin', builder: (context, state) => const SignInPage()),
-      GoRoute(path: '/profile', builder: (context, state) => const ProfilePage()),
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const ProfilePage(),
+      ),
       GoRoute(
         path: '/song_lyric',
         builder: (context, state) => const SongLyricPage(),
@@ -65,7 +71,7 @@ GoRouter getRouter() {
           final artistAlias = state.extra as String;
           return CustomTransitionPage(
             key: state.pageKey,
-            child: ArtistPage(artistAlias: artistAlias),
+            child: ArtistPage17(artistAlias: artistAlias),
             transitionsBuilder: PageTransitions.fadeTransition,
           );
         },
