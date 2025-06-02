@@ -10,14 +10,17 @@ import 'package:memecloud/apis/others/events.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:memecloud/blocs/song_player/justaudio_init.dart';
+import 'package:memecloud/stripe/service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await notiInit();
   await dotenv.load();
   await setupLocator();
+  
   await justAudioInit();
   await Firebase.initializeApp();
+  await stripeSetup();
 
   // Load user data if the user is logged in
   if (getIt<ApiKit>().currentSession() != null) {

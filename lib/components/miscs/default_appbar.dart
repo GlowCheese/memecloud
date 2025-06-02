@@ -5,6 +5,7 @@ import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/pages/report/report_issue_page.dart';
 import 'package:memecloud/components/rating/rating_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:memecloud/stripe/demo.dart';
 
 AppBar defaultAppBar(
   BuildContext context, {
@@ -38,9 +39,17 @@ AppBar defaultAppBar(
     actions: [
       IconButton(
         onPressed: () {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (context) => const DemoPage()));
+        },
+        icon: const Icon(Icons.payment),
+      ),
+      IconButton(
+        onPressed: () {
           _showBottomSheet(context);
         },
-        icon: const Icon(Icons.flag, color: Colors.white,),
+        icon: const Icon(Icons.flag, color: Colors.white),
       ),
       IconButton(
         color: Colors.white,
