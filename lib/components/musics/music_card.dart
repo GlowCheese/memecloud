@@ -39,7 +39,7 @@ class MusicCard extends StatelessWidget {
         break;
     }
 
-    return Opacity(opacity: dimmed ? 0.6 : 1.0, child: content);
+    return Opacity(opacity: dimmed ? 0.5 : 1.0, child: content);
   }
 
   /// with subTitle

@@ -5,7 +5,7 @@ import 'package:memecloud/utils/snackbar.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/components/musics/song_card.dart';
-import 'package:memecloud/components/miscs/simple_section.dart';
+import 'package:memecloud/components/sections/section_card.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/musics/playlist_card.dart';
 import 'package:memecloud/pages/ssp/simple_scrollable_page.dart';
@@ -123,8 +123,13 @@ class LibraryPage extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8),
       child: StatefulBuilder(
         builder: (context, setState) {
-          return SimpleSection(
+          return SectionCard.variant1(
             title: 'Bài hát bị chặn',
+            titlePadding: EdgeInsets.only(
+              left: horzPad,
+              right: horzPad,
+              top: 18,
+            ),
             children: <Widget>[
               for (var song in blacklistedSongs)
                 Padding(
@@ -169,11 +174,16 @@ class LibraryPage extends StatelessWidget {
                     spacing: 6,
                     items: [
                       for (var song in recentlyPlayedSongs)
-                        SongCard(
+                        Padding(
                           key: ValueKey(song.id),
-                          variant: 1,
-                          song: song,
-                          songList: recentlyPlayedSongs,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: horzPad,
+                          ),
+                          child: SongCard(
+                            variant: 1,
+                            song: song,
+                            songList: recentlyPlayedSongs,
+                          ),
                         ),
                     ],
                   );
@@ -202,10 +212,12 @@ class LibraryPage extends StatelessWidget {
                     spacing: 6,
                     items: [
                       for (var playlist in recentlyPlayedPlaylists)
-                        PlaylistCard(
+                        Padding(
                           key: ValueKey(playlist.id),
-                          variant: 1,
-                          playlist: playlist,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: horzPad,
+                          ),
+                          child: PlaylistCard(variant: 1, playlist: playlist),
                         ),
                     ],
                   );
@@ -226,8 +238,13 @@ class LibraryPage extends StatelessWidget {
           physics: BouncingScrollPhysics(),
           children: <Widget>[
             if (recentlyPlayedSongs.isNotEmpty)
-              SimpleSection(
+              SectionCard.variant1(
                 title: 'Phát gần đây',
+                titlePadding: EdgeInsets.only(
+                  left: horzPad,
+                  right: horzPad,
+                  top: 18,
+                ),
                 showAllButton: _showAllRecentlyPlayedSongsButton(context),
                 children: <Widget>[
                   for (var song in recentlyPlayedSongs.take(5))
@@ -246,8 +263,13 @@ class LibraryPage extends StatelessWidget {
               ),
 
             if (recentlyPlayedPlaylists.isNotEmpty)
-              SimpleSection(
+              SectionCard.variant1(
                 title: 'Danh sách phát',
+                titlePadding: EdgeInsets.only(
+                  left: horzPad,
+                  right: horzPad,
+                  top: 18,
+                ),
                 showAllButton: _showAllRecentlyPlayedPlaylistsButton(context),
                 children: [
                   for (var playlist in recentlyPlayedPlaylists.take(5))

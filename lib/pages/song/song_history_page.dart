@@ -1,15 +1,14 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:memecloud/blocs/song_player/custom_audio_player.dart';
-import 'package:memecloud/components/miscs/grad_background.dart';
-import 'package:memecloud/components/miscs/simple_section.dart';
-import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:memecloud/models/playlist_model.dart';
+import 'package:memecloud/components/musics/song_card.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/pages/ssp/simple_scrollable_page.dart';
+import 'package:memecloud/components/sections/section_card.dart';
+import 'package:memecloud/blocs/song_player/custom_audio_player.dart';
 
 class ScrollableSongHistoryPage extends StatelessWidget {
   final PlaylistModel? playlist;
@@ -47,8 +46,13 @@ class ScrollableSongHistoryPage extends StatelessWidget {
                 dimmed: i != listenHistory.last,
               ),
 
-            SimpleSection(
+            SectionCard.variant1(
               title: 'Bài tiếp theo',
+              titlePadding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 18,
+              ),
               showAllButton: StreamBuilder(
                 stream: audioPlayer.shuffleModeEnabledStream,
                 builder: (context, snapshot) {

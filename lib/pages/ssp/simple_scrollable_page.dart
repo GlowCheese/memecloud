@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/pages/library/library_page.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 
 class SimpleScrollablePage extends StatelessWidget {
@@ -23,13 +22,10 @@ class SimpleScrollablePage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(title: Text(title), backgroundColor: Colors.transparent),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: horzPad),
-          child: ListView.separated(
-            itemCount: items.length,
-            itemBuilder: (context, index) => items[index],
-            separatorBuilder: (context, index) => SizedBox(height: spacing),
-          ),
+        body: ListView.separated(
+          itemCount: items.length,
+          itemBuilder: (context, index) => items[index],
+          separatorBuilder: (context, index) => SizedBox(height: spacing),
         ),
       ),
     );

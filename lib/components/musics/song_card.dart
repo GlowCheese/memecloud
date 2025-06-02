@@ -72,7 +72,7 @@ class SongCard extends StatelessWidget {
     );
   }
 
-  /// only show thumbnail, title, artists
+  // general purpose
   Widget _variant1(BuildContext context) {
     return gestureDectectorWrapper(
       context,
