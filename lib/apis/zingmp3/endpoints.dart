@@ -226,6 +226,22 @@ class ZingMp3Api {
     return _fetchWeekChart('IWZ9Z0BO');
   }
 
+  Future<Map<String, dynamic>> fetchNewReleaseChart() async {
+    try {
+      _connectivity.ensure();
+      final resp = await _requester.getNewReleaseChart();
+      return resp['data'];
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, stackTrace);
+      log(
+        'ZingMp3Api failed to fetch new release chart: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
   // home page
   Future<Map<String, dynamic>> fetchHome() async {
     try {

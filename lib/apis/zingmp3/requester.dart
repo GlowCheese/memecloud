@@ -143,21 +143,6 @@ class ZingMp3Requester {
     return _sendRequest(path, id: playlistId, allowedErrorCodes: [-1031]);
   }
 
-  Future<Map> getTop100({int page = 1}) {
-    final path = "/api/v2/page/get/top-100";
-    return _sendRequest(path);
-  }
-
-  Future<Map> getChartHome() {
-    final path = "/api/v2/page/get/chart-home";
-    return _sendRequest(path);
-  }
-
-  Future<Map> getNewReleaseChart() {
-    final path = "/api/v2/page/get/newrelease-chart";
-    return _sendRequest(path);
-  }
-
   Future<Map> getInfoSong(String songId) {
     final path = "/api/v2/song/get/info";
     return _sendRequest(path, id: songId, allowedErrorCodes: [-1023]);
@@ -186,11 +171,6 @@ class ZingMp3Requester {
       extra: {'alias': artistAlias},
       allowedErrorCodes: [-108],
     );
-  }
-
-  Future<Map> getWeekChart(String chartId) {
-    final path = "/api/v2/page/get/week-chart";
-    return _sendRequest(path, id: chartId, extra: {'week': 0, 'year': 0});
   }
 
   Future<Map> getLyric(String songId) {
@@ -247,7 +227,34 @@ class ZingMp3Requester {
     );
   }
 
-  // home sections
+  /* ------------------------------
+  |    WEEK/NEW-RELEASE CHARTS    |
+  ------------------------------ */
+
+  Future<Map> getWeekChart(String chartId) {
+    final path = "/api/v2/page/get/week-chart";
+    return _sendRequest(path, id: chartId, extra: {'week': 0, 'year': 0});
+  }
+
+  Future<Map> getTop100({int page = 1}) {
+    final path = "/api/v2/page/get/top-100";
+    return _sendRequest(path);
+  }
+
+  Future<Map> getChartHome() {
+    final path = "/api/v2/page/get/chart-home";
+    return _sendRequest(path);
+  }
+
+  Future<Map> getNewReleaseChart() {
+    final path = "/api/v2/page/get/newrelease-chart";
+    return _sendRequest(path);
+  }
+
+  /* --------------------
+  |    HOME SECTIONS    |
+  -------------------- */
+
   Future<Map> getHome({int page = 1}) {
     if (page <= 0) {
       throw ArgumentError.value(page, "page", "page must be at least 1");

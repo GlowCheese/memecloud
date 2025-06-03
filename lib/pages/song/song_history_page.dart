@@ -34,7 +34,8 @@ class ScrollableSongHistoryPage extends StatelessWidget {
           title: 'Lịch sử phát',
           bgColor: MyColorSet.cyan,
           spacing: 12,
-          items: [
+        ).variant1(
+          children: [
             const SizedBox(),
 
             for (int i in listenHistory)
@@ -51,11 +52,7 @@ class ScrollableSongHistoryPage extends StatelessWidget {
 
             SectionCard.variant1(
               title: 'Bài tiếp theo',
-              titlePadding: const EdgeInsets.only(
-                left: 24,
-                right: 24,
-                top: 18,
-              ),
+              titlePadding: const EdgeInsets.only(left: 24, right: 24, top: 18),
               showAllButton: StreamBuilder(
                 stream: audioPlayer.shuffleModeEnabledStream,
                 builder: (context, snapshot) {

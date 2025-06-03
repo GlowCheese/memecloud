@@ -654,49 +654,6 @@ class ApiKit {
   }
 
   /* ----------------------
-  |    WEEK CHART APIs    |
-  ---------------------- */
-
-  Future<WeekChartModel> getVpopWeekChart() async {
-    String api = '/vpop_week_chart';
-    final int lazyTime = 24 * 60 * 60; // 1 day
-    return _getOrFetch(
-      api,
-      lazyTime: lazyTime,
-      fetchFunc: zingMp3.fetchVpopWeekChart,
-      outputFixer: (data) {
-        return WeekChartModel.fromJson<ZingMp3Api>("Việt Nam", data);
-      },
-    );
-  }
-
-  Future<WeekChartModel> getUsukWeekChart() async {
-    String api = '/usuk_week_chart';
-    final int lazyTime = 24 * 60 * 60; // 1 ngày
-    return _getOrFetch(
-      api,
-      lazyTime: lazyTime,
-      fetchFunc: zingMp3.fetchUsukWeekChart,
-      outputFixer: (data) {
-        return WeekChartModel.fromJson<ZingMp3Api>("Âu Mĩ", data);
-      },
-    );
-  }
-
-  Future<WeekChartModel> getKpopWeekChart() async {
-    String api = '/kpop_week_chart';
-    final int lazyTime = 24 * 60 * 60; // 1 ngày
-    return _getOrFetch(
-      api,
-      lazyTime: lazyTime,
-      fetchFunc: zingMp3.fetchKpopWeekChart,
-      outputFixer: (data) {
-        return WeekChartModel.fromJson<ZingMp3Api>("Hàn Quốc", data);
-      },
-    );
-  }
-
-  /* ----------------------
   |    STORAGE & CACHE    |
   ---------------------- */
 
@@ -773,6 +730,63 @@ class ApiKit {
     unawaited(supabase.config.setCookie(newCookieStr));
   }
 
+    /* ----------------------
+  |    WEEK CHART APIs    |
+  ---------------------- */
+
+  Future<WeekChartModel> getVpopWeekChart() async {
+    String api = '/vpop_week_chart';
+    final int lazyTime = 24 * 60 * 60; // 1 day
+    return _getOrFetch(
+      api,
+      lazyTime: lazyTime,
+      fetchFunc: zingMp3.fetchVpopWeekChart,
+      outputFixer: (data) {
+        return WeekChartModel.fromJson<ZingMp3Api>("Việt Nam", data);
+      },
+    );
+  }
+
+  Future<WeekChartModel> getUsukWeekChart() async {
+    String api = '/usuk_week_chart';
+    final int lazyTime = 24 * 60 * 60; // 1 ngày
+    return _getOrFetch(
+      api,
+      lazyTime: lazyTime,
+      fetchFunc: zingMp3.fetchUsukWeekChart,
+      outputFixer: (data) {
+        return WeekChartModel.fromJson<ZingMp3Api>("Âu Mĩ", data);
+      },
+    );
+  }
+
+  Future<WeekChartModel> getKpopWeekChart() async {
+    String api = '/kpop_week_chart';
+    final int lazyTime = 24 * 60 * 60; // 1 ngày
+    return _getOrFetch(
+      api,
+      lazyTime: lazyTime,
+      fetchFunc: zingMp3.fetchKpopWeekChart,
+      outputFixer: (data) {
+        return WeekChartModel.fromJson<ZingMp3Api>("Hàn Quốc", data);
+      },
+    );
+  }
+
+  Future<WeekChartModel> getNewReleaseChart() async {
+    String api = '/new_release_chart';
+    final int lazyTime = 24 * 60 * 60;
+    return _getOrFetch(
+      api,
+      lazyTime: lazyTime,
+      fetchFunc: zingMp3.fetchNewReleaseChart,
+      outputFixer: (data) {
+        final chart = WeekChartModel.fromJson<ZingMp3Api>("BXH mới", data);
+        return chart..fixMissingRanking();
+      },
+    );
+  }  
+
   /* ------------------------
   |    HOME SECTIONS APIs   |
   ------------------------ */
@@ -823,21 +837,4 @@ bool isSongUriActive(Uri uri) {
   final exp = int.tryParse(expStr) ?? 0;
   final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
   return exp > now + 600;
-}
-
-List<Map<String, dynamic>> _getSongsForHomeOutputFixer(
-  List<Map<String, dynamic>> data,
-) {
-  for (var songList in data) {
-    final items = songList['items'];
-    var songIds = List<String>.from(items.map((song) => song['encodeId']));
-
-    songIds = getIt<ApiKit>().filterNonBlacklistedSongs(songIds).toList();
-    songList['items'] =
-        List.castFrom<dynamic, Map<String, dynamic>>(items)
-            .where((song) => songIds.contains(song['encodeId']))
-            .map((song) => SongModel.fromJson<ZingMp3Api>(song))
-            .toList();
-  }
-  return data;
 }

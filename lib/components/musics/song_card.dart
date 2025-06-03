@@ -11,9 +11,11 @@ import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/song/song_download_button.dart';
 
 class SongCard extends StatelessWidget {
-  /// must be between 1 and 4.
+  /// must be between 1 and 5.
   final int variant;
   final bool dimmed;
+  final double? width;
+  final double? height;
   final SongModel? song;
   final ChartSong? chartSong;
   final PlaylistModel? playlist;
@@ -29,6 +31,8 @@ class SongCard extends StatelessWidget {
     this.chartSong,
     this.songList,
     this.playlist,
+    this.width,
+    this.height,
     this.dimmed = false,
     this.onUnblacklistButtonPressed,
   });
@@ -42,8 +46,10 @@ class SongCard extends StatelessWidget {
         return _variant2(context);
       case 3:
         return _variant3(context);
-      default:
+      case 4:
         return _variant4(context);
+      default:
+        return _variant5(context);
     }
   }
 
@@ -130,7 +136,7 @@ class SongCard extends StatelessWidget {
       color = Colors.white;
     }
 
-    if (ranking <= 3) {
+    if (ranking! <= 3) {
       fontSize = 30;
       fontWeight = FontWeight.bold;
     } else {
@@ -265,6 +271,22 @@ class SongCard extends StatelessWidget {
             child: SongDownloadButton(song: song!, dimmed: true),
           ),
         ],
+      ),
+    );
+  }
+
+  // big thumbnail, best in grid
+  Widget _variant5(BuildContext context) {
+    return gestureDectectorWrapper(
+      context,
+      child: MusicCard(
+        variant: 4,
+        dimmed: dimmed,
+        thumbnailUrl: song!.thumbnailUrl,
+        title: song!.title,
+        subTitle: song!.artistsNames,
+        width: width!,
+        height: height!,
       ),
     );
   }

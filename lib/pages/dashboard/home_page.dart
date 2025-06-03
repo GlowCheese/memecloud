@@ -2,22 +2,21 @@
 
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:memecloud/apis/zingmp3/endpoints.dart';
-import 'package:memecloud/components/musics/playlist_card.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/models/playlist_model.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:memecloud/apis/zingmp3/endpoints.dart';
 import 'package:memecloud/components/musics/song_card.dart';
+import 'package:memecloud/components/musics/playlist_card.dart';
 import 'package:memecloud/components/miscs/data_inspector.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/sections/section_card.dart';
+import 'package:memecloud/pages/ssp/simple_scrollable_page.dart';
 import 'package:memecloud/components/sections/section_item_card.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
-import 'package:memecloud/pages/ssp/simple_scrollable_page.dart';
 
 Map getHomePage(BuildContext context) {
   return {
@@ -50,28 +49,67 @@ class _HomePage extends StatelessWidget {
                 return hSongRadioSection(title: section['title']);
               } else if ((const ['hRecent']).contains(section['sectionId'])) {
                 return const SizedBox();
+              } else if (section['sectionId'] == 'hNewrelease') {
+                final items = SongModel.fromListJson<ZingMp3Api>(
+                  section['items'],
+                );
+                return hSimpleSection(
+                  context,
+                  spacing: 14,
+                  title: section['title'],
+                  keys: items.map((e) => Key(e.id)).toList(),
+                  hItems: [
+                    for (var song in items)
+                      SongCard(
+                        variant: 5,
+                        song: song,
+                        songList: items,
+                        width: 140,
+                        height: 120,
+                      ),
+                  ],
+                  genFunc: () async {
+                    final chart = await getIt<ApiKit>().getNewReleaseChart();
+                    return [
+                      for (var chartSong in chart.chartSongs.take(30))
+                        Padding(
+                          key: Key(chartSong.song.id),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                          ),
+                          child: SongCard(
+                            variant: 2,
+                            chartSong: chartSong,
+                            songList: chart.songs,
+                          ),
+                        ),
+                      const SizedBox(),
+                    ];
+                  },
+                );
               } else if ((const [
                 'h100',
                 'hEditorTheme',
                 'hAlbum',
               ]).contains(section['sectionId'])) {
+                final items = PlaylistModel.fromListJson<ZingMp3Api>(
+                  section['items'],
+                );
+
                 return hSimpleSection(
                   context,
+                  spacing: 20,
                   title: section['title'],
-                  keys: [
-                    for (var item in section['items']) Key(item['encodeId']),
-                  ],
+                  keys: items.map((e) => Key(e.id)).toList(),
                   hItems: [
-                    for (var item in section['items'])
+                    for (var playlist in items)
                       PlaylistCard(
-                        playlist: PlaylistModel.fromJson<ZingMp3Api>(item),
+                        playlist: playlist,
                       ).variant3(width: 140, height: 120),
                   ],
                   vItems: [
-                    for (var item in section['items'])
-                      PlaylistCard(
-                        playlist: PlaylistModel.fromJson<ZingMp3Api>(item),
-                      ).variant2(size: 70),
+                    for (var playlist in items)
+                      PlaylistCard(playlist: playlist).variant2(size: 70),
                   ],
                 );
               } else {
@@ -89,8 +127,10 @@ class _HomePage extends StatelessWidget {
     BuildContext context, {
     required String title,
     required List<Key> keys,
+    required double spacing,
     required List<Widget> hItems,
-    required List<Widget> vItems,
+    List<Widget>? vItems,
+    Future<List<Widget>> Function()? genFunc,
   }) {
     return SectionCard.variant1(
       title: title,
@@ -104,23 +144,28 @@ class _HomePage extends StatelessWidget {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return SimpleScrollablePage(
+                final ssp = SimpleScrollablePage(
                   title: title,
                   bgColor: MyColorSet.indigo,
-                  spacing: 20,
-                  items: [
-                    const SizedBox(),
-                    for (int i = 0; i < vItems.length; i++)
-                      Padding(
-                        key: keys[i],
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: horzPad,
-                        ),
-                        child: vItems[i],
-                      ),
-                    const SizedBox(),
-                  ],
+                  spacing: spacing,
                 );
+                if (vItems != null) {
+                  return ssp.variant1(
+                    children: [
+                      const SizedBox(),
+                      for (int i = 0; i < vItems.length; i++)
+                        Padding(
+                          key: keys[i],
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: horzPad,
+                          ),
+                          child: vItems[i],
+                        ),
+                      const SizedBox(),
+                    ],
+                  );
+                }
+                return ssp.variant2(genFunc: genFunc!);
               },
             ),
           );

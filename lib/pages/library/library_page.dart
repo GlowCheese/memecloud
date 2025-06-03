@@ -172,7 +172,8 @@ class LibraryPage extends StatelessWidget {
                     title: 'Phát gần đây',
                     bgColor: Colors.lightBlue,
                     spacing: 6,
-                    items: [
+                  ).variant1(
+                    children: [
                       for (var song in recentlyPlayedSongs)
                         Padding(
                           key: ValueKey(song.id),
@@ -210,7 +211,8 @@ class LibraryPage extends StatelessWidget {
                     title: 'Danh sách phát gần đây',
                     bgColor: Colors.lightBlue,
                     spacing: 6,
-                    items: [
+                  ).variant1(
+                    children: [
                       for (var playlist in recentlyPlayedPlaylists)
                         Padding(
                           key: ValueKey(playlist.id),
