@@ -23,6 +23,7 @@ final allPages = {
   'E14': () => const E14(),
   'E15': () => const ArtistPage(artistAlias: 'Son-Tung-M-TP'),
   'E17': () => const ArtistPage17(artistAlias: 'Son-Tung-M-TP'),
+
 };
 
 final pageController = ExperimentPageController();

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/components/common/confirmation_dialog.dart';
+import 'package:memecloud/components/musics/playlist_card.dart';
 import 'package:memecloud/components/success.dialog.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/playlist_model.dart';
@@ -41,27 +42,6 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
     return SafeArea(
       child: CustomScrollView(
         slivers: [
-          // Header
-          SliverAppBar(
-            floating: true,
-            backgroundColor: Colors.transparent,
-            title: const Text(
-              'Your Playlists',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.search, color: Colors.white),
-                onPressed: () {},
-              ),
-            ],
-          ),
-
-          // Your Playlists Section
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.all(16.0),
@@ -76,7 +56,6 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
             ),
           ),
 
-          // Your Playlists Grid
           FutureBuilder<List<PlaylistModel>>(
             future: _myPlaylistFuture(),
             builder: (context, snapshot) {
@@ -95,13 +74,7 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
 
               return SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    childAspectRatio: 1.2,
-                  ),
+                sliver: SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     if (index > 0) {
                       return _buildPlaylistCard(
@@ -178,10 +151,7 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
   }) {
     final thumbnailUrl = playlist.thumbnailUrl;
     return Container(
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(16),
-      ),
+      margin: EdgeInsets.symmetric(vertical: 8.0),
       child: GestureDetector(
         onTap: () => context.push('/playlist_page', extra: playlist),
         onLongPress: () {
@@ -235,23 +205,7 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
           );
         },
 
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CachedNetworkImage(
-              imageUrl: thumbnailUrl,
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              playlist.title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            Text(playlist.description ?? '', style: const TextStyle(fontSize: 12)),
-          ],
-        ),
+        child: PlaylistCard(variant: 2, playlist: playlist),
       ),
     );
   }
@@ -262,50 +216,7 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.onTertiary,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.2)),
-        ),
-        child: GestureDetector(
-          onTap: () => context.push('/playlist_page', extra: playlist),
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
-            ),
-
-            leading: Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: CachedNetworkImage(imageUrl: playlist.thumbnailUrl),
-            ),
-            title: Text(
-              playlist.title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-            subtitle: Text(
-              playlist.description ?? '',
-              style: const TextStyle(fontSize: 12, color: Colors.white70),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 2,
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.add, color: Colors.white),
-              onPressed: () {},
-            ),
-          ),
-        ),
-      ),
+      child: PlaylistCard(variant: 2, playlist: playlist),
     );
   }
 
@@ -322,16 +233,16 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white12,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(4),
           border: Border.all(color: Colors.white24),
         ),
         child: const Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Icon(Icons.add, color: Colors.white, size: 40),
-              SizedBox(height: 8),
-              Text('Tạo playlist', style: TextStyle(color: Colors.white)),
+              SizedBox(width: 80),
+              Text('Tạo playlist mới', style: TextStyle(color: Colors.white)),
             ],
           ),
         ),
