@@ -572,11 +572,8 @@ class _AlbumsSection extends StatelessWidget {
             separatorBuilder: (_, _) => const SizedBox(width: 16),
             itemBuilder: (context, index) {
               return PlaylistCard(
-                variant: 4,
-                width: 170,
-                height: 140,
                 playlist: displayAlbums[index],
-              );
+              ).variant3(width: 170, height: 140);
             },
           ),
         ),

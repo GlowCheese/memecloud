@@ -217,7 +217,7 @@ class LibraryPage extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                             horizontal: horzPad,
                           ),
-                          child: PlaylistCard(variant: 1, playlist: playlist),
+                          child: PlaylistCard(playlist: playlist).variant1(),
                         ),
                     ],
                   );
@@ -278,7 +278,7 @@ class LibraryPage extends StatelessWidget {
                         horizontal: horzPad,
                         vertical: 6,
                       ),
-                      child: PlaylistCard(variant: 1, playlist: playlist),
+                      child: PlaylistCard(playlist: playlist).variant1(),
                     ),
                 ],
               ),
@@ -297,10 +297,13 @@ class LibraryPage extends StatelessWidget {
       child: ListView.separated(
         itemBuilder: (context, index) {
           if (index == 0) {
-            return PlaylistCard(variant: 2, playlist: likedSongsPlaylist);
+            return PlaylistCard(
+              fetchNew: false,
+              playlist: likedSongsPlaylist,
+            ).variant2(size: 62);
           }
           final playlist = followedPlaylists[index - 1];
-          return PlaylistCard(variant: 3, width: 62, playlist: playlist);
+          return PlaylistCard(playlist: playlist).variant2(size: 62);
         },
         separatorBuilder: (context, index) => const SizedBox(height: 18),
         itemCount: followedPlaylists.length + 1,
@@ -323,7 +326,10 @@ class LibraryPage extends StatelessWidget {
       child: ListView.separated(
         itemBuilder: (context, index) {
           if (index == 0) {
-            return PlaylistCard(variant: 2, playlist: downloadedSongsPlaylist);
+            return PlaylistCard(
+              fetchNew: false,
+              playlist: downloadedSongsPlaylist,
+            ).variant2(size: 62);
           }
           late final PlaylistModel playlist;
 
@@ -333,7 +339,7 @@ class LibraryPage extends StatelessWidget {
             playlist =
                 downloadedPlaylists[index - downloadingPlaylists.length - 1];
           }
-          return PlaylistCard(variant: 3, width: 62, playlist: playlist);
+          return PlaylistCard(playlist: playlist).variant2(size: 62);
         },
         separatorBuilder: (context, index) => const SizedBox(height: 18),
         itemCount: downloadedPlaylists.length + downloadingPlaylists.length + 1,

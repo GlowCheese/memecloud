@@ -112,7 +112,7 @@ class _AlbumArtistPageState extends State<AlbumArtistPage> {
                 final album = _filteredAlbums[index];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: PlaylistCard(variant: 2, playlist: album),
+                  child: PlaylistCard(playlist: album).variant2(size: 62),
                 );
               }, childCount: _filteredAlbums.length),
             ),

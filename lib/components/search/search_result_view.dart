@@ -167,7 +167,7 @@ Widget simpleWingetDecode(
         return SongCard(variant: 1, song: item, songList: songList);
       }
       if (item is PlaylistModel) {
-        return PlaylistCard(variant: 1, playlist: item);
+        return PlaylistCard(playlist: item).variant1();
       }
       if (item is ArtistModel) {
         return ArtistCard(variant: 1, artist: item);

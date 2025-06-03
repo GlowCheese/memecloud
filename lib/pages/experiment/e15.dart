@@ -633,7 +633,9 @@ class _AlbumsSection extends StatelessWidget {
           ),
           itemCount: displayAlbums.length,
           itemBuilder: (_, index) {
-            return PlaylistCard(variant: 4, playlist: displayAlbums[index]);
+            return PlaylistCard(
+              playlist: displayAlbums[index],
+            ).variant3(width: 140, height: 120);
           },
         ),
       ],

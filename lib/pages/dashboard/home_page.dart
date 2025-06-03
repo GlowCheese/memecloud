@@ -53,10 +53,27 @@ class _HomePage extends StatelessWidget {
               } else if ((const [
                 'h100',
                 'hEditorTheme',
-                'hNewrelease',
                 'hAlbum',
               ]).contains(section['sectionId'])) {
-                return hPlaylistSection(context, section);
+                return hSimpleSection(
+                  context,
+                  title: section['title'],
+                  keys: [
+                    for (var item in section['items']) Key(item['encodeId']),
+                  ],
+                  hItems: [
+                    for (var item in section['items'])
+                      PlaylistCard(
+                        playlist: PlaylistModel.fromJson<ZingMp3Api>(item),
+                      ).variant3(width: 140, height: 120),
+                  ],
+                  vItems: [
+                    for (var item in section['items'])
+                      PlaylistCard(
+                        playlist: PlaylistModel.fromJson<ZingMp3Api>(item),
+                      ).variant2(size: 70),
+                  ],
+                );
               } else {
                 return DataInspector(section, name: section['sectionId']);
               }
@@ -68,11 +85,15 @@ class _HomePage extends StatelessWidget {
     );
   }
 
-  Widget hPlaylistSection(BuildContext context, Map<String, dynamic> section) {
-    final items = PlaylistModel.fromListJson<ZingMp3Api>(section['items']);
-
+  Widget hSimpleSection(
+    BuildContext context, {
+    required String title,
+    required List<Key> keys,
+    required List<Widget> hItems,
+    required List<Widget> vItems,
+  }) {
     return SectionCard.variant1(
-      title: section['title'],
+      title: title,
       titlePadding: const EdgeInsets.only(
         left: horzPad,
         right: horzPad,
@@ -84,22 +105,18 @@ class _HomePage extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) {
                 return SimpleScrollablePage(
-                  title: section['title'],
+                  title: title,
                   bgColor: MyColorSet.indigo,
                   spacing: 20,
                   items: [
                     const SizedBox(),
-                    for (var playlist in items)
+                    for (int i = 0; i < vItems.length; i++)
                       Padding(
-                        key: Key(playlist.id),
+                        key: keys[i],
                         padding: const EdgeInsets.symmetric(
                           horizontal: horzPad,
                         ),
-                        child: PlaylistCard(
-                          variant: 3,
-                          width: 70,
-                          playlist: playlist,
-                        ),
+                        child: vItems[i],
                       ),
                     const SizedBox(),
                   ],
@@ -119,15 +136,10 @@ class _HomePage extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
               itemBuilder: (context, index) {
-                return PlaylistCard(
-                  variant: 4,
-                  height: 120,
-                  width: 140,
-                  playlist: items[index],
-                );
+                return hItems[index];
               },
               separatorBuilder: (context, index) => const SizedBox(width: 24),
-              itemCount: min(items.length, 7),
+              itemCount: min(hItems.length, 7),
             ),
           ),
         ),

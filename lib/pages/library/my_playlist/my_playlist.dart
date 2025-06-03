@@ -205,7 +205,10 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
           );
         },
 
-        child: PlaylistCard(variant: 2, playlist: playlist),
+        child: PlaylistCard(
+          fetchNew: false,
+          playlist: playlist,
+        ).variant2(size: 2),
       ),
     );
   }
@@ -216,7 +219,10 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
-      child: PlaylistCard(variant: 2, playlist: playlist),
+      child: PlaylistCard(
+        fetchNew: false,
+        playlist: playlist,
+      ).variant2(size: 62),
     );
   }
 
