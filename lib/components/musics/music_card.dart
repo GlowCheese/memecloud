@@ -10,6 +10,7 @@ class MusicCard extends StatelessWidget {
   final String? subTitle;
   final String thumbnailUrl;
   final bool dimmed;
+  final double? width, height;
 
   const MusicCard({
     super.key,
@@ -18,6 +19,8 @@ class MusicCard extends StatelessWidget {
     required this.title,
     this.subTitle,
     this.icon,
+    this.width,
+    this.height,
     this.dimmed = false,
   });
 
@@ -35,7 +38,7 @@ class MusicCard extends StatelessWidget {
         content = _variant3(context);
         break;
       default:
-        content = _variant4Album(context); // New album variant
+        content = _variant4(context); // New album variant
         break;
     }
 
@@ -115,7 +118,7 @@ class MusicCard extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        ClipRRect(child: getImage(thumbnailUrl, 62)),
+        ClipRRect(child: getImage(thumbnailUrl, width ?? height!)),
         const SizedBox(width: 14),
         Flexible(
           child: Column(
@@ -123,7 +126,10 @@ class MusicCard extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -144,47 +150,48 @@ class MusicCard extends StatelessWidget {
   }
 
   /// Album/Playlist vertical card layout
-  Widget _variant4Album(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Album cover with aspect ratio
-        Expanded(
-          child: ClipRRect(
+  Widget _variant4(BuildContext context) {
+    return SizedBox(
+      width: width!,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Album cover with aspect ratio
+          ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: SizedBox(
-              height: 100,
-              width: double.infinity,
-              child: CachedNetworkImage(
-                imageUrl: thumbnailUrl,
-                fit: BoxFit.cover,
-              ),
+            child: CachedNetworkImage(
+              imageUrl: thumbnailUrl,
+              fit: BoxFit.cover,
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        // Album title
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        if (subTitle != null) ...[
-          const SizedBox(height: 4),
-          // Album subtitle (artist name, release date, etc.)
+          const SizedBox(height: 8),
+          // Album title
           Text(
-            subTitle!,
-            style: TextStyle(fontSize: 12, color: Colors.white.withAlpha(180)),
-            maxLines: 1,
+            title,
+            style: const TextStyle(
+              height: 1.3,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
+          if (subTitle != null) ...[
+            const SizedBox(height: 5),
+            // Album subtitle (artist name, release date, etc.)
+            Text(
+              subTitle!,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.white.withAlpha(180),
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }

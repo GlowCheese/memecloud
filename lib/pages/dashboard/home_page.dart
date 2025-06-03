@@ -2,8 +2,12 @@
 
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:memecloud/apis/zingmp3/endpoints.dart';
+import 'package:memecloud/components/musics/playlist_card.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:memecloud/components/musics/song_card.dart';
@@ -13,6 +17,7 @@ import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/sections/section_card.dart';
 import 'package:memecloud/components/sections/section_item_card.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
+import 'package:memecloud/pages/ssp/simple_scrollable_page.dart';
 
 Map getHomePage(BuildContext context) {
   return {
@@ -21,6 +26,8 @@ Map getHomePage(BuildContext context) {
     'body': const _HomePage(),
   };
 }
+
+const double horzPad = 24;
 
 class _HomePage extends StatelessWidget {
   const _HomePage();
@@ -34,26 +41,97 @@ class _HomePage extends StatelessWidget {
           padding: const EdgeInsets.only(top: 18),
           child: ListView.separated(
             physics: const BouncingScrollPhysics(),
-            itemCount: json['items'].length + 1,
+            itemCount: json['items'].length,
             itemBuilder: (context, index) {
-              if (index < json['items'].length) {
-                final section = json['items'][index];
-                if (section['sectionId'] == 'hQuickPlay') {
-                  return hQuickPlaySection(section);
-                } else if (section['sectionId'] == 'hSongRadio') {
-                  return hSongRadioSection(title: section['title']);
-                } else if ((const ['hRecent']).contains(section['sectionId'])) {
-                  return const SizedBox();
-                } else {
-                  return DataInspector(section, name: section['sectionId']);
-                }
+              final section = json['items'][index];
+              if (section['sectionId'] == 'hQuickPlay') {
+                return hQuickPlaySection(section);
+              } else if (section['sectionId'] == 'hSongRadio') {
+                return hSongRadioSection(title: section['title']);
+              } else if ((const ['hRecent']).contains(section['sectionId'])) {
+                return const SizedBox();
+              } else if ((const [
+                'h100',
+                'hEditorTheme',
+                'hNewrelease',
+                'hAlbum',
+              ]).contains(section['sectionId'])) {
+                return hPlaylistSection(context, section);
+              } else {
+                return DataInspector(section, name: section['sectionId']);
               }
-              return DataInspector(json, name: 'Original');
             },
             separatorBuilder: (context, index) => const SizedBox(height: 16),
           ),
         );
       },
+    );
+  }
+
+  Widget hPlaylistSection(BuildContext context, Map<String, dynamic> section) {
+    final items = PlaylistModel.fromListJson<ZingMp3Api>(section['items']);
+
+    return SectionCard.variant1(
+      title: section['title'],
+      titlePadding: const EdgeInsets.only(
+        left: horzPad,
+        right: horzPad,
+        bottom: 12,
+      ),
+      showAllButton: TextButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return SimpleScrollablePage(
+                  title: section['title'],
+                  bgColor: MyColorSet.indigo,
+                  spacing: 20,
+                  items: [
+                    const SizedBox(),
+                    for (var playlist in items)
+                      Padding(
+                        key: Key(playlist.id),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: horzPad,
+                        ),
+                        child: PlaylistCard(
+                          variant: 3,
+                          width: 70,
+                          playlist: playlist,
+                        ),
+                      ),
+                    const SizedBox(),
+                  ],
+                );
+              },
+            ),
+          );
+        },
+        child: const Text('Xem tất cả'),
+      ),
+      children: [
+        SizedBox(
+          height: 221,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              itemBuilder: (context, index) {
+                return PlaylistCard(
+                  variant: 4,
+                  height: 120,
+                  width: 140,
+                  playlist: items[index],
+                );
+              },
+              separatorBuilder: (context, index) => const SizedBox(width: 24),
+              itemCount: min(items.length, 7),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -135,7 +213,7 @@ class _hSongRadioSectionInnerState extends State<_hSongRadioSectionInner> {
       children: [
         SectionCard.variant1(
           title: widget.title,
-          titlePadding: const EdgeInsets.symmetric(horizontal: 24),
+          titlePadding: const EdgeInsets.symmetric(horizontal: horzPad),
           showAllButton: TextButton(
             onPressed: widget.refresh,
             child: const Text('Làm mới'),
@@ -145,6 +223,7 @@ class _hSongRadioSectionInnerState extends State<_hSongRadioSectionInner> {
               items: [
                 for (int i = 0; i < widget.songs.length; i += songsPerCol)
                   Column(
+                    spacing: 10,
                     key: Key('${widget.key} songradio $i'),
                     children: [
                       for (
@@ -153,10 +232,8 @@ class _hSongRadioSectionInnerState extends State<_hSongRadioSectionInner> {
                         j++
                       )
                         Padding(
-                          padding: const EdgeInsets.only(
-                            left: 24,
-                            right: 24,
-                            top: 12,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: horzPad,
                           ),
                           child: SongCard(
                             key: Key('${widget.key} songradio $i $j'),
@@ -182,13 +259,13 @@ class _hSongRadioSectionInnerState extends State<_hSongRadioSectionInner> {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 14,
           children: [
-            for (int i = 0; i < widget.songs.length / songsPerCol; i++)
+            for (int i = 0; i < widget.songs.length ~/ songsPerCol; i++)
               Container(
                 key: Key('${widget.key} songradio indicator $i'),
                 width: 6,
                 height: 6,
-                margin: const EdgeInsets.only(left: 8, right: 8, top: 14),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white.withAlpha(_current == i ? 255 : 128),

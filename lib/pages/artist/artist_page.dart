@@ -564,16 +564,18 @@ class _AlbumsSection extends StatelessWidget {
         _buildHeader(context),
         const SizedBox(height: 16),
         SizedBox(
-          height: 220,
+          height: 251,
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             scrollDirection: Axis.horizontal,
             itemCount: displayAlbums.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            separatorBuilder: (_, _) => const SizedBox(width: 16),
             itemBuilder: (context, index) {
-              return SizedBox(
-                width: 160,
-                child: PlaylistCard(variant: 4, playlist: displayAlbums[index]),
+              return PlaylistCard(
+                variant: 4,
+                width: 170,
+                height: 140,
+                playlist: displayAlbums[index],
               );
             },
           ),

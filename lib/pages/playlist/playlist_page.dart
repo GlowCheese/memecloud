@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:memecloud/components/miscs/expandable/text.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/utils/common.dart';
@@ -166,14 +167,20 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
             color: Colors.teal.shade500,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Text(
+          child: ExpandableText(
             widget.playlist.description!,
-            style: GoogleFonts.mali(
-              fontWeight: FontWeight.w500,
-              fontSize: 16,
+            trimLength: 120,
+            textStyle: GoogleFonts.mali(
+              fontWeight: FontWeight.w400,
+              fontSize: 18,
               fontStyle: FontStyle.italic,
             ),
-          ),
+            expandTextStyle: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              fontStyle: FontStyle.normal,
+            ),
+          )
         ),
       ),
     );

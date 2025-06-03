@@ -5,12 +5,16 @@ import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/components/musics/music_card.dart';
 
 class PlaylistCard extends StatelessWidget {
-  /// must be between 1 and 3.
+  /// must be between 1 and 4.
   final int variant;
+  final double? width;
+  final double? height;
   final PlaylistModel playlist;
 
   const PlaylistCard({
     super.key,
+    this.width,
+    this.height,
     required this.variant,
     required this.playlist,
   });
@@ -68,6 +72,7 @@ class PlaylistCard extends StatelessWidget {
       onTap: () => context.push('/playlist_page', extra: playlist.id),
       child: MusicCard(
         variant: 3,
+        width: width ?? height!,
         icon: anotIcon(),
         thumbnailUrl: playlist.thumbnailUrl,
         title: playlist.title,
@@ -85,6 +90,8 @@ class PlaylistCard extends StatelessWidget {
         thumbnailUrl: playlist.thumbnailUrl,
         title: playlist.title,
         subTitle: playlist.artistsNames,
+        width: width!,
+        height: height!
       ),
     );
   }

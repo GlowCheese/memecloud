@@ -300,7 +300,7 @@ class LibraryPage extends StatelessWidget {
             return PlaylistCard(variant: 2, playlist: likedSongsPlaylist);
           }
           final playlist = followedPlaylists[index - 1];
-          return PlaylistCard(variant: 3, playlist: playlist);
+          return PlaylistCard(variant: 3, width: 62, playlist: playlist);
         },
         separatorBuilder: (context, index) => const SizedBox(height: 18),
         itemCount: followedPlaylists.length + 1,
@@ -333,7 +333,7 @@ class LibraryPage extends StatelessWidget {
             playlist =
                 downloadedPlaylists[index - downloadingPlaylists.length - 1];
           }
-          return PlaylistCard(variant: 3, playlist: playlist);
+          return PlaylistCard(variant: 3, width: 62, playlist: playlist);
         },
         separatorBuilder: (context, index) => const SizedBox(height: 18),
         itemCount: downloadedPlaylists.length + downloadingPlaylists.length + 1,
