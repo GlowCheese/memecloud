@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -23,6 +24,7 @@ class SupabaseAuthApi {
         email: email,
         password: password,
       );
+      
       return response.user!;
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
@@ -31,11 +33,7 @@ class SupabaseAuthApi {
     }
   }
 
-  Future<User> signUp(
-    String email,
-    String password,
-    String fullName,
-  ) async {
+  Future<User> signUp(String email, String password, String fullName) async {
     try {
       _connectivity.ensure();
       final response = await _client.auth.signUp(
@@ -55,7 +53,7 @@ class SupabaseAuthApi {
     try {
       _connectivity.ensure();
       return await _client.auth.signOut();
-    } catch(e, stackTrace) {
+    } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log('Failed to log out: $e', stackTrace: stackTrace, level: 1000);
       rethrow;

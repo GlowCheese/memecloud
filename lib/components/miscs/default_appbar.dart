@@ -1,11 +1,16 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:memecloud/apis/stripe/stripe.dart';
+import 'package:memecloud/apis/supabase/main.dart';
+import 'package:memecloud/components/common/confirmation_dialog.dart';
+import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/pages/report/report_issue_page.dart';
 import 'package:memecloud/components/rating/rating_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:memecloud/stripe/demo.dart';
 
 AppBar defaultAppBar(
   BuildContext context, {
@@ -37,13 +42,28 @@ AppBar defaultAppBar(
       child: icon,
     ),
     actions: [
-      IconButton(
-        onPressed: () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (context) => const DemoPage()));
+      defaultFutureBuilder(
+        future: getIt<SupabaseApi>().vipUsersSService.setVipStatusFromRemote(),
+        onData: (context, isVip) {
+          if (isVip) return const Text('VIP');
+          return IconButton(
+            onPressed:
+                () => showDialog(
+                  context: context,
+                  builder:
+                      (context) => ConfirmationDialog(
+                        title: "Nâng cấp tài khoản",
+                        message:
+                            "Bạn sẽ được nâng cấp tài khoản trong 90 ngày với giá 2 usd",
+                        onConfirm: () {
+                          Navigator.pop(context);
+                          StripeService.instance.makePayment();
+                        },
+                      ),
+                ),
+            icon: const Icon(Icons.payment),
+          );
         },
-        icon: const Icon(Icons.payment),
       ),
       IconButton(
         onPressed: () {

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -123,6 +125,7 @@ class LibraryPage extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8),
       child: StatefulBuilder(
         builder: (context, setState) {
+          log('get num of blacklist songs: ${blacklistedSongs.length}');
           return SectionCard.variant1(
             title: 'Bài hát bị chặn',
             titlePadding: const EdgeInsets.only(
@@ -131,6 +134,38 @@ class LibraryPage extends StatelessWidget {
               top: 18,
             ),
             children: <Widget>[
+              if (blacklistedSongs.isEmpty) ...[
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 80),
+                      Icon(
+                        Icons.block,
+                        size: 80,
+                        color: Colors.white.withAlpha(140),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Danh sách trống',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white.withAlpha(200),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Các bài hát trong sổ đen sẽ xuất hiện ở đây.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white.withAlpha(150),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               for (var song in blacklistedSongs)
                 Padding(
                   padding: const EdgeInsets.symmetric(

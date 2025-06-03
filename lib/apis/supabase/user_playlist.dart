@@ -61,7 +61,6 @@ class SupabaseUserPlaylistApi {
                 ),
               )
               .toList();
-      log('${playlists.length}');
       return playlists;
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);

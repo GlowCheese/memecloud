@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:memecloud/apis/supabase/main.dart';
+import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/pages/dashboard/home_page.dart';
 import 'package:memecloud/pages/library/library_page.dart';
 import 'package:memecloud/pages/dashboard/search_page.dart';
@@ -18,6 +20,12 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   int currentPageIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    getIt<SupabaseApi>().vipUsersSService.setVipStatusFromRemote();
+  }
 
   @override
   Widget build(BuildContext context) {

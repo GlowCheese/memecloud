@@ -43,6 +43,7 @@ class ApiKit {
   Future<User> signIn({required String email, required String password}) async {
     final user = await supabase.auth.signIn(email, password);
     await getIt<SupabaseEvents>().loadUserData();
+    await getIt<SupabaseApi>().vipUsersSService.setVipStatusFromRemote();
     return user;
   }
 

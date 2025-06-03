@@ -9,6 +9,7 @@ import 'package:memecloud/apis/supabase/profile.dart';
 import 'package:memecloud/apis/supabase/ratings.api.dart';
 import 'package:memecloud/apis/supabase/songs.dart';
 import 'package:memecloud/apis/supabase/user_playlist.dart';
+import 'package:memecloud/apis/supabase/vip_users.api.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseApi {
@@ -23,6 +24,7 @@ class SupabaseApi {
   late final SupabaseConfigApi config;
   late final SupabaseRatingApi ratingApi;
   late final SupabaseIssueApi issueApi;
+  late final SupabaseVipUsersSService vipUsersSService;
 
   SupabaseApi._() {
     client = Supabase.instance.client;
@@ -36,13 +38,16 @@ class SupabaseApi {
     config = SupabaseConfigApi(client);
     ratingApi = SupabaseRatingApi(client);
     issueApi = SupabaseIssueApi(client);
+    vipUsersSService = SupabaseVipUsersSService(client);
   }
 
   static Future<SupabaseApi> initialize() async {
     await Supabase.initialize(
       url: dotenv.env['SUPABASE_URL'].toString(),
       anonKey: dotenv.env['SUPABASE_ANON_KEY'].toString(),
-      authOptions: const FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
+      authOptions: const FlutterAuthClientOptions(
+        authFlowType: AuthFlowType.pkce,
+      ),
     );
     return SupabaseApi._();
   }

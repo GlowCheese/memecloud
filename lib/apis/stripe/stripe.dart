@@ -2,9 +2,14 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/stripe/const.dart';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+final String stripePublishableKey =
+    dotenv.env['STRIPE_PUBLISHABLE_KEY'].toString();
+final String stripeSecretKey = dotenv.env['STRIPE_SECRET_KEY'].toString();
 Future<void> stripeSetup() async {
   Stripe.publishableKey = stripePublishableKey;
   await Stripe.instance.applySettings();
@@ -12,6 +17,8 @@ Future<void> stripeSetup() async {
 
 class StripeService {
   StripeService._();
+
+  final vipService = getIt<SupabaseApi>().vipUsersSService;
 
   static final StripeService instance = StripeService._();
 
@@ -28,12 +35,15 @@ class StripeService {
       );
       await _processPayment();
     } on StripeConfigException catch (_, e) {
-      log('error when make payment ${e.toString()}');
+      log('error when makepayment ${e.toString()}');
     }
   }
 
   Future<String?> _createPaymentIntent(int amount, String currency) async {
     try {
+      bool isVip = vipService.isVip;
+      if (isVip) return 'already';
+
       final dio = getIt<Dio>();
       Map<String, dynamic> data = {
         'amount': _calculateAmount(amount),
@@ -51,7 +61,7 @@ class StripeService {
         ),
       );
       if (response.data == null) {
-        return 'khong co';
+        return 'none';
       }
       return response.data['client_secret'];
     } catch (e) {
@@ -63,7 +73,9 @@ class StripeService {
   Future<void> _processPayment() async {
     try {
       await Stripe.instance.presentPaymentSheet();
-      await Stripe.instance.confirmPaymentSheetPayment();
+      final result = await vipService.updateToVip(durationDays: 90);
+      await vipService.setVipStatusFromRemote();
+      log('VIP update result: $result');
     } catch (e) {
       log('error when  processpayment ${e.toString()}');
     }

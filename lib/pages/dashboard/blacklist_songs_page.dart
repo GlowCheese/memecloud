@@ -1,3 +1,5 @@
+import 'dart:nativewrappers/_internal/vm/lib/math_patch.dart';
+
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';

@@ -10,7 +10,7 @@ import 'package:memecloud/apis/others/events.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:memecloud/blocs/song_player/justaudio_init.dart';
-import 'package:memecloud/stripe/service.dart';
+import 'package:memecloud/apis/stripe/stripe.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
