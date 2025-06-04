@@ -1,19 +1,20 @@
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/pages/404/404.dart';
-import 'package:memecloud/pages/song/song_history_page.dart';
+import 'package:memecloud/pages/hub/hub_page.dart';
+import 'package:memecloud/routes/transitions.dart';
 import 'package:memecloud/pages/song/song_page.dart';
+import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/pages/auth/signin_page.dart';
 import 'package:memecloud/pages/auth/signup_page.dart';
 import 'package:memecloud/pages/artist/artist_page.dart';
 import 'package:memecloud/components/song/song_lyric.dart';
 import 'package:memecloud/pages/profile/profile_page.dart';
+import 'package:memecloud/pages/song/song_history_page.dart';
 import 'package:memecloud/pages/playlist/playlist_page.dart';
 import 'package:memecloud/pages/dashboard/dashboard_page.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
-import 'package:memecloud/routes/transitions.dart';
 
 GoRouter? router;
 
@@ -76,9 +77,6 @@ GoRouter getRouter() {
           );
         },
       ),
-      // ShellRoute(
-      //   pageBuilder: materialPageBuilder,
-      //   routes: [
       GoRoute(
         path: '/song_page',
         pageBuilder:
@@ -98,8 +96,16 @@ GoRouter getRouter() {
           );
         },
       ),
-      //   ],
-      // ),
+      GoRoute(
+        path: '/hub_page',
+        pageBuilder: (context, state) {
+          final hubId = state.extra as String;
+          return CustomTransitionPage(
+            child: HubPage(hubId: hubId),
+            transitionsBuilder: PageTransitions.fadeTransition,
+          );
+        },
+      ),
     ],
   );
   return router!;

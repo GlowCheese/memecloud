@@ -730,7 +730,7 @@ class ApiKit {
     unawaited(supabase.config.setCookie(newCookieStr));
   }
 
-    /* ----------------------
+  /* ----------------------
   |    WEEK CHART APIs    |
   ---------------------- */
 
@@ -785,7 +785,7 @@ class ApiKit {
         return chart..fixMissingRanking();
       },
     );
-  }  
+  }
 
   /* ------------------------
   |    HOME SECTIONS APIs   |
@@ -836,7 +836,18 @@ class ApiKit {
       lazyTime: lazyTime,
       fetchFunc: zingMp3.fetchHubHome,
     );
-  } 
+  }
+
+  Future<Map<String, dynamic>> getHubDetail({required String hubId}) async {
+    final String api = '/hub?id=$hubId';
+    final int lazyTime = 1 * 60 * 60; // 1 hours
+
+    return await _getOrFetch<Map<String, dynamic>, Map<String, dynamic>>(
+      api,
+      lazyTime: lazyTime,
+      fetchFunc: () => zingMp3.fetchHubDetail(id: hubId),
+    );
+  }
 }
 
 bool isSongUriActive(Uri uri) {

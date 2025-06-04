@@ -37,7 +37,7 @@ class _SearchSuggestionsState extends State<SearchSuggestions> {
 
   Widget _suggestionItemList(List<String> items, {bool? deletable}) {
     return Padding(
-      padding: const EdgeInsets.only(left: 30, right: 22, top: 30),
+      padding: const EdgeInsets.only(left: 30, right: 22, top: 16),
       child: ListView.separated(
         separatorBuilder: (context, index) => const SizedBox(height: 20),
         itemCount: items.length,

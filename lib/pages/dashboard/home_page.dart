@@ -103,47 +103,10 @@ class _HomePage extends StatelessWidget {
                 'hEditorTheme',
                 'hAlbum',
               ]).contains(section['sectionId'])) {
-                final items = PlaylistModel.fromListJson<ZingMp3Api>(
-                  section['items'],
-                );
-
-                return SectionCard(title: section['title']).variant3(
-                  height: 221,
-                  titlePadding: const EdgeInsets.only(
-                    left: horzPad,
-                    right: horzPad,
-                    bottom: 4,
+                return SectionCard(title: section['title']).variant3_1(
+                  playlists: PlaylistModel.fromListJson<ZingMp3Api>(
+                    section['items'],
                   ),
-                  listViewPadding: const EdgeInsets.symmetric(horizontal: 18),
-                  spacing: 16,
-                  itemCount: min(7, items.length),
-                  itemBuilder: (context, index) {
-                    return PlaylistCard(
-                      playlist: items[index],
-                    ).variant3(width: 130, height: 130);
-                  },
-                  showAllBuilder: (context) {
-                    return SimpleScrollablePage(
-                      title: section['title'],
-                      bgColor: MyColorSet.indigo,
-                      spacing: 14,
-                    ).variant1(
-                      children: [
-                        const SizedBox(),
-                        for (var playlist in items)
-                          Padding(
-                            key: Key(playlist.id),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: horzPad,
-                            ),
-                            child: PlaylistCard(
-                              playlist: playlist,
-                            ).variant2(size: 70),
-                          ),
-                        const SizedBox(),
-                      ],
-                    );
-                  },
                 );
               } else {
                 return DataInspector(section, name: section['sectionId']);
@@ -155,37 +118,6 @@ class _HomePage extends StatelessWidget {
       },
     );
   }
-
-  // Widget hSimpleSection(
-  //   BuildContext context, {
-  //   required String title,
-  //   required List<Key> keys,
-  //   required double spacing,
-  //   required List<Widget> hItems,
-  //   List<Widget>? vItems,
-  //   Future<List<Widget>> Function()? genFunc,
-  // }) {
-  //   return SectionCard.variant1(
-  //     title: title,
-  //     ,
-  //     showAllButton: TextButton(
-  //       onPressed: () {
-  //         Navigator.of(context).push(
-  //           MaterialPageRoute(
-  //             builder: (context) {
-  //               f
-  //               ;
-  //             },
-  //           ),
-  //         );
-  //       },
-  //       child: const Text('Xem tất cả'),
-  //     ),
-  //     children: [
-  //       ,
-  //     ],
-  //   );
-  // }
 
   Widget hQuickPlaySection(Map<String, dynamic> section) {
     return CarouselSlider(
@@ -255,74 +187,15 @@ class _hSongRadioSectionInner extends StatefulWidget {
 }
 
 class _hSongRadioSectionInnerState extends State<_hSongRadioSectionInner> {
-  int _current = 0;
-  final CarouselSliderController _controller = CarouselSliderController();
-
   @override
   Widget build(BuildContext context) {
-    final int songsPerCol = 3;
-    return Column(
-      children: [
-        SectionCard(title: widget.title).variant1(
-          titlePadding: const EdgeInsets.symmetric(horizontal: horzPad),
-          showAllButton: TextButton(
-            onPressed: widget.refresh,
-            child: const Text('Làm mới'),
-          ),
-          child: CarouselSlider(
-            items: [
-              for (int i = 0; i < widget.songs.length; i += songsPerCol)
-                Column(
-                  spacing: 10,
-                  key: Key('${widget.key} songradio $i'),
-                  children: [
-                    for (
-                      int j = i;
-                      j < min(widget.songs.length, i + songsPerCol);
-                      j++
-                    )
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: horzPad,
-                        ),
-                        child: SongCard(
-                          key: Key('${widget.key} songradio $i $j'),
-                          variant: 1,
-                          song: widget.songs[j],
-                          songList: widget.songs,
-                        ),
-                      ),
-                  ],
-                ),
-            ],
-            carouselController: _controller,
-            options: CarouselOptions(
-              // SongCard.variant1's height is 53 (i don't know why)
-              height: ((53 + 12) * songsPerCol).toDouble(),
-              viewportFraction: 1,
-              onPageChanged: (index, reason) {
-                setState(() => _current = index);
-              },
-            ),
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 14,
-          children: [
-            for (int i = 0; i < widget.songs.length ~/ songsPerCol; i++)
-              Container(
-                key: Key('${widget.key} songradio indicator $i'),
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withAlpha(_current == i ? 255 : 128),
-                ),
-              ),
-          ],
-        ),
-      ],
+    return SectionCard(title: widget.title).variant3_3(
+      songs: widget.songs,
+      songsPerCol: 3,
+      showAllButton: TextButton(
+        onPressed: widget.refresh,
+        child: const Text('Làm mới'),
+      ),
     );
   }
 }

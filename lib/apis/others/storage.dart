@@ -204,7 +204,7 @@ class PersistentStorage {
   |    RECENT SEARCHES   |
   --------------------- */
 
-  void saveSearch(String query, {int lim = 10, bool negate = false}) {
+  void saveSearch(String query, {int lim = 8, bool negate = false}) {
     final box = hiveBoxes.recentSearches;
     List<String> current = box.values.toList();
 

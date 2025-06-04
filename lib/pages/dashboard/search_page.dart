@@ -1,9 +1,14 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:go_router/go_router.dart';
+import 'package:memecloud/apis/zingmp3/endpoints.dart';
 import 'package:memecloud/components/miscs/data_inspector.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
+import 'package:memecloud/components/sections/section_card.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/components/miscs/search_bar.dart';
@@ -11,6 +16,7 @@ import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/search/search_result_view.dart';
 import 'package:memecloud/components/search/search_suggestions.dart';
+import 'package:memecloud/models/playlist_model.dart';
 
 Map getSearchPage(BuildContext context) {
   return {
@@ -107,36 +113,72 @@ class ScrollableZingHub extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        if (hub.containsKey('banners'))
-          _banner(
-            Map.castFrom<dynamic, dynamic, String, String>(
-              hub['banners'][Random().nextInt(hub['banners'].length)],
+    List<Widget> bodyChildren = [
+      const SizedBox(),
+
+      if (hub.containsKey('banners'))
+        _banner(
+          context,
+          List.castFrom<dynamic, Map<String, dynamic>>(hub['banners']),
+        ),
+
+      if (hub.containsKey('featured'))
+        SectionCard(title: hub['featured']['title']).variant3_2(
+          hubs: List.castFrom<dynamic, Map<String, dynamic>>(
+            hub['featured']['items'],
+          ),
+        ),
+
+      if (hub.containsKey('nations'))
+        SectionCard(title: "Quốc Gia").variant3_2(
+          hubs: List.castFrom<dynamic, Map<String, dynamic>>(hub['nations']),
+        ),
+
+      if (hub.containsKey('genre'))
+        for (var item in hub['genre'])
+          SectionCard(title: item['title']).variant3_1(
+            playlists: PlaylistModel.fromListJson<ZingMp3Api>(
+              item['playlists'],
             ),
           ),
-        DataInspector(hub),
-      ],
+      DataInspector(hub),
+    ];
+
+    return ListView.separated(
+      itemBuilder: (context, index) => bodyChildren[index],
+      itemCount: bodyChildren.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 24),
     );
   }
 
-  Widget _banner(Map<String, String> banner) {
-    String id = banner['link']!.split('/').last.split('.').first;
-    String cover = banner['cover']!;
-
+  Widget _banner(BuildContext context, List<Map<String, dynamic>> banners) {
     return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ClipRRect(
         borderRadius: BorderRadiusGeometry.circular(10),
-        child: CachedNetworkImage(
-          imageUrl: cover,
-          fit: BoxFit.cover,
-          height: 120,
-          width: double.infinity,
+        child: CarouselSlider(
+          items:
+              banners.map((banner) {
+                String id = banner['link']!.split('/').last.split('.').first;
+                String cover = banner['cover']!;
+
+                return GestureDetector(
+                  onTap: () => context.push('/hub_page', extra: id),
+                  child: CachedNetworkImage(
+                    imageUrl: cover,
+                    fit: BoxFit.cover,
+                    height: 110,
+                    width: double.infinity,
+                  ),
+                );
+              }).toList(),
+          options: CarouselOptions(
+            height: 110,
+            autoPlay: true,
+            viewportFraction: 1,
+          ),
         ),
       ),
     );
-
-    return DataInspector(id, name: 'id');
   }
 }
