@@ -25,6 +25,7 @@ class SectionCard {
     );
 
     return Column(
+      key: key,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (titlePadding == null)
@@ -59,7 +60,31 @@ class SectionCard {
     );
   }
 
-  // Widget variant3({
-  //   EdgeInsetsGeometry? titlePadding,
-  // })
+  Widget variant3({
+    EdgeInsetsGeometry? titlePadding,
+    EdgeInsetsGeometry listViewPadding = const EdgeInsets.all(0),
+    required double height,
+    double? spacing,
+    required Widget Function(BuildContext context, int index) itemBuilder,
+    required int itemCount,
+    required Widget Function(BuildContext context) showAllBuilder,
+  }) {
+    return variant2(
+      titlePadding: titlePadding,
+      child: SizedBox(
+        height: height,
+        child: Padding(
+          padding: listViewPadding,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemBuilder: itemBuilder,
+            itemCount: itemCount,
+            separatorBuilder: (context, index) => SizedBox(width: spacing),
+          ),
+        ),
+      ),
+      showAllBuilder: showAllBuilder,
+    );
+  }
 }

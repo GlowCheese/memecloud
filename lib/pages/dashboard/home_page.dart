@@ -49,67 +49,102 @@ class _HomePage extends StatelessWidget {
                 return hSongRadioSection(title: section['title']);
               } else if ((const ['hRecent']).contains(section['sectionId'])) {
                 return const SizedBox();
-                // } else if (section['sectionId'] == 'hNewrelease') {
-                //   final items = SongModel.fromListJson<ZingMp3Api>(
-                //     section['items'],
-                //   );
-                //   return hSimpleSection(
-                //     context,
-                //     spacing: 14,
-                //     title: section['title'],
-                //     keys: items.map((e) => Key(e.id)).toList(),
-                //     hItems: [
-                //       for (var song in items)
-                //         SongCard(
-                //           variant: 5,
-                //           song: song,
-                //           songList: items,
-                //           width: 130,
-                //           height: 130,
-                //         ),
-                //     ],
-                //     genFunc: () async {
-                //       final chart = await getIt<ApiKit>().getNewReleaseChart();
-                //       return [
-                //         for (var chartSong in chart.chartSongs.take(30))
-                //           Padding(
-                //             key: Key(chartSong.song.id),
-                //             padding: const EdgeInsets.symmetric(horizontal: 12),
-                //             child: SongCard(
-                //               variant: 2,
-                //               chartSong: chartSong,
-                //               songList: chart.songs,
-                //             ),
-                //           ),
-                //         const SizedBox(),
-                //       ];
-                //     },
-                //   );
-                // } else if ((const [
-                //   'h100',
-                //   'hEditorTheme',
-                //   'hAlbum',
-                // ]).contains(section['sectionId'])) {
-                //   final items = PlaylistModel.fromListJson<ZingMp3Api>(
-                //     section['items'],
-                //   );
+              } else if (section['sectionId'] == 'hNewrelease') {
+                final items = SongModel.fromListJson<ZingMp3Api>(
+                  section['items'],
+                );
 
-                //   return hSimpleSection(
-                //     context,
-                //     spacing: 20,
-                //     title: section['title'],
-                //     keys: items.map((e) => Key(e.id)).toList(),
-                //     hItems: [
-                //       for (var playlist in items)
-                //         PlaylistCard(
-                //           playlist: playlist,
-                //         ).variant3(width: 130, height: 130),
-                //     ],
-                //     vItems: [
-                //       for (var playlist in items)
-                //         PlaylistCard(playlist: playlist).variant2(size: 70),
-                //     ],
-                //   );
+                Future<List<Widget>> genFunc() async {
+                  final chart = await getIt<ApiKit>().getNewReleaseChart();
+                  return [
+                    for (var chartSong in chart.chartSongs.take(30))
+                      Padding(
+                        key: Key(chartSong.song.id),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: SongCard(
+                          variant: 2,
+                          chartSong: chartSong,
+                          songList: chart.songs,
+                        ),
+                      ),
+                    const SizedBox(),
+                  ];
+                }
+
+                return SectionCard(title: section['title']).variant3(
+                  height: 221,
+                  titlePadding: const EdgeInsets.only(
+                    left: horzPad,
+                    right: horzPad,
+                    bottom: 4,
+                  ),
+                  listViewPadding: const EdgeInsets.symmetric(horizontal: 18),
+                  spacing: 16,
+                  itemBuilder: (context, index) {
+                    return SongCard(
+                      variant: 5,
+                      song: items[index],
+                      songList: items,
+                      width: 130,
+                      height: 130,
+                    );
+                  },
+                  itemCount: min(7, items.length),
+                  showAllBuilder: (context) {
+                    return SimpleScrollablePage(
+                      title: section['title'],
+                      bgColor: MyColorSet.indigo,
+                      spacing: 12,
+                    ).variant2(genFunc: genFunc);
+                  },
+                );
+              } else if ((const [
+                'h100',
+                'hEditorTheme',
+                'hAlbum',
+              ]).contains(section['sectionId'])) {
+                final items = PlaylistModel.fromListJson<ZingMp3Api>(
+                  section['items'],
+                );
+
+                return SectionCard(title: section['title']).variant3(
+                  height: 221,
+                  titlePadding: const EdgeInsets.only(
+                    left: horzPad,
+                    right: horzPad,
+                    bottom: 4,
+                  ),
+                  listViewPadding: const EdgeInsets.symmetric(horizontal: 18),
+                  spacing: 16,
+                  itemCount: min(7, items.length),
+                  itemBuilder: (context, index) {
+                    return PlaylistCard(
+                      playlist: items[index],
+                    ).variant3(width: 130, height: 130);
+                  },
+                  showAllBuilder: (context) {
+                    return SimpleScrollablePage(
+                      title: section['title'],
+                      bgColor: MyColorSet.indigo,
+                      spacing: 14,
+                    ).variant1(
+                      children: [
+                        const SizedBox(),
+                        for (var playlist in items)
+                          Padding(
+                            key: Key(playlist.id),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: horzPad,
+                            ),
+                            child: PlaylistCard(
+                              playlist: playlist,
+                            ).variant2(size: 70),
+                          ),
+                        const SizedBox(),
+                      ],
+                    );
+                  },
+                );
               } else {
                 return DataInspector(section, name: section['sectionId']);
               }
@@ -132,38 +167,14 @@ class _HomePage extends StatelessWidget {
   // }) {
   //   return SectionCard.variant1(
   //     title: title,
-  //     titlePadding: const EdgeInsets.only(
-  //       left: horzPad,
-  //       right: horzPad,
-  //       bottom: 12,
-  //     ),
+  //     ,
   //     showAllButton: TextButton(
   //       onPressed: () {
   //         Navigator.of(context).push(
   //           MaterialPageRoute(
   //             builder: (context) {
-  //               final ssp = SimpleScrollablePage(
-  //                 title: title,
-  //                 bgColor: MyColorSet.indigo,
-  //                 spacing: spacing,
-  //               );
-  //               if (vItems != null) {
-  //                 return ssp.variant1(
-  //                   children: [
-  //                     const SizedBox(),
-  //                     for (int i = 0; i < vItems.length; i++)
-  //                       Padding(
-  //                         key: keys[i],
-  //                         padding: const EdgeInsets.symmetric(
-  //                           horizontal: horzPad,
-  //                         ),
-  //                         child: vItems[i],
-  //                       ),
-  //                     const SizedBox(),
-  //                   ],
-  //                 );
-  //               }
-  //               return ssp.variant2(genFunc: genFunc!);
+  //               f
+  //               ;
   //             },
   //           ),
   //         );
@@ -171,21 +182,7 @@ class _HomePage extends StatelessWidget {
   //       child: const Text('Xem tất cả'),
   //     ),
   //     children: [
-  //       SizedBox(
-  //         height: 221,
-  //         child: Padding(
-  //           padding: const EdgeInsets.symmetric(horizontal: 18),
-  //           child: ListView.separated(
-  //             scrollDirection: Axis.horizontal,
-  //             physics: const BouncingScrollPhysics(),
-  //             itemBuilder: (context, index) {
-  //               return hItems[index];
-  //             },
-  //             separatorBuilder: (context, index) => const SizedBox(width: 24),
-  //             itemCount: min(hItems.length, 7),
-  //           ),
-  //         ),
-  //       ),
+  //       ,
   //     ],
   //   );
   // }
