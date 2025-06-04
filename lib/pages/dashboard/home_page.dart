@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/apis/supabase/main.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:memecloud/apis/zingmp3/endpoints.dart';
@@ -15,7 +16,6 @@ import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/sections/section_card.dart';
 import 'package:memecloud/pages/ssp/simple_scrollable_page.dart';
-import 'package:memecloud/components/sections/section_item_card.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 
 Map getHomePage(BuildContext context) {
@@ -74,9 +74,7 @@ class _HomePage extends StatelessWidget {
                       for (var chartSong in chart.chartSongs.take(30))
                         Padding(
                           key: Key(chartSong.song.id),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: SongCard(
                             variant: 2,
                             chartSong: chartSong,
@@ -195,16 +193,16 @@ class _HomePage extends StatelessWidget {
   Widget hQuickPlaySection(Map<String, dynamic> section) {
     return CarouselSlider(
       items: [
-        for (var sectionItem in section['items'])
-          SectionItemCard.variation1(
-            playlistId: sectionItem['id'],
-            key: ValueKey(sectionItem),
-            title: sectionItem['title'],
-            description: sectionItem['description'],
-            tag: sectionItem['tag'],
-            height: 152, // default value
-            thumbnailUrl: sectionItem['thumbnail'],
-          ),
+        for (var json in section['items'])
+          PlaylistCard(
+            key: Key(json['id']),
+            // for some reason the json format work
+            // pretty well with my Supabase format
+            playlist: PlaylistModel.fromJson<SupabaseApi>({
+              ...json,
+              'thumbnail_url': json['thumbnail']
+            }),
+          ).variant4(gap: 12, height: 152, tag: json['tag']),
       ],
       options: CarouselOptions(height: 152, enlargeCenterPage: true),
     );

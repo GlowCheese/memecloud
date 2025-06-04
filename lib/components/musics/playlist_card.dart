@@ -3,6 +3,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/components/musics/music_card.dart';
+import 'package:memecloud/utils/common.dart';
+import 'package:memecloud/utils/images.dart';
 
 class PlaylistCard {
   final Key? key;
@@ -66,6 +68,7 @@ class PlaylistCard {
   /// biggest thumbnail, suitable in a grid
   Widget variant3({required double width, required double height}) {
     return _gestureDetectorWrapper(
+      key: key,
       child: MusicCard(
         variant: 4,
         thumbnailUrl: playlist.thumbnailUrl,
@@ -73,6 +76,101 @@ class PlaylistCard {
         subTitle: playlist.artistsNames,
         width: width,
         height: height,
+      ),
+    );
+  }
+
+  Widget variant4({
+    required double gap,
+    required double height,
+    required String tag,
+  }) {
+    Color tlColor = Colors.grey.shade500;
+    Color brColor = Colors.grey.shade900;
+
+    return _gestureDetectorWrapper(
+      child: StatefulBuilder(
+        key: key,
+        builder: (context, setState) {
+          getDominantColor(playlist.thumbnailUrl).then((data) {
+            if (context.mounted) {
+              setState(() {
+                tlColor = adjustColor(data!, l: 0.6);
+                brColor = adjustColor(data, l: 0.2);
+              });
+            }
+          });
+
+          return Container(
+            width: double.infinity,
+            height: height,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [tlColor, brColor],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            padding: EdgeInsets.all(gap),
+            alignment: Alignment.center,
+            child: Row(
+              spacing: gap,
+              children: [
+                getImage(playlist.thumbnailUrl, height - 2 * gap),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(60),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 5,
+                          horizontal: 10,
+                        ),
+                        child: Text(
+                          tag,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        playlist.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          height: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Flexible(
+                        child: Text(
+                          playlist.description!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withAlpha(180),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
