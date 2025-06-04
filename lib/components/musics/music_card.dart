@@ -162,6 +162,8 @@ class MusicCard extends StatelessWidget {
             child: CachedNetworkImage(
               imageUrl: thumbnailUrl,
               fit: BoxFit.cover,
+              width: width,
+              height: height,
             ),
           ),
           const SizedBox(height: 8),

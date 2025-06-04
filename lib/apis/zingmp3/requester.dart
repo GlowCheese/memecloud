@@ -272,4 +272,19 @@ class ZingMp3Requester {
     final path = "/api/v2/song/get/section-song-station";
     return _sendRequest(path, count: 20);
   }
+
+  /* ---------------------------
+  |          HUB HOME          |
+  |    (use in search page)    |
+  --------------------------- */
+
+  Future<Map> getHubHome() {
+    final path = "/api/v2/page/get/hub-home";
+    return _sendRequest(path);
+  }
+
+  Future<Map> getHubDetail(String id) {
+    final path = "/api/v2/page/get/hub-detail";
+    return _sendRequest(path, id: id);
+  }
 }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -123,110 +125,84 @@ class LibraryPage extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8),
       child: StatefulBuilder(
         builder: (context, setState) {
-          return SectionCard.variant1(
-            title: 'Bài hát bị chặn',
+          return SectionCard(title: 'Bài hát bị chặn').variant1(
             titlePadding: const EdgeInsets.only(
               left: horzPad,
               right: horzPad,
               top: 18,
             ),
-            children: <Widget>[
-              for (var song in blacklistedSongs)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: horzPad,
-                    vertical: 6,
+            child: Column(
+              spacing: 12,
+              children: [
+                for (var song in blacklistedSongs)
+                  Padding(
+                    key: Key(song.id),
+                    padding: const EdgeInsets.symmetric(horizontal: horzPad),
+                    child: SongCard(
+                      variant: 3,
+                      song: song,
+                      onUnblacklistButtonPressed: () {
+                        onUnblacklistButtonPressed(context, song).then((
+                          result,
+                        ) {
+                          if (result == true) {
+                            setState(() {
+                              blacklistedSongs.remove(song);
+                            });
+                          }
+                        });
+                      },
+                    ),
                   ),
-                  child: SongCard(
-                    variant: 3,
-                    song: song,
-                    onUnblacklistButtonPressed: () {
-                      onUnblacklistButtonPressed(context, song).then((result) {
-                        if (result == true) {
-                          setState(() {
-                            blacklistedSongs.remove(song);
-                          });
-                        }
-                      });
-                    },
-                  ),
-                ),
-            ],
+              ],
+            ),
           );
         },
       ),
     );
   }
 
-  Widget _showAllRecentlyPlayedSongsButton(BuildContext context) {
-    return TextButton(
-      child: const Text('Xem tất cả'),
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              return RecentPlayedStreamBuilder(
-                builder: (context, recentlyPlayedSongs, _) {
-                  return SimpleScrollablePage(
-                    title: 'Phát gần đây',
-                    bgColor: Colors.lightBlue,
-                    spacing: 6,
-                  ).variant1(
-                    children: [
-                      for (var song in recentlyPlayedSongs)
-                        Padding(
-                          key: ValueKey(song.id),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: horzPad,
-                          ),
-                          child: SongCard(
-                            variant: 1,
-                            song: song,
-                            songList: recentlyPlayedSongs,
-                          ),
-                        ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
+  Widget _showAllRecentlyPlayedSongsBuilder(BuildContext context) {
+    return RecentPlayedStreamBuilder(
+      builder: (context, recentlyPlayedSongs, _) {
+        return SimpleScrollablePage(
+          title: 'Phát gần đây',
+          bgColor: Colors.lightBlue,
+          spacing: 6,
+        ).variant1(
+          children: [
+            for (var song in recentlyPlayedSongs)
+              Padding(
+                key: ValueKey(song.id),
+                padding: const EdgeInsets.symmetric(horizontal: horzPad),
+                child: SongCard(
+                  variant: 1,
+                  song: song,
+                  songList: recentlyPlayedSongs,
+                ),
+              ),
+          ],
         );
       },
     );
   }
 
-  Widget _showAllRecentlyPlayedPlaylistsButton(BuildContext context) {
-    return TextButton(
-      child: const Text('Xem tất cả'),
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              return RecentPlayedStreamBuilder(
-                builder: (context, _, recentlyPlayedPlaylists) {
-                  return SimpleScrollablePage(
-                    title: 'Danh sách phát gần đây',
-                    bgColor: Colors.lightBlue,
-                    spacing: 6,
-                  ).variant1(
-                    children: [
-                      for (var playlist in recentlyPlayedPlaylists)
-                        Padding(
-                          key: ValueKey(playlist.id),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: horzPad,
-                          ),
-                          child: PlaylistCard(playlist: playlist).variant1(),
-                        ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
+  Widget _showAllRecentlyPlayedPlaylistsBuilder(BuildContext context) {
+    return RecentPlayedStreamBuilder(
+      builder: (context, _, recentlyPlayedPlaylists) {
+        return SimpleScrollablePage(
+          title: 'Danh sách phát gần đây',
+          bgColor: Colors.lightBlue,
+          spacing: 6,
+        ).variant1(
+          children: [
+            for (var playlist in recentlyPlayedPlaylists)
+              Padding(
+                key: ValueKey(playlist.id),
+                padding: const EdgeInsets.symmetric(horizontal: horzPad),
+                child: PlaylistCard(playlist: playlist).variant1(),
+              ),
+          ],
         );
       },
     );
@@ -240,49 +216,53 @@ class LibraryPage extends StatelessWidget {
           physics: const BouncingScrollPhysics(),
           children: <Widget>[
             if (recentlyPlayedSongs.isNotEmpty)
-              SectionCard.variant1(
-                title: 'Phát gần đây',
+              SectionCard(title: 'Phát gần đây').variant2(
                 titlePadding: const EdgeInsets.only(
                   left: horzPad,
                   right: horzPad,
                   top: 18,
                 ),
-                showAllButton: _showAllRecentlyPlayedSongsButton(context),
-                children: <Widget>[
-                  for (var song in recentlyPlayedSongs.take(5))
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: horzPad,
-                        vertical: 6,
+                child: Column(
+                  spacing: 12,
+                  children: [
+                    for (var song in recentlyPlayedSongs.take(5))
+                      Padding(
+                        key: Key(song.id),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: horzPad,
+                        ),
+                        child: SongCard(
+                          variant: 1,
+                          song: song,
+                          songList: recentlyPlayedSongs,
+                        ),
                       ),
-                      child: SongCard(
-                        variant: 1,
-                        song: song,
-                        songList: recentlyPlayedSongs,
-                      ),
-                    ),
-                ],
+                  ],
+                ),
+                showAllBuilder: _showAllRecentlyPlayedSongsBuilder,
               ),
 
             if (recentlyPlayedPlaylists.isNotEmpty)
-              SectionCard.variant1(
-                title: 'Danh sách phát',
+              SectionCard(title: 'Danh sách phát').variant2(
                 titlePadding: const EdgeInsets.only(
                   left: horzPad,
                   right: horzPad,
                   top: 18,
                 ),
-                showAllButton: _showAllRecentlyPlayedPlaylistsButton(context),
-                children: [
-                  for (var playlist in recentlyPlayedPlaylists.take(5))
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: horzPad,
-                        vertical: 6,
+                child: Column(
+                  spacing: 12,
+                  children: [
+                    for (var playlist in recentlyPlayedPlaylists.take(5))
+                      Padding(
+                        key: Key(playlist.id),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: horzPad,
+                        ),
+                        child: PlaylistCard(playlist: playlist).variant1(),
                       ),
-                      child: PlaylistCard(playlist: playlist).variant1(),
-                    ),
-                ],
+                  ],
+                ),
+                showAllBuilder: _showAllRecentlyPlayedPlaylistsBuilder,
               ),
           ],
         );

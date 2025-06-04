@@ -1,37 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:memecloud/components/miscs/grad_background.dart';
+import 'package:memecloud/pages/ssp/simple_scrollable_page.dart';
 
 class SectionCard {
-  static Widget variant1({
-    Key? key,
-    required String title,
-    Widget? showAllButton,
-    EdgeInsetsGeometry? titlePadding,
-    required List<Widget> children,
-  }) => _SectionCardVariant1(
-    key: key,
-    title,
-    showAllButton,
-    titlePadding,
-    children,
-  );
-}
-
-class _SectionCardVariant1 extends StatelessWidget {
+  final Key? key;
   final String title;
-  final Widget? showAllButton;
-  final EdgeInsetsGeometry? titlePadding;
-  final List<Widget> children;
 
-  const _SectionCardVariant1(
-    this.title,
-    this.showAllButton,
-    this.titlePadding,
-    this.children, {
-    super.key,
-  });
+  SectionCard({this.key, required this.title});
 
-  @override
-  Widget build(BuildContext context) {
+  Widget variant1({
+    EdgeInsetsGeometry? titlePadding,
+    required Widget child,
+    Widget? showAllButton,
+  }) {
     final titleRow = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -39,7 +20,7 @@ class _SectionCardVariant1 extends StatelessWidget {
           title,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        if (showAllButton != null) showAllButton!,
+        if (showAllButton != null) showAllButton,
       ],
     );
 
@@ -49,9 +30,36 @@ class _SectionCardVariant1 extends StatelessWidget {
         if (titlePadding == null)
           titleRow
         else
-          Padding(padding: titlePadding!, child: titleRow),
-        ...children,
+          Padding(padding: titlePadding, child: titleRow),
+        child,
       ],
     );
   }
+
+  Widget variant2({
+    EdgeInsetsGeometry? titlePadding,
+    required Widget child,
+    required Widget Function(BuildContext context) showAllBuilder,
+  }) {
+    return variant1(
+      titlePadding: titlePadding,
+      child: child,
+      showAllButton: Builder(
+        builder: (context) {
+          return TextButton(
+            onPressed: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: showAllBuilder));
+            },
+            child: const Text('Xem tất cả'),
+          );
+        },
+      ),
+    );
+  }
+
+  // Widget variant3({
+  //   EdgeInsetsGeometry? titlePadding,
+  // })
 }

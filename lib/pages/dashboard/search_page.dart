@@ -1,43 +1,27 @@
 import 'dart:async';
-
+import 'dart:math';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:memecloud/components/miscs/data_inspector.dart';
+import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
-import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:memecloud/components/miscs/search_bar.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
-import 'package:memecloud/components/search/album_card.dart';
 import 'package:memecloud/components/search/search_result_view.dart';
 import 'package:memecloud/components/search/search_suggestions.dart';
 
 Map getSearchPage(BuildContext context) {
-  List<AlbumCard> topGenres = AlbumCard.getTopAlbums();
-  List<AlbumCard> allGenres = AlbumCard.getAllAlbums();
-  final themeData = AdaptiveTheme.of(context).theme;
-
   return {
     'appBar': defaultAppBar(context, title: 'Search'),
     'bgColor': MyColorSet.cyan,
-    'body': SearchPage(
-      topGenres: topGenres,
-      themeData: themeData,
-      allGenres: allGenres,
-    ),
+    'body': const SearchPage(),
   };
 }
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({
-    super.key,
-    required this.topGenres,
-    required this.themeData,
-    required this.allGenres,
-  });
-
-  final List<AlbumCard> topGenres;
-  final ThemeData themeData;
-  final List<AlbumCard> allGenres;
+  const SearchPage({super.key});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -95,13 +79,11 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     late Widget body;
     if (searchBarIsFocused == false) {
-      body = ListView(
-        children: [
-          const SizedBox(height: 23),
-          _genreGrid('Your Top Genres', widget.topGenres, widget.themeData),
-          const SizedBox(height: 35),
-          _genreGrid('Browse All', widget.allGenres, widget.themeData),
-        ],
+      body = defaultFutureBuilder(
+        future: getIt<ApiKit>().getHubHome(),
+        onData: (context, data) {
+          return ScrollableZingHub(data);
+        },
       );
     } else if (finalSearchQuery == null) {
       body = SearchSuggestions(
@@ -116,47 +98,45 @@ class _SearchPageState extends State<SearchPage> {
       children: [searchBar(), Expanded(child: body)],
     );
   }
+}
 
-  Column _genreGrid(
-    String title,
-    List<AlbumCard> albumCards,
-    ThemeData themeData,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+class ScrollableZingHub extends StatelessWidget {
+  final Map<String, dynamic> hub;
+
+  const ScrollableZingHub(this.hub, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 40),
-          child: Text(
-            title,
-            style: TextStyle(
-              fontSize: 20,
-              color: themeData.colorScheme.onSurface,
-              fontWeight: FontWeight.w600,
+        if (hub.containsKey('banners'))
+          _banner(
+            Map.castFrom<dynamic, dynamic, String, String>(
+              hub['banners'][Random().nextInt(hub['banners'].length)],
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 25, right: 25, top: 15),
-          child: Column(
-            spacing: 15,
-            children: [
-              for (int i = 0; i < albumCards.length; i += 2)
-                Row(
-                  spacing: 15,
-                  children: [
-                    Expanded(child: AlbumCardWidget(album: albumCards[i])),
-                    i + 1 < albumCards.length
-                        ? Expanded(
-                          child: AlbumCardWidget(album: albumCards[i + 1]),
-                        )
-                        : const SizedBox(),
-                  ],
-                ),
-            ],
-          ),
-        ),
+        DataInspector(hub),
       ],
     );
+  }
+
+  Widget _banner(Map<String, String> banner) {
+    String id = banner['link']!.split('/').last.split('.').first;
+    String cover = banner['cover']!;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
+      child: ClipRRect(
+        borderRadius: BorderRadiusGeometry.circular(10),
+        child: CachedNetworkImage(
+          imageUrl: cover,
+          fit: BoxFit.cover,
+          height: 120,
+          width: double.infinity,
+        ),
+      ),
+    );
+
+    return DataInspector(id, name: 'id');
   }
 }

@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
+import 'package:memecloud/utils/noti.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:memecloud/models/song_model.dart';
@@ -15,7 +16,6 @@ import 'package:memecloud/apis/others/storage.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/apis/zingmp3/endpoints.dart';
-import 'package:memecloud/utils/noti.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:memecloud/models/week_chart_model.dart';
 import 'package:memecloud/apis/others/connectivity.dart';
@@ -792,8 +792,7 @@ class ApiKit {
   ------------------------ */
 
   Future<Map<String, dynamic>> getHomeJson() async {
-    // TODO: bro, who on earth would name api /home2
-    final String api = '/home2';
+    final String api = '/home';
     final int lazyTime = 6 * 60 * 60; // 6 hours
 
     return await _getOrFetch<Map<String, dynamic>, Map<String, dynamic>>(
@@ -823,6 +822,21 @@ class ApiKit {
       outputFixer: (data) => SongModel.fromListJson<ZingMp3Api>(data),
     );
   }
+
+  /* -----------------------
+  |    HUB HOME 4 SEARCH   |
+  ----------------------- */
+
+  Future<Map<String, dynamic>> getHubHome() async {
+    final String api = '/hub-home';
+    final int lazyTime = 6 * 60 * 60; // 6 hours
+
+    return await _getOrFetch<Map<String, dynamic>, Map<String, dynamic>>(
+      api,
+      lazyTime: lazyTime,
+      fetchFunc: zingMp3.fetchHubHome,
+    );
+  } 
 }
 
 bool isSongUriActive(Uri uri) {

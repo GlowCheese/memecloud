@@ -213,7 +213,10 @@ class ZingMp3Api {
     }
   }
 
-  // week charts
+  /* ------------------------------
+  |    WEEK/NEW-RELEASE CHARTS    |
+  ------------------------------ */
+
   Future<Map<String, dynamic>> fetchVpopWeekChart() {
     return _fetchWeekChart('IWZ9Z08I');
   }
@@ -242,14 +245,15 @@ class ZingMp3Api {
     }
   }
 
-  // home page
+  /* -------------------------
+  |    HOME PAGE SECTIONS    |
+  ------------------------- */
+
   Future<Map<String, dynamic>> fetchHome() async {
     try {
       _connectivity.ensure();
       final resp = await _requester.getHome(page: 1);
-
-      Map<String, dynamic> data = resp['data'];
-      return data;
+      return Map.castFrom<dynamic, dynamic, String, dynamic>(resp['data']);
     } catch (e, stackTrace) {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
@@ -261,7 +265,6 @@ class ZingMp3Api {
     }
   }
 
-  // section song station
   Future<List<Map<String, dynamic>>> sectionSongStation() async {
     try {
       _connectivity.ensure();
@@ -273,6 +276,43 @@ class ZingMp3Api {
       _connectivity.reportCrash(e, StackTrace.current);
       log(
         'ZingMp3Api failed to fetch song station section: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
+  /* -----------------------------
+  |          HUB HOME            |
+  |    (4 search suggestions)    |
+  ----------------------------- */
+
+  Future<Map<String, dynamic>> fetchHubHome() async {
+    try {
+      _connectivity.ensure();
+      final resp = await _requester.getHubHome();
+      return Map.castFrom<dynamic, dynamic, String, dynamic>(resp['data']);
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        'ZingMp3Api failed to fetch hub home: $e',
+        stackTrace: stackTrace,
+        level: 1000,
+      );
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchHubDetail({required String id}) async {
+    try {
+      _connectivity.ensure();
+      final resp = await _requester.getHubDetail(id);
+      return Map.castFrom<dynamic, dynamic, String, dynamic>(resp['data']);
+    } catch (e, stackTrace) {
+      _connectivity.reportCrash(e, StackTrace.current);
+      log(
+        'ZingMp3Api failed to fetch hub detail: $e',
         stackTrace: stackTrace,
         level: 1000,
       );

@@ -50,9 +50,22 @@ class ScrollableSongHistoryPage extends StatelessWidget {
                 ),
               ),
 
-            SectionCard.variant1(
-              title: 'Bài tiếp theo',
+            SectionCard(title: 'Bài tiếp theo').variant1(
               titlePadding: const EdgeInsets.only(left: 24, right: 24, top: 18),
+              child: ListView.separated(
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: SongCard(
+                      variant: 1,
+                      song: audioPlayer.songList[upcomingSongs[index]],
+                      playlist: playlist,
+                    ),
+                  );
+                },
+                itemCount: upcomingSongs.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 12),
+              ),
               showAllButton: StreamBuilder(
                 stream: audioPlayer.shuffleModeEnabledStream,
                 builder: (context, snapshot) {
@@ -66,21 +79,6 @@ class ScrollableSongHistoryPage extends StatelessWidget {
                   );
                 },
               ),
-              children: [
-                for (int i in upcomingSongs)
-                  Padding(
-                    key: ValueKey('upcoming_$i'),
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: SongCard(
-                        variant: 1,
-                        song: audioPlayer.songList[i],
-                        playlist: playlist,
-                      ),
-                    ),
-                  ),
-              ],
             ),
           ],
         );
