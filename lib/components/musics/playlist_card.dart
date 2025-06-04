@@ -85,21 +85,31 @@ class PlaylistCard {
     required double height,
     required String tag,
   }) {
+    bool domColorLoaded = false;
     Color tlColor = Colors.grey.shade500;
     Color brColor = Colors.grey.shade900;
+
+    Future<void> loadDomColor(
+      BuildContext context,
+      void Function(void Function()) setState,
+    ) async {
+      if (domColorLoaded) return;
+      getDominantColor(playlist.thumbnailUrl).then((data) {
+        if (context.mounted) {
+          setState(() {
+            domColorLoaded = true;
+            tlColor = adjustColor(data!, l: 0.6);
+            brColor = adjustColor(data, l: 0.2);
+          });
+        }
+      });
+    }
 
     return _gestureDetectorWrapper(
       child: StatefulBuilder(
         key: key,
         builder: (context, setState) {
-          getDominantColor(playlist.thumbnailUrl).then((data) {
-            if (context.mounted) {
-              setState(() {
-                tlColor = adjustColor(data!, l: 0.6);
-                brColor = adjustColor(data, l: 0.2);
-              });
-            }
-          });
+          loadDomColor(context, setState);
 
           return Container(
             width: double.infinity,
