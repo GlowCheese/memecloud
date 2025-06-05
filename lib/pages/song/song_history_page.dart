@@ -52,19 +52,19 @@ class ScrollableSongHistoryPage extends StatelessWidget {
 
             SectionCard(title: 'Bài tiếp theo').variant1(
               titlePadding: const EdgeInsets.only(left: 24, right: 24, top: 18),
-              child: ListView.separated(
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: SongCard(
-                      variant: 1,
-                      song: audioPlayer.songList[upcomingSongs[index]],
-                      playlist: playlist,
+              child: Column(
+                spacing: 12,
+                children: [
+                  for (var song in upcomingSongs)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: SongCard(
+                        variant: 1,
+                        song: audioPlayer.songList[song],
+                        playlist: playlist,
+                      ),
                     ),
-                  );
-                },
-                itemCount: upcomingSongs.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                ],
               ),
               showAllButton: StreamBuilder(
                 stream: audioPlayer.shuffleModeEnabledStream,
