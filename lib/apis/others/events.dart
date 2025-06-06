@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
@@ -30,8 +31,9 @@ class SupabaseEvents {
   }
 
   Future<void> _loadUserProfile() async {
-    final f = supabase.profile.getProfile;
-    supabase.profile.myProfile = await f();
+    final myProfile = (await supabase.profile.getProfile())!;
+    supabase.profile.myProfile = myProfile;
+    CachedNetworkImage.evictFromCache(myProfile.avatarUrl);
   }
 
   Future<void> _loadUserLikedSongs() async {

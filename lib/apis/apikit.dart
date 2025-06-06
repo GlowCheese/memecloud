@@ -129,7 +129,7 @@ class ApiKit {
   }
 
   Future<String?> setAvatar(File file) async {
-    CachedNetworkImage.evictFromCache(myProfile().avatarUrl);
+    await CachedNetworkImage.evictFromCache(myProfile().avatarUrl);
     final avatarUrl = await supabase.profile.setAvatar(file);
     supabase.profile.myProfile = myProfile().copyWith(avatarUrl: avatarUrl);
     return avatarUrl;
