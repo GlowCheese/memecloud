@@ -1,10 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:memecloud/utils/snackbar.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -14,41 +15,9 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  String fullName = "Nguyễn Văn A";
-  String email = "nguyenvana@example.com";
-  bool isLoading = true;
-  String? avatarUrl;
-  String? errorMessage;
+  bool isLoading = false;
   final _picker = ImagePicker();
-
-  @override
-  void initState() {
-    super.initState();
-    syncUserAccount();
-  }
-
-  void syncUserAccount() {
-    try {
-      setState(() {
-        isLoading = true;
-        errorMessage = null;
-      });
-
-      final userAccount = getIt<ApiKit>().myProfile();
-      setState(() {
-        fullName = userAccount.displayName;
-        email = userAccount.email;
-        avatarUrl = userAccount.avatarUrl;
-        debugPrint('User account: $userAccount');
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        errorMessage = "Có lỗi xảy ra: $e";
-        isLoading = false;
-      });
-    }
-  }
+  final myProfile = getIt<ApiKit>().myProfile;
 
   Future<void> _pickImage(ImageSource source) async {
     try {
@@ -63,45 +32,21 @@ class _ProfilePageState extends State<ProfilePage> {
           isLoading = true;
         });
 
-        try {
-          final newAvatarUrl = await getIt<ApiKit>().setAvatar(
-            File(image.path),
-          );
-          setState(() {
-            avatarUrl = newAvatarUrl;
-          });
+        await getIt<ApiKit>().setAvatar(File(image.path));
 
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Cập nhật ảnh đại diện thành công!'),
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: Colors.green,
-              ),
-            );
-          }
-        } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Có lỗi xảy ra: $e'),
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          }
-        } finally {
-          setState(() {
-            isLoading = false;
-          });
+        if (mounted) {
+          showSuccessSnackbar(
+            context,
+            message: 'Cập nhật ảnh đại diện thành công!',
+          );
         }
+        setState(() => isLoading = false);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Có lỗi xảy ra: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
+        showErrorSnackbar(
+          context,
+          message: 'Có lỗi xảy ra khi cập nhật ảnh đại diện!',
         );
       }
     }
@@ -113,25 +58,7 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(title: const Text('Hồ sơ cá nhân')),
       body:
           isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : errorMessage != null
-              ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Lỗi: $errorMessage',
-                      style: const TextStyle(color: Colors.red),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: syncUserAccount,
-                      child: const Text('Thử lại'),
-                    ),
-                  ],
-                ),
-              )
+              ? const Center(child: SpinKitDancingSquare(color: Colors.white))
               : SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -192,12 +119,10 @@ class _ProfilePageState extends State<ProfilePage> {
               );
             },
             child: ClipOval(
-              child: CachedNetworkImage(
-                imageUrl:
-                    avatarUrl ??
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuAqi5s1FOI-T3qoE_2HD1avj69-gvq2cvIw&s',
+              child: Image.network(
+                myProfile().avatarUrl,
                 fit: BoxFit.cover,
-                errorWidget:
+                errorBuilder:
                     (context, url, error) => Icon(
                       Icons.person,
                       size: 60,
@@ -209,12 +134,12 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         const SizedBox(height: 16),
         Text(
-          fullName,
+          myProfile().displayName,
           style: Theme.of(
             context,
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
-        Text(email, style: Theme.of(context).textTheme.bodyMedium),
+        Text(myProfile().email, style: Theme.of(context).textTheme.bodyMedium),
       ],
     );
   }
@@ -228,7 +153,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Họ và tên'),
-              subtitle: Text(fullName),
+              subtitle: Text(myProfile().displayName),
               trailing: IconButton(
                 icon: const Icon(Icons.edit),
                 onPressed: _editFullName,
@@ -238,7 +163,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ListTile(
               leading: const Icon(Icons.email),
               title: const Text('Email'),
-              subtitle: Text(email),
+              subtitle: Text(myProfile().email),
             ),
           ],
         ),
@@ -276,7 +201,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _editFullName() {
     final TextEditingController nameController = TextEditingController(
-      text: fullName,
+      text: myProfile().displayName,
     );
 
     showDialog(
@@ -309,7 +234,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   return;
                 }
 
-                if (newName == fullName) {
+                if (newName == myProfile().displayName) {
                   Navigator.pop(dialogContext);
                   return;
                 }
@@ -318,17 +243,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
                 // Hiển thị loading
                 if (mounted) {
-                  setState(() {
-                    isLoading = true;
-                  });
+                  setState(() => isLoading = true);
                 }
 
                 try {
                   await getIt<ApiKit>().changeName(newName);
 
-                  setState(() {
-                    fullName = newName;
-                  });
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(

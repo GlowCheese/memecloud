@@ -118,13 +118,25 @@ class ApiKit {
   ------------------- */
 
   UserModel myProfile() => supabase.profile.myProfile!;
+
   Future<UserModel?> getProfile({String? userId}) =>
       supabase.profile.getProfile(userId);
-  Future<void> changeName(String newName) async =>
-      await supabase.profile.changeName(newName);
-  Future<String?> setAvatar(File file) async =>
-      await supabase.profile.setAvatar(file);
-  Future<void> unsetAvatar() => supabase.profile.unsetAvatar();
+
+  Future<void> changeName(String newName) async {
+    await supabase.profile.changeName(newName);
+    supabase.profile.myProfile = myProfile().copyWith(displayName: newName);
+  }
+
+  Future<String?> setAvatar(File file) async {
+    final avatarUrl = await supabase.profile.setAvatar(file);
+    supabase.profile.myProfile = myProfile().copyWith(avatarUrl: avatarUrl);
+    return avatarUrl;
+  }
+
+  Future<void> unsetAvatar() async {
+    await supabase.profile.unsetAvatar();
+    supabase.profile.myProfile = myProfile().copyWith(avatarUrl: null);
+  }
 
   /* ----------------
   |    SONGS APIs   |

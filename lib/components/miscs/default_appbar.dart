@@ -4,7 +4,6 @@ import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/pages/report/report_issue_page.dart';
 import 'package:memecloud/components/rating/rating_dialog.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 AppBar defaultAppBar(
   BuildContext context, {
@@ -40,7 +39,7 @@ AppBar defaultAppBar(
         onPressed: () {
           _showBottomSheet(context);
         },
-        icon: const Icon(Icons.flag, color: Colors.white,),
+        icon: const Icon(Icons.flag, color: Colors.white),
       ),
       IconButton(
         color: Colors.white,
@@ -51,9 +50,8 @@ AppBar defaultAppBar(
       GestureDetector(
         onTap: () => context.push('/profile'),
         child: CircleAvatar(
-          backgroundImage: CachedNetworkImageProvider(
-            getIt<ApiKit>().supabase.profile.myProfile?.avatarUrl ??
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuAqi5s1FOI-T3qoE_2HD1avj69-gvq2cvIw&s',
+          backgroundImage: NetworkImage(
+            getIt<ApiKit>().myProfile().avatarUrl,
           ),
         ),
       ),
