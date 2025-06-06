@@ -38,7 +38,9 @@ class _HubPageInner extends StatelessWidget {
         if (json.containsKey('cover')) _cover(json['cover']),
         for (Map<String, dynamic> section in json['sections'])
           if (section['sectionType'] == 'playlist' &&
-              section['viewType'] == 'slider')
+              section['viewType'] == 'slider' &&
+              // I don't know why this is necessary, but it does
+              section.containsKey('items'))
             SectionCard(title: section['title']).variant3_1(
               playlists: PlaylistModel.fromListJson<ZingMp3Api>(
                 section['items'],
@@ -59,10 +61,7 @@ class _HubPageInner extends StatelessWidget {
               section['viewType'] == 'slider')
             SectionCard(title: section['title']).variant3_4(
               artists: ArtistModel.fromListJson<ZingMp3Api>(section['items']),
-            )
-          else
-            DataInspector(section, name: section['title']),
-
+            ),
         const SizedBox(),
       ],
     );

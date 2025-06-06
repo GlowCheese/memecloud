@@ -110,7 +110,7 @@ class SectionCard {
   /// tailored for `List<PlaylistModel>`
   Widget variant3_1({required List<PlaylistModel> playlists, int lim = 7}) {
     return SectionCard(title: title).variant3(
-      height: 211,
+      height: 212,
       titlePadding: const EdgeInsets.only(left: 24, right: 24, bottom: 4),
       listViewPadding: const EdgeInsets.symmetric(horizontal: 18),
       spacing: 16,
@@ -238,7 +238,7 @@ class SectionCard {
   /// tailored for `List<ArtistModel>`
   Widget variant3_4({required List<ArtistModel> artists, int lim = 7}) {
     return SectionCard(title: title).variant3(
-      height: 186,
+      height: 187,
       titlePadding: const EdgeInsets.only(left: 24, right: 24, bottom: 8),
       listViewPadding: const EdgeInsets.symmetric(horizontal: 18),
       spacing: 18,
