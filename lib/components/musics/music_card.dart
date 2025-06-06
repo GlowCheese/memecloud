@@ -10,6 +10,7 @@ class MusicCard extends StatelessWidget {
   final String? subTitle;
   final String thumbnailUrl;
   final bool dimmed;
+  final bool rounded;
   final double? width, height;
 
   const MusicCard({
@@ -22,6 +23,7 @@ class MusicCard extends StatelessWidget {
     this.width,
     this.height,
     this.dimmed = false,
+    this.rounded = false,
   });
 
   @override
@@ -118,7 +120,7 @@ class MusicCard extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        ClipRRect(child: getImage(thumbnailUrl, width ?? height!)),
+        getImage(thumbnailUrl, width ?? height!),
         const SizedBox(width: 14),
         Flexible(
           child: Column(
@@ -158,7 +160,10 @@ class MusicCard extends StatelessWidget {
         children: [
           // Album cover with aspect ratio
           ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius:
+                rounded
+                    ? BorderRadius.circular(width ?? height!)
+                    : BorderRadius.circular(8),
             child: CachedNetworkImage(
               imageUrl: thumbnailUrl,
               fit: BoxFit.cover,

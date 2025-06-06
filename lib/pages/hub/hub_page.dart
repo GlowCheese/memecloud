@@ -6,6 +6,7 @@ import 'package:memecloud/components/miscs/data_inspector.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/sections/section_card.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/pages/ssp/simple_scrollable_page.dart';
@@ -45,17 +46,24 @@ class _HubPageInner extends StatelessWidget {
             )
           else if (section['sectionType'] == 'song' &&
               section['viewType'] == 'slider')
-            SectionCard(
-              title: section['title'],
-            ).variant3_3(
+            SectionCard(title: section['title']).variant3_3(
               songs: SongModel.fromListJson<ZingMp3Api>(section['items']),
               songsPerCol: 4,
-              titlePadding: const EdgeInsets.only(left: 24, right: 24, bottom: 8)
+              titlePadding: const EdgeInsets.only(
+                left: 24,
+                right: 24,
+                bottom: 8,
+              ),
+            )
+          else if (section['sectionType'] == 'artist' &&
+              section['viewType'] == 'slider')
+            SectionCard(title: section['title']).variant3_4(
+              artists: ArtistModel.fromListJson<ZingMp3Api>(section['items']),
             )
           else
             DataInspector(section, name: section['title']),
 
-        const SizedBox()
+        const SizedBox(),
       ],
     );
   }

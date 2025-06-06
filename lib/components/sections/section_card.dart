@@ -1,15 +1,15 @@
 import 'dart:math';
-
-import 'package:carousel_slider/carousel_controller.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/miscs/grad_background.dart';
-import 'package:memecloud/components/musics/hub_card.dart';
-import 'package:memecloud/components/musics/playlist_card.dart';
-import 'package:memecloud/components/musics/song_card.dart';
-import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/models/artist_model.dart';
+import 'package:memecloud/models/playlist_model.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:memecloud/components/musics/hub_card.dart';
+import 'package:memecloud/components/musics/song_card.dart';
+import 'package:memecloud/components/musics/artist_card.dart';
+import 'package:memecloud/components/musics/playlist_card.dart';
 import 'package:memecloud/pages/ssp/simple_scrollable_page.dart';
+import 'package:memecloud/components/miscs/grad_background.dart';
 
 class SectionCard {
   final Key? key;
@@ -232,6 +232,24 @@ class SectionCard {
           );
         },
       ),
+    );
+  }
+
+  /// tailored for `List<ArtistModel>`
+  Widget variant3_4({required List<ArtistModel> artists, int lim = 7}) {
+    return SectionCard(title: title).variant3(
+      height: 186,
+      titlePadding: const EdgeInsets.only(left: 24, right: 24, bottom: 8),
+      listViewPadding: const EdgeInsets.symmetric(horizontal: 18),
+      spacing: 18,
+      itemCount: min(lim, artists.length),
+      itemBuilder: (context, index) {
+        return ArtistCard(
+          variant: 3,
+          size: 130,
+          artist: artists[index],
+        );
+      },
     );
   }
 }

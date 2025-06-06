@@ -36,83 +36,83 @@ class _HomePage extends StatelessWidget {
     return defaultFutureBuilder(
       future: getIt<ApiKit>().getHomeJson(),
       onData: (context, json) {
+        final bodyChildren = <Widget>[];
+        for (var section in json['items']) {
+          if (section['sectionId'] == 'hQuickPlay') {
+            bodyChildren.add(hQuickPlaySection(section));
+          } else if (section['sectionId'] == 'hSongRadio') {
+            bodyChildren.add(hSongRadioSection(title: section['title']));
+          } else if (section['sectionId'] == 'hNewrelease') {
+            final items = SongModel.fromListJson<ZingMp3Api>(section['items']);
+
+            Future<List<Widget>> genFunc() async {
+              final chart = await getIt<ApiKit>().getNewReleaseChart();
+              return [
+                for (var chartSong in chart.chartSongs.take(30))
+                  Padding(
+                    key: Key(chartSong.song.id),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: SongCard(
+                      variant: 2,
+                      chartSong: chartSong,
+                      songList: chart.songs,
+                    ),
+                  ),
+                const SizedBox(),
+              ];
+            }
+
+            bodyChildren.add(
+              SectionCard(title: section['title']).variant3(
+                height: 221,
+                titlePadding: const EdgeInsets.only(
+                  left: horzPad,
+                  right: horzPad,
+                  bottom: 4,
+                ),
+                listViewPadding: const EdgeInsets.symmetric(horizontal: 18),
+                spacing: 16,
+                itemBuilder: (context, index) {
+                  return SongCard(
+                    variant: 5,
+                    song: items[index],
+                    songList: items,
+                    width: 130,
+                    height: 130,
+                  );
+                },
+                itemCount: min(7, items.length),
+                showAllBuilder: (context) {
+                  return SimpleScrollablePage(
+                    title: section['title'],
+                    bgColor: MyColorSet.indigo,
+                    spacing: 12,
+                  ).variant2(genFunc: genFunc);
+                },
+              ),
+            );
+          } else if ((const [
+            'h100',
+            'hEditorTheme',
+            'hAlbum',
+          ]).contains(section['sectionId'])) {
+            bodyChildren.add(
+              SectionCard(title: section['title']).variant3_1(
+                playlists: PlaylistModel.fromListJson<ZingMp3Api>(
+                  section['items'],
+                ),
+              ),
+            );
+          }
+        }
+
         return Padding(
           padding: const EdgeInsets.only(top: 18),
           child: ListView.separated(
             physics: const BouncingScrollPhysics(),
-            itemCount: json['items'].length,
-            itemBuilder: (context, index) {
-              final section = json['items'][index];
-              if (section['sectionId'] == 'hQuickPlay') {
-                return hQuickPlaySection(section);
-              } else if (section['sectionId'] == 'hSongRadio') {
-                return hSongRadioSection(title: section['title']);
-              } else if ((const ['hRecent']).contains(section['sectionId'])) {
-                return const SizedBox();
-              } else if (section['sectionId'] == 'hNewrelease') {
-                final items = SongModel.fromListJson<ZingMp3Api>(
-                  section['items'],
-                );
-
-                Future<List<Widget>> genFunc() async {
-                  final chart = await getIt<ApiKit>().getNewReleaseChart();
-                  return [
-                    for (var chartSong in chart.chartSongs.take(30))
-                      Padding(
-                        key: Key(chartSong.song.id),
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: SongCard(
-                          variant: 2,
-                          chartSong: chartSong,
-                          songList: chart.songs,
-                        ),
-                      ),
-                    const SizedBox(),
-                  ];
-                }
-
-                return SectionCard(title: section['title']).variant3(
-                  height: 221,
-                  titlePadding: const EdgeInsets.only(
-                    left: horzPad,
-                    right: horzPad,
-                    bottom: 4,
-                  ),
-                  listViewPadding: const EdgeInsets.symmetric(horizontal: 18),
-                  spacing: 16,
-                  itemBuilder: (context, index) {
-                    return SongCard(
-                      variant: 5,
-                      song: items[index],
-                      songList: items,
-                      width: 130,
-                      height: 130,
-                    );
-                  },
-                  itemCount: min(7, items.length),
-                  showAllBuilder: (context) {
-                    return SimpleScrollablePage(
-                      title: section['title'],
-                      bgColor: MyColorSet.indigo,
-                      spacing: 12,
-                    ).variant2(genFunc: genFunc);
-                  },
-                );
-              } else if ((const [
-                'h100',
-                'hEditorTheme',
-                'hAlbum',
-              ]).contains(section['sectionId'])) {
-                return SectionCard(title: section['title']).variant3_1(
-                  playlists: PlaylistModel.fromListJson<ZingMp3Api>(
-                    section['items'],
-                  ),
-                );
-              } else {
-                return DataInspector(section, name: section['sectionId']);
-              }
-            },
-            separatorBuilder: (context, index) => const SizedBox(height: 16),
+            itemCount: bodyChildren.length,
+            itemBuilder: (context, index) => bodyChildren[index],
+            separatorBuilder: (context, index) => const SizedBox(height: 24),
           ),
         );
       },
@@ -161,8 +161,10 @@ class _hSongRadioSectionState extends State<hSongRadioSection> {
         return _hSongRadioSectionInner(
           key: ValueKey(_counter),
           title: widget.title,
+          songsPerCol: songsPerCol,
           songs: songs,
-          refresh: () => setState(() => _counter = _counter + 1),
+          refresh:
+              () => {if (_counter < 5) setState(() => _counter = _counter + 1)},
         );
       },
     );
@@ -173,11 +175,13 @@ class _hSongRadioSectionInner extends StatefulWidget {
   const _hSongRadioSectionInner({
     super.key,
     required this.title,
+    required this.songsPerCol,
     required this.songs,
     required this.refresh,
   });
 
   final String title;
+  final int songsPerCol;
   final List<SongModel> songs;
   final void Function() refresh;
 

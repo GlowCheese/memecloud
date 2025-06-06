@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:memecloud/core/getit.dart';
-import 'package:memecloud/core/noti_init.dart';
 import 'package:memecloud/core/theme.dart';
 import 'package:memecloud/routes/main.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/core/noti_init.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:memecloud/apis/others/events.dart';

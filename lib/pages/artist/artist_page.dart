@@ -1,26 +1,19 @@
 import 'dart:async';
-import 'dart:developer';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
-
-import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
-import 'package:memecloud/components/artist/song_list_tile.dart';
-import 'package:memecloud/components/common/confirmation_dialog.dart';
-import 'package:memecloud/components/miscs/default_future_builder.dart';
-import 'package:memecloud/components/musics/playlist_card.dart';
-import 'package:memecloud/components/musics/song_card.dart';
-import 'package:memecloud/components/song/mini_player.dart';
-
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
-
 import 'package:memecloud/pages/song/list_song_page.dart';
+import 'package:memecloud/components/musics/song_card.dart';
+import 'package:memecloud/pages/artist/album_artist_page.dart';
+import 'package:memecloud/components/musics/playlist_card.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/components/miscs/expandable/html.dart';
-import 'package:memecloud/pages/artist/album_artist_page.dart';
+import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
+import 'package:memecloud/components/artist/artist_follow_button.dart';
+import 'package:memecloud/components/miscs/default_future_builder.dart';
 
 class ArtistPage17 extends StatefulWidget {
   final String artistAlias;
@@ -260,32 +253,52 @@ class _ArtistPage17State extends State<ArtistPage17>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    children: [
-                      defaultFutureBuilder(
-                        future: getIt<ApiKit>().getArtistFollowersCount(
-                          artist.id,
-                        ),
-                        onData: (context, data) {
-                          return Text(
-                            '${data.toString()} người theo dõi',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              shadows: [
-                                Shadow(
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  color: Colors.black26,
+                  defaultFutureBuilder<({int followerCount, bool isFollowing})>(
+                    future: () async {
+                      final followerCount = await getIt<ApiKit>()
+                          .getArtistFollowersCount(artist.id);
+                      final isFollowing = await getIt<ApiKit>()
+                          .isFollowingArtist(artist.id);
+                      return (
+                        followerCount: followerCount,
+                        isFollowing: isFollowing,
+                      );
+                    }(),
+                    onData: (context, data) {
+                      bool isFollowing = data.isFollowing;
+                      int followerCount = data.followerCount;
+
+                      return StatefulBuilder(
+                        builder: (context, setState) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '$followerCount người theo dõi',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white.withAlpha(180),
                                 ),
-                              ],
-                            ),
+                              ),
+                              ArtistFollowButton(
+                                artistId: artist.id,
+                                isFollowing: isFollowing,
+                                onPressed: () {
+                                  setState(() {
+                                    if (isFollowing) {
+                                      followerCount -= 1;
+                                    } else {
+                                      followerCount += 1;
+                                    }
+                                    isFollowing = !isFollowing;
+                                  });
+                                },
+                              ),
+                            ],
                           );
                         },
-                      ),
-                      const SizedBox(height: 10),
-                      _FollowButton(artistId: artist.id),
-                    ],
+                      );
+                    },
                   ),
                   Row(
                     children: [
@@ -366,84 +379,6 @@ Widget _buildDivider(BuildContext context) {
       ),
     ),
   );
-}
-
-class _FollowButton extends StatefulWidget {
-  final String artistId;
-  const _FollowButton({required this.artistId});
-
-  @override
-  State<_FollowButton> createState() => _FollowButtonState();
-}
-
-class _FollowButtonState extends State<_FollowButton> {
-  bool? isFollowing;
-
-  @override
-  void initState() {
-    super.initState();
-    unawaited(
-      getIt<ApiKit>().isFollowingArtist(widget.artistId).then((isFollowing) {
-        setState(() {
-          this.isFollowing = isFollowing;
-        });
-      }),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (isFollowing == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    return SizedBox(
-      height: 40,
-      width: 140,
-      child: OutlinedButton.icon(
-        icon: Icon(
-          isFollowing! ? Icons.notifications : Icons.notifications_off,
-        ),
-        label: Text(isFollowing! ? 'Đã theo dõi' : 'Theo dõi'),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.white,
-          side: const BorderSide(color: Colors.white, width: 2),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        onPressed: () {
-          log('toggle follow ${widget.artistId}');
-          if (!isFollowing!) {
-            unawaited(getIt<ApiKit>().toggleFollowArtist(widget.artistId));
-            setState(() {
-              isFollowing = !isFollowing!;
-            });
-          } else {
-            _showSubmitUnfollowDialog(context);
-          }
-        },
-      ),
-    );
-  }
-
-  void _showSubmitUnfollowDialog(BuildContext context) async {
-    final submitUnfollow = await ConfirmationDialog.show(
-      context: context,
-      title: 'Hủy theo dõi',
-      message: 'Bạn có chắc chắn muốn hủy theo dõi?',
-      confirmText: 'Hủy theo dõi',
-      cancelText: 'Không',
-    );
-
-    if (submitUnfollow == true) {
-      unawaited(getIt<ApiKit>().toggleFollowArtist(widget.artistId));
-      setState(() {
-        isFollowing = !isFollowing!;
-      });
-    }
-  }
 }
 
 class _ArtistInfo extends StatelessWidget {

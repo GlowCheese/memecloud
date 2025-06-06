@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:memecloud/components/artist/artist_follow_button.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -164,7 +165,9 @@ class SongPageInner extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           decoration: BoxDecoration(
             color: Colors.grey.shade800,
-            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+            borderRadius: const BorderRadius.vertical(
+              bottom: Radius.circular(20),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,50 +175,47 @@ class SongPageInner extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        artist.name,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          artist.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      defaultFutureBuilder(
-                        future: getIt<ApiKit>().artistStreamCount(artist.id),
-                        onData: (context, data) {
-                          return Text(
-                            '$data lượt phát toàn cầu',
-                            style: TextStyle(
-                              color: Colors.white.withAlpha(196),
-                              fontSize: 13,
-                            ),
-                          );
-                        },
-                        onWaiting: Skeletonizer(
-                          child: Text(
-                            BoneMock.words(3),
-                            style: TextStyle(
-                              color: Colors.white.withAlpha(196),
-                              fontSize: 14,
+                        defaultFutureBuilder(
+                          future: getIt<ApiKit>().artistStreamCount(artist.id),
+                          onData: (context, data) {
+                            return Text(
+                              '$data lượt phát toàn cầu',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Colors.white.withAlpha(196),
+                                fontSize: 13,
+                              ),
+                            );
+                          },
+                          onWaiting: Skeletonizer(
+                            child: Text(
+                              BoneMock.words(3),
+                              style: TextStyle(
+                                color: Colors.white.withAlpha(196),
+                                fontSize: 14,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  OutlinedButton(
-                    onPressed: () {},
-                    child: const Text(
-                      'Theo dõi',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      ],
                     ),
                   ),
+                  ArtistFollowButton(artistId: artist.id),
                 ],
               ),
               defaultFutureBuilder(
@@ -331,12 +331,18 @@ class SongPageInner extends StatelessWidget {
                     AnimatedOpacity(
                       opacity: isPlaying ? 1 : 0,
                       duration: transitionDuration,
-                      child: const Text('Playing', style: TextStyle(fontSize: 20)),
+                      child: const Text(
+                        'Playing',
+                        style: TextStyle(fontSize: 20),
+                      ),
                     ),
                     AnimatedOpacity(
                       opacity: isPlaying ? 0 : 1,
                       duration: transitionDuration,
-                      child: const Text('Paused', style: TextStyle(fontSize: 20)),
+                      child: const Text(
+                        'Paused',
+                        style: TextStyle(fontSize: 20),
+                      ),
                     ),
                   ],
                 );

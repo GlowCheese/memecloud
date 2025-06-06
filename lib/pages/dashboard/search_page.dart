@@ -141,7 +141,6 @@ class ScrollableZingHub extends StatelessWidget {
               item['playlists'],
             ),
           ),
-      DataInspector(hub),
     ];
 
     return ListView.separated(

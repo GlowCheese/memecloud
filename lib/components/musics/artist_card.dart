@@ -5,8 +5,9 @@ import 'package:memecloud/models/artist_model.dart';
 import 'package:memecloud/components/musics/music_card.dart';
 
 class ArtistCard extends StatelessWidget {
-  /// must be between 1 and 2.
+  /// must be between 1 and 3.
   final int variant;
+  final double? size;
   final ArtistModel artist;
   final bool pushReplacement;
 
@@ -14,6 +15,7 @@ class ArtistCard extends StatelessWidget {
     super.key,
     required this.variant,
     required this.artist,
+    this.size,
     this.pushReplacement = false,
   });
 
@@ -37,9 +39,11 @@ class ArtistCard extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (variant) {
       case 1:
-        return _variation1(context);
+        return _variant1(context);
+      case 2:
+        return _variant2(context);
       default:
-        return _variation2(context);
+        return _variant3(context);
     }
   }
 
@@ -52,7 +56,7 @@ class ArtistCard extends StatelessWidget {
   }
 
   // with subtitle 'Nghệ sĩ'
-  Widget _variation1(BuildContext context) {
+  Widget _variant1(BuildContext context) {
     return gestureDectectorWrapper(
       context,
       child: MusicCard(
@@ -66,7 +70,7 @@ class ArtistCard extends StatelessWidget {
   }
 
   // without subtitle
-  Widget _variation2(BuildContext context) {
+  Widget _variant2(BuildContext context) {
     return gestureDectectorWrapper(
       context,
       child: MusicCard(
@@ -74,6 +78,24 @@ class ArtistCard extends StatelessWidget {
         thumbnailUrl: artist.thumbnailUrl,
         title: artist.name,
       ),
+    );
+  }
+
+  Widget _variant3(BuildContext context) {
+    return Column(
+      children: [
+        gestureDectectorWrapper(
+          context,
+          child: MusicCard(
+            variant: 4,
+            width: size!,
+            height: size!,
+            thumbnailUrl: artist.thumbnailUrl,
+            title: artist.name,
+            rounded: true,
+          ),
+        ),
+      ],
     );
   }
 }
