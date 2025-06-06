@@ -1,22 +1,19 @@
 import 'dart:async';
-import 'dart:math';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/apis/zingmp3/endpoints.dart';
-import 'package:memecloud/components/miscs/data_inspector.dart';
-import 'package:memecloud/components/miscs/default_future_builder.dart';
-import 'package:memecloud/components/sections/section_card.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:memecloud/models/playlist_model.dart';
+import 'package:memecloud/apis/zingmp3/endpoints.dart';
 import 'package:memecloud/components/miscs/search_bar.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:memecloud/components/sections/section_card.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/search/search_result_view.dart';
 import 'package:memecloud/components/search/search_suggestions.dart';
-import 'package:memecloud/models/playlist_model.dart';
+import 'package:memecloud/components/miscs/default_future_builder.dart';
 
 Map getSearchPage(BuildContext context) {
   return {

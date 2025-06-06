@@ -344,7 +344,7 @@ class _ArtistPage17State extends State<ArtistPage17>
 
   Future<void> _togglePlayNormal(SongPlayerCubit playerCubit) async {
     if (!playerCubit.shuffleMode) {
-      await playerCubit.toggleShuffleMode();
+      playerCubit.toggleShuffleMode();
     }
     await playerCubit.loadAndPlay(
       context,
@@ -443,7 +443,7 @@ class _SongsSection extends StatelessWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: displaySongs.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 8),
+          separatorBuilder: (_, _) => const SizedBox(height: 8),
           itemBuilder:
               (_, index) => SongCard(
                 variant: 1,

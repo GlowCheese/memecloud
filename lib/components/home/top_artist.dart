@@ -106,7 +106,7 @@ Widget _artistTile(BuildContext context, ArtistModel artist) {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).shadowColor.withOpacity(0.2),
+                  color: Theme.of(context).shadowColor.withAlpha(52),
                   spreadRadius: 1,
                   blurRadius: 6,
                   offset: const Offset(0, 2),

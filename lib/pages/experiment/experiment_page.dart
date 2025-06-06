@@ -9,8 +9,6 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/pages/experiment/e14.dart';
-import 'package:memecloud/pages/experiment/e15.dart';
-import 'package:memecloud/pages/experiment/e17.dart';
 // import 'package:memecloud/pages/artist/artist_page.dart';
 
 final allPages = {
@@ -21,9 +19,6 @@ final allPages = {
   'E12': () => const E12(),
   'E13': () => const E13(),
   'E14': () => const E14(),
-  'E15': () => const ArtistPage(artistAlias: 'Son-Tung-M-TP'),
-  'E17': () => const ArtistPage17(artistAlias: 'Son-Tung-M-TP'),
-
 };
 
 final pageController = ExperimentPageController();

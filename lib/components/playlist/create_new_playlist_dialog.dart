@@ -53,11 +53,13 @@ Future<void> showCreatePlaylistDialog(
                 playlistId: newPlaylist.id,
               );
 
-              showSuccessDialog(
-                context,
-                text: 'Đã tạo "$title" và thêm bài hát ${song.title}.',
-                numOfPopContext: 2,
-              );
+              if (context.mounted) {
+                showSuccessDialog(
+                  context,
+                  text: 'Đã tạo "$title" và thêm bài hát ${song.title}.',
+                  numOfPopContext: 2,
+                );
+              }
             },
           ),
         ],

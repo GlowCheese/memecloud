@@ -1,14 +1,12 @@
 import 'dart:async';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/apis/apikit.dart';
-import 'package:memecloud/components/common/confirmation_dialog.dart';
-import 'package:memecloud/components/musics/playlist_card.dart';
-import 'package:memecloud/components/success.dialog.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/playlist_model.dart';
+import 'package:memecloud/components/success.dialog.dart';
+import 'package:memecloud/components/musics/playlist_card.dart';
+import 'package:memecloud/components/common/confirmation_dialog.dart';
 import 'package:memecloud/pages/library/my_playlist/create_new_playlist.dart';
 
 class MyPlaylistPage extends StatefulWidget {
@@ -151,7 +149,7 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
   }) {
     final thumbnailUrl = playlist.thumbnailUrl;
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: GestureDetector(
         onTap: () => context.push('/playlist_page', extra: playlist),
         onLongPress: () {

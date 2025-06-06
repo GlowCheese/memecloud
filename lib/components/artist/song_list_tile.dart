@@ -72,10 +72,10 @@ class SongListTile extends StatelessWidget {
                             colors: [
                               Theme.of(
                                 context,
-                              ).colorScheme.tertiary.withOpacity(0.1),
+                              ).colorScheme.tertiary.withAlpha(25),
                               Theme.of(
                                 context,
-                              ).colorScheme.tertiary.withOpacity(0.05),
+                              ).colorScheme.tertiary.withAlpha(13),
                             ],
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,

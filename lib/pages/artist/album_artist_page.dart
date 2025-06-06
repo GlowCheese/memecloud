@@ -1,10 +1,8 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/artist/album_list_tile.dart';
+import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/components/miscs/search_bar.dart';
 import 'package:memecloud/components/musics/playlist_card.dart';
-import 'package:memecloud/models/playlist_model.dart';
 
 class AlbumArtistPage extends StatefulWidget {
   final List<PlaylistModel> albums;

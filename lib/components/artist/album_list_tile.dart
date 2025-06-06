@@ -62,7 +62,7 @@ class AlbumListTile extends StatelessWidget {
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withAlpha(52),
                                 borderRadius: BorderRadius.circular(30),
                               ),
                               child: const Icon(

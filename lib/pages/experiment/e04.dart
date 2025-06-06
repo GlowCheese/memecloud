@@ -16,7 +16,7 @@ class E04 extends StatelessWidget {
           itemCount: data.length,
           itemBuilder: (context, index) {
             final artist = data[index];
-            final alias = artist.alias ?? 'Không có alias';
+            final alias = artist.alias;
 
             // In alias ra console để debug
             print('Alias của artist $index: $alias');

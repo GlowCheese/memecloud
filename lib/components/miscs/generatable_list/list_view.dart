@@ -46,7 +46,7 @@ class _GeneratableListView extends State<GeneratableListView> {
       if (idx < items.length) return items[idx];
       return defaultFutureBuilder(
         future: loadMorePage(),
-        onData: (_, __) => const SizedBox(),
+        onData: (_, _) => const SizedBox(),
       );
     }
 
