@@ -162,7 +162,7 @@ class MusicCard extends StatelessWidget {
           ClipRRect(
             borderRadius:
                 rounded
-                    ? BorderRadius.circular(width ?? height!)
+                    ? BorderRadius.circular((width ?? height!) / 2)
                     : BorderRadius.circular(8),
             child: CachedNetworkImage(
               imageUrl: thumbnailUrl,

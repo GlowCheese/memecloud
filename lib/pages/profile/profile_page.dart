@@ -6,6 +6,7 @@ import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/utils/snackbar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -119,10 +120,10 @@ class _ProfilePageState extends State<ProfilePage> {
               );
             },
             child: ClipOval(
-              child: Image.network(
-                myProfile().avatarUrl,
+              child: CachedNetworkImage(
+                imageUrl: myProfile().avatarUrl,
                 fit: BoxFit.cover,
-                errorBuilder:
+                errorWidget:
                     (context, url, error) => Icon(
                       Icons.person,
                       size: 60,

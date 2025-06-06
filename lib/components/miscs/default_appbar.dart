@@ -4,6 +4,7 @@ import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/pages/report/report_issue_page.dart';
 import 'package:memecloud/components/rating/rating_dialog.dart';
+import 'package:memecloud/utils/images.dart';
 
 AppBar defaultAppBar(
   BuildContext context, {
@@ -50,7 +51,7 @@ AppBar defaultAppBar(
       GestureDetector(
         onTap: () => context.push('/profile'),
         child: CircleAvatar(
-          backgroundImage: NetworkImage(
+          backgroundImage: getImageProvider(
             getIt<ApiKit>().myProfile().avatarUrl,
           ),
         ),

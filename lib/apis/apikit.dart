@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
@@ -128,6 +129,7 @@ class ApiKit {
   }
 
   Future<String?> setAvatar(File file) async {
+    CachedNetworkImage.evictFromCache(myProfile().avatarUrl);
     final avatarUrl = await supabase.profile.setAvatar(file);
     supabase.profile.myProfile = myProfile().copyWith(avatarUrl: avatarUrl);
     return avatarUrl;
