@@ -6,6 +6,7 @@ import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:memecloud/utils/noti.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:memecloud/utils/common.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/user_model.dart';
@@ -847,6 +848,40 @@ class ApiKit {
       lazyTime: lazyTime,
       fetchFunc: () => zingMp3.fetchHubDetail(id: hubId),
     );
+  }
+
+  /* ----------------
+  |    SHARE SONG   |
+  ---------------- */
+
+  Future<void> shareSong(SongModel song) async {
+    final tempDir = storage.tempDir;
+
+    final cleanArtist =
+        song.artistsNames
+            .replaceAll(RegExp(r'[\\/:*?"<>|]'), '')
+            .trim()
+            .split(',')
+            .firstOrNull;
+    final cleanTitle =
+        song.title.replaceAll(RegExp(r'[\\/:*?"<>|]'), '').trim();
+
+    final fileName = '[$cleanArtist] $cleanTitle.mp3';
+    final filePath = '${tempDir.path}/$fileName';
+    final destFile = File(filePath);
+
+    if (!await destFile.exists()) {
+      final uri = await getSongUri(song.id);
+
+      if (uri.isScheme('file')) {
+        final sourceFile = File(uri.toFilePath());
+        await sourceFile.copy(filePath);
+      } else {
+        await dio.download(uri.toString(), filePath);
+      }
+    }
+
+    await SharePlus.instance.share(ShareParams(files: [XFile(destFile.path)]));
   }
 }
 
