@@ -111,7 +111,10 @@ class _SectionItemCardVariation1State
                       color: Colors.white.withAlpha(60),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 5,
+                      horizontal: 10,
+                    ),
                     child: Text(
                       widget.tag,
                       maxLines: 1,
