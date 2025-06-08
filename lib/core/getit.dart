@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/blocs/bl_songs/bl_songs_stream.dart';
 import 'package:memecloud/core/dio_init.dart';
 import 'package:memecloud/apis/firebase/main.dart';
 import 'package:memecloud/apis/supabase/main.dart';
@@ -46,6 +47,7 @@ Future<void> setupLocator() async {
   getIt.registerSingleton<SongDlStatusManager>(SongDlStatusManager());
   getIt.registerSingleton<PlaylistDlStatusManager>(PlaylistDlStatusManager());
   getIt.registerSingleton<LikedSongsStream>(LikedSongsStream());
+  getIt.registerSingleton<BlacklistedSongsStream>(BlacklistedSongsStream());
   getIt.registerSingleton<RecentPlayedStream>(RecentPlayedStream());
 
   // custom cookie for vip songs

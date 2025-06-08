@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gif_view/gif_view.dart';
+import 'package:memecloud/components/song/song_bottom_sheet.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:memecloud/models/song_model.dart';
@@ -74,6 +75,7 @@ class SongCard extends StatelessWidget {
           songList: songList,
         );
       },
+      onLongPress: () => showSongBottomSheet(context, song ?? chartSong!.song),
       child: child,
     );
   }

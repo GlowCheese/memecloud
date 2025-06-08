@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
+import 'package:memecloud/blocs/bl_songs/bl_songs_stream.dart';
 import 'package:memecloud/utils/noti.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:share_plus/share_plus.dart';
@@ -197,7 +198,7 @@ class ApiKit {
   |    SONGS/PLAYLISTS   |
   --------------------- */
 
-  Iterable<SongModel> getRecentlyPlayedSongs() {
+  List<SongModel> getRecentlyPlayedSongs() {
     return storage.getRecentlyPlayedSongs();
   }
 
@@ -599,6 +600,7 @@ class ApiKit {
 
   Future<void> setIsBlacklisted(SongModel song, bool isBlacklisted) {
     unawaited(supabase.songs.setIsBlacklisted(song.id, isBlacklisted));
+    getIt<BlacklistedSongsStream>().setIsBlacklisted(song.id, isBlacklisted);
     return storage.setIsBlacklisted(song, isBlacklisted);
   }
 

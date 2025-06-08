@@ -171,9 +171,11 @@ class PersistentStorage {
     ]);
   }
 
-  Iterable<SongModel> getRecentlyPlayedSongs() {
-    return hiveBoxes.recentlyPlayedSongs.values.map(
-      (e) => SongModel.fromJson<SupabaseApi>(jsonDecode(e)),
+  List<SongModel> getRecentlyPlayedSongs() {
+    return SongModel.fromListJson<SupabaseApi>(
+      hiveBoxes.recentlyPlayedSongs.values.map(
+        (e) => jsonDecode(e)
+      ).toList()
     );
   }
 

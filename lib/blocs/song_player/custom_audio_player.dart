@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:memecloud/blocs/bl_songs/bl_songs_stream.dart';
+import 'package:memecloud/core/getit.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/models/song_model.dart';
@@ -10,6 +13,7 @@ class CustomAudioPlayer extends AudioPlayer {
   List<SongModel> songList = [];
   List<int> listenHistory = [];
   List<int> upcomingSongs = [];
+  final List<int> _blacklistedSongs = [];
 
   late final BehaviorSubject<SongModel?> _currentSongSubject;
   late final BehaviorSubject<List<int>> _listenHistorySubject;
@@ -20,6 +24,7 @@ class CustomAudioPlayer extends AudioPlayer {
   Stream<List<int>> get upcomingSongsStream => _upcomingSongsSubject.stream;
 
   late final StreamSubscription<int?> _currentIndexSubscription;
+  late final StreamSubscription<SongBlackListEvent> _blacklistSub;
 
   CustomAudioPlayer() : super() {
     _currentSongSubject = BehaviorSubject.seeded(null);
@@ -28,10 +33,28 @@ class CustomAudioPlayer extends AudioPlayer {
     _currentIndexSubscription = currentIndexStream.listen((index) {
       if (index != null) _updateHistory(index);
     });
+    _blacklistSub = getIt<BlacklistedSongsStream>().stream.listen((event) {
+      if (songList.isEmpty) return;
+      for (int i = 0; i < songList.length; i++) {
+        if (songList[i].id == event.songId) {
+          if (event.isBlacklisted) {
+            _blacklistedSongs.add(i);
+            if (songList[i] == currentSong) {
+              seekToNext();
+            }
+          } else {
+            _blacklistedSongs.remove(i);
+          }
+          _updateSubject(_listenHistorySubject, listenHistory);
+          _updateSubject(_upcomingSongsSubject, upcomingSongs);
+        }
+      }
+    });
   }
 
   @override
   Future<void> dispose() async {
+    await _blacklistSub.cancel();
     await _currentIndexSubscription.cancel();
     await Future.wait([
       _currentSongSubject.close(),
@@ -45,6 +68,7 @@ class CustomAudioPlayer extends AudioPlayer {
     await stop();
     await clearAudioSources();
     songList.clear();
+    _blacklistedSongs.clear();
     _currentSongSubject.add(currentSong = null);
     _listenHistorySubject.add(listenHistory..clear());
     _upcomingSongsSubject.add(upcomingSongs..clear());
@@ -69,8 +93,13 @@ class CustomAudioPlayer extends AudioPlayer {
     }
   }
 
+  void _updateSubject(BehaviorSubject<List<int>> subj, List<int> data) {
+    subj.add(data.where((e) => !_blacklistedSongs.contains(e)).toList());
+  }
+
   List<int>? _refreshUpcomingSongs() {
-    _upcomingSongsSubject.add(
+    _updateSubject(
+      _upcomingSongsSubject,
       upcomingSongs = [
         for (int index in effectiveIndices)
           if (!listenHistory.contains(index)) index,
@@ -106,9 +135,11 @@ class CustomAudioPlayer extends AudioPlayer {
       assert(upcomingSongs.remove(index));
       listenHistory.add(index);
     }
-    _listenHistorySubject.add(listenHistory);
-    _upcomingSongsSubject.add(upcomingSongs);
+    _updateSubject(_listenHistorySubject, listenHistory);
+    _updateSubject(_upcomingSongsSubject, upcomingSongs);
     _currentSongSubject.add(currentSong = songList[index]);
+
+    if (_blacklistedSongs.contains(index)) seekToNext();
   }
 
   @override

@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:memecloud/components/miscs/expandable/text.dart';
+import 'package:memecloud/blocs/bl_songs/bl_songs_stream.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/utils/common.dart';
@@ -12,12 +14,14 @@ import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/components/song/mini_player.dart';
 import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/components/miscs/search_bar.dart';
+import 'package:memecloud/components/miscs/expandable/text.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/pages/song/list_song_paginate_page.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/playlist/playlist_follow_button.dart';
 import 'package:memecloud/components/playlist/playlist_download_button.dart';
+import 'package:provider/provider.dart';
 
 enum SortPlaylistOptions { duration, releaseDate, title, artist }
 
@@ -59,7 +63,10 @@ class PlaylistPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text("Playlist with id $playlistId doesn't exist!"),
-                  ElevatedButton(onPressed: context.pop, child: const Text('Go back')),
+                  ElevatedButton(
+                    onPressed: context.pop,
+                    child: const Text('Go back'),
+                  ),
                 ],
               ),
             );
@@ -94,7 +101,33 @@ class _PlaylistPageInner extends StatefulWidget {
 
 class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
   SortPlaylistOptions? _sortOption;
-  late List<SongModel> _displaySongs = widget.playlist.songs ?? [];
+  late List<SongModel> _displaySongs = List.from(widget.playlist.songs ?? []);
+
+  late final StreamSubscription<SongBlackListEvent> streamSub;
+
+  @override
+  void initState() {
+    super.initState();
+    streamSub = getIt<BlacklistedSongsStream>().stream.listen((event) {
+      for (var song in widget.playlist.songs ?? []) {
+        if (song.id == event.songId) {
+          setState(() {
+            if (event.isBlacklisted) {
+              _displaySongs.remove(song);
+            } else {
+              _displaySongs.add(song);
+            }
+          });
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    streamSub.cancel();
+    super.dispose();
+  }
 
   List<SongModel> get _sortedDisplaySongs {
     var res = List<SongModel>.from(_displaySongs);
@@ -118,7 +151,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
     setState(() {
       widget.playlist.songs?.clear();
       widget.playlist.songs?.addAll(updatedPlaylist.songs ?? []);
-      _displaySongs = updatedPlaylist.songs ?? [];
+      _displaySongs = List.from(updatedPlaylist.songs ?? []);
     });
   }
 
@@ -149,7 +182,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
             playlist: widget.playlist,
           ),
         );
-      }, childCount: _sortedDisplaySongs.length),
+      }, childCount: _displaySongs.length),
     );
   }
 
@@ -180,7 +213,7 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
               fontWeight: FontWeight.w700,
               fontStyle: FontStyle.normal,
             ),
-          )
+          ),
         ),
       ),
     );
@@ -328,19 +361,6 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
             },
             icon: const Icon(Icons.add),
           ),
-        IconButton(
-          icon: Icon(Icons.more_vert, color: Colors.grey[400], size: 20),
-          onPressed: () {
-            // Hiển thị menu tùy chọn cho bài hát
-            showModalBottomSheet(
-              context: context,
-              backgroundColor: Colors.grey[900],
-              builder: (context) {
-                return SongOptionsSheet(song: widget.playlist.songs![0]);
-              },
-            );
-          },
-        ),
       ],
     );
   }
@@ -403,7 +423,9 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
       variant: 2,
       onChanged: (query) {
         if (query.trim().isEmpty) {
-          setState(() => _displaySongs = widget.playlist.songs ?? []);
+          setState(
+            () => _displaySongs = List.from(widget.playlist.songs ?? []),
+          );
         }
 
         String lowercasedQuery = query.toLowerCase();
@@ -467,61 +489,6 @@ class _PlaylistPageInnerState extends State<_PlaylistPageInner> {
             ),
             onTap: () {
               setState(() => _sortOption = SortPlaylistOptions.artist);
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class SongOptionsSheet extends StatelessWidget {
-  final SongModel song;
-
-  const SongOptionsSheet({super.key, required this.song});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.playlist_add, color: Colors.white),
-            title: const Text(
-              'Thêm vào playlist',
-              style: TextStyle(color: Colors.white),
-            ),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.download, color: Colors.white),
-            title: const Text(
-              'Tải xuống',
-              style: TextStyle(color: Colors.white),
-            ),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.share, color: Colors.white),
-            title: const Text('Chia sẻ', style: TextStyle(color: Colors.white)),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.person, color: Colors.white),
-            title: const Text(
-              'Xem nghệ sĩ',
-              style: TextStyle(color: Colors.white),
-            ),
-            onTap: () {
               Navigator.pop(context);
             },
           ),

@@ -37,7 +37,7 @@ class RecentPlayedStreamBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<SongModel> recentlyPlayedSongs =
-        getIt<ApiKit>().getRecentlyPlayedSongs().toList();
+        getIt<ApiKit>().getRecentlyPlayedSongs();
     List<PlaylistModel> recentlyPlayedPlaylists =
         getIt<ApiKit>().getRecentlyPlayedPlaylists().toList();
 

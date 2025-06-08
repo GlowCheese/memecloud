@@ -13,6 +13,8 @@ import 'package:memecloud/components/sections/section_card.dart';
 import 'package:memecloud/components/miscs/section_divider.dart';
 import 'package:memecloud/components/miscs/bottom_sheet_dragger.dart';
 import 'package:memecloud/blocs/song_player/custom_audio_player.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:tuple/tuple.dart';
 
 class ScrollableSongHistoryPage extends StatelessWidget {
   final PlaylistModel? playlist;
@@ -23,17 +25,22 @@ class ScrollableSongHistoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final audioPlayer = getIt<CustomAudioPlayer>();
     return StreamBuilder(
-      stream: audioPlayer.upcomingSongsStream,
+      stream:
+          Rx.combineLatest2<List<int>, List<int>, Tuple2<List<int>, List<int>>>(
+            audioPlayer.listenHistoryStream,
+            audioPlayer.upcomingSongsStream,
+            (history, upcoming) => Tuple2(history, upcoming),
+          ),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const SpinKitPumpingHeart(color: Colors.blue);
         }
 
-        final listenHistory = audioPlayer.listenHistory.sublist(
+        final upcomingSongs = snapshot.data!.item2;
+        final listenHistory = snapshot.data!.item1.sublist(
           max(0, audioPlayer.listenHistory.length - 5),
         ); // only show the last 5 songs from history
 
-        final upcomingSongs = snapshot.data!;
         late final List<Widget>? actions;
         if (playlist == null) {
           actions = null;

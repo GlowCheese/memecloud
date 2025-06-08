@@ -129,30 +129,30 @@ class LibraryPage extends StatelessWidget {
               right: horzPad,
               top: 18,
             ),
-            child: Column(
-              spacing: 12,
-              children: [
-                for (var song in blacklistedSongs)
-                  Padding(
+            child: Expanded(
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: horzPad),
+                itemCount: blacklistedSongs.length,
+                separatorBuilder:
+                    (context, index) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final song = blacklistedSongs[index];
+                  return SongCard(
                     key: Key(song.id),
-                    padding: const EdgeInsets.symmetric(horizontal: horzPad),
-                    child: SongCard(
-                      variant: 3,
-                      song: song,
-                      onUnblacklistButtonPressed: () {
-                        onUnblacklistButtonPressed(context, song).then((
-                          result,
-                        ) {
-                          if (result == true) {
-                            setState(() {
-                              blacklistedSongs.remove(song);
-                            });
-                          }
-                        });
-                      },
-                    ),
-                  ),
-              ],
+                    variant: 3,
+                    song: song,
+                    onUnblacklistButtonPressed: () {
+                      onUnblacklistButtonPressed(context, song).then((result) {
+                        if (result == true) {
+                          setState(() {
+                            blacklistedSongs.remove(song);
+                          });
+                        }
+                      });
+                    },
+                  );
+                },
+              ),
             ),
           );
         },
