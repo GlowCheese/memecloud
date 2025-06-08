@@ -1,14 +1,17 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/miscs/bottom_sheet_dragger.dart';
+import 'package:go_router/go_router.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/components/musics/song_card.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:memecloud/components/musics/playlist_card.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/pages/ssp/simple_scrollable_page.dart';
 import 'package:memecloud/components/sections/section_card.dart';
+import 'package:memecloud/components/miscs/section_divider.dart';
+import 'package:memecloud/components/miscs/bottom_sheet_dragger.dart';
 import 'package:memecloud/blocs/song_player/custom_audio_player.dart';
 
 class ScrollableSongHistoryPage extends StatelessWidget {
@@ -111,7 +114,25 @@ class ScrollableSongHistoryPage extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [const BottomSheetDragger()],
+            children: [
+              const BottomSheetDragger(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child:
+                    PlaylistCard(
+                      playlist: playlist!,
+                      fetchNew: false,
+                    ).variant1(),
+              ),
+              const SectionDivider(),
+              ListTile(
+                leading: PlaylistCard.anotIcon(),
+                title: const Text('Chuyển đến danh sách phát'),
+                onTap: () {
+                  context.pushReplacement('/playlist_page', extra: playlist!);
+                },
+              ),
+            ],
           ),
         );
       },

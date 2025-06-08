@@ -23,7 +23,6 @@ import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:memecloud/models/song_lyrics_model.dart';
 import 'package:memecloud/models/search_result_model.dart';
 import 'package:memecloud/models/search_suggestion_model.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/blocs/dl_status/dl_status_manager.dart';
 import 'package:memecloud/blocs/recent_played/recent_played_stream.dart';
 
@@ -129,7 +128,6 @@ class ApiKit {
   }
 
   Future<String?> setAvatar(File file) async {
-    await CachedNetworkImage.evictFromCache(myProfile().avatarUrl);
     final avatarUrl = await supabase.profile.setAvatar(file);
     supabase.profile.myProfile = myProfile().copyWith(avatarUrl: avatarUrl);
     return avatarUrl;

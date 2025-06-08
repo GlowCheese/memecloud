@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:memecloud/components/miscs/grad_background.dart';
+import 'package:memecloud/components/rating/bottom_sheet.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/utils/snackbar.dart';
@@ -41,6 +44,8 @@ class _ProfilePageState extends State<ProfilePage> {
             message: 'Cập nhật ảnh đại diện thành công!',
           );
         }
+
+        await CachedNetworkImage.evictFromCache(myProfile().avatarUrl);
         setState(() => isLoading = false);
       }
     } catch (e) {
@@ -55,23 +60,34 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Hồ sơ cá nhân')),
-      body:
-          isLoading
-              ? const Center(child: SpinKitDancingSquare(color: Colors.white))
-              : SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    _buildProfileHeader(),
-                    const SizedBox(height: 24),
-                    _buildProfileInfo(),
-                    const SizedBox(height: 24),
-                    _buildActionButtons(),
-                  ],
-                ),
-              ),
+    return GradBackground2(
+      imageUrl: myProfile().avatarUrl,
+      builder: (_, _) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Hồ sơ cá nhân'),
+            backgroundColor: Colors.transparent,
+          ),
+          backgroundColor: Colors.transparent,
+          body:
+              isLoading
+                  ? const Center(
+                    child: SpinKitDancingSquare(color: Colors.white),
+                  )
+                  : SingleChildScrollView(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        _buildProfileHeader(),
+                        const SizedBox(height: 24),
+                        _buildProfileInfo(),
+                        const SizedBox(height: 24),
+                        _buildActionButtons(context),
+                      ],
+                    ),
+                  ),
+        );
+      },
     );
   }
 
@@ -172,15 +188,15 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(BuildContext context) {
     return Column(
       children: [
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            icon: const Icon(Icons.lock),
-            label: const Text('Đổi mật khẩu'),
-            onPressed: _changePassword,
+            icon: const FaIcon(FontAwesomeIcons.heart),
+            label: const Text('Đánh giá chúng tôi!'),
+            onPressed: () => showRatingBottomSheet(context),
           ),
         ),
         const SizedBox(height: 12),
@@ -278,48 +294,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 }
               },
               child: const Text('Lưu'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _changePassword() {
-    // Implement your change password logic here
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Đổi mật khẩu'),
-          content: const Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(labelText: 'Mật khẩu hiện tại'),
-              ),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(labelText: 'Mật khẩu mới'),
-              ),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(labelText: 'Xác nhận mật khẩu mới'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Hủy'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                // Call your password change function here
-              },
-              child: const Text('Xác nhận'),
             ),
           ],
         );

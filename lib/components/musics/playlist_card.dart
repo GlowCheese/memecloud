@@ -12,7 +12,7 @@ class PlaylistCard {
   final PlaylistModel playlist;
   PlaylistCard({this.key, required this.playlist, this.fetchNew = true});
 
-  Widget _anotIcon() {
+  static Widget anotIcon() {
     return FaIcon(
       FontAwesomeIcons.barsStaggered,
       size: 16,
@@ -42,7 +42,7 @@ class PlaylistCard {
       key: key,
       child: MusicCard(
         variant: 1,
-        icon: _anotIcon(),
+        icon: anotIcon(),
         thumbnailUrl: playlist.thumbnailUrl,
         title: playlist.title,
         subTitle: 'Playlist • ${playlist.artistsNames}',
@@ -57,7 +57,7 @@ class PlaylistCard {
       child: MusicCard(
         variant: 3,
         width: size,
-        icon: _anotIcon(),
+        icon: anotIcon(),
         thumbnailUrl: playlist.thumbnailUrl,
         title: playlist.title,
         subTitle: 'Playlist • ${playlist.artistsNames}',
@@ -80,6 +80,7 @@ class PlaylistCard {
     );
   }
 
+  // very specific purpose, but it's actually nice!
   Widget variant4({
     required double gap,
     required double height,
