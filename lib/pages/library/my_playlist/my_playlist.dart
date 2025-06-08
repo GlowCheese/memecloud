@@ -18,13 +18,10 @@ class MyPlaylistPage extends StatefulWidget {
 
 class _MyPlaylistPageState extends State<MyPlaylistPage> {
   late Future<List<PlaylistModel>> Function() _myPlaylistFuture;
-  late Future<List<PlaylistModel>> Function() _suggestedPlaylistFuture;
 
   @override
   void initState() {
     _myPlaylistFuture = getIt<ApiKit>().supabase.userPlaylist.getUserPlaylists;
-    _suggestedPlaylistFuture =
-        getIt<ApiKit>().supabase.playlists.getSuggestedPlaylists;
     super.initState();
   }
 
