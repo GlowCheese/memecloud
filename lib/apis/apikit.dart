@@ -464,6 +464,7 @@ class ApiKit {
     final downloadTask = CancelableOperation.fromFuture(
       downloadProcess()
           .then((success) {
+            cancelNoti(playlistId.hashCode);
             if (success) {
               sendCompleteNoti(
                 id: playlistId.hashCode,
