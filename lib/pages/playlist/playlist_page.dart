@@ -21,7 +21,6 @@ import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/playlist/playlist_follow_button.dart';
 import 'package:memecloud/components/playlist/playlist_download_button.dart';
-import 'package:provider/provider.dart';
 
 enum SortPlaylistOptions { duration, releaseDate, title, artist }
 

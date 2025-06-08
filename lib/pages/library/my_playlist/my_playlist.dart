@@ -89,55 +89,6 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
               );
             },
           ),
-
-          // Suggested Playlists Section
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Có thể bạn thích?',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-
-          // Suggested Playlists List
-          FutureBuilder<List<PlaylistModel>>(
-            future: _suggestedPlaylistFuture(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const SliverToBoxAdapter(
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-              if (snapshot.hasError) {
-                return SliverToBoxAdapter(
-                  child: Text('Lỗi: ${snapshot.error}'),
-                );
-              }
-
-              final playlists = snapshot.data ?? [];
-
-              return SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => _buildSuggestedPlaylistItem(
-                      playlist: playlists[index],
-                      color:
-                          Colors.primaries[(index + 6) %
-                              Colors.primaries.length],
-                    ),
-                    childCount: playlists.length,
-                  ),
-                ),
-              );
-            },
-          ),
         ],
       ),
     );
@@ -206,21 +157,8 @@ class _MyPlaylistPageState extends State<MyPlaylistPage> {
         child: PlaylistCard(
           fetchNew: false,
           playlist: playlist,
-        ).variant2(size: 2),
+        ).variant2(size: 40),
       ),
-    );
-  }
-
-  Widget _buildSuggestedPlaylistItem({
-    required PlaylistModel playlist,
-    required Color color,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: PlaylistCard(
-        fetchNew: false,
-        playlist: playlist,
-      ).variant2(size: 62),
     );
   }
 

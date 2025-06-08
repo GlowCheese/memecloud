@@ -13,8 +13,7 @@ class SupabaseUserPlaylistApi {
   final String userPlaylistTable = 'user_playlists';
   final String userPlaylistSongsTable = 'user_playlist_songs';
 
-  final String sampleImageLink =
-      "https://img.icons8.com/ios-filled/100/music.png";
+  final String sampleImageLink = "assets/icons/playlist.webp";
 
   final _connectivity = getIt<ConnectivityStatus>();
 

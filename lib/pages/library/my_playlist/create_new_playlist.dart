@@ -97,35 +97,6 @@ class _CreateNewPlaylistState extends State<CreateNewPlaylist> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              GestureDetector(
-                onTap: _pickImage,
-                child:
-                    _selectedImage != null
-                        ? ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.file(
-                            _selectedImage!,
-                            height: 180,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                        : Container(
-                          height: 180,
-                          decoration: BoxDecoration(
-                            color: Colors.white10,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.white24),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.add_a_photo,
-                              color: Colors.white60,
-                              size: 40,
-                            ),
-                          ),
-                        ),
-              ),
               const SizedBox(height: 24),
               TextFormField(
                 controller: _titleController,

@@ -1,72 +1,75 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:go_router/go_router.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/components/miscs/bottom_sheet_dragger.dart';
+import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/playlist/create_new_playlist_dialog.dart';
 import 'package:memecloud/core/getit.dart';
+import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/utils/snackbar.dart';
 
 Future<void> showAddToPlaylistSheet(
   BuildContext context,
   SongModel song,
 ) async {
-  final playlists =
-      await getIt<ApiKit>().supabase.userPlaylist.getUserPlaylists();
-  if (!context.mounted) return;
+  List<PlaylistModel>? playlists;
+
   showModalBottomSheet(
     context: context,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-    ),
+    isScrollControlled: true,
     builder: (BuildContext context) {
-      return DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.5,
-        minChildSize: 0.3,
-        maxChildSize: 0.9,
-        builder: (context, scrollController) {
-          return SingleChildScrollView(
-            controller: scrollController,
-            child: Column(
-              children: [
-                const BottomSheetDragger(),
-                const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text(
-                    'Chọn danh sách phát',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+      return StatefulBuilder(
+        builder: (context, setState) {
+          if (playlists == null) {
+            getIt<ApiKit>().supabase.userPlaylist.getUserPlaylists().then(
+              (data) => setState(() => playlists = data),
+            );
+            return const SpinKitChasingDots(size: 50, color: Colors.white);
+          }
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const BottomSheetDragger(),
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  'Chọn danh sách phát',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.add_box_outlined),
-                  title: const Text('Tạo danh sách phát mới'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.add_box_outlined),
+                title: const Text('Tạo danh sách phát mới'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await showCreatePlaylistDialog(context, song);
+                },
+              ),
+              const Divider(),
+              ...playlists!.map((playlist) {
+                return ListTile(
+                  leading: const Icon(Icons.queue_music),
+                  title: Text(playlist.title),
                   onTap: () async {
-                    Navigator.pop(context);
-                    await showCreatePlaylistDialog(context, song);
-                  },
-                ),
-                const Divider(),
-                ...playlists.map((playlist) {
-                  return ListTile(
-                    leading: const Icon(Icons.queue_music),
-                    title: Text(playlist.title),
-                    onTap: () async {
-                      Navigator.pop(context);
-                      await getIt<ApiKit>().supabase.userPlaylist
-                          .addSongToPlaylist(
-                            songId: song.id,
-                            playlistId: playlist.id,
-                          );
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Đã thêm vào "${playlist.title}"'),
-                        ),
+                    await getIt<ApiKit>().supabase.userPlaylist
+                        .addSongToPlaylist(
+                          songId: song.id,
+                          playlistId: playlist.id,
+                        );
+                    if (context.mounted) {
+                      showSuccessSnackbar(
+                        context,
+                        message: 'Đã thêm vào "${playlist.title}"',
                       );
-                    },
-                  );
-                }),
-              ],
-            ),
+                      context.pop();
+                    }
+                  },
+                );
+              }),
+            ],
           );
         },
       );

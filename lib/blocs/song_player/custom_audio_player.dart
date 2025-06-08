@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
-import 'package:memecloud/blocs/bl_songs/bl_songs_stream.dart';
-import 'package:memecloud/core/getit.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:memecloud/core/getit.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/models/song_model.dart';
+import 'package:memecloud/blocs/bl_songs/bl_songs_stream.dart';
 
 class CustomAudioPlayer extends AudioPlayer {
   /// `null` if no song is playing, `SongModel` otherwise.

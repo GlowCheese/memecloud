@@ -15,12 +15,13 @@ Future showSongBottomSheet(
   SongModel song, {
   Color? bgColor,
 }) async {
+  final isBlacklisted = getIt<ApiKit>().isBlacklisted(song.id);
+
   return showModalBottomSheet(
     context: context,
+    isScrollControlled: true,
     backgroundColor: bgColor ?? Colors.blueGrey.shade700,
     builder: (BuildContext context) {
-      final isBlacklisted = getIt<ApiKit>().isBlacklisted(song.id);
-
       return Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: Column(
@@ -44,6 +45,7 @@ Future showSongBottomSheet(
               leading: const Icon(Icons.playlist_add),
               title: const Text('Thêm vào danh sách phát'),
               onTap: () {
+                context.pop();
                 showAddToPlaylistSheet(context, song);
               },
             ),
