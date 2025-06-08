@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
+import 'package:memecloud/components/miscs/section_divider.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/song_model.dart';
@@ -9,22 +10,19 @@ import 'package:memecloud/components/song/show_song_artists.dart';
 import 'package:memecloud/components/miscs/bottom_sheet_dragger.dart';
 import 'package:memecloud/components/playlist/show_add_to_playlist_sheet.dart';
 
-Future showSongBottomSheetActions(BuildContext context, SongModel song) async {
+Future showSongBottomSheetActions(BuildContext context, SongModel song, {Color? bgColor}) async {
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-    ),
+    backgroundColor: bgColor ?? Colors.blueGrey.shade700,
     builder: (BuildContext context) {
       final isBlacklisted = getIt<ApiKit>().isBlacklisted(song.id);
-      final isLiked = getIt<ApiKit>().isSongLiked(song.id);
 
       return DraggableScrollableSheet(
         expand: false,
-        initialChildSize: 0.38,
-        minChildSize: 0.2,
-        maxChildSize: 0.5,
+        initialChildSize: 0.37,
+        maxChildSize: 0.37,
+        minChildSize: 0.37,
         builder: (BuildContext context, ScrollController scrollController) {
           return SingleChildScrollView(
             controller: scrollController,
@@ -35,14 +33,7 @@ Future showSongBottomSheetActions(BuildContext context, SongModel song) async {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: SongCard(variant: 1, song: song),
                 ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5),
-                  child: Divider(),
-                ),
-                const ListTile(
-                  leading: Icon(Icons.download),
-                  title: Text('Tải về'),
-                ),
+                const SectionDivider(),
                 ListTile(
                   leading: const Icon(Icons.person_rounded),
                   title: const Text('Chuyển tới nghệ sĩ'),
@@ -51,25 +42,6 @@ Future showSongBottomSheetActions(BuildContext context, SongModel song) async {
                     showSongArtists(context, song.artists);
                   },
                 ),
-                if (isLiked)
-                  ListTile(
-                    leading: const Icon(Icons.favorite_rounded),
-                    title: const Text('Bỏ thích bài hát này'),
-                    onTap: () {
-                      context.pop();
-                      getIt<ApiKit>().setIsSongLiked(song, false);
-                    },
-                  )
-                else
-                  ListTile(
-                    leading: const Icon(Icons.favorite_border_rounded),
-                    title: const Text('Thích bài hát này'),
-                    onTap: () {
-                      context.pop();
-                      getIt<ApiKit>().setIsSongLiked(song, true);
-                    },
-                  ),
-                const Divider(),
                 ListTile(
                   leading: const Icon(Icons.playlist_add),
                   title: const Text('Thêm vào danh sách phát'),
@@ -103,7 +75,6 @@ Future showSongBottomSheetActions(BuildContext context, SongModel song) async {
                     );
                   },
                 ),
-                const Divider(),
                 if (isBlacklisted)
                   ListTile(
                     leading: const Icon(Icons.visibility_rounded),

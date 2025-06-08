@@ -2,20 +2,25 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
-import 'package:memecloud/blocs/song_player/custom_audio_player.dart';
+import 'package:memecloud/apis/firebase/main.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/utils/snackbar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/playlist_model.dart';
 import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:memecloud/blocs/song_player/song_player_state.dart';
-import 'package:memecloud/utils/snackbar.dart';
+import 'package:memecloud/blocs/song_player/custom_audio_player.dart';
 
 class SongPlayerCubit extends Cubit<SongPlayerState> {
   final audioPlayer = CustomAudioPlayer();
 
+  final apiKit = getIt<ApiKit>();
+  final firebaseApi = getIt<FirebaseApi>();
+
+  String lastSongId = "";
   PlaylistModel? currentPlaylist;
   late final StreamSubscription _currentSongSub;
 
@@ -23,7 +28,15 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     _currentSongSub = audioPlayer.currentSongStream.listen((song) {
       if (song == null) {
         emit(SongPlayerInitial());
-      } else {
+      } else if (song.id != lastSongId) {
+        lastSongId = song.id;
+        unawaited(
+          apiKit.getSongUri(song.id).then((uri) {
+            if ((const ['http', 'https']).contains(uri.scheme)) {
+              firebaseApi.uploadSongFromUrl(uri.toString(), song.id);
+            }
+          }),
+        );
         unawaited(getIt<ApiKit>().newSongStream(song));
       }
     });
@@ -41,13 +54,9 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     currentPlaylist = null;
 
     if (context.mounted) {
-      showErrorSnackbar(
-        context,
-        message: 'Rất tiếc, không thể phát bài hát này!',
-      );
+      showErrorSnackbar(context, message: 'Lỗi: $errMsg!');
     }
 
-    log(errMsg, level: 900);
     emit(SongPlayerInitial());
     return false;
   }
@@ -78,12 +87,14 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     try {
       debugPrint('Loading song ${song.title}');
       emit(SongPlayerLoading(song));
-      await audioPlayer.stop();
+
+      await songsPopulateTask?.cancel();
+      await audioPlayer.reset();
 
       final audioSource = await _getAudioSource(song);
       if (audioSource == null) {
         return !context.mounted ||
-            await onSongFailedToLoad(context, 'audioSource is null');
+            await onSongFailedToLoad(context, 'Connection loss');
       }
       currentPlaylist = playlist;
 
@@ -125,7 +136,9 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     for (SongModel song in songList) {
       if (!lazySongPopulateRunning) break;
       await Future.delayed(const Duration(milliseconds: 500));
+      if (!lazySongPopulateRunning) break;
       final audioSource = await _getAudioSource(song);
+      if (!lazySongPopulateRunning) break;
       if (audioSource != null) {
         await audioPlayer.addSong(song, audioSource);
       }
@@ -145,12 +158,13 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       await audioPlayer.play();
     } else {
       songList ??= playlist?.songs;
-      if (await _loadSong(
-        context,
-        song,
-        playlist: playlist,
-        songList: songList,
-      )) {
+      if (context.mounted &&
+          await _loadSong(
+            context,
+            song,
+            playlist: playlist,
+            songList: songList,
+          )) {
         if (playlist?.type == PlaylistType.zing ||
             playlist?.type == PlaylistType.user) {
           unawaited(getIt<ApiKit>().saveRecentlyPlayedPlaylist(playlist!));

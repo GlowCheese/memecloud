@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +23,7 @@ import 'package:memecloud/apis/others/connectivity.dart';
 import 'package:memecloud/models/song_lyrics_model.dart';
 import 'package:memecloud/models/search_result_model.dart';
 import 'package:memecloud/models/search_suggestion_model.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/blocs/dl_status/dl_status_manager.dart';
 import 'package:memecloud/blocs/recent_played/recent_played_stream.dart';
 
@@ -686,13 +686,11 @@ class ApiKit {
       String? url = await firebaseApi.getSongUrl(songId);
       url ??= await zingMp3.fetchSongUrl(songId);
       unawaited(storage.updateCached(api, url));
-      firebaseApi.uploadSongFromUrl(url, songId);
       return Uri.parse(url);
     }
 
     return await storage.getCached<String>(api).fold<Future<Uri>>((url) async {
-      final uri = Uri.parse(url);
-      return isSongUriActive(uri) ? uri : await fetchF();
+      return await isUrlActive(url) ? Uri.parse(url) : await fetchF();
     }, (_) => fetchF());
   }
 
@@ -897,18 +895,19 @@ class ApiKit {
 
     await SharePlus.instance.share(ShareParams(files: [XFile(destFile.path)]));
   }
-}
 
-bool isSongUriActive(Uri uri) {
-  final authen = uri.queryParameters['authen'];
-  final expStr = authen
-      ?.split('~')
-      .firstWhere((e) => e.startsWith('exp='), orElse: () => '')
-      .split('=')
-      .elementAtOrNull(1);
-
-  if (expStr == null) return true;
-  final exp = int.tryParse(expStr) ?? 0;
-  final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-  return exp > now + 600;
+  Future<bool> isUrlActive(String url) async {
+    try {
+      final response = await dio.head(url);
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      // Có thể log ra để biết lý do chết
+      if (e.response != null) {
+        print('URL chết, status: ${e.response?.statusCode}');
+      } else {
+        print('Lỗi mạng hoặc URL lỗi: ${e.message}');
+      }
+      return false;
+    }
+  }
 }

@@ -1,6 +1,6 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:async';
-import 'dart:collection';
 import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -22,33 +22,46 @@ Future<Uint8List> _consolidateHttpClientResponseBytes(
 
 class FirebaseApi {
   bool _isCancelled = false;
-  final uploadQueue = Queue<Future Function()>();
+  final _httpClient = HttpClient();
   late final CancelableOperation uploadTask;
+  final uploadStack = <Future Function()>[];
 
   FirebaseApi() {
     uploadTask = CancelableOperation.fromFuture(() async {
       while (true) {
         if (_isCancelled) break;
-        if (uploadQueue.isEmpty) {
-          await Future.delayed(const Duration(seconds: 5));
+        if (uploadStack.isNotEmpty) {
+          try {
+            await uploadStack.removeLast()();
+          } catch (e, stackTrace) {
+            log(
+              'Failed to upload song to firebase',
+              stackTrace: stackTrace,
+              level: 1000,
+            );
+          }
           continue;
         }
-        await uploadQueue.removeFirst()();
-        await Future.delayed(const Duration(seconds: 150));
+        // if the stack has no element,
+        // wait for 10 seconds until the next check
+        await Future.delayed(const Duration(seconds: 10));
       }
     }(), onCancel: () => _isCancelled = true);
   }
 
   void cancel() {
+    _httpClient.close();
     uploadTask.cancel();
   }
 
   void uploadSongFromUrl(String url, String songId) {
-    uploadQueue.add(() async {
+    uploadStack.add(() async {
+      if (await getSongUrl(songId) != null) return;
+
       final uri = Uri.parse(url);
       debugPrint('⬆️ Uploading $url');
-      
-      final request = await HttpClient().getUrl(uri);
+
+      final request = await _httpClient.getUrl(uri);
       final response = await request.close();
 
       if (response.statusCode != 200) {
@@ -64,6 +77,9 @@ class FirebaseApi {
       final metadata = SettableMetadata(contentType: 'audio/mpeg');
       await ref.putData(bytes, metadata);
       debugPrint('✅ Upload success!');
+
+      // prevent user from spam uploading too many songs
+      await Future.delayed(const Duration(seconds: 20));
     });
   }
 

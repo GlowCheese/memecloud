@@ -43,6 +43,7 @@ class CustomAudioPlayer extends AudioPlayer {
 
   Future<void> reset() async {
     await stop();
+    await clearAudioSources();
     songList.clear();
     _currentSongSubject.add(currentSong = null);
     _listenHistorySubject.add(listenHistory..clear());

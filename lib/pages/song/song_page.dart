@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/apis/apikit.dart';
+import 'package:memecloud/utils/common.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/models/artist_model.dart';
@@ -46,45 +47,47 @@ class SongPageInner extends StatelessWidget {
   Widget build(BuildContext context) {
     return GradBackground2(
       imageUrl: song.thumbnailUrl,
-      builder:
-          (bgColor, _) => Theme(
-            data: Theme.of(context).copyWith(
-              appBarTheme: const AppBarTheme(foregroundColor: Colors.white),
-              textTheme: Theme.of(context).textTheme.apply(
-                bodyColor: Colors.white,
-                displayColor: Colors.white,
-              ),
+      builder: (domColor, _) {
+        domColor = adjustColor(domColor, l: 0.2);
+        return Theme(
+          data: Theme.of(context).copyWith(
+            appBarTheme: const AppBarTheme(foregroundColor: Colors.white),
+            textTheme: Theme.of(context).textTheme.apply(
+              bodyColor: Colors.white,
+              displayColor: Colors.white,
             ),
-            child: Scaffold(
-              appBar: _appBar(context),
-              backgroundColor: Colors.transparent,
-              body: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Center(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 72),
-                        Center(child: _songCover(bgColor)),
-                        const SizedBox(height: 72),
-                        _songDetails(),
-                        const SizedBox(height: 20),
-                        SongControllerView(song: song),
-                        const SizedBox(height: 50),
-                        _songLyric(),
-                        const SizedBox(height: 30),
-                        if (song.artists.isNotEmpty)
-                          _artistCard(context, song.artists[0]),
-                        const SizedBox(height: 12),
-                      ],
-                    ),
+          ),
+          child: Scaffold(
+            appBar: _appBar(context, domColor),
+            backgroundColor: Colors.transparent,
+            body: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 72),
+                      Center(child: _songCover(domColor)),
+                      const SizedBox(height: 72),
+                      _songDetails(),
+                      const SizedBox(height: 20),
+                      SongControllerView(song: song),
+                      const SizedBox(height: 50),
+                      _songLyric(),
+                      const SizedBox(height: 30),
+                      if (song.artists.isNotEmpty)
+                        _artistCard(context, song.artists[0]),
+                      const SizedBox(height: 12),
+                    ],
                   ),
                 ),
               ),
             ),
           ),
+        );
+      },
     );
   }
 
@@ -305,7 +308,7 @@ class SongPageInner extends StatelessWidget {
     );
   }
 
-  AppBar _appBar(BuildContext context) {
+  AppBar _appBar(BuildContext context, Color domColor) {
     return AppBar(
       backgroundColor: Colors.transparent,
       centerTitle: true,
@@ -377,7 +380,12 @@ class SongPageInner extends StatelessWidget {
           child: IconButton(
             icon: const Icon(Icons.more_vert),
             iconSize: 22,
-            onPressed: () => showSongBottomSheetActions(context, song),
+            onPressed:
+                () => showSongBottomSheetActions(
+                  context,
+                  song,
+                  bgColor: domColor,
+                ),
           ),
         ),
       ],

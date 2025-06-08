@@ -73,7 +73,7 @@ class _RotatingSongDiscState extends State<RotatingSongDisc>
           width: widget.size / 4,
           height: widget.size / 4,
           decoration: BoxDecoration(
-            color: adjustColor(widget.holeColor, l: 0.2),
+            color: widget.holeColor,
             borderRadius: BorderRadius.circular(widget.size / 8),
           ),
         ),
