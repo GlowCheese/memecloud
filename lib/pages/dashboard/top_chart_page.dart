@@ -6,7 +6,7 @@ import 'package:memecloud/models/week_chart_model.dart';
 import 'package:memecloud/components/musics/song_card.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
-import 'package:memecloud/components/song/show_song_actions.dart';
+import 'package:memecloud/components/song/song_bottom_sheet.dart';
 import 'package:memecloud/components/miscs/page_with_tabs/single.dart';
 import 'package:memecloud/components/miscs/default_future_builder.dart';
 import 'package:memecloud/components/miscs/generatable_list/list_view.dart';
@@ -44,7 +44,7 @@ class TopChartPage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: GestureDetector(
                         onLongPress:
-                            () => showSongBottomSheetActions(context, e.song),
+                            () => showSongBottomSheet(context, e.song),
                         child: SongCard(
                           variant: 2,
                           chartSong: e,

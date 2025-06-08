@@ -7,11 +7,13 @@ class SimpleScrollablePage {
   final String title;
   final double? spacing;
   late final Color bgColor;
+  final List<Widget>? actions;
 
   SimpleScrollablePage({
     this.key,
     required this.title,
     this.spacing,
+    this.actions,
     Color? bgColor,
   }) : bgColor = bgColor ?? MyColorSet.lightBlue;
 
@@ -20,7 +22,11 @@ class SimpleScrollablePage {
       color: bgColor,
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: AppBar(title: Text(title), backgroundColor: Colors.transparent),
+        appBar: AppBar(
+          title: Text(title),
+          backgroundColor: Colors.transparent,
+          actions: actions,  
+        ),
         body: ListView.separated(
           itemCount: children.length,
           itemBuilder: (context, index) => children[index],

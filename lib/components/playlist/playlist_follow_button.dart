@@ -32,9 +32,13 @@ class _PlaylistFollowButtonState extends State<PlaylistFollowButton> {
     _isFollowing = widget.playlist.isFollowed;
     if (widget.withFolowerCount) {
       unawaited(
-        getIt<ApiKit>()
-            .getPlaylistFollowerCounts(widget.playlist.id)
-            .then((value) => setState(() => _followerCount = value)),
+        getIt<ApiKit>().getPlaylistFollowerCounts(widget.playlist.id).then((
+          value,
+        ) {
+          if (mounted) {
+            setState(() => _followerCount = value);
+          }
+        }),
       );
     }
   }

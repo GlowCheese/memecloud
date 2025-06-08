@@ -12,7 +12,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memecloud/components/song/song_controller.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
 import 'package:memecloud/components/miscs/expandable/text.dart';
-import 'package:memecloud/components/song/show_song_actions.dart';
+import 'package:memecloud/components/song/song_bottom_sheet.dart';
 import 'package:memecloud/components/song/rotating_song_disc.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/song/song_download_button.dart';
@@ -380,12 +380,9 @@ class SongPageInner extends StatelessWidget {
           child: IconButton(
             icon: const Icon(Icons.more_vert),
             iconSize: 22,
-            onPressed:
-                () => showSongBottomSheetActions(
-                  context,
-                  song,
-                  bgColor: domColor,
-                ),
+            onPressed: () {
+              showSongBottomSheet(context, song, bgColor: domColor);
+            },
           ),
         ),
       ],

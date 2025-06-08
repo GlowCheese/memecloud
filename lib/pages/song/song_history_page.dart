@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:memecloud/components/miscs/bottom_sheet_dragger.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:memecloud/models/playlist_model.dart';
@@ -30,10 +31,25 @@ class ScrollableSongHistoryPage extends StatelessWidget {
         ); // only show the last 5 songs from history
 
         final upcomingSongs = snapshot.data!;
+        late final List<Widget>? actions;
+        if (playlist == null) {
+          actions = null;
+        } else {
+          actions = [
+            IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () {
+                showPlaylistBottomSheet(context);
+              },
+            ),
+          ];
+        }
+
         return SimpleScrollablePage(
           title: 'Lịch sử phát',
           bgColor: MyColorSet.cyan,
           spacing: 12,
+          actions: actions,
         ).variant1(
           children: [
             const SizedBox(),
@@ -81,6 +97,22 @@ class ScrollableSongHistoryPage extends StatelessWidget {
               ),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  Future showPlaylistBottomSheet(BuildContext context) {
+    return showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.blueGrey.shade700,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [const BottomSheetDragger()],
+          ),
         );
       },
     );

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memecloud/components/song/show_song_actions.dart';
+import 'package:memecloud/components/song/song_bottom_sheet.dart';
 import 'package:memecloud/core/getit.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
@@ -92,7 +92,7 @@ class _SongListDisplayState extends State<_SongListDisplay> {
           songList: songList,
         );
       },
-      onLongPress: () => showSongBottomSheetActions(context, song),
+      onLongPress: () => showSongBottomSheet(context, song),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

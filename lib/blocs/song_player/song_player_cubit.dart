@@ -137,7 +137,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       if (!lazySongPopulateRunning) break;
       final audioSource = await _getAudioSource(song);
       if (!lazySongPopulateRunning) break;
-      if (audioSource != null) {
+      if (audioSource != null && audioPlayer.getIndexOf(song.id) == -1) {
         await audioPlayer.addSong(song, audioSource);
       }
     }
@@ -151,24 +151,39 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     List<SongModel>? songList,
   }) async {
     if (state is SongPlayerLoading) return;
+
+    // the currently playing playlist contains the song we need to play
     if (currentPlaylist != null && currentPlaylist!.id == playlist?.id) {
-      seek(Duration.zero, songId: song.id);
-      await audioPlayer.play();
-    } else {
-      songList ??= playlist?.songs;
-      if (context.mounted &&
-          await _loadSong(
-            context,
-            song,
-            playlist: playlist,
-            songList: songList,
-          )) {
-        if (playlist?.type == PlaylistType.zing ||
-            playlist?.type == PlaylistType.user) {
-          unawaited(getIt<ApiKit>().saveRecentlyPlayedPlaylist(playlist!));
+      // need to check if the song is already in the audio player
+      if (audioPlayer.getIndexOf(song.id) == -1) {
+        final audioSource = await _getAudioSource(song);
+        if (audioSource == null) {
+          if (context.mounted) {
+            await onSongFailedToLoad(context, 'Connection loss');
+          }
+          return;
         }
-        await audioPlayer.play();
+        await audioPlayer.addSong(song, audioSource);
       }
+
+      // seek to the song and play
+      seek(Duration.zero, songId: song.id);
+      return await audioPlayer.play();
+    }
+
+    // reset the audio player and play the playlist
+    songList ??= playlist?.songs;
+    if (await _loadSong(
+      context,
+      song,
+      playlist: playlist,
+      songList: songList,
+    )) {
+      if (playlist?.type == PlaylistType.zing ||
+          playlist?.type == PlaylistType.user) {
+        unawaited(getIt<ApiKit>().saveRecentlyPlayedPlaylist(playlist!));
+      }
+      await audioPlayer.play();
     }
   }
 

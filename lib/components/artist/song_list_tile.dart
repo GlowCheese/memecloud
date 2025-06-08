@@ -4,7 +4,7 @@ import 'package:memecloud/apis/apikit.dart';
 import 'package:memecloud/models/song_model.dart';
 import 'package:memecloud/components/song/like_button.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:memecloud/components/song/show_song_actions.dart';
+import 'package:memecloud/components/song/song_bottom_sheet.dart';
 import 'package:memecloud/blocs/song_player/song_player_cubit.dart';
 import 'package:memecloud/components/song/play_or_pause_button.dart';
 
@@ -55,7 +55,7 @@ class SongListTile extends StatelessWidget {
             ),
             child: InkWell(
               borderRadius: BorderRadius.circular(16),
-              onLongPress: () => showSongBottomSheetActions(context, song),
+              onLongPress: () => showSongBottomSheet(context, song),
               onTap: () async {
                 await playerCubit.loadAndPlay(
                   context,
