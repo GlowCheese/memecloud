@@ -32,9 +32,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
         lastSongId = song.id;
         unawaited(
           apiKit.getSongUri(song.id).then((uri) {
-            if ((const ['http', 'https']).contains(uri.scheme)) {
-              firebaseApi.uploadSongFromUrl(uri.toString(), song.id);
-            }
+            firebaseApi.uploadSong(uri: uri, songId: song.id);
           }),
         );
         unawaited(getIt<ApiKit>().newSongStream(song));

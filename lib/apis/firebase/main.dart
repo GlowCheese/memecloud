@@ -54,7 +54,37 @@ class FirebaseApi {
     uploadTask.cancel();
   }
 
-  void uploadSongFromUrl(String url, String songId) {
+  void uploadSong({required Uri uri, required String songId}) {
+    if (uri.isScheme('FILE')) {
+      _uploadSongFromFile(File(uri.toFilePath()), songId);
+    } else {
+      _uploadSongFromUrl(uri.toString(), songId);
+    }
+    if (uploadStack.length > 10) {
+      // Limit the stack size to prevent memory overflow
+      uploadStack.removeRange(0, uploadStack.length - 10);
+    }
+    debugPrint('Upload stack size: ${uploadStack.length}');
+  }
+
+  void _uploadSongFromFile(File file, String songId) {
+    uploadStack.add(() async {
+      if (await getSongUrl(songId) != null) return;
+
+      debugPrint('⬆️ Uploading file ${file.path}');
+
+      final ref = FirebaseStorage.instance.ref().child('musics/$songId.mp3');
+      final metadata = SettableMetadata(contentType: 'audio/mpeg');
+
+      await ref.putFile(file, metadata);
+      debugPrint('✅ Upload file success!');
+
+      // Prevent spam
+      await Future.delayed(const Duration(seconds: 10));
+    });
+  }
+
+  void _uploadSongFromUrl(String url, String songId) {
     uploadStack.add(() async {
       if (await getSongUrl(songId) != null) return;
 
@@ -78,7 +108,7 @@ class FirebaseApi {
       await ref.putData(bytes, metadata);
       debugPrint('✅ Upload success!');
 
-      // prevent user from spam uploading too many songs
+      // Prevent spam
       await Future.delayed(const Duration(seconds: 20));
     });
   }
