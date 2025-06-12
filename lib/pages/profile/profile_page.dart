@@ -22,6 +22,7 @@ class _ProfilePageState extends State<ProfilePage> {
   bool isLoading = false;
   final _picker = ImagePicker();
   final myProfile = getIt<ApiKit>().myProfile;
+  late String avatarUrl = myProfile().avatarUrl;
 
   Future<void> _pickImage(ImageSource source) async {
     try {
@@ -44,9 +45,12 @@ class _ProfilePageState extends State<ProfilePage> {
             message: 'Cập nhật ảnh đại diện thành công!',
           );
         }
-
+        
         await CachedNetworkImage.evictFromCache(myProfile().avatarUrl);
-        setState(() => isLoading = false);
+        setState(() {
+          isLoading = false;
+          avatarUrl = myProfile().avatarUrl;
+        });
       }
     } catch (e) {
       if (mounted) {

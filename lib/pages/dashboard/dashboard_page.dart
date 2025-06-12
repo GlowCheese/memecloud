@@ -6,7 +6,6 @@ import 'package:memecloud/components/song/mini_player.dart';
 import 'package:memecloud/pages/dashboard/top_chart_page.dart';
 import 'package:memecloud/components/miscs/default_appbar.dart';
 import 'package:memecloud/components/miscs/grad_background.dart';
-import 'package:memecloud/pages/experiment/experiment_page.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -35,9 +34,6 @@ class _DashboardPageState extends State<DashboardPage> {
         break;
       case 3:
         scaffElems = getLibraryPage(context);
-        break;
-      case 4:
-        scaffElems = getExperimentPage(context);
         break;
       default:
         scaffElems = {
@@ -80,15 +76,8 @@ class _DashboardPageState extends State<DashboardPage> {
             BottomNavigationBarItem(icon: Icon(Icons.search), label: ''),
             BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: ''),
             BottomNavigationBarItem(icon: Icon(Icons.library_music), label: ''),
-            BottomNavigationBarItem(icon: Icon(Icons.bubble_chart), label: ''),
           ],
         ),
-        // NavigationBar(
-        //   selectedIndex: currentPageIndex,
-        //   onDestinationSelected:
-        //   destinations: const [
-        //   ],
-        // ),
       ],
     );
   }
